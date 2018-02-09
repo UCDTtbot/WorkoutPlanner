@@ -38,14 +38,23 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new WorkoutAdapter(this, mWorkoutData);
         mRecyclerView.setAdapter(mAdapter);
 
+        //TODO: Delete this
+        // Populating test data for testing purposes
         for(int i = 0; i < 10; i++){
             mWorkoutData.add(new Workout(i));
         }
         mAdapter.notifyDataSetChanged();
 
+
+        // Add the horizontal bar lines as an item decoration
         RecyclerView.ItemDecoration itemDecoration = new
                 DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         mRecyclerView.addItemDecoration(itemDecoration);
+
+        //TODO: Add recycler animation?
+
+
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
