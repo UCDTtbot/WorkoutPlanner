@@ -1,18 +1,22 @@
 package com.shibedays.workoutplanner;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHolder> {
 
-    private ArrayList<Workout> mWorkoutData;
+    private List<Workout> mWorkoutData;
     private Context mContext;
 
     /**
@@ -20,7 +24,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
      * @param context
      * @param workoutData
      */
-    public WorkoutAdapter(Context context, ArrayList<Workout> workoutData){
+    public WorkoutAdapter(Context context, List<Workout> workoutData){
         mWorkoutData = workoutData;
         mContext = context;
     }
@@ -33,7 +37,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
      */
     @Override
     public WorkoutAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.workout_item, parent, false));
+        return new ViewHolder(LayoutInflater.from(mContext)
+                .inflate(R.layout.workout_list_item, parent, false));
     }
 
     /**
@@ -61,17 +66,27 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView test;
+        private TextView itemName;
+        private TextView sets;
+        //private TextView rounds;
 
         public ViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
-            test = itemView.findViewById(R.id.testingView);
+            itemName = itemView.findViewById(R.id.item_name);
+            sets = itemView.findViewById(R.id.item_sets);
+            //rounds = itemView.findViewById(R.id.item_rounds);
         }
 
+        /**
+         *
+         * @param curWorkout
+         */
         void bindTo(Workout curWorkout){
             //Populate data when they bind the workouts to the view holder
-            test.setText("Got View" + curWorkout.i);
+            itemName.setText(curWorkout.getmName());
+            sets.setText(String.format(mContext.getString(R.string.item_sets), curWorkout.getmNumOfSets()));
+            //rounds.setText(String.format(mContext.getString(R.string.item_rounds), curWorkout.mNumOfRounds));
         }
 
         @Override

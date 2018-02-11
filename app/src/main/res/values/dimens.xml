@@ -57,4 +57,12 @@
     <dimen name="text_margin_top">24dp</dimen>
     <dimen name="text_margin_bottom">6dp</dimen>
     <dimen name="intro_text_Size">18sp</dimen>
+
+    <dimen name="row_padding_vert">8dp</dimen>
+    <dimen name="row_paddting_hori">8dp</dimen>
+    <dimen name="item_name_size">24sp</dimen>
+    <dimen name="item_sub_size">18sp</dimen>
+    <dimen name="name_margin_spacing">5dp</dimen>
+    <dimen name="padding_spacing_5dp">5dp</dimen>
+    <dimen name="sets_margin_spacing">10dp</dimen>
 </resources>
