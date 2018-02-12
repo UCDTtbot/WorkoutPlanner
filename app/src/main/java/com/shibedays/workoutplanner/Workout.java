@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Workout {
-
     private int mWorkoutID;
     private int mNumOfSets;
     private int mNumOfRounds;
@@ -19,19 +18,7 @@ public class Workout {
 
     /**
      *
-     */
-    public Workout(){
-        mWorkoutID = -1;
-        mNumOfSets = -1;
-        mNumOfRounds = -1;
-        mSetList = null;
-        mTimeBetweenSets = -1;
-        mTimeBetweenRounds = -1;
-    }
-
-    /**
-     *
-     * @param id int
+     * @param name
      */
     public Workout(int id, String name) {
         mWorkoutID = id;
