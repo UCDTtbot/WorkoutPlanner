@@ -65,4 +65,5 @@
     <dimen name="name_margin_spacing">5dp</dimen>
     <dimen name="padding_spacing_5dp">5dp</dimen>
     <dimen name="sets_margin_spacing">10dp</dimen>
+    <dimen name="ic_delete_margin">10dp</dimen>
 </resources>

@@ -1,16 +1,20 @@
 package com.shibedays.workoutplanner;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -22,9 +26,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener{
 
     private final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.MainActivity.";
@@ -41,23 +44,24 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_VERSION_CODE = PACKAGE + "VersionCode";
     //endregion
 
-    //BRD_FILTER_FOO
+    //TODO: BRD_FILTER_FOO
 
     //region PRIVATE_VARS
     // UI Components
     private RecyclerView mRecyclerView;
 
     // Adapters
-    private WorkoutAdapter mAdapter;
+    private WorkoutAdapter mWorkoutAdapter;
 
     // Data
     private List<Workout> mWorkoutList;
 
     // Instances
     private SharedPreferences mSharedPrefs;
+    private FragmentManager mFragmentManager;
 
     // Data Constants
-    private int DOESNT_EXIST = -1;
+    private int DATA_DOESNT_EXIST = -1;
     //endregion
 
     //region PUBLIC_VARS
@@ -71,10 +75,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         int currentVersionCode = BuildConfig.VERSION_CODE;
-        // Get SharedPrefs. If this is the initial run, setup Prefs
+
+        mFragmentManager = getSupportFragmentManager();
+
         //region PREFS
+        // Get SharedPrefs. If this is the initial run, setup Prefs
         mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
-        int savedVersionCode = mSharedPrefs.getInt(KEY_VERSION_CODE, DOESNT_EXIST);
+        int savedVersionCode = mSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
         // Check version code
         Log.d(DEBUG_TAG, "Current: " + currentVersionCode + " Saved: " + savedVersionCode);
         if(savedVersionCode == currentVersionCode){
@@ -82,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(DEBUG_TAG, "Normal run, retrieving prefs");
             // get data from shared prefs
             mWorkoutList = getWorkoutsFromPref();
-        } else if (savedVersionCode == DOESNT_EXIST){
+        } else if (savedVersionCode == DATA_DOESNT_EXIST){
             // First run
             Log.d(DEBUG_TAG, "First time run. Creating default workouts and prefs");
             SharedPreferences.Editor editor = mSharedPrefs.edit();
@@ -111,25 +118,60 @@ public class MainActivity extends AppCompatActivity {
         }
         //endregion
 
-        // Get Workout Data
-        //TODO: Placeholder workout data
-
-
-
         //region RECYCLER_VIEW
         // Initialize the RecyclerView
         // Set the Layout Manager to Linear Layout
         // Setup the adapter with correct data
         mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new WorkoutAdapter(this, mWorkoutList);
-        mRecyclerView.setAdapter(mAdapter);
-        //mAdapter.notifyDataSetChanged();
+        mWorkoutAdapter = new WorkoutAdapter(this, mWorkoutList);
+        mRecyclerView.setAdapter(mWorkoutAdapter);
+        //mWorkoutAdapter.notifyDataSetChanged();
         // Add the horizontal bar lines as an item decoration
         RecyclerView.ItemDecoration itemDecoration = new
                 DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         mRecyclerView.addItemDecoration(itemDecoration);
         //TODO: Add recycler animation?
+
+        //region SWIPE_SETUP
+        int dragDirs = 0;
+        int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
+                dragDirs, swipeDirs) {
+
+            // Swipe to delete help from:
+            // https://github.com/nemanja-kovacevic/recycler-view-swipe-to-delete/blob/master/app/src/main/java/net/nemanjakovacevic/recyclerviewswipetodelete/
+            // Cache the vars needed for onChildDraw
+            Drawable background;
+            Drawable deleteIC;
+            int deleteICMargin;
+            boolean initiated;
+
+            // Initiate the above needed data
+            private void init(){
+                background = new ColorDrawable(Color.RED);
+                deleteIC = getDrawable(R.drawable.ic_delete);
+                deleteICMargin = (int) getResources().getDimension(R.dimen.ic_delete_margin);
+                initiated = true;
+            }
+
+            // This is for dragging, we don't need (for now)
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+        });
+        //endregion
+        //endregion
+
+        //region ADDITIONAL_UI
+
         //endregion
 
         //region TOOLBAR
@@ -142,11 +184,16 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                addWorkout();
             }
         });
         //endregion
+    }
+
+    @Override
+    protected void onDestroy() {
+        saveWorkoutsToPref();
+        super.onDestroy();
     }
 
     @Override
@@ -172,11 +219,7 @@ public class MainActivity extends AppCompatActivity {
     }
     //endregion
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        saveWorkoutsToPref();
-    }
+
 
 
     //region UTILITY
@@ -226,8 +269,33 @@ public class MainActivity extends AppCompatActivity {
         }
         return inData;
     }
+    //endregion
+
+    //region ADD_NEW_WORKOUT
 
     public void addWorkout(){
+        NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
+        newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+    }
+
+    @Override
+    public void onDialogPositiveClick(String name){
+        if(!TextUtils.isEmpty(name)){
+            Workout newWorkout = new Workout(mWorkoutList.size(), name);
+
+            // TODO: Add default sets into the workout
+
+            mWorkoutList.add(newWorkout);
+            mWorkoutAdapter.notifyDataSetChanged();
+            saveWorkoutsToPref();
+        } else {
+            // TODO: Display an error message saying that name must not be null
+        }
+
+    }
+
+    @Override
+    public void onDialogNegativeClick(){
 
     }
     //endregion

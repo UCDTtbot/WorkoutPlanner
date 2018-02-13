@@ -9,4 +9,6 @@
     <color name="border_color">#000000</color>
     <color name="transparent">#00000000</color>
     <color name="colorPrimaryLight">#62727b</color>
+    <color name="bg_view_background">#c90000</color>
+    <color name="white">#FFFFFF</color>
 </resources>
