@@ -1,6 +1,7 @@
 package com.shibedays.workoutplanner;
 
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
         //region SWIPE_SETUP
         int dragDirs = 0;
-        int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        final int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
                 dragDirs, swipeDirs) {
 
@@ -161,12 +162,63 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
                 return false;
             }
 
+            // For getting the swiped direction. If we somehow swipe an item that's already pendingRemoval, return 0
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder){
+                int itemPos = viewHolder.getAdapterPosition();
+                WorkoutAdapter adapter = (WorkoutAdapter)recyclerView.getAdapter();
+                if(adapter.isPendingRemoval(itemPos)){
+                    return 0;
+                } else {
+                    return super.getSwipeDirs(recyclerView, viewHolder);
+                }
+            }
 
+            // When an item is swiped, put it up for removal
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int swipedPos = viewHolder.getAdapterPosition();
+                WorkoutAdapter adapter = (WorkoutAdapter)mRecyclerView.getAdapter();
+                adapter.pendingRemoval(swipedPos);
+            }
 
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
+
+                View itemView = viewHolder.itemView;
+
+                // This also gets called for viewholders that are already swiped away, so handle for that
+                if(viewHolder.getAdapterPosition() < 0){
+                    return;
+                }
+
+                if(!initiated){
+                    init();
+                }
+
+                // draw the background for the child view
+                // The background bounds will be from the edge of the view to the edge of the device
+                background.setBounds(itemView.getRight() + (int)dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                background.draw(c);
+
+                // Draw the relevent icon
+                int itemHeight = itemView.getBottom() - itemView.getTop();
+                //TODO: What's intristic mean
+                int intristicHeight = deleteIC.getIntrinsicHeight();
+                int intristicWidth = deleteIC.getIntrinsicWidth();
+
+                int deleteICLeft = itemView.getRight() - deleteICMargin - intristicWidth;
+                int deleteICRight = itemView.getRight() - deleteICMargin;
+                int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight)/2; // divide by 2 to get the center
+                int deleteICBottom = deleteICTop + intristicHeight;
+                deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
+
+                deleteIC.draw(c);
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         });
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
         //endregion
         //endregion
 
@@ -191,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     }
 
     @Override
+
     protected void onDestroy() {
         saveWorkoutsToPref();
         super.onDestroy();
