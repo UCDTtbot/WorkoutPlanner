@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         // Setup the adapter with correct data
         mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mWorkoutAdapter = new WorkoutAdapter(this, mWorkoutList);
+        mWorkoutAdapter = new WorkoutAdapter(this, mWorkoutList, this);
         mRecyclerView.setAdapter(mWorkoutAdapter);
         //mWorkoutAdapter.notifyDataSetChanged();
         // Add the horizontal bar lines as an item decoration
@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
                 int swipedPos = viewHolder.getAdapterPosition();
                 WorkoutAdapter adapter = (WorkoutAdapter)mRecyclerView.getAdapter();
                 adapter.pendingRemoval(swipedPos);
+                // Snackbar is creating in pendingRemoval
             }
 
             @Override
@@ -196,25 +197,53 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
                     init();
                 }
 
-                // draw the background for the child view
-                // The background bounds will be from the edge of the view to the edge of the device
-                background.setBounds(itemView.getRight() + (int)dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                background.draw(c);
+                Log.d(DEBUG_TAG, "dX: " + Float.toString(dX));
 
-                // Draw the relevent icon
-                int itemHeight = itemView.getBottom() - itemView.getTop();
-                //TODO: What's intristic mean
-                int intristicHeight = deleteIC.getIntrinsicHeight();
-                int intristicWidth = deleteIC.getIntrinsicWidth();
+                 //if dX > 0, swiping right
+                    //if dX < 0 swiping left
+                if(dX < 0) {
+                    Log.d(DEBUG_TAG, "Swiping Left");
+                    // draw the background for the child view
+                    // The background bounds will be from the edge of the view to the edge of the device
+                    background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                    background.draw(c);
 
-                int deleteICLeft = itemView.getRight() - deleteICMargin - intristicWidth;
-                int deleteICRight = itemView.getRight() - deleteICMargin;
-                int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight)/2; // divide by 2 to get the center
-                int deleteICBottom = deleteICTop + intristicHeight;
-                deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
+                    // Draw the relevent icon
+                    int itemHeight = itemView.getBottom() - itemView.getTop();
+                    //TODO: What's intristic mean
+                    int intristicHeight = deleteIC.getIntrinsicHeight();
+                    int intristicWidth = deleteIC.getIntrinsicWidth();
 
-                deleteIC.draw(c);
+                    int deleteICLeft = itemView.getRight() - deleteICMargin - intristicWidth;
+                    int deleteICRight = itemView.getRight() - deleteICMargin;
+                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
+                    int deleteICBottom = deleteICTop + intristicHeight;
+                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
 
+                    deleteIC.draw(c);
+                } else if (dX > 0) {
+                    Log.d(DEBUG_TAG, "Swiping Right");
+                    // draw the background for the child view
+                    // The background bounds will be from the edge of the view to the edge of the device
+                    //background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(),itemView.getRight(), itemView.getBottom());
+                    background.setBounds(itemView.getLeft(), itemView.getTop(),
+                            itemView.getLeft() + (int) dX, itemView.getBottom());
+                    background.draw(c);
+
+                    // Draw the relevent icon
+                    int itemHeight = itemView.getBottom() - itemView.getTop();
+                    //TODO: What's intristic mean
+                    int intristicHeight = deleteIC.getIntrinsicHeight();
+                    int intristicWidth = deleteIC.getIntrinsicWidth();
+
+                    int deleteICLeft = itemView.getLeft() + deleteICMargin;
+                    int deleteICRight = itemView.getLeft() + deleteICMargin + intristicWidth;
+                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
+                    int deleteICBottom = deleteICTop + intristicHeight;
+                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
+
+                    deleteIC.draw(c);
+                }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         });
