@@ -1,90 +1,111 @@
 package com.shibedays.workoutplanner;
 
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Workout {
-    private int mWorkoutID;
-    private int mNumOfSets;
-    private int mNumOfRounds;
+@Entity(tableName = "workouts")
+public class Workout{
+    @PrimaryKey
+    private int workoutID;
+    private int numOfSets;
+    private int numOfRounds;
 
-    private int mTimeBetweenSets;
-    private int mTimeBetweenRounds;
+    private int timeBetweenSets;
+    private int timeBetweenRounds;
 
-    private String mName;
+    private String name;
 
-    private List<Set> mSetList;
+    @Ignore
+    private List<Set> setList;
+    @ColumnInfo(name = "sets")
+    private String setListJSON;
 
-    /**
-     *
-     * @param name
-     */
+    public Workout(){
+    }
     public Workout(int id, String name) {
-        mWorkoutID = id;
-        mName = name;
-        mNumOfSets = 0;
-        mNumOfRounds = 1;
-        mSetList = new ArrayList<Set>();
-        mTimeBetweenSets = 10000;
-        mTimeBetweenRounds = 30000;
+        workoutID = id;
+        this.name = name;
+        numOfSets = 0;
+        numOfRounds = 1;
+        setList = new ArrayList<Set>();
+        timeBetweenSets = 10000;
+        timeBetweenRounds = 30000;
+    }
+    public Workout(Workout workout){
+        workoutID = workout.getWorkoutID();
+        name = workout.getName();
+        numOfSets = workout.getNumOfSets();
+        numOfRounds = workout.getNumOfRounds();
+        setList = workout.getSetList();
+        timeBetweenSets = workout.getTimeBetweenSets();
+        timeBetweenRounds = workout.getTimeBetweenSets();
     }
 
-    //region GET
-    public int getmWorkoutID(){
-        return mWorkoutID;
+    public int getWorkoutID(){
+        return workoutID;
+    }
+    public void setWorkoutID(int id){workoutID = id;}
+
+    public int getNumOfSets(){
+        return numOfSets;
+    }
+    public void setNumOfSets(int sets){
+        numOfSets = sets;
     }
 
-    public int getmNumOfSets(){
-        return mNumOfSets;
+    public int getNumOfRounds(){
+        return numOfRounds;
+    }
+    public void setNumOfRounds(int numRounds){
+        numOfRounds = numRounds;
     }
 
-    public int getmNumOfRounds(){
-        return mNumOfRounds;
+    public int getTimeBetweenSets(){
+        return timeBetweenSets;
+    }
+    public void setTimeBetweenSets(int timeBetweenSets){
+        this.timeBetweenSets = timeBetweenSets;
     }
 
-    public int getmTimeBetweenSets(){
-        return mTimeBetweenSets;
+    public int getTimeBetweenRounds(){
+        return timeBetweenRounds;
+    }
+    public void setTimeBetweenRounds(int timeBetweenRounds){
+        this.timeBetweenRounds = timeBetweenRounds;
     }
 
-    public int getmTimeBetweenRounds(){
-        return mTimeBetweenRounds;
+    public String getName(){
+        return name;
+    }
+    public void setName(String name){
+        this.name = name;
     }
 
-    public String getmName(){
-        return mName;
+    public String getSetListJSON(){
+        Gson gson = new Gson();
+        return gson.toJson(setList);
     }
-    //endregion
+    public void setSetListJSON(String json){setListJSON = json;}
 
-    //region SET
-    public void setmWorkoutID(int id){
-        mWorkoutID = id;
+    public List<Set> getSetList(){
+        return setList;
     }
-
-    public void setmNumOfRounds(int numRounds){
-        mNumOfRounds = numRounds;
-    }
-
-    public void setmTimeBetweenSets(int timeBetweenSets){
-        mTimeBetweenSets = timeBetweenSets;
-    }
-
-    public void setmTimeBetweenRounds(int timeBetweenRounds){
-        mTimeBetweenRounds = timeBetweenRounds;
-    }
-
-    public void setmName(String name){
-        mName = name;
-    }
-    //endregion
+    public void setSetList(List<Set> sets){setList = sets;}
 
     public void addSet(Set set){
-        mSetList.add(set);
-        mNumOfSets++;
+        setList.add(set);
+        numOfSets++;
     }
-
     public void removeSet(Set set){
-        mSetList.remove(mSetList.indexOf(set));
-        mNumOfSets--;
+        setList.remove(setList.indexOf(set));
+        numOfSets--;
     }
 }

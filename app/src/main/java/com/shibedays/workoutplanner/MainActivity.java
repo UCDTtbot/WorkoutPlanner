@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,25 +27,29 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener{
 
-    private final String DEBUG_TAG = MainActivity.class.getSimpleName();
+    private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.MainActivity.";
 
     //region INTENT_KEYS
     //EXTRA_FOO
-
     //endregion
 
     //region PREF_KEYS
     //KEY_FOO
-    private final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
+    private static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
     private static final String KEY_WORKOUT_DATA = PACKAGE + "WorkoutData";
     private static final String KEY_VERSION_CODE = PACKAGE + "VersionCode";
     //endregion
 
     //TODO: BRD_FILTER_FOO
+
+    private AppDatabase db;
+    private Executor exe;
 
     //region PRIVATE_VARS
     // UI Components
@@ -79,6 +83,15 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
         mFragmentManager = getSupportFragmentManager();
 
+        exe = Executors.newSingleThreadExecutor();
+        db = AppDatabase.getDatabaseInstance(this, exe);
+        exe.execute(new Runnable() {
+            @Override
+            public void run() {
+                mWorkoutList = db.workoutDao().getAll();
+            }
+        });
+        /*
         //region PREFS
         // Get SharedPrefs. If this is the initial run, setup Prefs
         mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
@@ -118,7 +131,9 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
             Log.e(DEBUG_TAG, "Something wrong with version code.");
         }
         //endregion
+        */
 
+        /*
         //region RECYCLER_VIEW
         // Initialize the RecyclerView
         // Set the Layout Manager to Linear Layout
@@ -254,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         //region ADDITIONAL_UI
 
         //endregion
-
+        */
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -272,7 +287,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     }
 
     @Override
-
     protected void onDestroy() {
         saveWorkoutsToPref();
         super.onDestroy();
@@ -300,9 +314,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         return super.onOptionsItemSelected(item);
     }
     //endregion
-
-
-
 
     //region UTILITY
     /**
@@ -356,8 +367,10 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     //region ADD_NEW_WORKOUT
 
     public void addWorkout(){
-        NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
-        newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+        Log.d(DEBUG_TAG, "test");
+        // TODO: DB debugging
+        //NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
+        //newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
     @Override
@@ -381,4 +394,13 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
     }
     //endregion
+
+    public void openWorkout(int workoutPos){
+        Log.d(DEBUG_TAG, "Opening Workout: " + workoutPos);
+        Log.d(DEBUG_TAG, mWorkoutList.get(workoutPos).getName());
+
+        // TODO: Commenting out opening workouts
+        //Intent intent = new Intent(this, MyWorkoutActivity.class);
+        //startActivity(intent);
+    }
 }

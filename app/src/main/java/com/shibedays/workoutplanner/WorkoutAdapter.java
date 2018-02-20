@@ -1,7 +1,6 @@
 package com.shibedays.workoutplanner;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -10,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +133,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         mWorkoutsPendingRemoval.remove(pos);
         Log.d(DEBUG_TAG, "Removed the pending activity");
         mMainParent.saveWorkoutsToPref();
-        // Update the file that we have removed a workout
+        // Update the file that we have removed a curWorkout
     }
 
     public boolean isPendingRemoval(int pos){
@@ -151,7 +148,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
         private TextView itemName;
         private TextView sets;
-        private Workout workout;
+        private Workout curWorkout;
         //private TextView rounds;
 
         public ViewHolder(View itemView) {
@@ -170,22 +167,24 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
          */
         void bindTo(Workout curWorkout){
             //Populate data when they bind the workouts to the view holder
-            itemName.setText(curWorkout.getmName());
-            sets.setText(String.format(mContext.getString(R.string.item_sets), curWorkout.getmNumOfSets()));
-            workout = curWorkout;
+            itemName.setText(curWorkout.getName());
+            sets.setText(String.format(mContext.getString(R.string.item_sets), curWorkout.getNumOfSets()));
+            this.curWorkout = curWorkout;
             //rounds.setText(String.format(mContext.getString(R.string.item_rounds), curWorkout.mNumOfRounds));
         }
 
         @Override
         public void onClick(View v) {
-            Log.d(DEBUG_TAG, workout.getmName() + " clicked");
+            Log.d(DEBUG_TAG, curWorkout.getName() + " clicked");
             // Go to the Workout Activity
+            // TODO: Go to the my_workout activity with the given current curWorkout
+            mMainParent.openWorkout(mWorkoutData.indexOf(curWorkout));
         }
 
 
         @Override
         public boolean onLongClick(View view) {
-            Log.d(DEBUG_TAG, workout.getmName() + " long clicked");
+            Log.d(DEBUG_TAG, curWorkout.getName() + " long clicked");
 
             // return true to indicate the click was handled
             return true;

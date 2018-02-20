@@ -1,6 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-</android.support.constraint.ConstraintLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_foreground"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
+    android:paddingTop="@dimen/row_padding_vert"
+    android:paddingBottom="@dimen/row_padding_vert"
+    android:paddingStart="@dimen/row_paddting_hori"
+    android:paddingEnd="@dimen/row_paddting_hori">
+
+    <TextView
+        android:id="@+id/set_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="@string/default_set_name"
+        android:layout_marginTop="@dimen/name_margin_spacing"
+        android:layout_marginBottom="@dimen/name_margin_spacing"
+        android:textColor="@color/item_name"
+        android:textSize="@dimen/set_name_size"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/Description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/set_name"
+        android:layout_marginStart="@dimen/sets_margin_spacing"
+        android:paddingStart="@dimen/padding_spacing_5dp"
+        android:paddingEnd="@dimen/padding_spacing_5dp"
+        android:text="@string/default_descrip"
+        android:textColor="@color/item_sub_color"
+        android:textSize="@dimen/set_descip_size" />
+<!--
+    <ImageView
+        android:id="@+id/right_arrow"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        app:srcCompat="@drawable/ic_right_arrow"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"/>
+-->
+</RelativeLayout>

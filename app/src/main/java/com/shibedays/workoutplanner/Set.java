@@ -6,47 +6,45 @@ package com.shibedays.workoutplanner;
 
 public class Set {
 
-    private String mName;
-    private String mDescrip;
-    private int mTime;
+    private String name;
+    private String descrip;
+    private int time;
 
     public Set(){
-        mName = "Default Set";
-        mDescrip = "Default Descrip";
-        mTime = 1000;
+        name = "Default Set";
+        descrip = "Default Descrip";
+        time = 1000;
     }
 
     public Set(String name, String descrip, int time){
-        mName = name;
-        mDescrip = descrip;
-        mTime = time;
+        this.name = name;
+        this.descrip = descrip;
+        this.time = time;
     }
 
-    //region GET
-    public String getmName(){
-        return mName;
+    public String getName(){
+        return name;
+    }
+    public void setName(String name){
+        this.name = name;
     }
 
-    public String getmDescrip(){
-        return mDescrip;
+    public String getDescrip(){
+        return descrip;
+    }
+    public void setDescrip(String descrip){
+        this.descrip = descrip;
     }
 
-    public int getmTime(){
-        return mTime;
+    public int getTime(){
+        return time;
     }
-    //endregion
-
-    //region SET
-    public void setmName(String name){
-        mName = name;
+    public void setTime(int time){
+        this.time = time;
     }
 
-    public void setmDescrip(String descrip){
-        mDescrip = descrip;
-    }
 
-    public void setmTime(int time){
-        mTime = time;
-    }
-    //endregion
+
+
+
 }

@@ -11,4 +11,7 @@
     <string name="item_rounds">Rounds: %1$d</string>
     <string name="workout_hint">Name</string>
     <string name="text_delete">Delete</string>
+    <string name="title_activity_my_workout">MyWorkoutActivity</string>
+    <string name="default_set_name">Set Name</string>
+    <string name="default_descrip">Description for the above set</string>
 </resources>
