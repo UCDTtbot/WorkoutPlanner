@@ -1,7 +1,9 @@
 package com.shibedays.workoutplanner;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,23 +24,42 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
     private List<Workout> mWorkoutData;
     private List<Workout> mWorkoutsPendingRemoval;
+    private CoordinatorLayout mCoordLayout;
     private Context mContext;
-    private MainActivity mMainParent;
+
+    private AppExecutors executors;
+    private DataRepo repo;
 
     private Handler handler = new Handler(); // Handler for running async delayed tasks
     private HashMap<Workout, Runnable> pendingRunnables = new HashMap<>(); // Map of the items to their async runnable rasks
 
-
+    public interface WorkoutAdapterListener{
+        public void onWorkoutClicked(int workoutIndex);
+    }
+    private WorkoutAdapterListener listener;
     /**
      *
-     * @param context
-     * @param workoutData
      */
-    public WorkoutAdapter(Context context, List<Workout> workoutData, MainActivity act){
-        mWorkoutData = workoutData;
+    public WorkoutAdapter(Context context, View coordLayout, AppExecutors exe, DataRepo repo){
+        this.repo = repo;
+        executors = exe;
+        mWorkoutData = repo.getAllWorkouts();
         mWorkoutsPendingRemoval = new ArrayList<>();
         mContext = context;
-        mMainParent = act;
+        if(coordLayout instanceof CoordinatorLayout){
+            mCoordLayout = (CoordinatorLayout) coordLayout;
+        }else{
+            Log.e(DEBUG_TAG, "PASSED INCORRECT VIEW TO WORKOUT_ADAPTER");
+        }        // Make sure our context is an activity and set the Listener to it
+        Activity activity = null;
+        if(context instanceof Activity)
+            activity = (Activity) context;
+        try{
+            listener = (WorkoutAdapter.WorkoutAdapterListener) activity;
+        } catch (ClassCastException e){
+            Log.e(DEBUG_TAG, "ERROR IN WORKOUT DIALOG LISTENER: " + e.getMessage());
+        }
+
     }
 
     /**
@@ -106,33 +127,29 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
                 @Override
                 public void run() {
-                    deletePending(mWorkoutsPendingRemoval.indexOf(workout));
+                    deletePending(mWorkoutsPendingRemoval.indexOf(workout), workout);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
             pendingRunnables.put(workout, pendingRemovalRunnable);
             //TODO: Show snackbar here
-            if(mMainParent != null) {
-                View view = mMainParent.findViewById(R.id.main_coord_layout);
-                Snackbar undoBar = Snackbar.make(view, "Undo", Snackbar.LENGTH_LONG);
-                undoBar.setAction("Undo", new View.OnClickListener(){
 
-                    @Override
-                    public void onClick(View view) {
-                        undoItem(pos, pendingPos);
-                    }
-                });
-                undoBar.show();
-            } else {
-                Log.e(DEBUG_TAG, "MainActivity parent was never assigned in WorkoutAdapter");
-            }
+            Snackbar undoBar = Snackbar.make(mCoordLayout, "Undo", Snackbar.LENGTH_LONG);
+            undoBar.setAction("Undo", new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    undoItem(pos, pendingPos);
+                }
+            });
+            undoBar.show();
+
         }
     }
 
-    public void deletePending(int pos){
-        mWorkoutsPendingRemoval.remove(pos);
+    public void deletePending(int pendingIndex, Workout originalWorkout){
+        mWorkoutsPendingRemoval.remove(pendingIndex);
+        repo.removeWorkout(originalWorkout);
         Log.d(DEBUG_TAG, "Removed the pending activity");
-        mMainParent.saveWorkoutsToPref();
         // Update the file that we have removed a curWorkout
     }
 
@@ -159,6 +176,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             //rounds = itemView.findViewById(R.id.item_rounds);
+
         }
 
         /**
@@ -178,7 +196,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             Log.d(DEBUG_TAG, curWorkout.getName() + " clicked");
             // Go to the Workout Activity
             // TODO: Go to the my_workout activity with the given current curWorkout
-            mMainParent.openWorkout(mWorkoutData.indexOf(curWorkout));
+            listener.onWorkoutClicked(mWorkoutData.indexOf(curWorkout));
         }
 
 

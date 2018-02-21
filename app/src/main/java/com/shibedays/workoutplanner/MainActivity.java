@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener{
+public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener{
 
     private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.MainActivity.";
@@ -47,10 +47,10 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     //endregion
 
     //TODO: BRD_FILTER_FOO
-
+    // TODO: Extract the executor to its own class for having different threads?
+    private AppExecutors executors;
+    private DataRepo repo;
     private AppDatabase db;
-    private Executor exe;
-
     //region PRIVATE_VARS
     // UI Components
     private RecyclerView mRecyclerView;
@@ -83,9 +83,11 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
         mFragmentManager = getSupportFragmentManager();
 
-        exe = Executors.newSingleThreadExecutor();
-        db = AppDatabase.getDatabaseInstance(this, exe);
-        exe.execute(new Runnable() {
+        executors = new AppExecutors();
+        //repo = DataRepo.getInstance(AppDatabase.getDatabaseInstance(this, executors.diskIO()));
+        db = AppDatabase.getDatabaseInstance(this, executors.diskIO());
+        repo = DataRepo.getInstance(db);
+        executors.diskIO().execute(new Runnable() {
             @Override
             public void run() {
                 mWorkoutList = db.workoutDao().getAll();
@@ -133,14 +135,14 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         //endregion
         */
 
-        /*
+
         //region RECYCLER_VIEW
         // Initialize the RecyclerView
         // Set the Layout Manager to Linear Layout
         // Setup the adapter with correct data
         mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mWorkoutAdapter = new WorkoutAdapter(this, mWorkoutList, this);
+        mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout), executors, repo);
         mRecyclerView.setAdapter(mWorkoutAdapter);
         //mWorkoutAdapter.notifyDataSetChanged();
         // Add the horizontal bar lines as an item decoration
@@ -269,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         //region ADDITIONAL_UI
 
         //endregion
-        */
+
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -288,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
     @Override
     protected void onDestroy() {
-        saveWorkoutsToPref();
         super.onDestroy();
     }
 
@@ -336,7 +337,55 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         newTime[1] = ((time/1000) % 60);
         return newTime;
     }
+    //endregion
 
+    //region ADD_NEW_WORKOUT
+
+    public void addWorkout(){
+        Log.d(DEBUG_TAG, "test");
+        // TODO: DB debugging
+        //NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
+        //newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+    }
+
+    @Override
+    public void onDialogPositiveClick(String name){
+        if(!TextUtils.isEmpty(name)){
+            Workout newWorkout = new Workout(mWorkoutList.size(), name);
+
+            // TODO: Add default sets into the workout
+            // TODO: Add workout to database
+            mWorkoutList = repo.addWorkout(newWorkout);
+            mWorkoutAdapter.notifyDataSetChanged();
+        } else {
+            // TODO: Display an error message saying that name must not be null
+        }
+
+    }
+
+    @Override
+    public void onDialogNegativeClick(){
+
+    }
+    //endregion
+
+    public void openWorkout(int workoutPos){
+        Log.d(DEBUG_TAG, "Opening Workout: " + workoutPos);
+        Log.d(DEBUG_TAG, mWorkoutList.get(workoutPos).getName());
+
+        // TODO: Commenting out opening workouts
+        //Intent intent = new Intent(this, MyWorkoutActivity.class);
+        //startActivity(intent);
+    }
+
+    @Override
+    public void onWorkoutClicked(int workoutIndex) {
+        openWorkout(workoutIndex);
+    }
+}
+
+
+/*
     public void saveWorkoutsToPref(){
         if(mSharedPrefs == null){
             mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
@@ -362,45 +411,5 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         }
         return inData;
     }
-    //endregion
 
-    //region ADD_NEW_WORKOUT
-
-    public void addWorkout(){
-        Log.d(DEBUG_TAG, "test");
-        // TODO: DB debugging
-        //NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
-        //newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
-    }
-
-    @Override
-    public void onDialogPositiveClick(String name){
-        if(!TextUtils.isEmpty(name)){
-            Workout newWorkout = new Workout(mWorkoutList.size(), name);
-
-            // TODO: Add default sets into the workout
-
-            mWorkoutList.add(newWorkout);
-            mWorkoutAdapter.notifyDataSetChanged();
-            saveWorkoutsToPref();
-        } else {
-            // TODO: Display an error message saying that name must not be null
-        }
-
-    }
-
-    @Override
-    public void onDialogNegativeClick(){
-
-    }
-    //endregion
-
-    public void openWorkout(int workoutPos){
-        Log.d(DEBUG_TAG, "Opening Workout: " + workoutPos);
-        Log.d(DEBUG_TAG, mWorkoutList.get(workoutPos).getName());
-
-        // TODO: Commenting out opening workouts
-        //Intent intent = new Intent(this, MyWorkoutActivity.class);
-        //startActivity(intent);
-    }
-}
+ */
