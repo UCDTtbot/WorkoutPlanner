@@ -1,11 +1,13 @@
-package com.shibedays.workoutplanner;
+package com.shibedays.workoutplanner.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.db.entities.Set;
 
 import java.util.List;
 

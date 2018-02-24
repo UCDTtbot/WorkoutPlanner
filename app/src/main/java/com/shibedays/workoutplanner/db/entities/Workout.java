@@ -1,10 +1,11 @@
-package com.shibedays.workoutplanner;
+package com.shibedays.workoutplanner.db.entities;
 
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
 
@@ -14,6 +15,8 @@ import java.util.List;
 @Entity(tableName = "workouts")
 public class Workout{
     @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "id")
     private int workoutID;
     private int numOfSets;
     private int numOfRounds;
@@ -30,7 +33,7 @@ public class Workout{
 
     public Workout(){
     }
-    public Workout(int id, String name) {
+    public Workout(@NonNull int id, String name) {
         workoutID = id;
         this.name = name;
         numOfSets = 0;

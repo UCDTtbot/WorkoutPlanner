@@ -1,5 +1,12 @@
 package com.shibedays.workoutplanner;
 
+import android.arch.lifecycle.LiveData;
+import android.os.AsyncTask;
+
+import com.shibedays.workoutplanner.db.AppDatabase;
+import com.shibedays.workoutplanner.db.dao.WorkoutDao;
+import com.shibedays.workoutplanner.db.entities.Workout;
+
 import java.util.List;
 
 /**
@@ -11,53 +18,65 @@ public class DataRepo {
     private static final int OK = 1;
     private static final int FAILED = -1;
 
-    private static DataRepo Instance;
+    private static DataRepo INSTANCE;
 
-    private final AppDatabase db;
-    private List<Workout> workouts;
+    private final AppDatabase mDatabase;
+    private LiveData<List<Workout>> mWorkouts;
 
     private DataRepo(final AppDatabase db){
-        this.db = db;
+        mDatabase = db;
+        mWorkouts = mDatabase.workoutDao().getAll();
     }
+
 
     public static DataRepo getInstance(final AppDatabase db){
-        if(Instance == null){
-            Instance = new DataRepo(db);
+        if(INSTANCE == null){
+            synchronized (DataRepo.class){
+                if(INSTANCE == null){
+                    INSTANCE = new DataRepo(db);
+                }
+            }
         }
-        return Instance;
+        return INSTANCE;
     }
 
-
-    //Functions for getting data from Workouts
-    public List<Workout> getAllWorkouts(){
-        return workouts;
+    public LiveData<List<Workout>> getAllWorkouts(){
+        return mWorkouts;
     }
 
-    public Workout getWorkoutById(int pos){
-        return db.workoutDao().findWorkoutByID(pos);
+    public LiveData<Workout> getWorkout(final int id){
+        return mDatabase.workoutDao().getWorkout(id);
     }
 
-    public Workout getWorkoutByName(String name){
-        return db.workoutDao().findWorkoutByName(name);
+    public void insert(Workout workout){
+        new insertAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
 
-    public List<Workout> addWorkout(Workout workout){
-        db.workoutDao().insert(workout);
-        if(db.workoutDao().findWorkoutByName(workout.getName()) != null){
-            workouts = db.workoutDao().getAll();
-            return workouts;
-        }else{
-            return workouts;
+    public void remove(final Workout workout){
+        new removeAsyncWorkout(mDatabase.workoutDao()).execute(workout);
+    }
+
+    private static class insertAsyncWorkout extends AsyncTask<Workout, Void, Void>{
+        private WorkoutDao aSyncTaskDao;
+        insertAsyncWorkout(WorkoutDao dao){
+            aSyncTaskDao = dao;
+        }
+        @Override
+        protected Void doInBackground(final Workout... params){
+            aSyncTaskDao.insert(params[0]);
+            return null;
         }
     }
 
-    public List<Workout> removeWorkout(Workout workout){
-        db.workoutDao().delete(workout);
-        if(db.workoutDao().findWorkoutByName(workout.getName()) == null){
-            workouts = db.workoutDao().getAll();
-            return workouts;
-        } else{
-            return workouts;
+    private static class removeAsyncWorkout extends AsyncTask<Workout, Void, Void>{
+        private WorkoutDao aSyncTaskDao;
+        removeAsyncWorkout(WorkoutDao dao){
+            aSyncTaskDao = dao;
+        }
+        @Override
+        protected Void doInBackground(Workout... workouts) {
+            aSyncTaskDao.delete(workouts[0]);
+            return null;
         }
     }
 }

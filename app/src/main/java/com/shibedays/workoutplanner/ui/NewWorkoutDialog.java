@@ -1,6 +1,5 @@
-package com.shibedays.workoutplanner;
+package com.shibedays.workoutplanner.ui;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+
+import com.shibedays.workoutplanner.R;
 
 /**
  * Created by ttbot on 2/12/2018.

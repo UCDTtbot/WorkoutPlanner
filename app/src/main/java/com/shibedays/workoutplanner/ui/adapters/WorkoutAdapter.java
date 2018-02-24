@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner;
+package com.shibedays.workoutplanner.ui.adapters;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.shibedays.workoutplanner.DataRepo;
+import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.db.entities.Workout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,23 +31,18 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
     private CoordinatorLayout mCoordLayout;
     private Context mContext;
 
-    private AppExecutors executors;
-    private DataRepo repo;
-
     private Handler handler = new Handler(); // Handler for running async delayed tasks
     private HashMap<Workout, Runnable> pendingRunnables = new HashMap<>(); // Map of the items to their async runnable rasks
 
     public interface WorkoutAdapterListener{
         public void onWorkoutClicked(int workoutIndex);
+        public void deleteWorkout(Workout workout);
     }
     private WorkoutAdapterListener listener;
     /**
      *
      */
-    public WorkoutAdapter(Context context, View coordLayout, AppExecutors exe, DataRepo repo){
-        this.repo = repo;
-        executors = exe;
-        mWorkoutData = repo.getAllWorkouts();
+    public WorkoutAdapter(Context context, View coordLayout){
         mWorkoutsPendingRemoval = new ArrayList<>();
         mContext = context;
         if(coordLayout instanceof CoordinatorLayout){
@@ -94,7 +93,15 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
      */
     @Override
     public int getItemCount() {
-        return mWorkoutData.size();
+        if(mWorkoutData != null)
+            return mWorkoutData.size();
+        else
+            return 0;
+    }
+
+    public void setWords(List<Workout> workouts){
+        mWorkoutData = workouts;
+        notifyDataSetChanged();
     }
 
     // Function for re-adding a pending item using it's orig position number
@@ -132,7 +139,6 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
             pendingRunnables.put(workout, pendingRemovalRunnable);
-            //TODO: Show snackbar here
 
             Snackbar undoBar = Snackbar.make(mCoordLayout, "Undo", Snackbar.LENGTH_LONG);
             undoBar.setAction("Undo", new View.OnClickListener(){
@@ -148,7 +154,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
     public void deletePending(int pendingIndex, Workout originalWorkout){
         mWorkoutsPendingRemoval.remove(pendingIndex);
-        repo.removeWorkout(originalWorkout);
+
+        listener.deleteWorkout(originalWorkout);
         Log.d(DEBUG_TAG, "Removed the pending activity");
         // Update the file that we have removed a curWorkout
     }
