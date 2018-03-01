@@ -7,38 +7,85 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.shibedays.workoutplanner.ui.MyWorkoutActivity"
     tools:showIn="@layout/activity_my_workout"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="100">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/set_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="60">
 
     </android.support.v7.widget.RecyclerView>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1.5">
+    <View style="@style/Divider" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:layout_alignParentTop="true"/>
+    <RelativeLayout
+        android:id="@+id/rel_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="40">
 
         <TextView
+            android:id="@+id/rest_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_centerHorizontal="true"
-            android:text="Test"/>
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="@dimen/hori_padding"
+            android:layout_marginTop="@dimen/vert_padding"
+            android:text="Rest"/>
+
+        <TextView
+            android:id="@+id/rest_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/rest_title_text"
+            android:layout_below="@+id/rest_title_text"
+            android:text="0:00" />
+
+
+        <TextView
+            android:id="@+id/rounds_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="@dimen/vert_padding"
+            android:text="Rounds"/>
+        <Spinner
+            android:id="@+id/round_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rounds_title_text"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/break_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/hori_padding"
+            android:layout_marginTop="@dimen/vert_padding"
+            android:text="Break"/>
+
+        <TextView
+            android:id="@+id/break_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/break_title_text"
+            android:layout_alignEnd="@+id/break_title_text"
+            android:text="0:00" />
+
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"/>
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/vert_padding"/>
+
     </RelativeLayout>
 
 </LinearLayout>

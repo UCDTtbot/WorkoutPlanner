@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.DataRepo;
@@ -16,6 +17,8 @@ import java.util.List;
  */
 
 public class WorkoutViewModel extends AndroidViewModel {
+
+    private static final String DEBUG_TAG = WorkoutViewModel.class.getSimpleName();
 
     private DataRepo mRepo;
 
@@ -33,8 +36,26 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mWorkouts;
     }
 
-    public Workout getWorkout(int pos){
-        return mWorkouts.getValue().get(pos);
+    public LiveData<Workout> getWorkout(int id){
+        if(id < 0) {
+            Log.e(DEBUG_TAG, "Workout ID is invalid: " + Integer.toString(id));
+            return null;
+        } else {
+            return mRepo.getWorkout(id);
+        }
+    }
+
+    public Workout findWorkoutByID(int id){
+        if(id < 0) {
+            Log.e(DEBUG_TAG, "Workout ID is invalid: " + Integer.toString(id));
+            return null;
+        } else {
+            return mRepo.findWorkoutByID(id);
+        }
+    }
+
+    public void update(Workout workout){
+        mRepo.update(workout);
     }
 
     public void insert(Workout workout){

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import com.shibedays.workoutplanner.db.AppDatabase;
 import com.shibedays.workoutplanner.db.dao.WorkoutDao;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.List;
 
@@ -48,12 +49,20 @@ public class DataRepo {
         return mDatabase.workoutDao().getWorkout(id);
     }
 
+    public Workout findWorkoutByID(final int id){
+        return mDatabase.workoutDao().findWorkoutByID(id);
+    }
+
     public void insert(Workout workout){
         new insertAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
 
     public void remove(final Workout workout){
         new removeAsyncWorkout(mDatabase.workoutDao()).execute(workout);
+    }
+
+    public void update(Workout workout){
+        new updateAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
 
     private static class insertAsyncWorkout extends AsyncTask<Workout, Void, Void>{
@@ -77,6 +86,25 @@ public class DataRepo {
         protected Void doInBackground(Workout... workouts) {
             aSyncTaskDao.delete(workouts[0]);
             return null;
+        }
+    }
+
+    private static class updateAsyncWorkout extends AsyncTask<Workout, Void, Void>{
+        private WorkoutDao dao;
+        updateAsyncWorkout(WorkoutDao dao){ this.dao = dao; }
+        @Override
+        protected Void doInBackground(Workout... workouts) {
+            dao.update(workouts[0]);
+            return null;
+        }
+    }
+
+    private static class findByIdAsync extends AsyncTask<Integer, Void, Workout>{
+        private WorkoutDao aSyncTaskDao;
+        findByIdAsync(WorkoutDao dao){ aSyncTaskDao = dao; }
+        @Override
+        protected Workout doInBackground(Integer... params) {
+            return aSyncTaskDao.findWorkoutByID(params[0]);
         }
     }
 }

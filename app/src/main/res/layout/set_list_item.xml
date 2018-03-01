@@ -27,7 +27,7 @@
         android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/Description"
+        android:id="@+id/set_descrip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/set_name"

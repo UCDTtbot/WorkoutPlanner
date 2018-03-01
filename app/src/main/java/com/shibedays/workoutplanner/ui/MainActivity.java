@@ -2,6 +2,8 @@ package com.shibedays.workoutplanner.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -22,15 +24,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.DataRepo;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
-import com.shibedays.workoutplanner.db.AppDatabase;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener{
@@ -83,15 +85,52 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
         mFragmentManager = getSupportFragmentManager();
 
-        //region VIEW_MODEL
-        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
-            @Override
-            public void onChanged(@Nullable List<Workout> workouts) {
-                // TODO: What happens when data changes
-                mWorkoutAdapter.setWords(workouts);
-            }
-        });
+        //region SHARED_PREFS
+        // TODO: shared prefs
+        //region OLD_CODE
+        /*
+        //region PREFS
+        // Get SharedPrefs. If this is the initial run, setup Prefs
+        mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
+        int savedVersionCode = mSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
+        // Check version code
+        Log.d(DEBUG_TAG, "Current: " + currentVersionCode + " Saved: " + savedVersionCode);
+        if(savedVersionCode == currentVersionCode){
+            // Normal Run
+            Log.d(DEBUG_TAG, "Normal run, retrieving prefs");
+            // get data from shared prefs
+            mWorkoutList = getWorkoutsFromPref();
+        } else if (savedVersionCode == DATA_DOESNT_EXIST){
+            // First run
+            Log.d(DEBUG_TAG, "First time run. Creating default workouts and prefs");
+            SharedPreferences.Editor editor = mSharedPrefs.edit();
+            // If SharedPrefs didn't exist, create default workout data for init purposes
+            Workout defaultWorkout1 = new Workout(0, "Cardio Day");
+            Workout defaultWorkout2 = new Workout(1, "Leg Day");
+            mWorkoutList = new ArrayList<Workout>();
+            mWorkoutList.add(defaultWorkout1);
+            mWorkoutList.add(defaultWorkout2);
+            Gson gson = new Gson();
+            String json = gson.toJson(mWorkoutList);
+            editor.putString(KEY_WORKOUT_DATA, json);
+            editor.putInt(KEY_VERSION_CODE, currentVersionCode);
+            // FILL PREF_DATA
+            editor.apply();
+        } else if (savedVersionCode < currentVersionCode){
+            // Upgraded run
+            Log.d(DEBUG_TAG, "App has been upgraded. Updating Prefs");
+            SharedPreferences.Editor editor = mSharedPrefs.edit();
+            editor.putInt(KEY_VERSION_CODE, currentVersionCode);
+            editor.apply();
+
+        } else {
+            // Fatal error?
+            Log.e(DEBUG_TAG, "Something wrong with version code.");
+        }
+        //endregion
+        */
+        //endregion
+        //endregion
 
         //region RECYCLER_VIEW
         // Initialize the RecyclerView
@@ -112,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         mRecyclerView.addItemDecoration(itemDecoration);
         //TODO: Add recycler animation?
 
-        //region SWIPE_SETUP
+        //region TOUCH_SWIPE_SETUP
         int dragDirs = 0;
         final int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
@@ -129,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
             // Initiate the above needed data
             private void init(){
                 background = new ColorDrawable(Color.RED);
-                deleteIC = getDrawable(R.drawable.ic_delete);
+                deleteIC = getDrawable(R.drawable.ic_delete_white_24dp);
                 deleteICMargin = (int) getResources().getDimension(R.dimen.ic_delete_margin);
                 initiated = true;
             }
@@ -229,13 +268,13 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         //endregion
         //endregion
 
-        //region ADDITIONAL_UI
-
-        //endregion
-
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //endregion
+
+        //region ADDITIONAL_UI
+
         //endregion
 
         //region FAB
@@ -248,49 +287,19 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         });
         //endregion
 
-        //region OLD_CODE
-        /*
-        //region PREFS
-        // Get SharedPrefs. If this is the initial run, setup Prefs
-        mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
-        int savedVersionCode = mSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
-        // Check version code
-        Log.d(DEBUG_TAG, "Current: " + currentVersionCode + " Saved: " + savedVersionCode);
-        if(savedVersionCode == currentVersionCode){
-            // Normal Run
-            Log.d(DEBUG_TAG, "Normal run, retrieving prefs");
-            // get data from shared prefs
-            mWorkoutList = getWorkoutsFromPref();
-        } else if (savedVersionCode == DATA_DOESNT_EXIST){
-            // First run
-            Log.d(DEBUG_TAG, "First time run. Creating default workouts and prefs");
-            SharedPreferences.Editor editor = mSharedPrefs.edit();
-            // If SharedPrefs didn't exist, create default workout data for init purposes
-            Workout defaultWorkout1 = new Workout(0, "Cardio Day");
-            Workout defaultWorkout2 = new Workout(1, "Leg Day");
-            mWorkoutList = new ArrayList<Workout>();
-            mWorkoutList.add(defaultWorkout1);
-            mWorkoutList.add(defaultWorkout2);
-            Gson gson = new Gson();
-            String json = gson.toJson(mWorkoutList);
-            editor.putString(KEY_WORKOUT_DATA, json);
-            editor.putInt(KEY_VERSION_CODE, currentVersionCode);
-            // FILL PREF_DATA
-            editor.apply();
-        } else if (savedVersionCode < currentVersionCode){
-            // Upgraded run
-            Log.d(DEBUG_TAG, "App has been upgraded. Updating Prefs");
-            SharedPreferences.Editor editor = mSharedPrefs.edit();
-            editor.putInt(KEY_VERSION_CODE, currentVersionCode);
-            editor.apply();
+        //region VIEW_MODEL
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+                // TODO: What happens when data changes
+                mWorkoutAdapter.setData(workouts);
+            }
+        });
+        //endregion
 
-        } else {
-            // Fatal error?
-            Log.e(DEBUG_TAG, "Something wrong with version code.");
-        }
-        //endregion
-        */
-        //endregion
+        // FOR DEBUGGING PURPOSES
+        showDebugDBAddressLogToast(this);
     }
 
     @Override
@@ -337,6 +346,27 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         newTime[1] = ((time/1000) % 60);
         return newTime;
     }
+
+    public void openWorkout(int workoutID){
+        Intent intent = new Intent(this, MyWorkoutActivity.class);
+        intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+        startActivity(intent);
+    }
+
+    // FOR DEBUGGING PURPOSES ONLY
+    public static void showDebugDBAddressLogToast(Context context) {
+        if (BuildConfig.DEBUG) {
+            try {
+                Class<?> debugDB = Class.forName("com.amitshekhar.DebugDB");
+                Method getAddressLog = debugDB.getMethod("getAddressLog");
+                Object value = getAddressLog.invoke(null);
+                Toast.makeText(context, (String) value, Toast.LENGTH_LONG).show();
+            } catch (Exception ignore) {
+
+            }
+        }
+    }
+
     //endregion
 
     //region ADD_NEW_WORKOUT
@@ -344,15 +374,15 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     public void addWorkout(){
         Log.d(DEBUG_TAG, "test");
         // TODO: DB debugging
-        //NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
-        //newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+        NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
+        newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
     @Override
     public void onDialogPositiveClick(String name){
         if(!TextUtils.isEmpty(name)){
             Workout newWorkout = new Workout(mWorkoutViewModel.getAllWorkouts().getValue().size(), name);
-
+            mWorkoutViewModel.insert(newWorkout);
             } else {
             // TODO: Display an error message saying that name must not be null
         }
@@ -363,54 +393,35 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     public void onDialogNegativeClick(){
 
     }
+
+
     //endregion
 
-    public void openWorkout(int workoutPos){
-        Log.d(DEBUG_TAG, "Opening Workout: " + workoutPos);
-        Log.d(DEBUG_TAG, mWorkoutViewModel.getWorkout(workoutPos).getName());
-
-        // TODO: Commenting out opening workouts
-        //Intent intent = new Intent(this, MyWorkoutActivity.class);
-        //startActivity(intent);
-    }
-
+    //region INTERFACE_IMPLEMENTATIONS
     @Override
-    public void onWorkoutClicked(int workoutIndex) {
-        openWorkout(workoutIndex);
+    public void onWorkoutClicked(int workoutID) {
+        openWorkout(workoutID);
     }
 
     @Override
     public void deleteWorkout(Workout workout) {
         mWorkoutViewModel.remove(workout);
     }
+
+    @Override
+    public void onWorkoutLongClick(int workoutID) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_ID, workoutID);
+        WorkoutBottomSheetDialog workoutBottomSheetDialog = new WorkoutBottomSheetDialog();
+        workoutBottomSheetDialog.setArguments(bundle);
+        workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
+    }
+
+    //endregion
+
+
+    public void openBottomDialog(Workout workout){
+
+    }
+
 }
-
-
-/*
-    public void saveWorkoutsToPref(){
-        if(mSharedPrefs == null){
-            mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
-        }
-        SharedPreferences.Editor editor = mSharedPrefs.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(mWorkoutList);
-        editor.putString(KEY_WORKOUT_DATA, json);
-        editor.apply();
-    }
-
-    public List<Workout> getWorkoutsFromPref(){
-        List<Workout> inData = null;
-        Gson gson = new Gson();
-        if(mSharedPrefs == null) {
-            mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
-        }
-        String json = mSharedPrefs.getString(KEY_WORKOUT_DATA, "");
-        Type type = new TypeToken<List<Workout>>(){}.getType();
-        inData = gson.fromJson(json, type);
-        if(inData == null){
-            Log.e(DEBUG_TAG, "No data for workouts was found in SharedPrefs");
-        }
-        return inData;
-    }
-
- */

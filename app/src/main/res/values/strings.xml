@@ -14,4 +14,19 @@
     <string name="title_activity_my_workout">MyWorkoutActivity</string>
     <string name="default_set_name">Set Name</string>
     <string name="default_descrip">Description for the above set</string>
+    <string name="bottom_sheet_delete">Delete</string>
+    <string name="bottom_sheet_edit">Edit</string>
+
+    <!-- \u0020 is a space -->
+    <string-array name="spinner_array">
+        <item>\u00201\u0020</item>
+        <item>\u00202\u0020</item>
+        <item>\u00203\u0020</item>
+        <item>\u00204\u0020</item>
+        <item>\u00205\u0020</item>
+        <item>\u00206\u0020</item>
+        <item>\u00207\u0020</item>
+        <item>\u00208\u0020</item>
+        <item>\u00209\u0020</item>
+    </string-array>
 </resources>

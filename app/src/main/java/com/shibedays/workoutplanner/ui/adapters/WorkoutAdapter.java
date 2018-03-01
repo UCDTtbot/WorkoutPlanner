@@ -23,7 +23,7 @@ import java.util.List;
 
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHolder> {
 
-    private static final int PENDING_REMOVAL_TIMEOUT = 10000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
+    private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
     private static final String DEBUG_TAG = WorkoutAdapter.class.getSimpleName();
 
     private List<Workout> mWorkoutData;
@@ -36,6 +36,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
     public interface WorkoutAdapterListener{
         public void onWorkoutClicked(int workoutIndex);
+        public void onWorkoutLongClick(int workoutIndex);
         public void deleteWorkout(Workout workout);
     }
     private WorkoutAdapterListener listener;
@@ -56,7 +57,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         try{
             listener = (WorkoutAdapter.WorkoutAdapterListener) activity;
         } catch (ClassCastException e){
-            Log.e(DEBUG_TAG, "ERROR IN WORKOUT DIALOG LISTENER: " + e.getMessage());
+            Log.e(DEBUG_TAG, "ERROR IN WORKOUT ADAPTER LISTENER: " + e.getMessage());
         }
 
     }
@@ -99,7 +100,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             return 0;
     }
 
-    public void setWords(List<Workout> workouts){
+    public void setData(List<Workout> workouts){
         mWorkoutData = workouts;
         notifyDataSetChanged();
     }
@@ -156,7 +157,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         mWorkoutsPendingRemoval.remove(pendingIndex);
 
         listener.deleteWorkout(originalWorkout);
-        Log.d(DEBUG_TAG, "Removed the pending activity");
+        Log.d(DEBUG_TAG, "Removed the pending workout");
         // Update the file that we have removed a curWorkout
     }
 
@@ -164,8 +165,6 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         Workout workout = mWorkoutData.get(pos);
         return mWorkoutsPendingRemoval.contains(workout);
     }
-
-
 
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -203,14 +202,13 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             Log.d(DEBUG_TAG, curWorkout.getName() + " clicked");
             // Go to the Workout Activity
             // TODO: Go to the my_workout activity with the given current curWorkout
-            listener.onWorkoutClicked(mWorkoutData.indexOf(curWorkout));
+            listener.onWorkoutClicked(curWorkout.getWorkoutID());
         }
-
 
         @Override
         public boolean onLongClick(View view) {
             Log.d(DEBUG_TAG, curWorkout.getName() + " long clicked");
-
+            listener.onWorkoutLongClick(curWorkout.getWorkoutID());
             // return true to indicate the click was handled
             return true;
         }

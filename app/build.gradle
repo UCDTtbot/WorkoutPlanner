@@ -16,6 +16,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            resValue("string", "PORT_NUMBER", "8080")
+        }
     }
 }
 
@@ -44,5 +47,7 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:1.1.0"
     annotationProcessor "android.arch.lifecycle:compiler:1.1.0"
 
+    // Database debugging
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.3'
 
 }
