@@ -379,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     }
 
     @Override
-    public void onDialogPositiveClick(String name){
+    public void onNewWorkoutDialogPositiveClick(String name){
         if(!TextUtils.isEmpty(name)){
             Workout newWorkout = new Workout(mWorkoutViewModel.getAllWorkouts().getValue().size(), name);
             mWorkoutViewModel.insert(newWorkout);
@@ -390,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     }
 
     @Override
-    public void onDialogNegativeClick(){
+    public void onNewWorkoutDialogNegativeClick(){
 
     }
 

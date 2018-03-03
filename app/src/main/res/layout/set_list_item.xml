@@ -14,23 +14,42 @@
     android:paddingStart="@dimen/row_paddting_hori"
     android:paddingEnd="@dimen/row_paddting_hori">
 
-    <TextView
-        android:id="@+id/set_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="@string/default_set_name"
-        android:layout_marginTop="@dimen/name_margin_spacing"
-        android:layout_marginBottom="@dimen/name_margin_spacing"
-        android:textColor="@color/item_name"
-        android:textSize="@dimen/set_name_size"
-        android:textStyle="bold"/>
+     <LinearLayout
+         android:id="@+id/top_row"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_marginTop="@dimen/name_margin_spacing"
+         android:layout_marginBottom="@dimen/name_margin_spacing"
+         android:layout_alignParentTop="true"
+         android:orientation="horizontal"
+         android:weightSum="100">
+         <TextView
+             android:id="@+id/set_name"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/default_set_name"
+             android:textColor="@color/item_name"
+             android:textSize="@dimen/set_name_size"
+             android:textStyle="bold"
+             android:layout_weight="50"/>
+
+         <TextView
+             android:id="@+id/set_time"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="0:00"
+             android:textColor="@color/item_name"
+             android:textSize="@dimen/set_name_size"
+             android:textStyle="bold"
+             android:gravity="end"
+             android:layout_weight="50"/>
+     </LinearLayout>
 
     <TextView
         android:id="@+id/set_descrip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/set_name"
+        android:layout_below="@+id/top_row"
         android:layout_marginStart="@dimen/sets_margin_spacing"
         android:paddingStart="@dimen/padding_spacing_5dp"
         android:paddingEnd="@dimen/padding_spacing_5dp"

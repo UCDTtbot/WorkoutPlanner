@@ -9,7 +9,7 @@
     <string name="item_name">Workout %1$d</string>
     <string name="item_sets">Total Sets: %1$d</string>
     <string name="item_rounds">Rounds: %1$d</string>
-    <string name="workout_hint">Name</string>
+    <string name="name_hint">Name</string>
     <string name="text_delete">Delete</string>
     <string name="title_activity_my_workout">MyWorkoutActivity</string>
     <string name="default_set_name">Set Name</string>

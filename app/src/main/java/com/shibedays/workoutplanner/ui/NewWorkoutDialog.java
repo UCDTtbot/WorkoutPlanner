@@ -29,11 +29,12 @@ public class NewWorkoutDialog extends DialogFragment {
 
     // Interface for dialog button listeners for MainActivity
     public interface WorkoutDialogListener {
-        void onDialogPositiveClick(String data);
-        void onDialogNegativeClick();
+        void onNewWorkoutDialogPositiveClick(String data);
+        void onNewWorkoutDialogNegativeClick();
     }
     WorkoutDialogListener mListener;
 
+    // onAttach is called first, when it is attached to the activity
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -49,6 +50,7 @@ public class NewWorkoutDialog extends DialogFragment {
         }
     }
 
+    // onCreateDialog is called after onAttach (onAttach -> onCreate -> onCreateDialog)
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -65,13 +67,13 @@ public class NewWorkoutDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mEditText = view.findViewById(R.id.new_workout_name);
-                        mListener.onDialogPositiveClick(mEditText.getText().toString());
+                        mListener.onNewWorkoutDialogPositiveClick(mEditText.getText().toString());
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mListener.onDialogNegativeClick();
+                        mListener.onNewWorkoutDialogNegativeClick();
                     }
                 });
         return builder.create();
