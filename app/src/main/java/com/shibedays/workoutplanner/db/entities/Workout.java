@@ -113,4 +113,14 @@ public class Workout{
     public void removeSet(Set set){
         setList.remove(setList.indexOf(set));
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Workout){
+            Workout workout = (Workout)obj;
+            return (this.workoutID == workout.getWorkoutID());
+        } else {
+            return false;
+        }
+    }
 }

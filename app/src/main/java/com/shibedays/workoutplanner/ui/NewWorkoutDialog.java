@@ -7,10 +7,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.shibedays.workoutplanner.R;
@@ -61,12 +66,14 @@ public class NewWorkoutDialog extends DialogFragment {
 
         final View view = inflater.inflate(R.layout.fragment_new_workout, null);
 
+        mEditText = view.findViewById(R.id.new_workout_name);
+
+
         builder.setView(view)
                 .setTitle("New Workout")
                 .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mEditText = view.findViewById(R.id.new_workout_name);
                         mListener.onNewWorkoutDialogPositiveClick(mEditText.getText().toString());
                     }
                 })
@@ -79,4 +86,14 @@ public class NewWorkoutDialog extends DialogFragment {
         return builder.create();
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        mEditText.requestFocus();
+        Dialog test = getDialog();
+        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 }

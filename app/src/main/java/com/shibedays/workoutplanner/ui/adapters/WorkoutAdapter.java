@@ -19,6 +19,7 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHolder> {
@@ -88,6 +89,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         // Populate anymore data
     }
 
+
+
     /**
      *
      * @return
@@ -102,6 +105,14 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
     public void setData(List<Workout> workouts){
         mWorkoutData = workouts;
+        if(mWorkoutsPendingRemoval.size() > 0){
+            for(int i = 0; i < mWorkoutsPendingRemoval.size(); i++){
+                Workout workout = mWorkoutsPendingRemoval.get(i);
+                if (mWorkoutData.contains(workout)){
+                    mWorkoutData.remove(workout);
+                }
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -124,13 +135,14 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         }
     }
 
-    public void pendingRemoval(final int pos){
-        final Workout workout = mWorkoutData.get(pos);
+    public void pendingRemoval(final int swipedPos){
+        final Workout workout = mWorkoutData.get(swipedPos);
         if(!mWorkoutsPendingRemoval.contains(workout)){
             mWorkoutsPendingRemoval.add(workout);
             final int pendingPos = mWorkoutsPendingRemoval.indexOf(workout);
-            mWorkoutData.remove(pos);
-            notifyItemRemoved(pos);
+            mWorkoutData.remove(swipedPos);
+            notifyItemRemoved(swipedPos);
+            notifyItemRangeChanged(swipedPos, mWorkoutData.size());
             Runnable pendingRemovalRunnable = new Runnable(){
 
                 @Override
@@ -145,7 +157,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             undoBar.setAction("Undo", new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
-                    undoItem(pos, pendingPos);
+                    undoItem(swipedPos, pendingPos);
                 }
             });
             undoBar.show();
@@ -157,7 +169,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         mWorkoutsPendingRemoval.remove(pendingIndex);
 
         listener.deleteWorkout(originalWorkout);
-        Log.d(DEBUG_TAG, "Removed the pending workout");
+        Log.d(DEBUG_TAG, "Removed the pending workout: " + originalWorkout.getName());
+        Log.d(DEBUG_TAG, Integer.toString(mWorkoutData.size()));
         // Update the file that we have removed a curWorkout
     }
 
@@ -172,6 +185,9 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         private TextView itemName;
         private TextView sets;
         private Workout curWorkout;
+
+        private TextView TEST_POS_ID;
+        private TextView TEST_WRK_ID;
         //private TextView rounds;
 
         public ViewHolder(View itemView) {
@@ -183,6 +199,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             itemView.setOnLongClickListener(this);
             //rounds = itemView.findViewById(R.id.item_rounds);
 
+            TEST_POS_ID = itemView.findViewById(R.id.TEST_POS_ID);
+            TEST_WRK_ID = itemView.findViewById(R.id.TEST_WRK_ID);
         }
 
         /**
@@ -193,6 +211,9 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             //Populate data when they bind the workouts to the view holder
             itemName.setText(curWorkout.getName());
             sets.setText(String.format(mContext.getString(R.string.item_sets), curWorkout.getNumOfSets()));
+
+            TEST_POS_ID.setText(String.format(Locale.US, "PosID: %1$d", mWorkoutData.indexOf(curWorkout)));
+            TEST_WRK_ID.setText(String.format(Locale.US, "WrkID: %1$d", curWorkout.getWorkoutID()));
             this.curWorkout = curWorkout;
             //rounds.setText(String.format(mContext.getString(R.string.item_rounds), curWorkout.mNumOfRounds));
         }

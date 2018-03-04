@@ -39,6 +39,32 @@
         android:textColor="@color/item_sub_color"
         android:textSize="@dimen/item_sub_size"
         android:background="@drawable/text_background"/>
+    <TextView
+        android:id="@+id/TEST_POS_ID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_name"
+        android:layout_toEndOf="@+id/item_sets"
+        android:layout_marginStart="@dimen/sets_margin_spacing"
+        android:paddingStart="@dimen/padding_spacing_5dp"
+        android:paddingEnd="@dimen/padding_spacing_5dp"
+        android:text="PosID: "
+        android:textColor="@color/item_sub_color"
+        android:textSize="@dimen/item_sub_size"
+        android:background="@drawable/text_background"/>
+    <TextView
+        android:id="@+id/TEST_WRK_ID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/item_name"
+        android:layout_toEndOf="@+id/TEST_POS_ID"
+        android:layout_marginStart="@dimen/sets_margin_spacing"
+        android:paddingStart="@dimen/padding_spacing_5dp"
+        android:paddingEnd="@dimen/padding_spacing_5dp"
+        android:text="Wrkout ID: "
+        android:textColor="@color/item_sub_color"
+        android:textSize="@dimen/item_sub_size"
+        android:background="@drawable/text_background"/>
     <!--
         <TextView
             android:id="@+id/item_rounds"

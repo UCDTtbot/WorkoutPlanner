@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     //region PREF_KEYS
     //KEY_FOO
     private static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
-    private static final String KEY_WORKOUT_DATA = PACKAGE + "WorkoutData";
     private static final String KEY_VERSION_CODE = PACKAGE + "VersionCode";
+    private static final String KEY_NEXT_WORKOUT_NUM = PACKAGE + "NextWorkoutNum";
     //endregion
 
     //TODO: BRD_FILTER_FOO
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     //endregion
 
     //region PUBLIC_VARS
-
+    public static int NEXT_WORKOUT_ID;
     //endregion
 
     //region OVERRIDE_FUNCTIONS
@@ -81,55 +81,40 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        int currentVersionCode = BuildConfig.VERSION_CODE;
 
         mFragmentManager = getSupportFragmentManager();
 
         //region SHARED_PREFS
         // TODO: shared prefs
-        //region OLD_CODE
-        /*
-        //region PREFS
-        // Get SharedPrefs. If this is the initial run, setup Prefs
         mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
-        int savedVersionCode = mSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
-        // Check version code
-        Log.d(DEBUG_TAG, "Current: " + currentVersionCode + " Saved: " + savedVersionCode);
-        if(savedVersionCode == currentVersionCode){
-            // Normal Run
-            Log.d(DEBUG_TAG, "Normal run, retrieving prefs");
-            // get data from shared prefs
-            mWorkoutList = getWorkoutsFromPref();
-        } else if (savedVersionCode == DATA_DOESNT_EXIST){
-            // First run
-            Log.d(DEBUG_TAG, "First time run. Creating default workouts and prefs");
-            SharedPreferences.Editor editor = mSharedPrefs.edit();
-            // If SharedPrefs didn't exist, create default workout data for init purposes
-            Workout defaultWorkout1 = new Workout(0, "Cardio Day");
-            Workout defaultWorkout2 = new Workout(1, "Leg Day");
-            mWorkoutList = new ArrayList<Workout>();
-            mWorkoutList.add(defaultWorkout1);
-            mWorkoutList.add(defaultWorkout2);
-            Gson gson = new Gson();
-            String json = gson.toJson(mWorkoutList);
-            editor.putString(KEY_WORKOUT_DATA, json);
-            editor.putInt(KEY_VERSION_CODE, currentVersionCode);
-            // FILL PREF_DATA
-            editor.apply();
-        } else if (savedVersionCode < currentVersionCode){
-            // Upgraded run
-            Log.d(DEBUG_TAG, "App has been upgraded. Updating Prefs");
-            SharedPreferences.Editor editor = mSharedPrefs.edit();
-            editor.putInt(KEY_VERSION_CODE, currentVersionCode);
-            editor.apply();
+        int currentVersionCode = BuildConfig.VERSION_CODE;
 
-        } else {
-            // Fatal error?
-            Log.e(DEBUG_TAG, "Something wrong with version code.");
+        if(mSharedPrefs != null){
+            int savedVersionCode = mSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
+            if(savedVersionCode == currentVersionCode){
+                // Normal Run
+                NEXT_WORKOUT_ID = mSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, -DATA_DOESNT_EXIST);
+                if(NEXT_WORKOUT_ID == DATA_DOESNT_EXIST){
+                    Log.e(DEBUG_TAG, "NEXT WORKOUT NUM DATA DOESN'T EXIST");
+                }
+            }else if (savedVersionCode == DATA_DOESNT_EXIST){
+                // First run
+                NEXT_WORKOUT_ID = 2;
+                SharedPreferences.Editor editor = mSharedPrefs.edit();
+                editor.putInt(KEY_VERSION_CODE, currentVersionCode);
+                editor.putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID);
+                editor.apply();
+            }else if (savedVersionCode < currentVersionCode){
+                // Updated run
+                SharedPreferences.Editor editor = mSharedPrefs.edit();
+                editor.putInt(KEY_VERSION_CODE, currentVersionCode);
+                editor.apply();
+            }else{
+                // Fatal error
+                Log.e(DEBUG_TAG, "Unknown Error in SharedPrefs");
+            }
         }
-        //endregion
-        */
-        //endregion
+
         //endregion
 
         //region RECYCLER_VIEW
@@ -381,10 +366,12 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     @Override
     public void onNewWorkoutDialogPositiveClick(String name){
         if(!TextUtils.isEmpty(name)){
-            Workout newWorkout = new Workout(mWorkoutViewModel.getAllWorkouts().getValue().size(), name);
+            Workout newWorkout = new Workout(NEXT_WORKOUT_ID++, name);
+            mSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
             mWorkoutViewModel.insert(newWorkout);
             } else {
             // TODO: Display an error message saying that name must not be null
+            Toast.makeText(this, "Name must not be empty", Toast.LENGTH_LONG).show();
         }
 
     }
