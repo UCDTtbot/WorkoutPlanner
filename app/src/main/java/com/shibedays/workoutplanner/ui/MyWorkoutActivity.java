@@ -39,7 +39,7 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
-            public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener {
+public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener {
 
     private static final String DEBUG_TAG = MyWorkoutActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MyWorkoutActivity.";
@@ -291,6 +291,8 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
     private void addNewSet(){
         Log.d(DEBUG_TAG, "Adding a new set");
+        AddSetDialog addSetDialog = new AddSetDialog();
+        addSetDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
     @Override
@@ -308,6 +310,16 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    @Override
+    public void onAddSetDialogPositiveClick(Set set) {
+
+    }
+
+    @Override
+    public void onAddSetDialogNegativeClick() {
 
     }
 }

@@ -105,6 +105,15 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
 
     public void setData(List<Set> data){
         mSetData = data;
+        if(mSetsPendingRemoval.size() > 0){
+            for(int i = 0; i < mSetsPendingRemoval.size(); i++){
+                Set set = mSetsPendingRemoval.get(i);
+                if (mSetData.contains(set)){
+                    mSetData.remove(set);
+                }
+            }
+        }
+        notifyDataSetChanged();
         notifyDataSetChanged();
     }
 
@@ -122,13 +131,14 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
         }
     }
 
-    public void pendingRemoval(final int pos){
-        final Set set = mSetData.get(pos);
+    public void pendingRemoval(final int swipedPos){
+        final Set set = mSetData.get(swipedPos);
         if(!mSetsPendingRemoval.contains(set)){
             mSetsPendingRemoval.add(set);
             final int pendingPos = mSetsPendingRemoval.indexOf(set);
-            mSetData.remove(pos);
-            notifyItemRemoved(pos);
+            mSetData.remove(swipedPos);
+            notifyItemRemoved(swipedPos);
+            notifyItemRangeChanged(swipedPos, mSetData.size());
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
@@ -142,7 +152,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
             undoBar.setAction("Undo", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    undoItem(pos, pendingPos);
+                    undoItem(swipedPos, pendingPos);
                 }
             });
             undoBar.show();
