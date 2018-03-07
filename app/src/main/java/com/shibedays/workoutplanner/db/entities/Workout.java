@@ -40,7 +40,6 @@ public class Workout{
         setList = new ArrayList<Set>();
         timeBetweenSets = 10000;
         timeBetweenRounds = 30000;
-        addSet(new Set());
     }
     public Workout(Workout workout){
         workoutID = workout.getWorkoutID();

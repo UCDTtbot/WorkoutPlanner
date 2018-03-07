@@ -8,28 +8,42 @@
         android:id="@+id/new_set_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/hori_padding"
+        android:layout_marginEnd="@dimen/hori_padding"
+        android:inputType="textCapSentences"
         android:hint="@string/name_hint"/>
 
+    <EditText
+        android:id="@+id/new_set_descrip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/hori_padding"
+        android:layout_marginEnd="@dimen/hori_padding"
+        android:inputType="textCapSentences"
+        android:layout_below="@+id/new_set_name"
+        android:hint="@string/descrip_hint"/>
 
     <android.support.v7.widget.LinearLayoutCompat
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:scaleX="0.75"
-        android:scaleY="0.75"
-        android:layout_below="@+id/new_set_name">
+        android:layout_below="@+id/new_set_descrip"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="10dp">
 
         <android.support.v7.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:layout_marginEnd="12dp">
             <NumberPicker
                 android:id="@+id/MinutePicker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:descendantFocusability="blocksDescendants">
+                android:descendantFocusability="blocksDescendants"
+                android:layout_marginBottom="2dp">
             </NumberPicker>
             <TextView
                 android:id="@+id/MinutesLabel"
@@ -37,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:text="M"/>
         </android.support.v7.widget.LinearLayoutCompat>
+
 
         <android.support.v7.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
@@ -52,17 +67,20 @@
                 android:text=":" />
         </android.support.v7.widget.LinearLayoutCompat>
 
+
         <android.support.v7.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:layout_marginStart="12dp">
 
             <NumberPicker
                 android:id="@+id/SecondsPicker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:descendantFocusability="blocksDescendants" />
+                android:descendantFocusability="blocksDescendants"
+                android:layout_marginBottom="2dp"/>
 
             <TextView
                 android:id="@+id/SecondsLabel"
@@ -70,6 +88,7 @@
                 android:layout_height="wrap_content"
                 android:text="S" />
         </android.support.v7.widget.LinearLayoutCompat>
+
 
     </android.support.v7.widget.LinearLayoutCompat>
 

@@ -91,7 +91,6 @@ public class NewWorkoutDialog extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         mEditText.requestFocus();
-        Dialog test = getDialog();
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         return super.onCreateView(inflater, container, savedInstanceState);

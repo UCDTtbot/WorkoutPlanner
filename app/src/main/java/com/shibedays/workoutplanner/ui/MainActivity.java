@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         //endregion
 
         // FOR DEBUGGING PURPOSES
-        showDebugDBAddressLogToast(this);
+        //showDebugDBAddressLogToast(this);
     }
 
     @Override
@@ -318,6 +318,10 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
      */
     public static int convertToMillis(int[] time){
         return ((time[0] * 60) + time[1]) * 1000;
+    }
+
+    public static int convertToMillis(int min, int sec){
+        return((min * 60) + sec) * 1000;
     }
 
     /**
@@ -357,7 +361,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     //region ADD_NEW_WORKOUT
 
     public void addWorkout(){
-        Log.d(DEBUG_TAG, "test");
         // TODO: DB debugging
         NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
         newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);

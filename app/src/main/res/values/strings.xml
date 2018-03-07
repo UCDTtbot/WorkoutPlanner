@@ -16,6 +16,8 @@
     <string name="default_descrip">Description for the above set</string>
     <string name="bottom_sheet_delete">Delete</string>
     <string name="bottom_sheet_edit">Edit</string>
+    <string name="descrip_hint">Description</string>
+    <string name="action_about">About</string>
 
     <!-- \u0020 is a space -->
     <string-array name="spinner_array">

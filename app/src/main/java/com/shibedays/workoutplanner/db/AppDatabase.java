@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.db.dao.WorkoutDao;
 
@@ -64,10 +65,14 @@ public abstract class AppDatabase extends RoomDatabase {
 
         @Override
         protected Void doInBackground(final Void... params){
-            Workout default1 = new Workout(0, "Cardio");
-            Workout default2 = new Workout(1, "Leg Day");
-            mDao.insert(default1);
-            mDao.insert(default2);
+            Workout defaultWorkout = new Workout(0, "Example Workout");
+            Set set_1 = new Set("Example Set", "Description of your workout.", 30000);
+            Set set_2 = new Set("Example Set", "Swipe to delete", 60000);
+            Set set_3 = new Set("Pushups", "Normal Pushups", 45000);
+            defaultWorkout.addSet(set_1);
+            defaultWorkout.addSet(set_2);
+            defaultWorkout.addSet(set_3);
+            mDao.insert(defaultWorkout);
             return null;
         }
     }

@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -15,12 +14,12 @@ import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-
-import org.w3c.dom.Text;
+import com.shibedays.workoutplanner.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by ttbot on 2/11/2018.
@@ -89,6 +88,8 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
         holder.bindTo(currentSet);
         // Populate anymore data
     }
+
+    // TODO: setup the timeTextView to display correctly
 
     /**
      *
@@ -173,24 +174,38 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        private TextView setName;
-        private TextView descrip;
+        private TextView setNameTextView;
+        private TextView descripTextView;
+        private TextView timeTextView;
         private Set curSet;
 
         public ViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
 
-            setName = itemView.findViewById(R.id.set_name);
-            descrip = itemView.findViewById(R.id.set_descrip);
+            setNameTextView = itemView.findViewById(R.id.set_name);
+            descripTextView = itemView.findViewById(R.id.set_descrip);
+            timeTextView = itemView.findViewById(R.id.set_time);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
 
         void bindTo(Set curSet){
             //Populate data when they bind the workouts to the view holder
-            setName.setText(curSet.getName());
-            descrip.setText(curSet.getDescrip());
+            setNameTextView.setText(curSet.getName());
+            descripTextView.setText(curSet.getDescrip());
+            int[] time = MainActivity.convertFromMillis(curSet.getTime());
+            int minutes = time[0], seconds = time[1];
+            if(seconds == 0){
+                timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, seconds, 0));
+            } else if( seconds < 10){
+                timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, 0, seconds));
+            }
+            else {
+                timeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
+            }
+
+
             this.curSet = curSet;
         }
 

@@ -314,8 +314,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     }
 
     @Override
-    public void onAddSetDialogPositiveClick(Set set) {
-
+    public void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec) {
+        Log.d(DEBUG_TAG, "Name: " + name + " Descrip: " + descrip + " Time: " + min + ":" + sec);
+        // TODO: add description to the add new set
+        Set newSet = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
+        mWorkoutData.addSet(newSet);
+        mViewModel.update(mWorkoutData);
     }
 
     @Override
