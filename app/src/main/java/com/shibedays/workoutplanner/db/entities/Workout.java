@@ -122,4 +122,9 @@ public class Workout{
             return false;
         }
     }
+
+    public String toJSON(){
+        Gson json = new Gson();
+        return json.toJson(this);
+    }
 }

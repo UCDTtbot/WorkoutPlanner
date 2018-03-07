@@ -10,9 +10,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -39,7 +42,7 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
-public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener {
+public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener {
 
     private static final String DEBUG_TAG = MyWorkoutActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MyWorkoutActivity.";
@@ -85,6 +88,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         //endregion
 
         mFragmentManager = getSupportFragmentManager();
+
+        if(savedInstanceState != null){
+            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
+        }
 
         //region VIEW_MODEL
         mViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
@@ -258,6 +265,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.add_set).setVisible(true);
+        menu.findItem(R.id.action_settings).setVisible(true);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_my_workout, menu);
@@ -275,6 +289,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             return true;
         } else if(id == R.id.add_set) {
             addNewSet();
+        } else if (id == android.R.id.home){
+            if(mFragmentManager.getBackStackEntryCount() > 0){
+                mFragmentManager.popBackStack();
+                return true;
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -325,6 +344,27 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     @Override
     public void onAddSetDialogNegativeClick() {
 
+    }
+
+    // TODO: Convert all Workout-To-Json calls to the new function
+    public void startTimer(View view){
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        TimerFragment timerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
+        fragmentTransaction.replace(R.id.fragment_container, timerFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
+        Log.d(DEBUG_TAG, "Timer Fragment Created");
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 }
 
