@@ -1,14 +1,80 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.shibedays.workoutplanner.ui.TimerFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:id="@+id/fragment_hello"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/main_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="0:00"/>
 
-</FrameLayout>
+    <LinearLayout
+        android:id="@+id/set_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toStartOf="@id/main_timer"
+        android:layout_below="@id/main_timer">
+
+        <TextView
+            android:id="@+id/current_set_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Number:"/>
+
+        <TextView
+            android:id="@+id/current_rep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/round_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toEndOf="@id/main_timer"
+        android:layout_below="@id/main_timer">
+
+        <TextView
+            android:id="@+id/current_round_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Round Number:"/>
+
+        <TextView
+            android:id="@+id/current_round"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/descrip_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/round_info"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/descrip_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description:"/>
+
+        <TextView
+            android:id="@+id/descrip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Default Description"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

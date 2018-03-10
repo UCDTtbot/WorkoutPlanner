@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
@@ -370,6 +371,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     public void onNewWorkoutDialogPositiveClick(String name){
         if(!TextUtils.isEmpty(name)){
             Workout newWorkout = new Workout(NEXT_WORKOUT_ID++, name);
+            newWorkout.addSet(new Set("My Workout Set", "Description of my Workout Set", 60000));
             mSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
             mWorkoutViewModel.insert(newWorkout);
             } else {

@@ -18,6 +18,7 @@ import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,7 +41,10 @@ public class TimerFragment extends Fragment {
     private int mNumRounds;
     private int mNumReps;
 
-
+    private TextView mDescipTextView;
+    private TextView mTimeTextView;
+    private TextView mCurRepTextView;
+    private TextView mCurRoundTextView;
 
     public int mTimeLeft;
     public int mCurRep;
@@ -117,8 +121,22 @@ public class TimerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
-        TextView tv = view.findViewById(R.id.fragment_hello);
-        tv.setText(mWorkout.toJSON());
+        mTimeTextView = view.findViewById(R.id.main_timer);
+        mCurRepTextView = view.findViewById(R.id.current_rep);
+        mCurRoundTextView = view.findViewById(R.id.current_round);
+        mDescipTextView = view.findViewById(R.id.descrip);
+        int[] time = MainActivity.convertFromMillis(mCurSetTime);
+        int minutes = time[0], seconds = time[1];
+        if((seconds % 10) == 0){
+            mTimeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
+        } else if ( seconds < 10 ){
+            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, 0, seconds));
+        } else {
+            mTimeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
+        }
+        mCurRepTextView.setText(Integer.toString(mCurRep));
+        mCurRoundTextView.setText(Integer.toString(mCurRound));
+        mDescipTextView.setText(mCurSet.getDescrip());
         return view;
     }
 
