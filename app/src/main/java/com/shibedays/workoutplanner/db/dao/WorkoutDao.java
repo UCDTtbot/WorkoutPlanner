@@ -12,9 +12,6 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 
 import java.util.List;
 
-/**
- * Created by ttbot on 2/20/2018.
- */
 
 @Dao
 public interface WorkoutDao {

@@ -24,162 +24,33 @@ import java.util.Locale;
 
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHolder> {
 
+    // Constants
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
     private static final String DEBUG_TAG = WorkoutAdapter.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter.";
 
+    //region PRIVATE_VARS
+    // Data
     private List<Workout> mWorkoutData;
     private List<Workout> mWorkoutsPendingRemoval;
+    // UI Components
     private CoordinatorLayout mCoordLayout;
     private Context mContext;
-
+    // Threading Components
     private Handler handler = new Handler(); // Handler for running async delayed tasks
     private HashMap<Workout, Runnable> pendingRunnables = new HashMap<>(); // Map of the items to their async runnable rasks
+    //endregion
 
+    //region INTERFACES
     public interface WorkoutAdapterListener{
         public void onWorkoutClicked(int workoutIndex);
         public void onWorkoutLongClick(int workoutIndex);
         public void deleteWorkout(Workout workout);
     }
     private WorkoutAdapterListener listener;
-    /**
-     *
-     */
-    public WorkoutAdapter(Context context, View coordLayout){
-        mWorkoutsPendingRemoval = new ArrayList<>();
-        mContext = context;
-        if(coordLayout instanceof CoordinatorLayout){
-            mCoordLayout = (CoordinatorLayout) coordLayout;
-        }else{
-            Log.e(DEBUG_TAG, "PASSED INCORRECT VIEW TO WORKOUT_ADAPTER");
-        }        // Make sure our context is an activity and set the Listener to it
-        Activity activity = null;
-        if(context instanceof Activity)
-            activity = (Activity) context;
-        try{
-            listener = (WorkoutAdapter.WorkoutAdapterListener) activity;
-        } catch (ClassCastException e){
-            Log.e(DEBUG_TAG, "ERROR IN WORKOUT ADAPTER LISTENER: " + e.getMessage());
-        }
+    //endregion
 
-    }
-
-    /**
-     *
-     * @param parent
-     * @param viewType
-     * @return
-     */
-    @Override
-    public WorkoutAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.workout_list_item, parent, false));
-    }
-
-    /**
-     *
-     * @param holder
-     * @param position
-     */
-    @Override
-    public void onBindViewHolder(WorkoutAdapter.ViewHolder holder, int position) {
-        // Get the current data
-        Workout currentWorkout = mWorkoutData.get(position);
-        // Bind to the data for the views
-        holder.bindTo(currentWorkout);
-        // Populate anymore data
-    }
-
-
-
-    /**
-     *
-     * @return
-     */
-    @Override
-    public int getItemCount() {
-        if(mWorkoutData != null)
-            return mWorkoutData.size();
-        else
-            return 0;
-    }
-
-    public void setData(List<Workout> workouts){
-        mWorkoutData = workouts;
-        if(mWorkoutsPendingRemoval.size() > 0){
-            for(int i = 0; i < mWorkoutsPendingRemoval.size(); i++){
-                Workout workout = mWorkoutsPendingRemoval.get(i);
-                if (mWorkoutData.contains(workout)){
-                    mWorkoutData.remove(workout);
-                }
-            }
-        }
-        notifyDataSetChanged();
-    }
-
-    // Function for re-adding a pending item using it's orig position number
-    // TODO: Not sure if we want the position of the item or not
-    public void undoItem(int itemPos, int pendingPos){
-        // Stop the relevant runnable
-        // Remove item from mWorkoutsPendingRemoval
-        // Re-add item to mWorkoutData at correct pos
-        if(mWorkoutsPendingRemoval.get(pendingPos) != null) {
-            Workout workout = mWorkoutsPendingRemoval.get(pendingPos);
-            Runnable pendingRunnable = pendingRunnables.get(workout);
-            pendingRunnables.remove(workout);
-            if (pendingRunnable != null) {
-                handler.removeCallbacks(pendingRunnable);
-            }
-            mWorkoutsPendingRemoval.remove(pendingPos);
-            mWorkoutData.add(itemPos, workout);
-            notifyItemInserted(itemPos);
-        }
-    }
-
-    public void pendingRemoval(final int swipedPos){
-        final Workout workout = mWorkoutData.get(swipedPos);
-        if(!mWorkoutsPendingRemoval.contains(workout)){
-            mWorkoutsPendingRemoval.add(workout);
-            final int pendingPos = mWorkoutsPendingRemoval.indexOf(workout);
-            mWorkoutData.remove(swipedPos);
-            notifyItemRemoved(swipedPos);
-            notifyItemRangeChanged(swipedPos, mWorkoutData.size());
-            Runnable pendingRemovalRunnable = new Runnable(){
-
-                @Override
-                public void run() {
-                    deletePending(mWorkoutsPendingRemoval.indexOf(workout), workout);
-                }
-            };
-            handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
-            pendingRunnables.put(workout, pendingRemovalRunnable);
-
-            Snackbar undoBar = Snackbar.make(mCoordLayout, "Undo", Snackbar.LENGTH_LONG);
-            undoBar.setAction("Undo", new View.OnClickListener(){
-                @Override
-                public void onClick(View view) {
-                    undoItem(swipedPos, pendingPos);
-                }
-            });
-            undoBar.show();
-
-        }
-    }
-
-    public void deletePending(int pendingIndex, Workout originalWorkout){
-        mWorkoutsPendingRemoval.remove(pendingIndex);
-
-        listener.deleteWorkout(originalWorkout);
-        Log.d(DEBUG_TAG, "Removed the pending workout: " + originalWorkout.getName());
-        Log.d(DEBUG_TAG, Integer.toString(mWorkoutData.size()));
-        // Update the file that we have removed a curWorkout
-    }
-
-    public boolean isPendingRemoval(int pos){
-        Workout workout = mWorkoutData.get(pos);
-        return mWorkoutsPendingRemoval.contains(workout);
-    }
-
-
+    //region VIEW_HOLDER
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         private TextView itemName;
@@ -234,5 +105,143 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             return true;
         }
     }
+    //endregion
+
+    //region LIFECYCLE
+    public WorkoutAdapter(Context context, View coordLayout){
+        mWorkoutsPendingRemoval = new ArrayList<>();
+        mContext = context;
+        if(coordLayout instanceof CoordinatorLayout){
+            mCoordLayout = (CoordinatorLayout) coordLayout;
+        }else{
+            Log.e(DEBUG_TAG, "PASSED INCORRECT VIEW TO WORKOUT_ADAPTER");
+        }        // Make sure our context is an activity and set the Listener to it
+        Activity activity = null;
+        if(context instanceof Activity)
+            activity = (Activity) context;
+        try{
+            listener = (WorkoutAdapter.WorkoutAdapterListener) activity;
+        } catch (ClassCastException e){
+            Log.e(DEBUG_TAG, "ERROR IN WORKOUT ADAPTER LISTENER: " + e.getMessage());
+        }
+
+    }
+
+    /**
+     *
+     * @param parent
+     * @param viewType
+     * @return
+     */
+    @Override
+    public WorkoutAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new ViewHolder(LayoutInflater.from(mContext)
+                .inflate(R.layout.workout_list_item, parent, false));
+    }
+
+    /**
+     *
+     * @param holder
+     * @param position
+     */
+    @Override
+    public void onBindViewHolder(WorkoutAdapter.ViewHolder holder, int position) {
+        // Get the current data
+        Workout currentWorkout = mWorkoutData.get(position);
+        // Bind to the data for the views
+        holder.bindTo(currentWorkout);
+        // Populate anymore data
+    }
+    //endregion
+
+    //region UTILITY
+    @Override
+    public int getItemCount() {
+        if(mWorkoutData != null)
+            return mWorkoutData.size();
+        else
+            return 0;
+    }
+
+    public void setData(List<Workout> workouts){
+        mWorkoutData = workouts;
+        if(mWorkoutsPendingRemoval.size() > 0){
+            for(int i = 0; i < mWorkoutsPendingRemoval.size(); i++){
+                Workout workout = mWorkoutsPendingRemoval.get(i);
+                if (mWorkoutData.contains(workout)){
+                    mWorkoutData.remove(workout);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+    //endregion
+
+    //region PENDING_DELETE
+    public void pendingRemoval(final int swipedPos){
+        final Workout workout = mWorkoutData.get(swipedPos);
+        if(!mWorkoutsPendingRemoval.contains(workout)){
+            mWorkoutsPendingRemoval.add(workout);
+            final int pendingPos = mWorkoutsPendingRemoval.indexOf(workout);
+            mWorkoutData.remove(swipedPos);
+            notifyItemRemoved(swipedPos);
+            notifyItemRangeChanged(swipedPos, mWorkoutData.size());
+            Runnable pendingRemovalRunnable = new Runnable(){
+
+                @Override
+                public void run() {
+                    deletePending(mWorkoutsPendingRemoval.indexOf(workout), workout);
+                }
+            };
+            handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
+            pendingRunnables.put(workout, pendingRemovalRunnable);
+
+            Snackbar undoBar = Snackbar.make(mCoordLayout, "Undo", Snackbar.LENGTH_LONG);
+            undoBar.setAction("Undo", new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    undoItem(swipedPos, pendingPos);
+                }
+            });
+            undoBar.show();
+
+        }
+    }
+
+    private void deletePending(int pendingIndex, Workout originalWorkout){
+        mWorkoutsPendingRemoval.remove(pendingIndex);
+
+        listener.deleteWorkout(originalWorkout);
+        Log.d(DEBUG_TAG, "Removed the pending workout: " + originalWorkout.getName());
+        Log.d(DEBUG_TAG, Integer.toString(mWorkoutData.size()));
+        // Update the file that we have removed a curWorkout
+    }
+
+    public boolean isPendingRemoval(int pos){
+        Workout workout = mWorkoutData.get(pos);
+        return mWorkoutsPendingRemoval.contains(workout);
+    }
+
+    // Function for re-adding a pending item using it's orig position number
+    // TODO: Not sure if we want the position of the item or not
+    private void undoItem(int itemPos, int pendingPos){
+        // Stop the relevant runnable
+        // Remove item from mWorkoutsPendingRemoval
+        // Re-add item to mWorkoutData at correct pos
+        if(mWorkoutsPendingRemoval.get(pendingPos) != null) {
+            Workout workout = mWorkoutsPendingRemoval.get(pendingPos);
+            Runnable pendingRunnable = pendingRunnables.get(workout);
+            pendingRunnables.remove(workout);
+            if (pendingRunnable != null) {
+                handler.removeCallbacks(pendingRunnable);
+            }
+            mWorkoutsPendingRemoval.remove(pendingPos);
+            mWorkoutData.add(itemPos, workout);
+            notifyItemInserted(itemPos);
+        }
+    }
+
+
+    //endregion
 
 }

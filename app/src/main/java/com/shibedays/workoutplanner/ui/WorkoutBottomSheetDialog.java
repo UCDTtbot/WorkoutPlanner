@@ -17,22 +17,32 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
-/**
- * Created by ttbot on 2/26/2018.
- */
 
 public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
 
+    // Constants
     private static final String DEBUG_TAG = WorkoutBottomSheetDialog.class.getSimpleName();
-
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.WorkoutBottomSheetDialog.";
+
+    //region INTENT_KEYS
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
+    //endregion
 
+    //region PRIVATE_KEYS
+    // Data
     private int mWorkoutID;
+    private LiveData<Workout> mWorkoutLiveData;
+    // UI Components
+    private TextView mTitleTextView;
+    // View Model
     private WorkoutViewModel mViewModel;
-    private LiveData<Workout> workoutLiveData;
-    private TextView title;
+    //endregion
 
+    //region INTERFACES
+
+    //endregion
+
+    //region LIFECYCLE
     public WorkoutBottomSheetDialog() {
 
     }
@@ -44,11 +54,11 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
         mViewModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         Bundle bundle = this.getArguments();
         if(bundle != null){
-            workoutLiveData = mViewModel.getWorkout(bundle.getInt(EXTRA_WORKOUT_ID));
-            workoutLiveData.observe(this, new Observer<Workout>() {
+            mWorkoutLiveData = mViewModel.getWorkout(bundle.getInt(EXTRA_WORKOUT_ID));
+            mWorkoutLiveData.observe(this, new Observer<Workout>() {
                 @Override
                 public void onChanged(@Nullable Workout workout) {
-                    if(title != null) {
+                    if(mTitleTextView != null) {
                         if(workout != null) {
                             setName(workout.getName());
                         } else {
@@ -67,15 +77,17 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
         return super.onCreateDialog(savedInstanceState);
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bottom_sheet, container, false);
-        title = view.findViewById(R.id.bottom_sheet_title);
+        mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
         return view;
     }
+    //endregion
 
+    //region UTILITY
     public void setName(String name){
-        title.setText(name);
+        mTitleTextView.setText(name);
     }
+    //endregion
 }

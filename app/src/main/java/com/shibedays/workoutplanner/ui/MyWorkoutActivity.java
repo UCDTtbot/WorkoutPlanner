@@ -42,8 +42,10 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
+
 public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener {
 
+    // Constants stati
     private static final String DEBUG_TAG = MyWorkoutActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MyWorkoutActivity.";
 
@@ -51,7 +53,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
     //endregion
 
-    //region PRIVATE_KEYS
+    //region PRIVATE_VARS
     // UI Components
     private RecyclerView mRecyclerView;
     private Spinner mRoundSpinner;
@@ -63,16 +65,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     private LiveData<Workout> mWorkoutLiveData;
     // Instances
     private FragmentManager mFragmentManager;
-
+    // View Model
     private WorkoutViewModel mViewModel;
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
     //endregion
 
-    //region PUBLIC_KEYS
+    //region PUBLIC_VARS
 
     //endregion
 
+    //region LIFECYCLE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -299,6 +302,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+    //endregion
+
+    //region UTILITY
     private void dataUpdate(){
         if(!getTitle().equals(mWorkoutData.getName())){
             setTitle(mWorkoutData.getName());
@@ -314,12 +324,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         addSetDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
+
+    //endregion
+
+    //region INTERFACE_IMPLEMENTATIONS
     @Override
     public void deleteSet(Set set) {
         //mWorkoutData.removeSet(set);
         mViewModel.update(mWorkoutData);
     }
 
+    //region SPINNER
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         int numRounds = Integer.parseInt(parent.getItemAtPosition(position).toString().trim());
@@ -331,6 +346,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
+    //endregion
 
     @Override
     public void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec) {
@@ -345,8 +361,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     public void onAddSetDialogNegativeClick() {
 
     }
+    //endregion
 
-    // TODO: Convert all Workout-To-Json calls to the new function
+    //region TIMER_INTERACTIONS
     public void startTimer(View view){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         TimerFragment timerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
@@ -361,11 +378,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     public void onFragmentInteraction(Uri uri) {
 
     }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
+    //endregion
 }
 
 

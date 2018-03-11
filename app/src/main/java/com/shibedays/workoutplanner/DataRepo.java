@@ -10,9 +10,6 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.List;
 
-/**
- * Created by ttbot on 2/21/18.
- */
 
 public class DataRepo {
 

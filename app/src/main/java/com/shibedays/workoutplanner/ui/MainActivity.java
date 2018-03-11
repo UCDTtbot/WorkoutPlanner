@@ -36,8 +36,10 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import java.lang.reflect.Method;
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener{
 
+    // Constants
     private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MainActivity.";
 
@@ -53,9 +55,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     //endregion
 
     //TODO: BRD_FILTER_FOO
-    // TODO: Extract the executor to its own class for having different threads?
-
-    private WorkoutViewModel mWorkoutViewModel;
 
     //region PRIVATE_VARS
     // UI Components
@@ -70,13 +69,17 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
+
+    // View Model
+    private WorkoutViewModel mWorkoutViewModel;
+
     //endregion
 
     //region PUBLIC_VARS
     public static int NEXT_WORKOUT_ID;
     //endregion
 
-    //region OVERRIDE_FUNCTIONS
+    //region LIFECYCLE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -343,6 +346,14 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         startActivity(intent);
     }
 
+    public void openBottomDialog(int workoutID){
+        Bundle bundle = new Bundle();
+        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_ID, workoutID);
+        WorkoutBottomSheetDialog workoutBottomSheetDialog = new WorkoutBottomSheetDialog();
+        workoutBottomSheetDialog.setArguments(bundle);
+        workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
+    }
+
     // FOR DEBUGGING PURPOSES ONLY
     public static void showDebugDBAddressLogToast(Context context) {
         if (BuildConfig.DEBUG) {
@@ -402,18 +413,12 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
     @Override
     public void onWorkoutLongClick(int workoutID) {
-        Bundle bundle = new Bundle();
-        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_ID, workoutID);
-        WorkoutBottomSheetDialog workoutBottomSheetDialog = new WorkoutBottomSheetDialog();
-        workoutBottomSheetDialog.setArguments(bundle);
-        workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
+        openBottomDialog(workoutID);
     }
 
     //endregion
 
 
-    public void openBottomDialog(Workout workout){
 
-    }
 
 }

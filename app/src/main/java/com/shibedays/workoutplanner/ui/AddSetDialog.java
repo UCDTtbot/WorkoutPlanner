@@ -22,29 +22,32 @@ import com.shibedays.workoutplanner.R;
 
 import java.util.Locale;
 
-/**
- * Created by ttbot on 3/3/2018.
- */
 
 public class AddSetDialog extends DialogFragment implements NumberPicker.OnValueChangeListener{
 
-    private static String DEBUG_TAG = AddSetDialog.class.getSimpleName();
+    // Constants
+    private static final String DEBUG_TAG = AddSetDialog.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.AddSetDialog.";
 
+    //region PRIVATE_VARS
+    // UI Comoponents
     private EditText mEditTextName;
     private EditText mEditTestDescrip;
     private NumberPicker mMinutePicker;
     private NumberPicker mSecondPicker;
-
+    // Utility
     private MyWorkoutActivity mParentActivity;
+    //endregion
 
-
-
+    //region INTERFACES
     public interface AddSetDialogListener {
         void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec);
         void onAddSetDialogNegativeClick();
     }
     AddSetDialogListener mListener;
+    //endregion
 
+    //region LIFECYCLE
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -116,9 +119,12 @@ public class AddSetDialog extends DialogFragment implements NumberPicker.OnValue
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+    //endregion
 
+    //region OVERRIDE_IMPLEMENTATIONS
     @Override
     public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
 
     }
+    //endregion
 }

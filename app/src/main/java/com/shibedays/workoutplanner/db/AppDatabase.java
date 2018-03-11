@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-/**
- * Created by ttbot on 2/20/2018.
- */
 
 @Database(entities = {Workout.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {

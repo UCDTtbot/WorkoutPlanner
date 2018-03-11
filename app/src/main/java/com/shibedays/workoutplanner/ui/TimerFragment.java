@@ -1,8 +1,15 @@
 package com.shibedays.workoutplanner.ui;
 
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -17,8 +25,12 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,27 +41,45 @@ import java.util.Locale;
  * create an instance of this fragment.
  */
 public class TimerFragment extends Fragment {
-    private static final String ARG_WORKOUT = "WORKOUT";
 
+    // Factory Constant
+    private static final String ARG_WORKOUT = "WORKOUT";
+    // Constants
+    private static final String DEBUG_TAG = TimerFragment.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TimerFragment.";
+
+    //region PRIVATE_VARS
+    // Data
     private Workout mWorkout;
     private List<Set> mSetList;
     private Set mCurSet;
 
+    // Timer Variables
     private int mCurSetTime;
     private int mRestTime;
     private int mBreakTime;
     private int mNumRounds;
     private int mNumReps;
 
+    // UI Components
     private TextView mDescipTextView;
     private TextView mTimeTextView;
     private TextView mCurRepTextView;
     private TextView mCurRoundTextView;
+    private TextView mServiceTextView;
+    //endregion
 
+    private TimerService mTimerService;
+    private boolean mServiceRunning;
+
+    //region PUBLIC_VARS
+    // Data
     public int mTimeLeft;
     public int mCurRep;
     public int mCurRound;
+    //endregion
 
+    //region INTERFACES
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -61,11 +91,14 @@ public class TimerFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
     private OnFragmentInteractionListener mListener;
+    //endregion
 
+    //region FACTORY_CONSTRUCTORS
     // Empty default constructor
     public TimerFragment() {
         // Required empty public constructor
     }
+
     /**
      * Factory method to instantiate a new instance of a TimerFragment
      *
@@ -80,6 +113,7 @@ public class TimerFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+    //endregion
 
     //region LIFECYCLE
     @Override
@@ -125,6 +159,14 @@ public class TimerFragment extends Fragment {
         mCurRepTextView = view.findViewById(R.id.current_rep);
         mCurRoundTextView = view.findViewById(R.id.current_round);
         mDescipTextView = view.findViewById(R.id.descrip);
+        mServiceTextView = view.findViewById(R.id.service_running);
+        Button button = view.findViewById(R.id.start_service_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startService();
+            }
+        });
         int[] time = MainActivity.convertFromMillis(mCurSetTime);
         int minutes = time[0], seconds = time[1];
         if((seconds % 10) == 0){
@@ -140,7 +182,10 @@ public class TimerFragment extends Fragment {
         return view;
     }
 
-    // TODO: Timer implementation, lifecycle, ui
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
     @Override
     public void onPause() {
@@ -150,6 +195,11 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        Context context = getContext();
+        if(context != null){
+            context.unbindService(mConnection);
+            mBound = false;
+        }
     }
 
     @Override
@@ -163,11 +213,9 @@ public class TimerFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
     //endregion
 
-
-    //region MENU
+    //region TOOLBAR_MENU
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.add_set).setVisible(false);
@@ -186,6 +234,43 @@ public class TimerFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
+    //endregion
+
+    public void startService(){
+        // Bind to TimerService
+        Intent intent = new Intent(getActivity(), TimerService.class);
+
+    }
+
+    //region TIMER_FUNCTIONS
+
+
+    public void refresh(){
+        if (mServiceRunning) {
+            mServiceTextView.setText("Service is Running");
+        } else {
+            mServiceTextView.setText("Service is Not Running");
+        }
+    }
+
+
+    public class TimerService extends Service {
+
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId) {
+            return super.onStartCommand(intent, flags, startId);
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            return null;
+        }
+
+
+
+    }
+
+
     //endregion
 
 }

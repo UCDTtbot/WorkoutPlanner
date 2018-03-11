@@ -20,25 +20,30 @@ import android.widget.EditText;
 
 import com.shibedays.workoutplanner.R;
 
-/**
- * Created by ttbot on 2/12/2018.
- */
 
 public class NewWorkoutDialog extends DialogFragment {
 
-    private static String DEBUG_TAG = NewWorkoutDialog.class.getSimpleName();
+    // Constants
+    private static final String DEBUG_TAG = NewWorkoutDialog.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.NewWorkoutDialog.";
 
+    //region PRIVATE_VARS
+    // UI Components
     private EditText mEditText;
-
+    // Utility
     private MainActivity mParentActivity;
+    //endregion
 
+    //region INTERFACES
     // Interface for dialog button listeners for MainActivity
     public interface WorkoutDialogListener {
         void onNewWorkoutDialogPositiveClick(String data);
         void onNewWorkoutDialogNegativeClick();
     }
     WorkoutDialogListener mListener;
+    //endregion
 
+    //region LIFECYCLE
     // onAttach is called first, when it is attached to the activity
     @Override
     public void onAttach(Context context) {
@@ -95,4 +100,5 @@ public class NewWorkoutDialog extends DialogFragment {
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+    //endregion
 }
