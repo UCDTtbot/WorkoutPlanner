@@ -1,16 +1,22 @@
 package com.shibedays.workoutplanner.ui;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.shibedays.workoutplanner.R;
@@ -42,25 +49,23 @@ import java.util.Random;
  */
 public class TimerFragment extends Fragment {
 
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TimerFragment.";
+
     // Factory Constant
     private static final String ARG_WORKOUT = "WORKOUT";
     // Constants
     private static final String DEBUG_TAG = TimerFragment.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TimerFragment.";
+
+    private static TimerFragment mTimerFragmentInstance;
 
     //region PRIVATE_VARS
     // Data
     private Workout mWorkout;
-    private List<Set> mSetList;
+    private List<Set> mSets;
     private Set mCurSet;
-
-    // Timer Variables
-    private int mCurSetTime;
-    private int mRestTime;
-    private int mBreakTime;
-    private int mNumRounds;
-    private int mNumReps;
-
+    private int mCurSetIndex;
+    private int mCurRep;
+    private int mCurRound;
     // UI Components
     private TextView mDescipTextView;
     private TextView mTimeTextView;
@@ -69,14 +74,10 @@ public class TimerFragment extends Fragment {
     private TextView mServiceTextView;
     //endregion
 
-    private TimerService mTimerService;
     private boolean mServiceRunning;
 
     //region PUBLIC_VARS
-    // Data
-    public int mTimeLeft;
-    public int mCurRep;
-    public int mCurRound;
+
     //endregion
 
     //region INTERFACES
@@ -93,6 +94,8 @@ public class TimerFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     //endregion
 
+
+
     //region FACTORY_CONSTRUCTORS
     // Empty default constructor
     public TimerFragment() {
@@ -107,11 +110,15 @@ public class TimerFragment extends Fragment {
      */
     // TODO: Rename and change types and number of parameters
     public static TimerFragment newInstance(String workoutJSON) {
-        TimerFragment fragment = new TimerFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_WORKOUT, workoutJSON);
-        fragment.setArguments(args);
-        return fragment;
+        if(mTimerFragmentInstance == null) {
+            mTimerFragmentInstance = new TimerFragment();
+            Bundle args = new Bundle();
+            args.putString(ARG_WORKOUT, workoutJSON);
+            mTimerFragmentInstance.setArguments(args);
+            return mTimerFragmentInstance;
+        } else {
+            return mTimerFragmentInstance;
+        }
     }
     //endregion
 
@@ -134,20 +141,16 @@ public class TimerFragment extends Fragment {
             Gson json = new Gson();
             String workoutJSON = getArguments().getString(ARG_WORKOUT);
             mWorkout = json.fromJson(workoutJSON, Workout.class);
-            mSetList = mWorkout.getSetList();
-            mCurSet = mSetList.get(0);
-
-            mCurSetTime = mCurSet.getTime();
-            mRestTime = mWorkout.getTimeBetweenSets();
-            mBreakTime = mWorkout.getTimeBetweenRounds();
-            mNumReps = mWorkout.getNumOfSets();
-            mNumRounds = mWorkout.getNumOfRounds();
-
+            mSets = mWorkout.getSetList();
+            mCurSetIndex = 0;
+            mCurSet = mSets.get(mCurSetIndex);
             mCurRep = 0;
             mCurRound = 0;
-            mTimeLeft = mCurSet.getTime();
+        } else {
+            Log.e(DEBUG_TAG, "get args was null");
         }
         setHasOptionsMenu(true);
+
     }
 
     @Override
@@ -160,25 +163,12 @@ public class TimerFragment extends Fragment {
         mCurRoundTextView = view.findViewById(R.id.current_round);
         mDescipTextView = view.findViewById(R.id.descrip);
         mServiceTextView = view.findViewById(R.id.service_running);
-        Button button = view.findViewById(R.id.start_service_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startService();
-            }
-        });
-        int[] time = MainActivity.convertFromMillis(mCurSetTime);
+        int[] time = MainActivity.convertFromMillis(mCurSet.getTime());
         int minutes = time[0], seconds = time[1];
-        if((seconds % 10) == 0){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
-        } else if ( seconds < 10 ){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, 0, seconds));
-        } else {
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
-        }
-        mCurRepTextView.setText(Integer.toString(mCurRep));
-        mCurRoundTextView.setText(Integer.toString(mCurRound));
-        mDescipTextView.setText(mCurSet.getDescrip());
+        updateTime(minutes, seconds);
+        updateRep(mCurRep);
+        updateRound(mCurRound);
+        updateDescription(mCurSet.getDescrip());
         return view;
     }
 
@@ -188,6 +178,14 @@ public class TimerFragment extends Fragment {
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+
+    }
+
+    // TODO: Regard this comment for the whole program
+    // Commit stuff here as the user may not come back
+    @Override
     public void onPause() {
         super.onPause();
     }
@@ -195,11 +193,6 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        Context context = getContext();
-        if(context != null){
-            context.unbindService(mConnection);
-            mBound = false;
-        }
     }
 
     @Override
@@ -236,41 +229,26 @@ public class TimerFragment extends Fragment {
     }
     //endregion
 
-    public void startService(){
-        // Bind to TimerService
-        Intent intent = new Intent(getActivity(), TimerService.class);
-
-    }
-
-    //region TIMER_FUNCTIONS
-
-
-    public void refresh(){
-        if (mServiceRunning) {
-            mServiceTextView.setText("Service is Running");
+    public void updateTime(int min, int sec){
+        if((sec % 10) == 0){
+            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
+        } else if ( sec < 10 ){
+            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
-            mServiceTextView.setText("Service is Not Running");
+            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
     }
 
-
-    public class TimerService extends Service {
-
-        @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
-            return super.onStartCommand(intent, flags, startId);
-        }
-
-        @Override
-        public IBinder onBind(Intent intent) {
-            return null;
-        }
-
-
-
+    public void updateRep(int rep){
+        mCurRepTextView.setText(String.format(Locale.US, "%d", (rep + 1)));
     }
 
+    public void updateRound(int round){
+        mCurRoundTextView.setText(String.format(Locale.US, "%d", (round + 1)));
+    }
 
-    //endregion
+    public void updateDescription(String descrip){
+        mDescipTextView.setText(descrip);
+    }
 
 }

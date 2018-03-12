@@ -343,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     public void openWorkout(int workoutID){
         Intent intent = new Intent(this, MyWorkoutActivity.class);
         intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+        intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
         startActivity(intent);
     }
 
