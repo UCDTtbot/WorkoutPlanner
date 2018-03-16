@@ -39,9 +39,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener{
 
-    // Constants
+    //region CONSTANTS
+    // Package and Debug Constants
     private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MainActivity.";
+    //endregion
 
     //region INTENT_KEYS
     //EXTRA_FOO
@@ -53,8 +55,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     private static final String KEY_VERSION_CODE = PACKAGE + "VersionCode";
     private static final String KEY_NEXT_WORKOUT_NUM = PACKAGE + "NextWorkoutNum";
     //endregion
-
-    //TODO: BRD_FILTER_FOO
 
     //region PRIVATE_VARS
     // UI Components
@@ -315,11 +315,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
     //endregion
 
     //region UTILITY
-    /**
-     * Converts the time from a 2 piece array to milliseconds
-     * @param time int[]
-     * @return Returns the time in millis
-     */
+
     public static int convertToMillis(int[] time){
         return ((time[0] * 60) + time[1]) * 1000;
     }
@@ -328,11 +324,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
         return((min * 60) + sec) * 1000;
     }
 
-    /**
-     * Converts the time from milliseconds to a 2 piece array
-     * @param time int
-     * @return returns the time as M/S
-     */
     public static int[] convertFromMillis(int time){
         int[] newTime = {0, 0};
         newTime[0] = (int)(Math.floor(time/1000)/60);

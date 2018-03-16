@@ -49,14 +49,15 @@ import java.util.Random;
  */
 public class TimerFragment extends Fragment {
 
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TimerFragment.";
-
+    //region CONSTANTS
     // Factory Constant
     private static final String ARG_WORKOUT = "WORKOUT";
-    // Constants
+    // Package and Debug Constants
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TimerFragment.";
     private static final String DEBUG_TAG = TimerFragment.class.getSimpleName();
-
+    // Fragment Instance
     private static TimerFragment mTimerFragmentInstance;
+    //endregion
 
     //region PRIVATE_VARS
     // Data
@@ -73,8 +74,6 @@ public class TimerFragment extends Fragment {
     private TextView mCurRoundTextView;
     private TextView mServiceTextView;
     //endregion
-
-    private boolean mServiceRunning;
 
     //region PUBLIC_VARS
 
@@ -93,8 +92,6 @@ public class TimerFragment extends Fragment {
     }
     private OnFragmentInteractionListener mListener;
     //endregion
-
-
 
     //region FACTORY_CONSTRUCTORS
     // Empty default constructor
@@ -180,11 +177,8 @@ public class TimerFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-
     }
 
-    // TODO: Regard this comment for the whole program
-    // Commit stuff here as the user may not come back
     @Override
     public void onPause() {
         super.onPause();
@@ -229,6 +223,7 @@ public class TimerFragment extends Fragment {
     }
     //endregion
 
+    //region UI_UPDATE_FUNCTIONS
     public void updateTime(int min, int sec){
         if((sec % 10) == 0){
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -251,4 +246,42 @@ public class TimerFragment extends Fragment {
         mDescipTextView.setText(descrip);
     }
 
+    public void updateServiceText(String msg){
+        mServiceTextView.setText(msg);
+    }
+    //endregion
+
+    //region GET_DATA_FUNCTIONS
+    public int getCurSetTime(){
+        return mCurSet.getTime();
+    }
+
+    public int getCurRep(){
+        return mCurRep;
+    }
+
+    public int getCurRound(){
+        return mCurRound;
+    }
+    //endregion
+
+    //region TIMER_INTERACTIONS
+    public Set nextSet(){
+        mCurSetIndex++;
+        if(mCurSetIndex < mSets.size()){
+            mCurSet = mSets.get(mCurSetIndex);
+            return mCurSet;
+        }  else {
+            return null;
+        }
+    }
+
+    public int nextRep(){
+        return ++mCurRep;
+    }
+
+    public int nextRound(){
+        return ++mCurRound;
+    }
+    //endregion
 }

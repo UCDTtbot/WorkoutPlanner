@@ -23,9 +23,11 @@ import com.shibedays.workoutplanner.R;
 
 public class NewWorkoutDialog extends DialogFragment {
 
-    // Constants
+    //region CONSTANTS
+    // Package and Debug Constants
     private static final String DEBUG_TAG = NewWorkoutDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.NewWorkoutDialog.";
+    //endregion
 
     //region PRIVATE_VARS
     // UI Components

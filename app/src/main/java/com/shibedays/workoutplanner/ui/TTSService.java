@@ -13,41 +13,38 @@ import java.util.Locale;
 
 public class TTSService extends Service implements TextToSpeech.OnInitListener {
 
+    //region CONSTANTS
+    // Package and Debug Constants
     private static final String DEBUG_TAG = TTSService.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TTSService.";
-
+    // TTS Constants
     private static final String SPEECH_ID = "WorkoutPlanner.TTS";
+    //endregion
 
-    // Binder given to clients
-    private final IBinder mBinder = new TTSBinder();
-
+    //region PRIVATE_VARS
+    // TTS Object(s)
     private TextToSpeech mTTS;
-
+    // Booleans
     private boolean mTTSReady = false;
+    //endregion
 
+    //region BINDER
+    // Binder given to clients
     public class TTSBinder extends Binder {
         TTSService getService() {
             return TTSService.this;
         }
     }
-    @Override
-    public IBinder onBind(Intent intent) {
+    private final IBinder mBinder = new TTSBinder();
+    //endregion
 
-        mTTS = new TextToSpeech(this, this);
-        adjustSpeechRate(0.7f);
-
-        return mBinder;
-    }
+    //region LIFECYCLE
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Keep the service sticky
         Log.d(DEBUG_TAG, "TTS onStartCommand called");
         return START_STICKY;
-    }
-
-    private void adjustSpeechRate(float rate){
-        mTTS.setSpeechRate(rate);
     }
 
     @Override
@@ -67,6 +64,15 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
     }
 
     @Override
+    public IBinder onBind(Intent intent) {
+
+        mTTS = new TextToSpeech(this, this);
+        adjustSpeechRate(0.7f);
+
+        return mBinder;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if(mTTS != null) {
@@ -74,9 +80,16 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
         }
     }
 
+    //endregion
+
+    //region UTILITY
     public void speak(String speech) {
         if(mTTSReady){
             mTTS.speak(speech, TextToSpeech.QUEUE_FLUSH, null, SPEECH_ID);
         }
     }
+    private void adjustSpeechRate(float rate){
+        mTTS.setSpeechRate(rate);
+    }
+    //endregion
 }

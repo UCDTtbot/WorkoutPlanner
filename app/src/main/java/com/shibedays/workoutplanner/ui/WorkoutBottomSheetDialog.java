@@ -20,9 +20,11 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
 
-    // Constants
+    //region CONSTANTS
+    // Package and Debug Constants
     private static final String DEBUG_TAG = WorkoutBottomSheetDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.WorkoutBottomSheetDialog.";
+    //endregion
 
     //region INTENT_KEYS
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";

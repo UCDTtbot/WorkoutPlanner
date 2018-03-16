@@ -24,10 +24,13 @@ import java.util.Locale;
 
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHolder> {
 
-    // Constants
+    //region CONSTANTS
+    // Timeout Constant
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
+    // Package and Debug Constants
     private static final String DEBUG_TAG = WorkoutAdapter.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter.";
+    //endregion
 
     //region PRIVATE_VARS
     // Data
@@ -240,8 +243,6 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             notifyItemInserted(itemPos);
         }
     }
-
-
     //endregion
 
 }

@@ -25,9 +25,11 @@ import java.util.Locale;
 
 public class AddSetDialog extends DialogFragment implements NumberPicker.OnValueChangeListener{
 
-    // Constants
+    //region CONSTANTS
+    // Package and Debug Constants
     private static final String DEBUG_TAG = AddSetDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.AddSetDialog.";
+    //endregion
 
     //region PRIVATE_VARS
     // UI Comoponents
