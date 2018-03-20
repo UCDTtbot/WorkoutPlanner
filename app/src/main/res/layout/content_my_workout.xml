@@ -27,7 +27,7 @@
     <View style="@style/Divider" />
 
     <RelativeLayout
-        android:id="@+id/rel_view"
+        android:id="@+id/rel_view_titles"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="40">
@@ -39,16 +39,18 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_marginStart="@dimen/hori_padding"
-            android:layout_marginTop="@dimen/vert_padding"
+            android:layout_marginTop="30dp"
             android:text="Rest"/>
-
         <TextView
             android:id="@+id/rest_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/rest_title_text"
             android:layout_below="@+id/rest_title_text"
-            android:text="0:00" />
+            android:clickable="true"
+            android:focusable="true"
+            android:text="0:00"
+            android:textSize="20sp"/>
 
 
         <TextView
@@ -66,6 +68,7 @@
             android:layout_below="@+id/rounds_title_text"
             android:layout_centerInParent="true"/>
 
+
         <TextView
             android:id="@+id/break_title_text"
             android:layout_width="wrap_content"
@@ -73,17 +76,18 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="@dimen/hori_padding"
-            android:layout_marginTop="@dimen/vert_padding"
+            android:layout_marginTop="30dp"
             android:text="Break"/>
-
         <TextView
             android:id="@+id/break_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/break_title_text"
             android:layout_alignEnd="@+id/break_title_text"
-            android:text="0:00" />
-
+            android:layout_below="@id/break_title_text"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="0:00"
+            android:textSize="20sp"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -93,7 +97,6 @@
             android:text="@string/start_workout_button"
             android:onClick="startTimer"
             android:layout_marginBottom="@dimen/vert_padding"/>
-
     </RelativeLayout>
 
 </LinearLayout>

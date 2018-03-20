@@ -3,18 +3,16 @@ package com.shibedays.workoutplanner.ui;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -22,7 +20,6 @@ import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -37,27 +34,41 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.services.TTSService;
+import com.shibedays.workoutplanner.services.TimerService;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.ui.dialogs.AddSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
+import java.util.Locale;
 
-public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener {
+
+public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener, NumberPickerDialog.NumberPickerDialogListener {
 
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = MyWorkoutActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MyWorkoutActivity.";
-    // Broadcast filter(s)
-    public static final String FILTER = PACKAGE + "FILTER";
     // Intent Types
     public static final int NORMAL_INTENT_TYPE = 0;
     public static final int NOTIF_INTENT_TYPE = 1;
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
+    // Message Constants
+    //endregion
+
+    //region MESSAGES
+    public static final int MSG_SAY_HELLO = 0;
+    public static final int MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING = 1;
+    public static final int MSG_PASS_TTS_MSG = 2;
+    public static final int MSG_UPDATE_TIME_DISPLAY = 3;
     //endregion
 
     //region INTENT_KEYS
@@ -77,6 +88,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     private RecyclerView mRecyclerView;
     private Spinner mRoundSpinner;
     private ArrayAdapter<CharSequence> mArrayAdapter;
+    private TextView mRestTime;
+    private TextView mBreakTime;
     // Adapters
     private SetAdapter mSetAdapter;
     // Data
@@ -85,41 +98,58 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     // Instances
     private FragmentManager mFragmentManager;
     private TimerFragment mTimerFragment;
-    private TimerService mTimerService;
+
+    private Messenger mTimerService;
     private Messenger mTTSService;
     // View Model
     private WorkoutViewModel mViewModel;
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
+
     //endregion
 
     //region PUBLIC_VARS
 
     //endregion
 
-    //region BROADCAST_RECEIVER
-    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+    //region MESSAGE_HANDLING
+
+    class IncomingTTSMessageHandler extends Handler {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            String filter = intent.getAction();
-            if(filter != null){
-                if(filter.equals(FILTER)){
-                    if(intent.getExtras() != null){
-                        if(mTimerFragment != null){
-                            String message = intent.getStringExtra(EXTRA_UPDATE_DESCRIPTION);
-                            if(message != null){
-                                mTimerFragment.updateServiceText(message);
-                            }else{
-                                mTimerFragment.updateServiceText("Problem with broadcast");
-                            }
-                        }
-                    }
-                    Log.d(DEBUG_TAG, "Broadcast is working");
-                }
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_SAY_HELLO:
+                    Toast.makeText(getApplicationContext(), "TTS Ready", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    super.handleMessage(msg);
             }
         }
-    };
+    }
+    final Messenger mIncomingTTSMessenger = new Messenger(new IncomingTTSMessageHandler());
+
+    class IncomingTimerMessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING:
+                    mTimerFragment.updateServiceText("Service is Running");
+                    break;
+                case MSG_PASS_TTS_MSG:
+                    sendTTSMessage(msg.arg1);
+                    break;
+                case MSG_UPDATE_TIME_DISPLAY:
+                    if(mTimerFragment != null){
+                        mTimerFragment.updateTime(msg.arg1);
+                    }
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+    final Messenger mIncomingTimerMessenger = new Messenger(new IncomingTimerMessageHandler());
     //endregion
 
     //region LIFECYCLE
@@ -192,6 +222,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         //endregion
 
         //region UI
+        mRestTime = findViewById(R.id.rest_time);
+        mRestTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openRestNumberPickerDialog();
+            }
+        });
+
+        mBreakTime = findViewById(R.id.break_time);
+        mBreakTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openBreakNumberPickerDialog();
+            }
+        });
 
         //endregion
 
@@ -336,24 +381,20 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(FILTER);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mTimerIsBound){
-            unbindService(mTimerConnection);
+        if(mTTSIsBound){
+            unbindService(mTTSConnection);
             stopService(new Intent(this, TTSService.class));
-            mTimerIsBound = false;
+            mTTSIsBound = false;
         }
     }
 
@@ -388,7 +429,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         if(id == R.id.action_settings){
             return true;
         } else if(id == R.id.add_set) {
-            addNewSet();
+            openAddNewSetDialog();
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
@@ -408,16 +449,63 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         int numRounds = mWorkoutData.getNumOfRounds();
         int pos = mArrayAdapter.getPosition("\u0020" + Integer.toString(numRounds) + "\u0020");
         mRoundSpinner.setSelection(pos);
+
+        int[] restTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenSets() );
+        int restMin = restTime[0], restSec = restTime[1];
+        updateRestTimeUI(restMin, restSec);
+
+        int[] breakTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenRounds() );
+        int breakMin = breakTime[0], breakSec = breakTime[1];
+        updateBreakTimeUI(breakMin, breakSec);
     }
 
-    private void addNewSet(){
+    private void openAddNewSetDialog(){
         Log.d(DEBUG_TAG, "Adding a new set");
         AddSetDialog addSetDialog = new AddSetDialog();
         addSetDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
+    private void openRestNumberPickerDialog(){
+        NumberPickerDialog numberPickerDialog = new NumberPickerDialog();
+        Bundle args = new Bundle();
+        args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.REST_TYPE);
+        numberPickerDialog.setArguments(args);
+        numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
+    }
+
+    private void openBreakNumberPickerDialog(){
+        NumberPickerDialog numberPickerDialog = new NumberPickerDialog();
+        Bundle args = new Bundle();
+        args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.BREAK_TYPE);
+        numberPickerDialog.setArguments(args);
+        numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
+    }
 
     //endregion
+
+    private void updateRestTimeUI(int min, int sec){
+        if((sec % 10) == 0){
+            mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        } else if ( sec < 10 ){
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else if (min == 0 && sec == 0){
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else {
+            mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
+    }
+
+    private void updateBreakTimeUI(int min, int sec){
+        if((sec % 10) == 0){
+            mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        } else if ( sec < 10 ){
+            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else if (min == 0 && sec == 0){
+            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else {
+            mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
+    }
 
     //region INTERFACE_IMPLEMENTATIONS
 
@@ -458,9 +546,45 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
     // Fragment callback function
     @Override
-    public void onFragmentInteraction(Uri uri) {
-
+    public void closeFragmentAndService() {
+        if(mTimerIsBound){
+            unbindService(mTimerConnection);
+        }
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        fragmentTransaction.remove(mTimerFragment);
+        fragmentTransaction.commit();
+        mTimerFragment = null;
     }
+
+    @Override
+    public void stopTTSSpeech() {
+        if(mTTSIsBound){
+            Message msg = Message.obtain(null, TTSService.MSG_STOP_SPEECH);
+            try {
+                mTTSService.send(msg);
+            } catch (RemoteException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // Number Picker Dialog Listeners
+    @Override
+    public void setRestTime(int min, int sec) {
+        int time = MainActivity.convertToMillis(min, sec);
+        updateRestTimeUI(min, sec);
+        mWorkoutData.setTimeBetweenSets(time);
+        mViewModel.update(mWorkoutData);
+    }
+
+    @Override
+    public void setBreakTime(int min, int sec) {
+        int time = MainActivity.convertToMillis(min, sec);
+        mWorkoutData.setTimeBetweenRounds(time);
+        updateBreakTimeUI(min, sec);
+        mViewModel.update(mWorkoutData);
+    }
+
     //endregion
 
     //region TIMER_INTERACTIONS
@@ -473,13 +597,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         fragmentTransaction.commit();
         findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
         Log.d(DEBUG_TAG, "Timer Fragment Created");
-        bindToTimerService();
-
-    }
-    // Bind to the timer service
-    private void bindToTimerService(){
-        // Bind to TimerService
         bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     private void beginTimerService(){
@@ -498,31 +617,51 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         startService(timerIntent);
     }
+
+    private void stopTimerService(){
+        stopService(new Intent(this, TTSService.class));
+    }
     //endregion
 
-    //region TTS_Messaging
-    public void sendTTSMessage(String TTS_String){
-        if(mTTSIsBound){
-            Message msg = Message.obtain(null, TTSService.Message_Key, 0, 0);
-            try{
-                mTTSService.send(msg);
-            } catch (RemoteException e){
-                e.printStackTrace();
+    //region TTS_Outgoing_Messaging
+    public void sendTTSMessage(int string_id){
+        if(mTTSIsBound) {
+            if (string_id > 0) {
+                Message msg = Message.obtain(null, TTSService.MSG_SPEAK, string_id, 0);
+                try {
+                    mTTSService.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.e(DEBUG_TAG, "Invalid String ID in sendTTSMessage");
             }
         } else {
-            return;
+            Log.e(DEBUG_TAG, "TTS is unbound but trying to send a message");
         }
     }
+    //endregion
+
+    //region TIMER_Outgoing_Messaging
+
     //endregion
 
     //region SERVICE_CONNECTIONS
     private ServiceConnection mTimerConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            TimerService.TimerBinder binder = (TimerService.TimerBinder) iBinder;
-            mTimerService = binder.getService();
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mTimerService = new Messenger(service);
             mTimerIsBound = true;
-            mTimerFragment.updateServiceText("Service has connected");
+
+            Message msg = Message.obtain(null, TimerService.MSG_TIMER_BIND);
+            msg.replyTo = mIncomingTimerMessenger;
+
+            try {
+                mTimerService.send(msg);
+            }catch (RemoteException e){
+                e.printStackTrace();
+            }
+
             beginTimerService();
 
             Log.d(DEBUG_TAG, "Timer running and bound");
@@ -530,7 +669,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            mTimerService = null;
             mTimerIsBound = false;
+            stopTimerService();
         }
     };
 
@@ -539,12 +680,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mTTSService = new Messenger(service);
             mTTSIsBound = true;
+
+            Message msg = Message.obtain(null, TTSService.MSG_TTS_BIND);
+            msg.replyTo = mIncomingTTSMessenger;
+            try {
+                mTTSService.send(msg);
+            } catch (RemoteException e){
+                e.printStackTrace();
+            }
             Log.d(DEBUG_TAG, "TTS Running and bound");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-
+            mTTSService = null;
+            mTTSIsBound = false;
         }
     };
     //endregion

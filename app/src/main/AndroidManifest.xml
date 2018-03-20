@@ -31,13 +31,13 @@
         </activity>
 
         <service
-            android:name=".ui.TimerService"
+            android:name=".services.TimerService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".ui.TTSService"
+            android:name=".services.TTSService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false"/>
     </application>
 
 </manifest>

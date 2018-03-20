@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui;
+package com.shibedays.workoutplanner.ui.dialogs;
 
 import android.app.Dialog;
 import android.arch.lifecycle.LiveData;
@@ -23,7 +23,7 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = WorkoutBottomSheetDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.WorkoutBottomSheetDialog.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog.";
     //endregion
 
     //region INTENT_KEYS

@@ -32,6 +32,9 @@
         <item>\u00209\u0020</item>
     </string-array>
 
+    <!-- TTS Strings -->
+    <string name="tts_starting">Starting in, 5. 4. 3. 2. 1.</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="start_workout_button">Start Workout</string>

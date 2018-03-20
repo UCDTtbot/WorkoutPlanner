@@ -31,6 +31,8 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.ui.dialogs.NewWorkoutDialog;
+import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.reflect.Method;

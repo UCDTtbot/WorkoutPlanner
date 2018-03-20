@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui;
+package com.shibedays.workoutplanner.services;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,18 +8,21 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 public class TimerService extends Service {
 
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = TimerService.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TimerService.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.services.TimerService.";
     // Notification ID
     private static final int NOTIF_ID = 1;
     private static final long ONE_SEC = 1000;
@@ -28,6 +31,8 @@ public class TimerService extends Service {
     public static final int REST_ACTION = 1;
     public static final int BREAK_ACTION = 2;
     public static final int STOP_ACTION = 3;
+    // Message Constants
+    public static final int MSG_TIMER_BIND = 0;
     //endregion
 
     //region INTENT_KEYS
@@ -52,20 +57,39 @@ public class TimerService extends Service {
     // Notification Variables
     private NotificationCompat.Builder mBuilder;
     private NotificationManager mNotifManager;
+    // Instances
+    private Messenger mMyWorkoutActivityMessenger;
+    // Booleans
+    private boolean mIsMessengerBound = false;
     //endregion
 
     //region PUBLIC_VARS
 
     //endregion
 
-    //region BINDER
-    // Binder given to clients
-    public class TimerBinder extends Binder {
-        TimerService getService() {
-            return TimerService.this;
+    //region MESSAGE_HANDLER
+    // The Messenger (originally binder) given to clients
+    private class IncomingMessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case MSG_TIMER_BIND:
+                    mMyWorkoutActivityMessenger = msg.replyTo;
+                    mIsMessengerBound = true;
+                    Message reply = Message.obtain(null, MyWorkoutActivity.MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING);
+                    try {
+                        mMyWorkoutActivityMessenger.send(reply);
+                    } catch (RemoteException e){
+                        e.printStackTrace();
+                    }
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
         }
     }
-    private final IBinder mBinder = new TimerBinder();
+
+    final Messenger mMessenger = new Messenger(new IncomingMessageHandler());
     //endregion
 
     //region LIFECYCLE
@@ -102,25 +126,43 @@ public class TimerService extends Service {
         startForeground(NOTIF_ID, mBuilder.build());
         //endregion
 
-        // Send broadcast that the service is starting
-        Intent brdIntent = new Intent(MyWorkoutActivity.FILTER);
-        brdIntent.putExtra(MyWorkoutActivity.EXTRA_UPDATE_DESCRIPTION, "Service has Started");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(brdIntent);
+        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PASS_TTS_MSG, R.string.tts_starting, 0);
+        sendMessage(msg);
 
+        mTimeLeft = mTotalSetTime;
         mCurrentAction = REP_ACTION;
-        beginTimer(mTotalSetTime);
+        mHandler.removeCallbacks(timer);
+        mHandler.postDelayed(timer, ONE_SEC * 6);
 
         return START_NOT_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return mMessenger.getBinder();
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(DEBUG_TAG, "TIMER SERVICE ON_DESTROY CALLED");
+        //stopForeground(true);
+        //stopSelf();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d(DEBUG_TAG, "TIMER SERVICE ON_UNBIND CALLED");
+        mHandler.removeCallbacks(timer);
+        stopForeground(true);
+        stopSelf();
+        return super.onUnbind(intent);
+    }
+
     //endregion
 
     //region UTILITY
-    private void beginTimer(int time){
+    private void continueTimer(int time){
         mTimeLeft = time;
         mHandler.removeCallbacks(timer);
         mHandler.postDelayed(timer, ONE_SEC);
@@ -134,10 +176,49 @@ public class TimerService extends Service {
     //region TIMER_LOOP
     private Runnable timer = new Runnable(){
         public void run(){
+            mTimeLeft -= ONE_SEC;
+
+            if(mTimeLeft > 0){ // Still running
+                if(mTimeLeft == 7000 && mCurrentAction == REST_ACTION){
+                    // REST ENDING SOON
+                }
+                if(mTimeLeft == 5000) {
+                    // 5 SECS LEFT
+                }
+                if(mTimeLeft == 4000) {
+                    // 4 SECS LEFT
+                }
+                if(mTimeLeft == 3000) {
+                    // 3 SECS LEFT
+                }
+                if(mTimeLeft == 2000) {
+                    // 2 SECS LEFT
+                }
+                if(mTimeLeft == 1000) {
+                    // 1 SECS LEFT
+                }
+
+                mHandler.postDelayed(this, ONE_SEC);
+            } else if(mTimeLeft <= 0) { // Timer has finished
+                Log.d(DEBUG_TAG, "Timer has finished.");
+
+            }
+
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_UPDATE_TIME_DISPLAY, mTimeLeft, 0);
+            sendMessage(msg);
         }
     };
     //endregion
 
+    private void sendMessage(Message msg){
+        if(mIsMessengerBound) {
+            try {
+                mMyWorkoutActivityMessenger.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
 }

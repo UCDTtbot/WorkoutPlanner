@@ -1,11 +1,10 @@
-package com.shibedays.workoutplanner.ui;
+package com.shibedays.workoutplanner.ui.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +18,7 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.Locale;
 
@@ -28,7 +28,7 @@ public class AddSetDialog extends DialogFragment implements NumberPicker.OnValue
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = AddSetDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.AddSetDialog.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.AddSetDialog.";
     //endregion
 
     //region PRIVATE_VARS

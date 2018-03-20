@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui;
+package com.shibedays.workoutplanner.ui.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,11 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethod;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ui.MainActivity;
 
 
 public class NewWorkoutDialog extends DialogFragment {
@@ -26,7 +25,7 @@ public class NewWorkoutDialog extends DialogFragment {
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = NewWorkoutDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.NewWorkoutDialog.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NewWorkoutDialog.";
     //endregion
 
     //region PRIVATE_VARS

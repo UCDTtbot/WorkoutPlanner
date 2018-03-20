@@ -1,7 +1,6 @@
 package com.shibedays.workoutplanner.ui;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,6 +29,7 @@ import com.google.gson.Gson;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.services.TimerService;
 
 import org.w3c.dom.Text;
 
@@ -87,8 +86,8 @@ public class TimerFragment extends Fragment {
      * activity.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void closeFragmentAndService();
+        void stopTTSSpeech();
     }
     private OnFragmentInteractionListener mListener;
     //endregion
@@ -160,9 +159,7 @@ public class TimerFragment extends Fragment {
         mCurRoundTextView = view.findViewById(R.id.current_round);
         mDescipTextView = view.findViewById(R.id.descrip);
         mServiceTextView = view.findViewById(R.id.service_running);
-        int[] time = MainActivity.convertFromMillis(mCurSet.getTime());
-        int minutes = time[0], seconds = time[1];
-        updateTime(minutes, seconds);
+        updateTime(mCurSet.getTime());
         updateRep(mCurRep);
         updateRound(mCurRound);
         updateDescription(mCurSet.getDescrip());
@@ -182,17 +179,24 @@ public class TimerFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        Log.d(DEBUG_TAG, "FRAGMENT ON_PAUSE CALLED");
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
+        Log.d(DEBUG_TAG, "FRAGMENT ON_STOP CALLED");
     }
 
     @Override
     public void onDestroy(){
-        getActivity().findViewById(R.id.fragment_container).setVisibility(View.GONE);
         super.onDestroy();
+        getActivity().findViewById(R.id.fragment_container).setVisibility(View.GONE);
+        mListener.closeFragmentAndService();
+        mListener.stopTTSSpeech();
+        mTimerFragmentInstance = null;
+        Log.d(DEBUG_TAG, "FRAGMENT ON_DESTROY CALLED");
     }
 
     @Override
@@ -224,10 +228,14 @@ public class TimerFragment extends Fragment {
     //endregion
 
     //region UI_UPDATE_FUNCTIONS
-    public void updateTime(int min, int sec){
+    public void updateTime(int time){
+        int[] splitTime = MainActivity.convertFromMillis(time);
+        int min = splitTime[0], sec = splitTime[1];
         if((sec % 10) == 0){
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
         } else if ( sec < 10 ){
+            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else if (min == 0 && sec == 0){
             mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -254,6 +262,14 @@ public class TimerFragment extends Fragment {
     //region GET_DATA_FUNCTIONS
     public int getCurSetTime(){
         return mCurSet.getTime();
+    }
+
+    public int getRestTime(){
+        return mWorkout.getTimeBetweenSets();
+    }
+
+    public int getBreakTime(){
+        return mWorkout.getTimeBetweenRounds();
     }
 
     public int getCurRep(){
