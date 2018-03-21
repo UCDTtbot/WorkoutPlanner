@@ -33,12 +33,20 @@ public class TimerService extends Service {
     public static final int STOP_ACTION = 3;
     // Message Constants
     public static final int MSG_TIMER_BIND = 0;
+    public static final int MSG_NEXT_SET_TIME = 1;
+
+    private static final int TTS_STARTING_DELAY = 6;
+    private static final int TTS_BREAK_DELAY = 2;
+    private static final int TTS_REST_DELAY = 2;
+    private static final int TTS_NO_DELAY = 1;
     //endregion
 
     //region INTENT_KEYS
     public static final String EXTRA_SET_TIME = PACKAGE + "SET_TIME";
     public static final String EXTRA_REST_TIME = PACKAGE + "REST_TIME";
     public static final String EXTRA_BREAK_TIME = PACKAGE + "BREAK_TIME";
+    public static final String EXTRA_NUM_REPS = PACKAGE + "NUM_REPS";
+    public static final String EXTRA_NUM_ROUNDS = PACKAGE + "NUM_ROUNDS";
     public static final String EXTRA_REBUILD_BUNDLE = PACKAGE + "REBUILD";
     //endregion
 
@@ -48,6 +56,10 @@ public class TimerService extends Service {
     private int mTimeLeft;
     private int mRestTime;
     private int mBreakTime;
+    private int mCurRep;
+    private int mCurRound;
+    private int mNumReps;
+    private int mNumRounds;
     // Action Tracker
     private int mCurrentAction;
     // Notification Variables
@@ -83,6 +95,13 @@ public class TimerService extends Service {
                         e.printStackTrace();
                     }
                     break;
+                case MSG_NEXT_SET_TIME:
+                    if(msg.arg1 > 0) {
+                        setNextSetTime(msg.arg1);
+                    }else{
+                        Log.e(DEBUG_TAG, "NEXT SET TIME HAS INVALID ARG");
+                    }
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -104,6 +123,8 @@ public class TimerService extends Service {
             mTotalSetTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
             mRestTime = intent.getIntExtra(EXTRA_REST_TIME, -1);
             mBreakTime = intent.getIntExtra(EXTRA_BREAK_TIME, -1);
+            mNumReps = intent.getIntExtra(EXTRA_NUM_REPS, -1);
+            mNumRounds = intent.getIntExtra(EXTRA_NUM_ROUNDS, -1);
         } else {
             // abort?
         }
@@ -126,13 +147,12 @@ public class TimerService extends Service {
         startForeground(NOTIF_ID, mBuilder.build());
         //endregion
 
-        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PASS_TTS_MSG, R.string.tts_starting, 0);
-        sendMessage(msg);
+        sendTTSMessage(R.string.tts_starting);
 
-        mTimeLeft = mTotalSetTime;
+        mCurRep = 0;
+        mCurRound = 0;
         mCurrentAction = REP_ACTION;
-        mHandler.removeCallbacks(timer);
-        mHandler.postDelayed(timer, ONE_SEC * 6);
+        beginTimer(mTotalSetTime, TTS_STARTING_DELAY);
 
         return START_NOT_STICKY;
     }
@@ -162,10 +182,10 @@ public class TimerService extends Service {
     //endregion
 
     //region UTILITY
-    private void continueTimer(int time){
+    private void beginTimer(int time, int delay){
         mTimeLeft = time;
         mHandler.removeCallbacks(timer);
-        mHandler.postDelayed(timer, ONE_SEC);
+        mHandler.postDelayed(timer, ONE_SEC * delay);
     }
 
     public void setNextSetTime(int time){
@@ -180,28 +200,88 @@ public class TimerService extends Service {
 
             if(mTimeLeft > 0){ // Still running
                 if(mTimeLeft == 7000 && mCurrentAction == REST_ACTION){
-                    // REST ENDING SOON
+                    sendTTSMessage(R.string.tts_rest_ending);
                 }
                 if(mTimeLeft == 5000) {
-                    // 5 SECS LEFT
+                    sendTTSMessage(R.string.tts_five);
                 }
                 if(mTimeLeft == 4000) {
-                    // 4 SECS LEFT
+                    sendTTSMessage(R.string.tts_four);
                 }
                 if(mTimeLeft == 3000) {
-                    // 3 SECS LEFT
+                    sendTTSMessage(R.string.tts_three);
                 }
                 if(mTimeLeft == 2000) {
-                    // 2 SECS LEFT
+                    sendTTSMessage(R.string.tts_two);
                 }
                 if(mTimeLeft == 1000) {
-                    // 1 SECS LEFT
+                    sendTTSMessage(R.string.tts_one);
                 }
 
                 mHandler.postDelayed(this, ONE_SEC);
             } else if(mTimeLeft <= 0) { // Timer has finished
                 Log.d(DEBUG_TAG, "Timer has finished.");
 
+                if(mCurrentAction == REP_ACTION && mCurRep == mNumReps && mCurRound != mNumRounds) {  // Round Finished. Break
+
+                    sendTTSMessage(R.string.tts_round_finished);
+
+                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_GET_FIRST_SET, 0, 0);
+                    sendMessage(msg);
+
+                    mCurrentAction = BREAK_ACTION;
+                    beginTimer(mBreakTime, TTS_BREAK_DELAY);
+
+                } else if(mCurrentAction == REP_ACTION && mCurRep == mNumReps && mCurRound == mNumRounds){ // Workout Finished. Finished
+                    sendTTSMessage(R.string.tts_finished);
+
+                    //TODO: Send us back to MyWorkoutActivity, unbind, and kill-self
+
+                } else if(mCurrentAction == REP_ACTION && mCurRep != mNumReps){ // Set finished. Rest
+                    //Repetition finished. Rest.
+                    sendTTSMessage(R.string.tts_take_rest);
+
+                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_SET_TIME, 0, 0);
+                    sendMessage(msg);
+
+                    mCurrentAction = REST_ACTION;
+                    beginTimer(mRestTime, TTS_REST_DELAY);
+
+                } else if(mCurrentAction == REST_ACTION){ // Rest finished. Next Rep
+                    //Rest finished. Start next rep.
+                    mCurRep++;
+                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
+                    sendMessage(msg);
+
+                    sendTTSMessage(R.string.tts_begin);
+                    updateNotification();
+
+                    mCurrentAction = REP_ACTION;
+                    if(mTotalSetTime > 0) {
+                        beginTimer(mTotalSetTime, 1);
+                    } else {
+                        //TODO: mTotalSetTime was not set fast enough
+                        Log.e(DEBUG_TAG, "mTotalSetTime was not set fast enough");
+                    }
+                } else if(mCurrentAction == BREAK_ACTION){ // Break Finished. Next Round
+                    //Break finished, start next round
+                    sendTTSMessage(R.string.tts_next_round);
+
+                    mCurRound++;
+                    Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND_UI, mCurRound, 0);
+                    sendMessage(msg_round);
+
+                    mCurRep = 0;
+                    Message msg_rep = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
+                    sendMessage(msg_rep);
+
+                    updateNotification();
+                    mCurrentAction = REP_ACTION;
+                    beginTimer(mTotalSetTime, 2);
+                } else {
+                    //TODO: Something bad happened (?)
+                    Log.e(DEBUG_TAG, "mTimeLeft is negative ?");
+                }
             }
 
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_UPDATE_TIME_DISPLAY, mTimeLeft, 0);
@@ -209,6 +289,15 @@ public class TimerService extends Service {
         }
     };
     //endregion
+
+    private void updateNotification(){
+        //TODO: Update the notif
+    }
+
+    private void sendTTSMessage(int stringID){
+        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PASS_TTS_MSG, stringID, 0);
+        sendMessage(msg);
+    }
 
     private void sendMessage(Message msg){
         if(mIsMessengerBound) {

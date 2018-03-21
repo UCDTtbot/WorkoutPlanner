@@ -58,7 +58,6 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
                 case MSG_SPEAK:
                     int strID = msg.arg1;
                     if (strID >= 0) {
-                        Toast.makeText(getApplicationContext(), "TTS Beginning Speech", Toast.LENGTH_SHORT).show();
                         speak(getResources().getString(strID));
                     } else {
                         Log.e(DEBUG_TAG, "MSG_SPEAK arg1 empty");

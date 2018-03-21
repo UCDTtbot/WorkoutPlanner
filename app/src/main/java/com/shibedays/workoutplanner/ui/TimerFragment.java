@@ -243,10 +243,12 @@ public class TimerFragment extends Fragment {
     }
 
     public void updateRep(int rep){
+        mCurRep = rep;
         mCurRepTextView.setText(String.format(Locale.US, "%d", (rep + 1)));
     }
 
     public void updateRound(int round){
+        mCurRound = round;
         mCurRoundTextView.setText(String.format(Locale.US, "%d", (round + 1)));
     }
 
@@ -282,7 +284,7 @@ public class TimerFragment extends Fragment {
     //endregion
 
     //region TIMER_INTERACTIONS
-    public Set nextSet(){
+    public Set nextSet(){ // Sets and returns mCurSet with the next set if its not the last
         mCurSetIndex++;
         if(mCurSetIndex < mSets.size()){
             mCurSet = mSets.get(mCurSetIndex);
@@ -290,6 +292,12 @@ public class TimerFragment extends Fragment {
         }  else {
             return null;
         }
+    }
+
+    public Set firstSet(){ // Sets and returns mCurSet with the first set of all
+        mCurSetIndex = 0;
+        mCurSet = mSets.get(mCurSetIndex);
+        return mCurSet;
     }
 
     public int nextRep(){

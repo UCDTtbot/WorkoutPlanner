@@ -48,6 +48,7 @@ import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.Locale;
+import java.util.Timer;
 
 
 public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener, NumberPickerDialog.NumberPickerDialogListener {
@@ -66,9 +67,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
     //region MESSAGES
     public static final int MSG_SAY_HELLO = 0;
+
     public static final int MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING = 1;
     public static final int MSG_PASS_TTS_MSG = 2;
     public static final int MSG_UPDATE_TIME_DISPLAY = 3;
+    public static final int MSG_NEXT_REP_UI = 4;
+    public static final int MSG_NEXT_ROUND_UI = 5;
+    public static final int MSG_NEXT_SET_TIME = 6;
+    public static final int MSG_GET_FIRST_SET =  7;
     //endregion
 
     //region INTENT_KEYS
@@ -137,11 +143,49 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                     mTimerFragment.updateServiceText("Service is Running");
                     break;
                 case MSG_PASS_TTS_MSG:
-                    sendTTSMessage(msg.arg1);
+                    if(msg.arg1 > 0) {
+                        sendTTSMessage(msg.arg1);
+                    }
                     break;
                 case MSG_UPDATE_TIME_DISPLAY:
                     if(mTimerFragment != null){
                         mTimerFragment.updateTime(msg.arg1);
+                    } else {
+                        Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
+                    }
+                    break;
+                case MSG_NEXT_REP_UI:
+                    if(msg.arg1 >= 0){
+                        if(mTimerFragment != null) {
+                            mTimerFragment.updateRep(msg.arg1);
+                        } else {
+                            Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_NEXT_REP_UI");
+                        }
+                    }
+                    break;
+                case MSG_NEXT_ROUND_UI:
+                    if(msg.arg1 >= 0){
+                        if(mTimerFragment != null) {
+                            mTimerFragment.updateRound(msg.arg1);
+                        } else {
+                            Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_NEXT_ROUND_UI");
+                        }
+                    }
+                    break;
+                case MSG_NEXT_SET_TIME:
+                    Set nextSet = mTimerFragment.nextSet();
+                    if(nextSet != null) {
+                        Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, nextSet.getTime(), 0);
+                        sendTimerMessage(message);
+                    } else {
+                        Log.e(DEBUG_TAG, "There is no next set");
+                    }
+                    break;
+                case MSG_GET_FIRST_SET:
+                    Set firstSet = mTimerFragment.firstSet();
+                    if(firstSet != null){
+                        Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, firstSet.getTime(), 0);
+                        sendTimerMessage(message);
                     }
                     break;
                 default:
@@ -614,6 +658,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         timerIntent.putExtra(TimerService.EXTRA_SET_TIME, mTimerFragment.getCurSetTime());
         timerIntent.putExtra(TimerService.EXTRA_REST_TIME, mWorkoutData.getTimeBetweenSets());
         timerIntent.putExtra(TimerService.EXTRA_BREAK_TIME, mWorkoutData.getTimeBetweenRounds());
+        timerIntent.putExtra(TimerService.EXTRA_NUM_REPS, mWorkoutData.getNumOfSets());
+        timerIntent.putExtra(TimerService.EXTRA_NUM_ROUNDS, mWorkoutData.getNumOfRounds());
 
         startService(timerIntent);
     }
@@ -643,7 +689,19 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     //endregion
 
     //region TIMER_Outgoing_Messaging
-
+    public void sendTimerMessage(Message msg){
+        if(mTimerIsBound) {
+            if(msg != null){
+                try{
+                    mTimerService.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            Log.e(DEBUG_TAG, "Timer is unbound");
+        }
+    }
     //endregion
 
     //region SERVICE_CONNECTIONS
