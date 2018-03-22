@@ -233,6 +233,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         //TODO: in onCreate, we need to check if: TTS Service already Exists, Fragment Already Exists, TimerService already exists
         // if any of the above already exist, most likely means we are returning from the notification and/or need to restore the activity
         // from some previous state
+
         //region INTENT
         Intent intent = getIntent();
         if(intent != null){
@@ -298,13 +299,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         mRecyclerView.addItemDecoration(itemDecoration);
 
         //region TOUCH_SWIPE_SETUP
-        int dragDirs = 0;
+        int dragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
         final int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
                 dragDirs, swipeDirs) {
-
             // Swipe to delete help from:
             // https://github.com/nemanja-kovacevic/recycler-view-swipe-to-delete/blob/master/app/src/main/java/net/nemanjakovacevic/recyclerviewswipetodelete/
+
             // Cache the vars needed for onChildDraw
             Drawable background;
             Drawable deleteIC;
@@ -322,6 +324,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             // This is for dragging, we don't need (for now)
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                int from = viewHolder.getAdapterPosition();
+                int to = target.getAdapterPosition();
+                // Collections.swap(data, from, to);
+                mSetAdapter.notifyItemMoved(from, to);
+
                 return false;
             }
 
