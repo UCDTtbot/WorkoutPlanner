@@ -6,12 +6,15 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.crypto.spec.DESedeKeySpec;
 
 @Entity(tableName = "workouts")
 public class Workout{
@@ -108,6 +111,16 @@ public class Workout{
 
     public void addSet(Set set){
         setList.add(set);
+    }
+    public void swapSets(int from, int to){
+        //Log.d("WORKOUT", "Swapping");
+        Set temp = setList.get(to);
+        setList.set(to, setList.get(from));
+        setList.set(from, temp);
+        //Log.d("WORKOUT", "Swapped");
+    }
+    public void updateSet(Set set){
+
     }
     public void removeSet(Set set){
         setList.remove(setList.indexOf(set));

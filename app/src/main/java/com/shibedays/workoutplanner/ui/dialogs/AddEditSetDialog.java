@@ -18,17 +18,25 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.Locale;
 
 
-public class AddSetDialog extends DialogFragment implements NumberPicker.OnValueChangeListener{
+public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnValueChangeListener{
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = AddSetDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.AddSetDialog.";
+    private static final String DEBUG_TAG = AddEditSetDialog.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog.";
+
+    private static final int NEW_SET = 0;
+    private static final int EDIT_SET = 1;
+    //endregion
+
+    //region INTENT_KEYS
+    private static final String EXTRA_DIALOG_TYPE = PACKAGE + "DIALOG_TYPE";
     //endregion
 
     //region PRIVATE_VARS
@@ -45,6 +53,8 @@ public class AddSetDialog extends DialogFragment implements NumberPicker.OnValue
     public interface AddSetDialogListener {
         void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec);
         void onAddSetDialogNegativeClick();
+
+        void onEditSetDialogPositiveClick(Set set);
     }
     AddSetDialogListener mListener;
     //endregion
@@ -71,7 +81,7 @@ public class AddSetDialog extends DialogFragment implements NumberPicker.OnValue
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.fragment_add_set, null);
+        final View view = inflater.inflate(R.layout.fragment_add_edit_set, null);
 
         mEditTextName = view.findViewById(R.id.new_set_name);
         mEditTestDescrip = view.findViewById(R.id.new_set_descrip);
@@ -79,14 +89,15 @@ public class AddSetDialog extends DialogFragment implements NumberPicker.OnValue
         mSecondPicker = view.findViewById(R.id.SecondsPicker);
 
         mMinutePicker.setMinValue(0);
-        mMinutePicker.setMaxValue(59);
-        mMinutePicker.setValue(1);
+        mMinutePicker.setMaxValue(30);
+        // TODO: Set value to current actual data
+        mMinutePicker.setValue(0);
         mMinutePicker.setWrapSelectorWheel(true);
         mMinutePicker.setOnValueChangedListener(this);
 
-        mSecondPicker.setMinValue(0);
+        mSecondPicker.setMinValue(1);
         mSecondPicker.setMaxValue(59);
-        mSecondPicker.setValue(0);
+        mSecondPicker.setValue(5);
         mSecondPicker.setFormatter(new NumberPicker.Formatter() {
             @Override
             public String format(int value) {

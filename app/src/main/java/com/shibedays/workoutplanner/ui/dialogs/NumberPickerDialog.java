@@ -13,28 +13,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.NumberPicker;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.Locale;
-
-import javax.security.auth.login.LoginException;
 
 
 public class NumberPickerDialog extends DialogFragment implements NumberPicker.OnValueChangeListener {
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = NewWorkoutDialog.class.getSimpleName();
+    private static final String DEBUG_TAG = NewEditWorkoutDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog.";
 
-    public static final String EXTRA_DIALOG_TYPE = PACKAGE + "TYPE";
 
     public static final int REST_TYPE = 0;
     public static final int BREAK_TYPE = 1;
+    //endregion
+
+    //region INTENT_KEYS
+    public static final String EXTRA_DIALOG_TYPE = PACKAGE + "TYPE";
+    public static final String EXTRA_GIVEN_TIME = PACKAGE + "GIVEN_TIME";
     //endregion
 
     //region PRIVATE_VARS
@@ -45,6 +47,7 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
     private MyWorkoutActivity mParentActivity;
 
     private int mWhichTime;
+    private int mGivenTime;
     //endregion
 
     //region INTERFACES
@@ -78,7 +81,11 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         Bundle args = getArguments();
         if(args != null){
             mWhichTime = args.getInt(EXTRA_DIALOG_TYPE);
+            mGivenTime = args.getInt(EXTRA_GIVEN_TIME);
         }
+
+        int[] time = MainActivity.convertFromMillis(mGivenTime);
+        int min = time[0], sec = time[1];
 
         mParentActivity = (MyWorkoutActivity) getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
@@ -90,14 +97,14 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         mSecondPicker = view.findViewById(R.id.number_picker_seconds);
 
         mMinutePicker.setMinValue(0);
-        mMinutePicker.setMaxValue(59);
-        mMinutePicker.setValue(1);
+        mMinutePicker.setMaxValue(30);
+        mMinutePicker.setValue(min);
         mMinutePicker.setWrapSelectorWheel(true);
         mMinutePicker.setOnValueChangedListener(this);
 
-        mSecondPicker.setMinValue(0);
+        mSecondPicker.setMinValue(1);
         mSecondPicker.setMaxValue(59);
-        mSecondPicker.setValue(0);
+        mSecondPicker.setValue(sec);
         mSecondPicker.setFormatter(new NumberPicker.Formatter() {
             @Override
             public String format(int value) {

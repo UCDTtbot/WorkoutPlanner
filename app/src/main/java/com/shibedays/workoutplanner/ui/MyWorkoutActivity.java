@@ -43,15 +43,14 @@ import com.shibedays.workoutplanner.services.TTSService;
 import com.shibedays.workoutplanner.services.TimerService;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.dialogs.AddSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.Locale;
-import java.util.Timer;
 
 
-public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener, NumberPickerDialog.NumberPickerDialogListener {
+public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener, AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener, NumberPickerDialog.NumberPickerDialogListener {
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -200,10 +199,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     @Override
     protected void onStart(){
         super.onStart();
+        Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_START");
 
-        Intent TTSIntent = new Intent(this, TTSService.class);
-        bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
-        startService(TTSIntent);
     }
 
     @Override
@@ -222,6 +219,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         mFragmentManager = getSupportFragmentManager();
 
+        //region TTS_BINDING
+        Intent TTSIntent = new Intent(this, TTSService.class);
+        bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
+        startService(TTSIntent);
+        //endregion
+        Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_CREATE (BINDING TTS)");
         if(savedInstanceState != null){
             TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
         }
@@ -326,7 +329,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
                 int from = viewHolder.getAdapterPosition();
                 int to = target.getAdapterPosition();
-                // Collections.swap(data, from, to);
+                swapSets(from, to);
                 mSetAdapter.notifyItemMoved(from, to);
 
                 return false;
@@ -432,11 +435,19 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_RESUME");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_PAUSE");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_STOP");
     }
 
     @Override
@@ -444,14 +455,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         super.onDestroy();
         if(mTTSIsBound){
             unbindService(mTTSConnection);
+            Log.d(DEBUG_TAG, "TTS Shutdown ON DESTROY");
+            Toast.makeText(getApplicationContext(), "TTS Shutoff ON DESTROY", Toast.LENGTH_SHORT).show();
             stopService(new Intent(this, TTSService.class));
             mTTSIsBound = false;
         }
+        Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_DESTROY");
+
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        // TODO: What do we gotta save?
+        Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY SAVING INSTANCE STATE");
+
     }
     //endregion
 
@@ -511,15 +529,15 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     }
 
     private void openAddNewSetDialog(){
-        Log.d(DEBUG_TAG, "Adding a new set");
-        AddSetDialog addSetDialog = new AddSetDialog();
-        addSetDialog.show(mFragmentManager, DEBUG_TAG);
+        AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
+        addEditSetDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
     private void openRestNumberPickerDialog(){
         NumberPickerDialog numberPickerDialog = new NumberPickerDialog();
         Bundle args = new Bundle();
         args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.REST_TYPE);
+        args.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, mWorkoutData.getTimeBetweenSets());
         numberPickerDialog.setArguments(args);
         numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
     }
@@ -528,12 +546,18 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         NumberPickerDialog numberPickerDialog = new NumberPickerDialog();
         Bundle args = new Bundle();
         args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.BREAK_TYPE);
+        args.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, mWorkoutData.getTimeBetweenRounds());
         numberPickerDialog.setArguments(args);
         numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
+    private void swapSets(int from, int to){
+        mWorkoutData.swapSets(from, to);
+    }
+
     //endregion
 
+    //region UI_UPDATES
     private void updateRestTimeUI(int min, int sec){
         if((sec % 10) == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -558,6 +582,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         }
     }
 
+    //endregion
+
     //region INTERFACE_IMPLEMENTATIONS
 
     // Spinner Listeners
@@ -581,6 +607,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         Set newSet = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
         mWorkoutData.addSet(newSet);
         mViewModel.update(mWorkoutData);
+    }
+
+    @Override
+    public void onEditSetDialogPositiveClick(Set set) {
+
     }
 
     @Override
@@ -690,7 +721,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                 Log.e(DEBUG_TAG, "Invalid String ID in sendTTSMessage");
             }
         } else {
-            Log.e(DEBUG_TAG, "TTS is unbound but trying to send a message");
+            Log.e(DEBUG_TAG, "TTS is not bound but trying to send a message");
         }
     }
     //endregion
@@ -706,7 +737,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                 }
             }
         } else {
-            Log.e(DEBUG_TAG, "Timer is unbound");
+            Log.e(DEBUG_TAG, "Timer is not bound");
         }
     }
     //endregion
@@ -728,8 +759,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             }
 
             beginTimerService();
-
-            Log.d(DEBUG_TAG, "Timer running and bound");
         }
 
         @Override
@@ -753,7 +782,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             } catch (RemoteException e){
                 e.printStackTrace();
             }
-            Log.d(DEBUG_TAG, "TTS Running and bound");
         }
 
         @Override

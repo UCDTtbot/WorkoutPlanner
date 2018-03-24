@@ -1,93 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/view_foreground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
-    android:focusable="true"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground"
-    android:paddingTop="@dimen/row_padding_vert"
-    android:paddingBottom="@dimen/row_padding_vert"
-    android:paddingStart="@dimen/row_paddting_hori"
-    android:paddingEnd="@dimen/row_paddting_hori">
+    android:focusable="true">
 
-    <TextView
-        android:id="@+id/item_name"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="@string/default_title"
-        android:layout_marginTop="@dimen/name_margin_spacing"
-        android:layout_marginBottom="@dimen/name_margin_spacing"
-        android:textColor="@color/item_name"
-        android:textSize="@dimen/item_name_size"
-        android:textStyle="bold"/>
+        android:paddingTop="@dimen/row_padding_vert"
+        android:paddingBottom="@dimen/row_padding_vert"
+        android:paddingStart="@dimen/row_paddting_hori"
+        android:paddingEnd="@dimen/row_paddting_hori">
 
-    <!-- TODO: Remove the background -->
-    <TextView
-        android:id="@+id/item_sets"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_name"
-        android:layout_marginStart="@dimen/sets_margin_spacing"
-        android:paddingStart="@dimen/padding_spacing_5dp"
-        android:paddingEnd="@dimen/padding_spacing_5dp"
-        android:text="@string/default_set"
-        android:textColor="@color/item_sub_color"
-        android:textSize="@dimen/item_sub_size"
-        android:background="@drawable/text_background"/>
-    <TextView
-        android:id="@+id/TEST_POS_ID"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_name"
-        android:layout_toEndOf="@+id/item_sets"
-        android:layout_marginStart="@dimen/sets_margin_spacing"
-        android:paddingStart="@dimen/padding_spacing_5dp"
-        android:paddingEnd="@dimen/padding_spacing_5dp"
-        android:text="PosID: "
-        android:textColor="@color/item_sub_color"
-        android:textSize="@dimen/item_sub_size"
-        android:background="@drawable/text_background"/>
-    <TextView
-        android:id="@+id/TEST_WRK_ID"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_name"
-        android:layout_toEndOf="@+id/TEST_POS_ID"
-        android:layout_marginStart="@dimen/sets_margin_spacing"
-        android:paddingStart="@dimen/padding_spacing_5dp"
-        android:paddingEnd="@dimen/padding_spacing_5dp"
-        android:text="Wrkout ID: "
-        android:textColor="@color/item_sub_color"
-        android:textSize="@dimen/item_sub_size"
-        android:background="@drawable/text_background"/>
-    <!--
         <TextView
-            android:id="@+id/item_rounds"
-            android:layout_width="90dp"
+            android:id="@+id/item_name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/item_sets"
+            android:layout_alignParentTop="true"
+            android:text="@string/default_title"
+            android:layout_marginTop="@dimen/name_margin_spacing"
+            android:layout_marginBottom="@dimen/name_margin_spacing"
+            android:textColor="@color/item_name"
+            android:textSize="@dimen/item_name_size"
+            android:textStyle="bold"/>
+
+        <!-- TODO: Remove the background -->
+        <TextView
+            android:id="@+id/item_sets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/item_name"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:text="@string/default_round"
+            android:layout_marginStart="@dimen/sets_margin_spacing"
+            android:paddingStart="@dimen/padding_spacing_5dp"
+            android:paddingEnd="@dimen/padding_spacing_5dp"
+            android:text="@string/default_set"
             android:textColor="@color/item_sub_color"
             android:textSize="@dimen/item_sub_size"
             android:background="@drawable/text_background"/>
-     -->
-    <ImageView
-        android:id="@+id/right_arrow"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        app:srcCompat="@drawable/ic_right_arrow"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"/>
+        <TextView
+            android:id="@+id/TEST_POS_ID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/item_name"
+            android:layout_toEndOf="@+id/item_sets"
+            android:layout_marginStart="@dimen/sets_margin_spacing"
+            android:paddingStart="@dimen/padding_spacing_5dp"
+            android:paddingEnd="@dimen/padding_spacing_5dp"
+            android:text="PosID: "
+            android:textColor="@color/item_sub_color"
+            android:textSize="@dimen/item_sub_size"
+            android:background="@drawable/text_background"/>
+        <TextView
+            android:id="@+id/TEST_WRK_ID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/item_name"
+            android:layout_toEndOf="@+id/TEST_POS_ID"
+            android:layout_marginStart="@dimen/sets_margin_spacing"
+            android:paddingStart="@dimen/padding_spacing_5dp"
+            android:paddingEnd="@dimen/padding_spacing_5dp"
+            android:text="Wrkout ID: "
+            android:textColor="@color/item_sub_color"
+            android:textSize="@dimen/item_sub_size"
+            android:background="@drawable/text_background"/>
+        <!--
+            <TextView
+                android:id="@+id/item_rounds"
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/item_sets"
+                android:layout_below="@+id/item_name"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="@string/default_round"
+                android:textColor="@color/item_sub_color"
+                android:textSize="@dimen/item_sub_size"
+                android:background="@drawable/text_background"/>
+         -->
+        <ImageView
+            android:id="@+id/right_arrow"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            app:srcCompat="@drawable/ic_right_arrow"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
 
-</RelativeLayout>
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
+
 <!--
 <FrameLayout
 

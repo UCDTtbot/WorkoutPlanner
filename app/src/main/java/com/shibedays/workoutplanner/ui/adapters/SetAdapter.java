@@ -157,7 +157,6 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
             }
         }
         notifyDataSetChanged();
-        notifyDataSetChanged();
     }
     //endregion
 

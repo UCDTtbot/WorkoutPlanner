@@ -114,7 +114,7 @@ public class TimerService extends Service {
     //region LIFECYCLE
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(DEBUG_TAG, "TimerService onStartCommand called");
+        Log.d(DEBUG_TAG, "TIMER SERVICE ON_START_COMMAND");
 
 
         // TODO: Receive the bundle that contains the notification information and use it to build the notif
@@ -159,20 +159,21 @@ public class TimerService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(DEBUG_TAG, "TIMER SERVICE ON_BIND");
         return mMessenger.getBinder();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(DEBUG_TAG, "TIMER SERVICE ON_DESTROY CALLED");
+        Log.d(DEBUG_TAG, "TIMER SERVICE ON_DESTROY");
         //stopForeground(true);
         //stopSelf();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(DEBUG_TAG, "TIMER SERVICE ON_UNBIND CALLED");
+        Log.d(DEBUG_TAG, "TIMER SERVICE ON_UNBIND");
         mHandler.removeCallbacks(timer);
         stopForeground(true);
         stopSelf();
@@ -222,7 +223,7 @@ public class TimerService extends Service {
             } else if(mTimeLeft <= 0) { // Timer has finished
                 Log.d(DEBUG_TAG, "Timer has finished.");
 
-                if(mCurrentAction == REP_ACTION && mCurRep == mNumReps && mCurRound != mNumRounds) {  // Round Finished. Break
+                if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound != (mNumRounds - 1)) {  // Round Finished. Break
 
                     sendTTSMessage(R.string.tts_round_finished);
 
@@ -232,12 +233,12 @@ public class TimerService extends Service {
                     mCurrentAction = BREAK_ACTION;
                     beginTimer(mBreakTime, TTS_BREAK_DELAY);
 
-                } else if(mCurrentAction == REP_ACTION && mCurRep == mNumReps && mCurRound == mNumRounds){ // Workout Finished. Finished
+                } else if(mCurrentAction == REP_ACTION && mCurRep <= (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
                     sendTTSMessage(R.string.tts_finished);
 
                     //TODO: Send us back to MyWorkoutActivity, unbind, and kill-self
 
-                } else if(mCurrentAction == REP_ACTION && mCurRep != mNumReps){ // Set finished. Rest
+                } else if(mCurrentAction == REP_ACTION && mCurRep < (mNumReps - 1 )){ // Set finished. Rest
                     //Repetition finished. Rest.
                     sendTTSMessage(R.string.tts_take_rest);
 

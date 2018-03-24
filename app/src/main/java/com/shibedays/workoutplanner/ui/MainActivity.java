@@ -31,7 +31,7 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.dialogs.NewWorkoutDialog;
+import com.shibedays.workoutplanner.ui.dialogs.NewEditWorkoutDialog;
 import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
@@ -39,7 +39,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener{
+public class MainActivity extends AppCompatActivity implements NewEditWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -314,6 +314,37 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_RESUME");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_PAUSE");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_STOP");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_DESTROY");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(DEBUG_TAG, "MAIN ACTIVITY SAVING INSTANCE STATE");
+    }
+
     //endregion
 
     //region UTILITY
@@ -368,8 +399,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutDialog.
 
     public void addWorkout(){
         // TODO: DB debugging
-        NewWorkoutDialog newWorkoutDialog = new NewWorkoutDialog();
-        newWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+        NewEditWorkoutDialog newEditWorkoutDialog = new NewEditWorkoutDialog();
+        newEditWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
     @Override

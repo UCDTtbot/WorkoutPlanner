@@ -20,12 +20,16 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
 
 
-public class NewWorkoutDialog extends DialogFragment {
+public class NewEditWorkoutDialog extends DialogFragment {
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = NewWorkoutDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NewWorkoutDialog.";
+    private static final String DEBUG_TAG = NewEditWorkoutDialog.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NewEditWorkoutDialog.";
+    //endregion
+
+    //region INTENT_KEYS
+
     //endregion
 
     //region PRIVATE_VARS
@@ -70,7 +74,7 @@ public class NewWorkoutDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.fragment_new_workout, null);
+        final View view = inflater.inflate(R.layout.fragment_new_edit_workout, null);
 
         mEditText = view.findViewById(R.id.new_workout_name);
 

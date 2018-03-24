@@ -23,12 +23,12 @@
         style="@style/BottomSheetLinearRow">
 
         <ImageView
-            android:id="@+id/delete_ic_btm_sheet"
+            android:id="@+id/edit_ic_btm_sheet"
             style="@style/BottomSheetImage"
-            android:src="@drawable/ic_delete_black_24dp" />
+            android:src="@drawable/ic_edit_black_24dp" />
         <TextView
             style="@style/BottomSheetText"
-            android:text="@string/bottom_sheet_delete"/>
+            android:text="@string/bottom_sheet_edit"/>
 
     </LinearLayout>
 
@@ -38,13 +38,16 @@
         style="@style/BottomSheetLinearRow">
 
         <ImageView
-            android:id="@+id/edit_ic_btm_sheet"
+            android:id="@+id/delete_ic_btm_sheet"
             style="@style/BottomSheetImage"
-            android:src="@drawable/ic_edit_black_24dp" />
+            android:src="@drawable/ic_delete_black_24dp" />
         <TextView
             style="@style/BottomSheetText"
-            android:text="@string/bottom_sheet_edit"/>
+            android:text="@string/bottom_sheet_delete"/>
 
     </LinearLayout>
+
+
+
 
 </LinearLayout>

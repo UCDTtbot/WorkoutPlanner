@@ -169,24 +169,25 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        Log.d(DEBUG_TAG, "FRAGMENT ON_START");
     }
 
     @Override
     public void onResume(){
         super.onResume();
+        Log.d(DEBUG_TAG, "FRAGMENT ON_RESUME");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_PAUSE CALLED");
+        Log.d(DEBUG_TAG, "FRAGMENT ON_PAUSE");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        Log.d(DEBUG_TAG, "FRAGMENT ON_STOP CALLED");
+        Log.d(DEBUG_TAG, "FRAGMENT ON_STOP");
     }
 
     @Override
@@ -196,7 +197,7 @@ public class TimerFragment extends Fragment {
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mTimerFragmentInstance = null;
-        Log.d(DEBUG_TAG, "FRAGMENT ON_DESTROY CALLED");
+        Log.d(DEBUG_TAG, "FRAGMENT ON_DESTROY");
     }
 
     @Override
@@ -204,6 +205,14 @@ public class TimerFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(DEBUG_TAG, "FRAGMENT SAVING INSTANCE STATE");
+
+    }
+
     //endregion
 
     //region TOOLBAR_MENU
@@ -244,12 +253,12 @@ public class TimerFragment extends Fragment {
 
     public void updateRep(int rep){
         mCurRep = rep;
-        mCurRepTextView.setText(String.format(Locale.US, "%d", (rep + 1)));
+        mCurRepTextView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mWorkout.getNumOfSets()));
     }
 
     public void updateRound(int round){
         mCurRound = round;
-        mCurRoundTextView.setText(String.format(Locale.US, "%d", (round + 1)));
+        mCurRoundTextView.setText(String.format(Locale.US, "%d / %d", (round + 1), mWorkout.getNumOfRounds()));
     }
 
     public void updateDescription(String descrip){
