@@ -26,7 +26,7 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = NewEditWorkoutDialog.class.getSimpleName();
+    private static final String DEBUG_TAG = AddEditWorkoutDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog.";
 
 

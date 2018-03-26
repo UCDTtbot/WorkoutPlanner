@@ -42,15 +42,6 @@ public class WorkoutViewModel extends AndroidViewModel {
         }
     }
 
-    public Workout findWorkoutByID(int id){
-        if(id < 0) {
-            Log.e(DEBUG_TAG, "Workout ID is invalid: " + Integer.toString(id));
-            return null;
-        } else {
-            return mRepo.findWorkoutByID(id);
-        }
-    }
-
     public void update(Workout workout){
         mRepo.update(workout);
     }

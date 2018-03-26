@@ -1,9 +1,11 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
@@ -28,25 +31,48 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
 
     //region INTENT_KEYS
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
+    public static final String EXTRA_WORKOUT_INDEX = PACKAGE + "WORKOUT_INDEX";
     //endregion
 
     //region PRIVATE_KEYS
     // Data
     private int mWorkoutID;
+    private int mWorkoutIndex;
     private LiveData<Workout> mWorkoutLiveData;
     // UI Components
     private TextView mTitleTextView;
+    private LinearLayout mEdit;
+    private LinearLayout mDelete;
     // View Model
     private WorkoutViewModel mViewModel;
     //endregion
 
     //region INTERFACES
-
+    public interface WorkoutBottomSheetDialogListener {
+        void editItem(int index);
+        void deleteItem(int index);
+    }
+    WorkoutBottomSheetDialogListener mListener;
     //endregion
 
     //region LIFECYCLE
     public WorkoutBottomSheetDialog() {
 
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // Make sure our context is an activity and set the Listener to it
+        Activity activity = null;
+        if(context instanceof Activity)
+            activity = (Activity) context;
+        try{
+            mListener = (WorkoutBottomSheetDialogListener) activity;
+        } catch (ClassCastException e){
+            Log.e(DEBUG_TAG, "ERROR IN WORKOUT BOTTOM DIALOG LISTENER: " + e.getMessage());
+        }
     }
 
     @Override
@@ -56,7 +82,9 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
         mViewModel = ViewModelProviders.of(getActivity()).get(WorkoutViewModel.class);
         Bundle bundle = this.getArguments();
         if(bundle != null){
-            mWorkoutLiveData = mViewModel.getWorkout(bundle.getInt(EXTRA_WORKOUT_ID));
+            mWorkoutID = bundle.getInt(EXTRA_WORKOUT_ID);
+            mWorkoutIndex = bundle.getInt(EXTRA_WORKOUT_INDEX);
+            mWorkoutLiveData = mViewModel.getWorkout(mWorkoutID);
             mWorkoutLiveData.observe(this, new Observer<Workout>() {
                 @Override
                 public void onChanged(@Nullable Workout workout) {
@@ -83,6 +111,25 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bottom_sheet, container, false);
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
+
+        mEdit = view.findViewById(R.id.bottom_sheet_edit);
+        mEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.editItem(mWorkoutIndex);
+                dismiss();
+            }
+        });
+
+        mDelete = view.findViewById(R.id.bottom_sheet_delete);
+        mDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.deleteItem(mWorkoutIndex);
+                dismiss();
+            }
+        });
+
         return view;
     }
     //endregion

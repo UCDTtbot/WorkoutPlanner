@@ -43,9 +43,10 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
 
     //region INTERFACES
     public interface SetAdapaterListener{
-        public void deleteSet(Set set);
+        void onSetClick(int setIndex);
+        void deleteSet(Set set);
     }
-    private SetAdapaterListener listener;
+    private SetAdapaterListener mListener;
     //endregion
 
     //region VIEW_HOLDER
@@ -88,7 +89,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-
+            mListener.onSetClick(mSetData.indexOf(curSet));
         }
 
         @Override
@@ -111,7 +112,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
         if(context instanceof Activity){
             activity = (Activity) context;
             try{
-                listener = (SetAdapter.SetAdapaterListener) activity;
+                mListener = (SetAdapter.SetAdapaterListener) activity;
             } catch (ClassCastException e){
                 Log.e(DEBUG_TAG, "ERROR IN SET ADAPTER LISTENER: " + e.getMessage());
             }
@@ -132,6 +133,8 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
         holder.bindTo(currentSet);
         // Populate anymore data
     }
+
+
     //endregion
     // TODO: setup the timeTextView to display correctly
 
@@ -192,7 +195,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
     private void deletePending(int pendingIndex, Set originalSet){
         mSetsPendingRemoval.remove(pendingIndex);
 
-        listener.deleteSet(originalSet);
+        mListener.deleteSet(originalSet);
         Log.d(DEBUG_TAG, "Removed pending set");
     }
 

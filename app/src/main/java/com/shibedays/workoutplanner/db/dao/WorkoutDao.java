@@ -24,9 +24,6 @@ public interface WorkoutDao {
     @Query("SELECT * FROM workouts where name LIKE :name")
     Workout findWorkoutByName(String name);
 
-    @Query("SELECT * FROM workouts where id like :id")
-    Workout findWorkoutByID(int id);
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<Workout> workouts);
 

@@ -119,8 +119,8 @@ public class Workout{
         setList.set(from, temp);
         //Log.d("WORKOUT", "Swapped");
     }
-    public void updateSet(Set set){
-
+    public void updateSet(Set set, int index){
+        setList.set(index, set);
     }
     public void removeSet(Set set){
         setList.remove(setList.indexOf(set));

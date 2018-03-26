@@ -20,6 +20,7 @@
         android:textSize="20dp"/>
 
     <LinearLayout
+        android:id="@+id/bottom_sheet_edit"
         style="@style/BottomSheetLinearRow">
 
         <ImageView
@@ -35,6 +36,7 @@
     <View style="@style/Divider"/>
 
     <LinearLayout
+        android:id="@+id/bottom_sheet_delete"
         style="@style/BottomSheetLinearRow">
 
         <ImageView

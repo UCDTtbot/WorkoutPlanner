@@ -8,7 +8,7 @@
         android:id="@+id/add_set"
         android:orderInCategory="10"
         android:icon="@drawable/ic_add_white_24dp"
-        android:title="Add Set"
+        android:title="@string/menu_add_set"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_settings"

@@ -49,7 +49,7 @@
                 android:id="@+id/MinutesLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="M"/>
+                android:text="@string/minute_label"/>
         </android.support.v7.widget.LinearLayoutCompat>
 
 
@@ -64,7 +64,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:textSize="36sp"
-                android:text=":" />
+                android:text="@string/colon" />
         </android.support.v7.widget.LinearLayoutCompat>
 
 
@@ -86,7 +86,7 @@
                 android:id="@+id/SecondsLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="S" />
+                android:text="@string/second_label" />
         </android.support.v7.widget.LinearLayoutCompat>
 
 

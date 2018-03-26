@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="0:00"
+        android:text="@string/default_time"
         android:textSize="40sp"/>
 
     <LinearLayout
@@ -33,13 +33,13 @@
             android:id="@+id/current_set_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Set Number:"/>
+            android:text="@string/set_number_title"/>
 
         <TextView
             android:id="@+id/current_rep"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1"/>
+            android:text="@string/default_num"/>
 
     </LinearLayout>
 
@@ -55,13 +55,13 @@
             android:id="@+id/current_round_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Round Number:"/>
+            android:text="@string/round_number_title"/>
 
         <TextView
             android:id="@+id/current_round"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1"/>
+            android:text="@string/default_num"/>
 
     </LinearLayout>
 
@@ -77,13 +77,13 @@
             android:id="@+id/descrip_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description:"/>
+            android:text="@string/description_label"/>
 
         <TextView
             android:id="@+id/descrip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Default Description"/>
+            android:text="@string/placeholder_description"/>
 
     </LinearLayout>
 

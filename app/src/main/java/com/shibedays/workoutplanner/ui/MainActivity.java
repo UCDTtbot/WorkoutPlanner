@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -31,20 +32,22 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.dialogs.NewEditWorkoutDialog;
+import com.shibedays.workoutplanner.ui.dialogs.AddEditWorkoutDialog;
 import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
+import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements NewEditWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener{
+public class MainActivity extends AppCompatActivity implements AddEditWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener {
 
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MainActivity.";
+    private static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
     //endregion
 
     //region INTENT_KEYS
@@ -53,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
 
     //region PREF_KEYS
     //KEY_FOO
-    private static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
     private static final String KEY_VERSION_CODE = PACKAGE + "VersionCode";
     private static final String KEY_NEXT_WORKOUT_NUM = PACKAGE + "NextWorkoutNum";
     //endregion
@@ -62,11 +64,15 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
     // UI Components
     private RecyclerView mRecyclerView;
 
+    // Data
+    private List<Workout> mWorkoutData;
+
     // Adapters
     private WorkoutAdapter mWorkoutAdapter;
 
     // Instances
-    private SharedPreferences mSharedPrefs;
+    private SharedPreferences mPrivateSharedPrefs;
+    private SharedPreferences mDefaultSharedPrefs;
     private FragmentManager mFragmentManager;
 
     // Data Constants
@@ -92,27 +98,28 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
 
         //region SHARED_PREFS
         // TODO: shared prefs
-        mSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
+        mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
+        mDefaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         int currentVersionCode = BuildConfig.VERSION_CODE;
 
-        if(mSharedPrefs != null){
-            int savedVersionCode = mSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
+        if(mPrivateSharedPrefs != null){
+            int savedVersionCode = mPrivateSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
             if(savedVersionCode == currentVersionCode){
                 // Normal Run
-                NEXT_WORKOUT_ID = mSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, -DATA_DOESNT_EXIST);
+                NEXT_WORKOUT_ID = mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, -DATA_DOESNT_EXIST);
                 if(NEXT_WORKOUT_ID == DATA_DOESNT_EXIST){
                     Log.e(DEBUG_TAG, "NEXT WORKOUT NUM DATA DOESN'T EXIST");
                 }
             }else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
                 NEXT_WORKOUT_ID = 2;
-                SharedPreferences.Editor editor = mSharedPrefs.edit();
+                SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID);
                 editor.apply();
             }else if (savedVersionCode < currentVersionCode){
                 // Updated run
-                SharedPreferences.Editor editor = mSharedPrefs.edit();
+                SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.apply();
             }else{
@@ -142,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
         mRecyclerView.addItemDecoration(itemDecoration);
         //TODO: Add recycler animation?
 
-        //region TOUCH_SWIPE_SETUP
+            //region TOUCH_SWIPE_SETUP
         int dragDirs = 0;
         final int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
@@ -256,7 +263,8 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
             }
         });
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
-        //endregion
+            //endregion
+
         //endregion
 
         //region TOOLBAR
@@ -283,14 +291,12 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
         mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
-                // TODO: What happens when data changes
                 mWorkoutAdapter.setData(workouts);
+                mWorkoutData = workouts;
             }
         });
         //endregion
 
-        // FOR DEBUGGING PURPOSES
-        //showDebugDBAddressLogToast(this);
     }
 
     @Override
@@ -309,6 +315,9 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MAIN_ACTVITIY);
+            startActivity(intent);
             return true;
         }
 
@@ -348,7 +357,6 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
     //endregion
 
     //region UTILITY
-
     public static int convertToMillis(int[] time){
         return ((time[0] * 60) + time[1]) * 1000;
     }
@@ -364,22 +372,6 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
         return newTime;
     }
 
-    public void openWorkout(int workoutID){
-        Intent intent = new Intent(this, MyWorkoutActivity.class);
-        intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
-        intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
-        startActivity(intent);
-    }
-
-    public void openBottomDialog(int workoutID){
-        Bundle bundle = new Bundle();
-        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_ID, workoutID);
-        WorkoutBottomSheetDialog workoutBottomSheetDialog = new WorkoutBottomSheetDialog();
-        workoutBottomSheetDialog.setArguments(bundle);
-        workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
-    }
-
-    // FOR DEBUGGING PURPOSES ONLY
     public static void showDebugDBAddressLogToast(Context context) {
         if (BuildConfig.DEBUG) {
             try {
@@ -392,15 +384,17 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
             }
         }
     }
-
     //endregion
 
-    //region ADD_NEW_WORKOUT
+    //region INTERFACE_IMPLEMENTATIONS
 
+        //region NEW_WORKOUT
     public void addWorkout(){
-        // TODO: DB debugging
-        NewEditWorkoutDialog newEditWorkoutDialog = new NewEditWorkoutDialog();
-        newEditWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+        AddEditWorkoutDialog addWorkoutDialog = new AddEditWorkoutDialog();
+        Bundle args = new Bundle();
+        args.putInt(AddEditWorkoutDialog.EXTRA_DIALOG_TYPE, AddEditWorkoutDialog.NEW_WORKOUT);
+        addWorkoutDialog.setArguments(args);
+        addWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
     @Override
@@ -408,38 +402,89 @@ public class MainActivity extends AppCompatActivity implements NewEditWorkoutDia
         if(!TextUtils.isEmpty(name)){
             Workout newWorkout = new Workout(NEXT_WORKOUT_ID++, name);
             newWorkout.addSet(new Set("My Workout Set", "Description of my Workout Set", 60000));
-            mSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
+            mPrivateSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
             mWorkoutViewModel.insert(newWorkout);
-            } else {
+        } else {
             // TODO: Display an error message saying that name must not be null
             Toast.makeText(this, "Name must not be empty", Toast.LENGTH_LONG).show();
         }
 
     }
+        //endregion
 
-    @Override
-    public void onNewWorkoutDialogNegativeClick(){
-
-    }
-
-
-    //endregion
-
-    //region INTERFACE_IMPLEMENTATIONS
+        //region OPEN_WORKOUT
     @Override
     public void onWorkoutClicked(int workoutID) {
         openWorkout(workoutID);
     }
 
+    public void openWorkout(int workoutID){
+        Intent intent = new Intent(this, MyWorkoutActivity.class);
+        intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+        intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
+        startActivity(intent);
+    }
+        //endregion
+
+        //region BOTTOM_SHEET
+    @Override
+    public void onWorkoutLongClick(int workoutIndex, int workoutID) {
+        openBottomDialog(workoutIndex, workoutID);
+    }
+
+    public void openBottomDialog(int workoutIndex, int workoutID){
+        Bundle bundle = new Bundle();
+        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_ID, workoutID);
+        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_INDEX, workoutIndex);
+        WorkoutBottomSheetDialog workoutBottomSheetDialog = new WorkoutBottomSheetDialog();
+        workoutBottomSheetDialog.setArguments(bundle);
+        workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
+    }
+
+            //region EDIT_WORKOUT
+    @Override
+    public void editItem(int index) {
+        editWorkout(index);
+    }
+
+    public void editWorkout(int workoutIndex){
+        AddEditWorkoutDialog editWorkoutDialog = new AddEditWorkoutDialog();
+        Bundle args = new Bundle();
+        args.putInt(AddEditWorkoutDialog.EXTRA_DIALOG_TYPE, AddEditWorkoutDialog.EDIT_WORKOUT);
+        args.putString(AddEditWorkoutDialog.EXTRA_WORKOUT_NAME, mWorkoutData.get(workoutIndex).getName());
+        args.putInt(AddEditWorkoutDialog.EXTRA_WORKOUT_INDEX, workoutIndex);
+        editWorkoutDialog.setArguments(args);
+        editWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+    }
+
+    @Override
+    public void onEditWorkoutDialogPositiveClick(String name, int index) {
+        if(!TextUtils.isEmpty(name)){
+            mWorkoutData.get(index).setName(name);
+            mWorkoutViewModel.update(mWorkoutData.get(index));
+        } else {
+            Toast.makeText(this, "Name must not be empty", Toast.LENGTH_SHORT).show();
+        }
+    }
+            //endregion
+
+            //region DELETE_WORKOUT
+    @Override
+    public void deleteItem(int index) {
+        WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
+        adapter.pendingRemoval(index);
+        // Snackbar is creating in pendingRemoval
+    }
+
+
+            // Deleting workout
     @Override
     public void deleteWorkout(Workout workout) {
         mWorkoutViewModel.remove(workout);
     }
+            //endregion
 
-    @Override
-    public void onWorkoutLongClick(int workoutID) {
-        openBottomDialog(workoutID);
-    }
+        //endregion
 
     //endregion
 

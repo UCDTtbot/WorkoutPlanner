@@ -46,10 +46,6 @@ public class DataRepo {
         return mDatabase.workoutDao().getWorkout(id);
     }
 
-    public Workout findWorkoutByID(final int id){
-        return mDatabase.workoutDao().findWorkoutByID(id);
-    }
-
     public void insert(Workout workout){
         new insertAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
@@ -93,15 +89,6 @@ public class DataRepo {
         protected Void doInBackground(Workout... workouts) {
             dao.update(workouts[0]);
             return null;
-        }
-    }
-
-    private static class findByIdAsync extends AsyncTask<Integer, Void, Workout>{
-        private WorkoutDao aSyncTaskDao;
-        findByIdAsync(WorkoutDao dao){ aSyncTaskDao = dao; }
-        @Override
-        protected Workout doInBackground(Integer... params) {
-            return aSyncTaskDao.findWorkoutByID(params[0]);
         }
     }
 }

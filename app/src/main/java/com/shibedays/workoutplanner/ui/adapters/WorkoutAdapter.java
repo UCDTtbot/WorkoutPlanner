@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.shibedays.workoutplanner.DataRepo;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
@@ -46,11 +45,11 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
 
     //region INTERFACES
     public interface WorkoutAdapterListener{
-        public void onWorkoutClicked(int workoutIndex);
-        public void onWorkoutLongClick(int workoutIndex);
-        public void deleteWorkout(Workout workout);
+        void onWorkoutClicked(int workoutIndex);
+        void onWorkoutLongClick(int workoutIndex, int workoutID);
+        void deleteWorkout(Workout workout);
     }
-    private WorkoutAdapterListener listener;
+    private WorkoutAdapterListener mListener;
     //endregion
 
     //region VIEW_HOLDER
@@ -97,13 +96,12 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
             Log.d(DEBUG_TAG, curWorkout.getName() + " clicked");
             // Go to the Workout Activity
             // TODO: Go to the my_workout activity with the given current curWorkout
-            listener.onWorkoutClicked(curWorkout.getWorkoutID());
+            mListener.onWorkoutClicked(curWorkout.getWorkoutID());
         }
 
         @Override
         public boolean onLongClick(View view) {
-            Log.d(DEBUG_TAG, curWorkout.getName() + " long clicked");
-            listener.onWorkoutLongClick(curWorkout.getWorkoutID());
+            mListener.onWorkoutLongClick(mWorkoutData.indexOf(curWorkout), curWorkout.getWorkoutID());
             // return true to indicate the click was handled
             return true;
         }
@@ -123,30 +121,19 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
         if(context instanceof Activity)
             activity = (Activity) context;
         try{
-            listener = (WorkoutAdapter.WorkoutAdapterListener) activity;
+            mListener = (WorkoutAdapter.WorkoutAdapterListener) activity;
         } catch (ClassCastException e){
             Log.e(DEBUG_TAG, "ERROR IN WORKOUT ADAPTER LISTENER: " + e.getMessage());
         }
 
     }
 
-    /**
-     *
-     * @param parent
-     * @param viewType
-     * @return
-     */
     @Override
     public WorkoutAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(mContext)
                 .inflate(R.layout.workout_list_item, parent, false));
     }
 
-    /**
-     *
-     * @param holder
-     * @param position
-     */
     @Override
     public void onBindViewHolder(WorkoutAdapter.ViewHolder holder, int position) {
         // Get the current data
@@ -214,7 +201,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
     private void deletePending(int pendingIndex, Workout originalWorkout){
         mWorkoutsPendingRemoval.remove(pendingIndex);
 
-        listener.deleteWorkout(originalWorkout);
+        mListener.deleteWorkout(originalWorkout);
         Log.d(DEBUG_TAG, "Removed the pending workout: " + originalWorkout.getName());
         Log.d(DEBUG_TAG, Integer.toString(mWorkoutData.size()));
         // Update the file that we have removed a curWorkout
