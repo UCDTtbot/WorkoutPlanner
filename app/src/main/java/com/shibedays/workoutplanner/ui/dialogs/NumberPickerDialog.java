@@ -13,7 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -37,24 +40,27 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
     //region INTENT_KEYS
     public static final String EXTRA_DIALOG_TYPE = PACKAGE + "TYPE";
     public static final String EXTRA_GIVEN_TIME = PACKAGE + "GIVEN_TIME";
+    public static final String EXTRA_NO_FLAG = PACKAGE + "NO_FLAG";
     //endregion
 
     //region PRIVATE_VARS
     // UI Components
     private NumberPicker mMinutePicker;
     private NumberPicker mSecondPicker;
+    private CheckBox mNoCheck;
     // Utility
     private MyWorkoutActivity mParentActivity;
 
     private int mWhichTime;
     private int mGivenTime;
+    private boolean mNoFlag;
     //endregion
 
     //region INTERFACES
     // Interface for dialog button listeners for MainActivity
     public interface NumberPickerDialogListener {
-        void setRestTime(int min, int sec);
-        void setBreakTime(int min, int sec);
+        void setRestTime(int min, int sec, boolean noFlag);
+        void setBreakTime(int min, int sec, boolean noFlag);
     }
     NumberPickerDialogListener mListener;
     //endregion
@@ -82,6 +88,7 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         if(args != null){
             mWhichTime = args.getInt(EXTRA_DIALOG_TYPE);
             mGivenTime = args.getInt(EXTRA_GIVEN_TIME);
+            mNoFlag = args.getBoolean(EXTRA_NO_FLAG);
         }
 
         int[] time = MainActivity.convertFromMillis(mGivenTime);
@@ -92,6 +99,14 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
         final View view = inflater.inflate(R.layout.number_picker_dialog, null);
+        TextView noTitle = view.findViewById(R.id.no_title);
+        if(mWhichTime == REST_TYPE){
+            noTitle.setText(R.string.no_rest);
+        } else if(mWhichTime == BREAK_TYPE){
+            noTitle.setText(R.string.no_break);
+        } else {
+            Log.e(DEBUG_TAG, "NO TIME TYPE GIVEN ");
+        }
 
         View number_spinners = view.findViewById(R.id.spinners);
         mMinutePicker = number_spinners.findViewById(R.id.MinutePicker);
@@ -115,15 +130,26 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         mSecondPicker.setWrapSelectorWheel(true);
         mSecondPicker.setOnValueChangedListener(this);
 
+        mNoCheck = (CheckBox) view.findViewById(R.id.no_flag_checkbox);
+        mNoCheck.setChecked(mNoFlag);
+        mNoCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mNoFlag = isChecked;
+                ifCheckedDisableUI(mNoFlag);
+            }
+        });
+        ifCheckedDisableUI(mNoFlag);
+
         builder.setView(view)
                 .setTitle("Set Time")
                 .setPositiveButton("Set", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(mWhichTime == REST_TYPE) {
-                            mListener.setRestTime(mMinutePicker.getValue(), mSecondPicker.getValue());
+                            mListener.setRestTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
                         } else if(mWhichTime == BREAK_TYPE) {
-                            mListener.setBreakTime(mMinutePicker.getValue(), mSecondPicker.getValue());
+                            mListener.setBreakTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
                         } else {
                             Log.e(DEBUG_TAG, "WHICH TYPE WAS NOT SET CORRECTLY");
                         }
@@ -148,5 +174,15 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
     @Override
     public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
 
+    }
+
+    private void ifCheckedDisableUI(boolean check){
+        if(check){
+            mMinutePicker.setEnabled(false);
+            mSecondPicker.setEnabled(false);
+        } else {
+            mMinutePicker.setEnabled(true);
+            mSecondPicker.setEnabled(true);
+        }
     }
 }

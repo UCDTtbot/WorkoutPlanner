@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 
-@Database(entities = {Workout.class}, version = 1)
+@Database(entities = {Workout.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -33,6 +33,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if(INSTANCE == null){
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, DATABASE_NAME)
+                            //TODO: create migration schema
                             .fallbackToDestructiveMigration()
                             .addCallback(sAppDatabaseCallback)
                             .build();

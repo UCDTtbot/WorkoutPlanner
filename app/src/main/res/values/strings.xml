@@ -56,5 +56,7 @@
     <string name="placeholder_title">Title</string>
     <string name="placeholder_number">10</string>
     <string name="no_placeholder">No _____</string>
+    <string name="no_rest">No Rest</string>
+    <string name="no_break">No Break</string>
 
 </resources>

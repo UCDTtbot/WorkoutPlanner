@@ -26,6 +26,8 @@ public class Workout{
 
     private int timeBetweenSets;
     private int timeBetweenRounds;
+    private boolean noRestFlag;
+    private boolean noBreakFlag;
 
     private String name;
 
@@ -43,6 +45,8 @@ public class Workout{
         setList = new ArrayList<Set>();
         timeBetweenSets = 10000;
         timeBetweenRounds = 30000;
+        noRestFlag = false;
+        noBreakFlag = false;
     }
     public Workout(Workout workout){
         workoutID = workout.getWorkoutID();
@@ -51,6 +55,8 @@ public class Workout{
         setList = workout.getSetList();
         timeBetweenSets = workout.getTimeBetweenSets();
         timeBetweenRounds = workout.getTimeBetweenSets();
+        noRestFlag = false;
+        noBreakFlag = false;
     }
 
     public int getWorkoutID(){
@@ -92,6 +98,20 @@ public class Workout{
     }
     public void setName(String name){
         this.name = name;
+    }
+
+    public boolean getNoRestFlag(){
+        return noRestFlag;
+    }
+    public void setNoRestFlag(boolean flag){
+        noRestFlag = flag;
+    }
+
+    public boolean getNoBreakFlag(){
+        return noBreakFlag;
+    }
+    public void setNoBreakFlag(boolean flag){
+        noBreakFlag = flag;
     }
 
     public String getSetListJSON(){

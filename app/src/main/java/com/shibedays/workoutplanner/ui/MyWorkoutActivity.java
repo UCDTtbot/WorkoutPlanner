@@ -526,11 +526,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         int[] restTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenSets() );
         int restMin = restTime[0], restSec = restTime[1];
-        updateRestTimeUI(restMin, restSec);
+        updateRestTimeUI(restMin, restSec, mWorkoutData.getNoRestFlag());
 
         int[] breakTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenRounds() );
         int breakMin = breakTime[0], breakSec = breakTime[1];
-        updateBreakTimeUI(breakMin, breakSec);
+        updateBreakTimeUI(breakMin, breakSec, mWorkoutData.getNoBreakFlag());
     }
 
     private void swapSets(int from, int to){
@@ -540,8 +540,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     //endregion
 
     //region UI_UPDATES
-    private void updateRestTimeUI(int min, int sec){
-        if((sec % 10) == 0){
+    private void updateRestTimeUI(int min, int sec, boolean flag){
+        if(flag){
+            mRestTime.setText("None");
+        }else if((sec % 10) == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
         } else if ( sec < 10 ){
             mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
@@ -552,8 +554,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         }
     }
 
-    private void updateBreakTimeUI(int min, int sec){
-        if((sec % 10) == 0){
+    private void updateBreakTimeUI(int min, int sec, boolean flag){
+        if(flag){
+            mBreakTime.setText("None");
+        } else if((sec % 10) == 0){
             mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
         } else if ( sec < 10 ){
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
@@ -625,15 +629,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         Bundle args = new Bundle();
         args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.REST_TYPE);
         args.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, mWorkoutData.getTimeBetweenSets());
+        args.putBoolean(NumberPickerDialog.EXTRA_NO_FLAG, mWorkoutData.getNoRestFlag());
         numberPickerDialog.setArguments(args);
         numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
     @Override
-    public void setRestTime(int min, int sec) {
+    public void setRestTime(int min, int sec, boolean noFlag) {
         int time = MainActivity.convertToMillis(min, sec);
-        updateRestTimeUI(min, sec);
+        updateRestTimeUI(min, sec, noFlag);
         mWorkoutData.setTimeBetweenSets(time);
+        mWorkoutData.setNoRestFlag(noFlag);
         mViewModel.update(mWorkoutData);
     }
 
@@ -642,14 +648,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         Bundle args = new Bundle();
         args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.BREAK_TYPE);
         args.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, mWorkoutData.getTimeBetweenRounds());
+        args.putBoolean(NumberPickerDialog.EXTRA_NO_FLAG, mWorkoutData.getNoBreakFlag());
         numberPickerDialog.setArguments(args);
         numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
     }
     @Override
-    public void setBreakTime(int min, int sec) {
+    public void setBreakTime(int min, int sec, boolean noFlag) {
         int time = MainActivity.convertToMillis(min, sec);
+        updateBreakTimeUI(min, sec, noFlag);
         mWorkoutData.setTimeBetweenRounds(time);
-        updateBreakTimeUI(min, sec);
+        mWorkoutData.setNoBreakFlag(noFlag);
         mViewModel.update(mWorkoutData);
     }
 
@@ -657,7 +665,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         //region NUMBER_ROUND_DIALOG
     private void openNumberRoundsDialog(){
-
+        Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT).show();
     }
         //endregion
 
