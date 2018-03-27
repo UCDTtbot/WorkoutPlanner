@@ -20,17 +20,6 @@
     <string name="action_about">About</string>
 
     <!-- \u0020 is a space -->
-    <string-array name="spinner_array">
-        <item>\u00201\u0020</item>
-        <item>\u00202\u0020</item>
-        <item>\u00203\u0020</item>
-        <item>\u00204\u0020</item>
-        <item>\u00205\u0020</item>
-        <item>\u00206\u0020</item>
-        <item>\u00207\u0020</item>
-        <item>\u00208\u0020</item>
-        <item>\u00209\u0020</item>
-    </string-array>
 
     <!-- TTS Strings -->
     <string name="tts_starting">Starting in, 5. 4. 3. 2. 1.</string>
@@ -64,5 +53,8 @@
     <string name="description_label">Description:</string>
     <string name="placeholder_description">Default Description</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="placeholder_title">Title</string>
+    <string name="placeholder_number">10</string>
+    <string name="no_placeholder">No _____</string>
 
 </resources>

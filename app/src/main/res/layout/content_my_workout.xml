@@ -38,19 +38,16 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="@dimen/hori_padding"
-            android:layout_marginTop="30dp"
-            android:text="@string/rest_title_text"/>
+            android:layout_marginStart="@dimen/activity_deep_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_deep_vertical_margin"
+            android:text="@string/rest_title_text"
+            style="@style/TextAppearance.AppCompat.Title"/>
         <TextView
             android:id="@+id/rest_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/rest_title_text"
             android:layout_below="@+id/rest_title_text"
-            android:clickable="true"
-            android:focusable="true"
+            android:layout_alignStart="@+id/rest_title_text"
             android:text="@string/default_time"
-            android:textSize="20sp"/>
+            style="@style/TouchableText"/>
 
 
         <TextView
@@ -59,14 +56,17 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
-            android:layout_marginTop="@dimen/vert_padding"
-            android:text="@string/round_title_text"/>
-        <Spinner
-            android:id="@+id/round_spinner"
+            android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
+            android:text="@string/round_title_text"
+            style="@style/TextAppearance.AppCompat.Title"/>
+        <TextView
+            android:id="@+id/number_rounds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/rounds_title_text"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:text="@string/placeholder_number"
+            style="@style/TouchableText"/>
 
 
         <TextView
@@ -75,19 +75,16 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="@dimen/hori_padding"
-            android:layout_marginTop="30dp"
-            android:text="@string/break_title_text"/>
+            android:layout_marginEnd="@dimen/activity_deep_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_deep_vertical_margin"
+            android:text="@string/break_title_text"
+            style="@style/TextAppearance.AppCompat.Title"/>
         <TextView
             android:id="@+id/break_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/break_title_text"
             android:layout_below="@id/break_title_text"
-            android:clickable="true"
-            android:focusable="true"
             android:text="@string/default_time"
-            android:textSize="20sp"/>
+            style="@style/TouchableText"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -96,7 +93,7 @@
             android:layout_centerHorizontal="true"
             android:text="@string/start_workout_button"
             android:onClick="startTimer"
-            android:layout_marginBottom="@dimen/vert_padding"/>
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
     </RelativeLayout>
 
 </LinearLayout>

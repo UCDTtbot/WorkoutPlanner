@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
             private void init(){
                 background = new ColorDrawable(Color.RED);
                 deleteIC = getDrawable(R.drawable.ic_delete_white_24dp);
-                deleteICMargin = (int) getResources().getDimension(R.dimen.ic_delete_margin);
+                deleteICMargin = (int) getResources().getDimension(R.dimen.standard_icon_touchable_padding);
                 initiated = true;
             }
 

@@ -18,37 +18,87 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!-- Custom Styles -->
     <style name="Divider">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">3dp</item>
-        <item name="android:background">#000000</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="android:background">@color/material_grey_500</item>
     </style>
 
+    <!-- MyWorkoutActivity Styles -->
+    <style name="TouchableText" parent="Base.TextAppearance.AppCompat.Subhead">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:padding">@dimen/half_padding</item>
+    </style>
+
+
+
+    <!-- Number Picker Styles -->
+    <style name="NumberPickerLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_marginTop">@dimen/activity_shallow_vertical_margin</item>
+    </style>
+
+    <style name="Colon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_xlarge</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginStart">@dimen/activity_shallow_horizontal_margin</item>
+        <item name="android:layout_marginEnd">@dimen/activity_shallow_horizontal_margin</item>
+
+    </style>
+
+    <!-- Dialog Windows -->
+    <style name="DialogEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="android:inputType">textCapSentences</item>
+    </style>
+
+    <!-- Lists -->
+    <style name="ListTitle" parent="TextAppearance.AppCompat.Headline">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/list_title_size</item>
+        <item name="android:paddingStart">@dimen/icon_list_padding_start</item>
+        <item name="android:paddingEnd">@dimen/standard_list_padding_end</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <!-- Bottom Sheet Styles -->
     <style name="BottomSheetLinearRow">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">@dimen/vert_padding</item>
-        <item name="android:paddingEnd">@dimen/hori_padding</item>
-        <item name="android:paddingBottom">@dimen/vert_padding</item>
-        <item name="android:paddingStart">@dimen/hori_padding</item>
         <item name="android:clickable">true</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="android:focusable">true</item>
         <item name="android:orientation">horizontal</item>
+        <item name="android:padding">@dimen/deep_padding</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="BottomSheetImage">
-        <item name="android:layout_width">24dp</item>
-        <item name="android:layout_height">24dp</item>
-        <item name="android:layout_marginEnd">24dp</item>
+        <item name="android:layout_width">@dimen/standard_icon_touchable_size</item>
+        <item name="android:layout_height">@dimen/standard_icon_touchable_size</item>
+        <item name="android:padding">@dimen/standard_icon_touchable_padding</item>
         <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginEnd">@dimen/standard_icon_margin_end</item>
     </style>
 
-    <style name="BottomSheetText">
+    <style name="BottomSheetText" parent="Base.TextAppearance.AppCompat.Title">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:textSize">@dimen/bottom_sheet_text_size</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
 </resources>

@@ -6,90 +6,20 @@
 
     <EditText
         android:id="@+id/new_set_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/hori_padding"
-        android:layout_marginEnd="@dimen/hori_padding"
-        android:inputType="textCapSentences"
-        android:hint="@string/name_hint"/>
+        android:hint="@string/name_hint"
+        style="@style/DialogEditText"/>
 
     <EditText
         android:id="@+id/new_set_descrip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/hori_padding"
-        android:layout_marginEnd="@dimen/hori_padding"
-        android:inputType="textCapSentences"
         android:layout_below="@+id/new_set_name"
-        android:hint="@string/descrip_hint"/>
+        android:hint="@string/descrip_hint"
+        style="@style/DialogEditText"/>
 
-    <android.support.v7.widget.LinearLayoutCompat
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
+    <include layout="@layout/number_spinners"
+        android:id="@+id/spinners"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_below="@+id/new_set_descrip"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="10dp">
-
-        <android.support.v7.widget.LinearLayoutCompat
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginEnd="12dp">
-            <NumberPicker
-                android:id="@+id/MinutePicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="blocksDescendants"
-                android:layout_marginBottom="2dp">
-            </NumberPicker>
-            <TextView
-                android:id="@+id/MinutesLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/minute_label"/>
-        </android.support.v7.widget.LinearLayoutCompat>
-
-
-        <android.support.v7.widget.LinearLayoutCompat
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
-            <TextView
-                android:id="@+id/colon"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:textSize="36sp"
-                android:text="@string/colon" />
-        </android.support.v7.widget.LinearLayoutCompat>
-
-
-        <android.support.v7.widget.LinearLayoutCompat
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginStart="12dp">
-
-            <NumberPicker
-                android:id="@+id/SecondsPicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="blocksDescendants"
-                android:layout_marginBottom="2dp"/>
-
-            <TextView
-                android:id="@+id/SecondsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/second_label" />
-        </android.support.v7.widget.LinearLayoutCompat>
-
-
-    </android.support.v7.widget.LinearLayoutCompat>
+        android:layout_below="@id/new_set_descrip"
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

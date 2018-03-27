@@ -17,11 +17,16 @@ public class SettingsActivity extends AppCompatActivity {
     public static final int MAIN_ACTVITIY = 0;
     public static final int MY_WORKOUT_ACTIVITY = 1;
 
+    //region INTENT_KEYS
     public static final String EXTRA_PARENT = PACKAGE + "PARENT";
+    //endregion
 
-    private int mParentClass;
+    //region PRIVATE_VARS
+    // Parent Activity Type
+    private int mParentClassType;
+    //endregion
 
-
+    //region GET_PARENT_ACTIVITY
     @Nullable
     @Override
     public Intent getSupportParentActivityIntent() {
@@ -38,11 +43,11 @@ public class SettingsActivity extends AppCompatActivity {
         Intent intent = null;
         Intent in = getIntent();
         if(in != null){
-            int type = in.getIntExtra(EXTRA_PARENT, -1);
-            if(type == 0){
+            mParentClassType = in.getIntExtra(EXTRA_PARENT, -1);
+            if(mParentClassType == 0){
                 intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            } else if( type == 1){
+            } else if( mParentClassType == 1){
                 intent = new Intent(this, MyWorkoutActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             } else {
@@ -53,7 +58,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         return intent;
     }
+    //endregion
 
+    //region LIFECYCLE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,4 +69,5 @@ public class SettingsActivity extends AppCompatActivity {
                 .commit();
         getParentActivityIntent();
     }
+    //endregion
 }

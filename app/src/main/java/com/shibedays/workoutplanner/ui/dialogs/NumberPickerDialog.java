@@ -93,8 +93,9 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
 
         final View view = inflater.inflate(R.layout.number_picker_dialog, null);
 
-        mMinutePicker = view.findViewById(R.id.number_picker_minutes);
-        mSecondPicker = view.findViewById(R.id.number_picker_seconds);
+        View number_spinners = view.findViewById(R.id.spinners);
+        mMinutePicker = number_spinners.findViewById(R.id.MinutePicker);
+        mSecondPicker = number_spinners.findViewById(R.id.SecondsPicker);
 
         mMinutePicker.setMinValue(0);
         mMinutePicker.setMaxValue(30);

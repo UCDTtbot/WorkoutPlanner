@@ -53,8 +53,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AdapterView.OnItemSelectedListener,
-                                                                    AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener,
+public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener,
                                                                     NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener {
 
     //region CONSTANTS
@@ -96,10 +95,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     //region PRIVATE_VARS
     // UI Components
     private RecyclerView mRecyclerView;
-    private Spinner mRoundSpinner;
-    private ArrayAdapter<CharSequence> mArrayAdapter;
     private TextView mRestTime;
     private TextView mBreakTime;
+    private TextView mNumRounds;
     // Adapters
     private SetAdapter mSetAdapter;
     // Data
@@ -294,6 +292,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             }
         });
 
+        mNumRounds = findViewById(R.id.number_rounds);
+        mNumRounds.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openNumberRoundsDialog();
+            }
+        });
         //endregion
 
         //region RECYCLER_VIEW
@@ -328,7 +333,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             private void init(){
                 background = new ColorDrawable(Color.RED);
                 deleteIC = getDrawable(R.drawable.ic_delete_white_24dp);
-                deleteICMargin = (int) getResources().getDimension(R.dimen.ic_delete_margin);
+                deleteICMargin = (int) getResources().getDimension(R.dimen.standard_icon_touchable_padding);
                 initiated = true;
             }
 
@@ -428,16 +433,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         //endregion
 
-        //region SPINNER
-        mRoundSpinner = findViewById(R.id.round_spinner);
-        mRoundSpinner.setOnItemSelectedListener(this);
-
-        mArrayAdapter = ArrayAdapter.createFromResource(this,
-                R.array.spinner_array, android.R.layout.simple_spinner_item);
-        mArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mRoundSpinner.setAdapter(mArrayAdapter);
-        mRoundSpinner.setSelection(0);
-        //endregion
     }
 
     @Override
@@ -527,8 +522,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             setTitle(mWorkoutData.getName());
         }
         int numRounds = mWorkoutData.getNumOfRounds();
-        int pos = mArrayAdapter.getPosition("\u0020" + Integer.toString(numRounds) + "\u0020");
-        mRoundSpinner.setSelection(pos);
+        updateRoundNumUI(numRounds);
 
         int[] restTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenSets() );
         int restMin = restTime[0], restSec = restTime[1];
@@ -570,23 +564,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         }
     }
 
+    private void updateRoundNumUI(int num){
+        mNumRounds.setText(String.format(Locale.US, " %d ", num));
+    }
+
     //endregion
 
     //region INTERFACE_IMPLEMENTATIONS
 
-        //region SPINNERS
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        int numRounds = Integer.parseInt(parent.getItemAtPosition(position).toString().trim());
-        mWorkoutData.setNumOfRounds(numRounds);
-        mViewModel.update(mWorkoutData);
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-        //endregion
 
         //region ADD_SET
 
@@ -668,6 +653,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         mViewModel.update(mWorkoutData);
     }
 
+        //endregion
+
+        //region NUMBER_ROUND_DIALOG
+    private void openNumberRoundsDialog(){
+
+    }
         //endregion
 
         //region BOTTOM_SHEET

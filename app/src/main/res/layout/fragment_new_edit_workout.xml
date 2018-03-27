@@ -6,10 +6,7 @@
 
     <EditText
         android:id="@+id/new_workout_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:inputType="textCapSentences"
-        android:hint="@string/name_hint"/>
+        android:hint="@string/name_hint"
+        style="@style/DialogEditText"/>
 
 </RelativeLayout>

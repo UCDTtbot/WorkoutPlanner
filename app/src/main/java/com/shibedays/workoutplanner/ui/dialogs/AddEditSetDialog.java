@@ -90,13 +90,14 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
         mEditTextName = view.findViewById(R.id.new_set_name);
         mEditTestDescrip = view.findViewById(R.id.new_set_descrip);
 
-        mMinutePicker = view.findViewById(R.id.MinutePicker);
+        View number_spinners = view.findViewById(R.id.spinners);
+        mMinutePicker = number_spinners.findViewById(R.id.MinutePicker);
         mMinutePicker.setMinValue(0);
         mMinutePicker.setMaxValue(30);
         mMinutePicker.setWrapSelectorWheel(true);
         mMinutePicker.setOnValueChangedListener(this);
 
-        mSecondPicker = view.findViewById(R.id.SecondsPicker);
+        mSecondPicker = number_spinners.findViewById(R.id.SecondsPicker);
         mSecondPicker.setMinValue(1);
         mSecondPicker.setMaxValue(59);
 
