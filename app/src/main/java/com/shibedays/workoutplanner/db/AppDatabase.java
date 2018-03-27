@@ -66,11 +66,18 @@ public abstract class AppDatabase extends RoomDatabase {
             Workout defaultWorkout = new Workout(0, "Example Workout");
             Set set_1 = new Set("Example Set", "Description of your workout.", 30000);
             Set set_2 = new Set("Example Set", "Swipe to delete", 60000);
-            Set set_3 = new Set("Pushups", "Normal Pushups", 45000);
             defaultWorkout.addSet(set_1);
             defaultWorkout.addSet(set_2);
-            defaultWorkout.addSet(set_3);
             mDao.insert(defaultWorkout);
+
+            Workout running = new Workout(1, "Run and Walk");
+            running.setNoRestFlag(true);
+            running.setNoBreakFlag(true);
+            Set run = new Set("Run", "Jog for a minute and a half", 90000);
+            Set walk = new Set("Walk", "Walk at a brisk pace", 30000);
+            running.addSet(run);
+            running.addSet(walk);
+            mDao.insert(running);
             return null;
         }
     }

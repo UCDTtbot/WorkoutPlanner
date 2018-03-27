@@ -24,6 +24,7 @@
     <dimen name="standard_list_padding_end">16dp</dimen>
 
     <dimen name="list_title_size">72dp</dimen>
+
     <dimen name="list_standard_size">72dp</dimen>
     <dimen name="list_subtitle_size">48dp</dimen>
 

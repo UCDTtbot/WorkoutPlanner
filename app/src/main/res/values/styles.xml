@@ -82,7 +82,7 @@
         <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="android:focusable">true</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:padding">@dimen/deep_padding</item>
+        <item name="android:padding">@dimen/half_padding</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 
