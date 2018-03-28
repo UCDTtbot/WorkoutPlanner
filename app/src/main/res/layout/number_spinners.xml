@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/num_spinners"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_horizontal"
+    android:padding="@dimen/standard_padding">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <NumberPicker
+            android:id="@+id/MinutePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="blocksDescendants">
+        </NumberPicker>
+        <TextView
+            android:id="@+id/MinutesLabel"
+            android:text="@string/minute_label"
+            android:layout_below="@+id/MinutePicker"
+            style="@style/NumberPickerLabel"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/colon"
+        android:text="@string/colon"
+        style="@style/Colon"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <NumberPicker
+            android:id="@+id/SecondsPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="blocksDescendants"/>
+
+        <TextView
+            android:id="@+id/SecondsLabel"
+            android:text="@string/second_label"
+            android:layout_below="@id/SecondsPicker"
+            style="@style/NumberPickerLabel"/>
+    </RelativeLayout>
+
+
+</android.support.v7.widget.LinearLayoutCompat>

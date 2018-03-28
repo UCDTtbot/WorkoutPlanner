@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner;
+package com.shibedays.workoutplanner.db.entities;
 
 /**
  * Created by ttbot on 2/11/2018.

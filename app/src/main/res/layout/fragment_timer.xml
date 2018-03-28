@@ -1,0 +1,91 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.shibedays.workoutplanner.ui.TimerFragment">
+
+    <TextView
+        android:id="@+id/service_running"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_above="@+id/main_timer"
+        android:textSize="24sp"
+        android:text="Service Not Running"/>
+
+    <TextView
+        android:id="@+id/main_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/default_time"
+        android:textSize="40sp"/>
+
+    <LinearLayout
+        android:id="@+id/set_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toStartOf="@id/main_timer"
+        android:layout_below="@id/main_timer">
+
+        <TextView
+            android:id="@+id/current_set_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/set_number_title"/>
+
+        <TextView
+            android:id="@+id/current_rep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/default_num"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/round_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toEndOf="@id/main_timer"
+        android:layout_below="@id/main_timer">
+
+        <TextView
+            android:id="@+id/current_round_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/round_number_title"/>
+
+        <TextView
+            android:id="@+id/current_round"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/default_num"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/descrip_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/round_info"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:id="@+id/descrip_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/description_label"/>
+
+        <TextView
+            android:id="@+id/descrip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder_description"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

@@ -1,49 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/view_foreground"
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clickable="true"
-    android:focusable="true"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground"
-    android:paddingTop="@dimen/row_padding_vert"
-    android:paddingBottom="@dimen/row_padding_vert"
-    android:paddingStart="@dimen/row_paddting_hori"
-    android:paddingEnd="@dimen/row_paddting_hori">
+    android:layout_height="@dimen/list_standard_size"
+    android:foreground="?attr/selectableItemBackground"
+    android:layout_marginStart="@dimen/standard_padding"
+    android:layout_marginTop="@dimen/standard_padding"
+    android:layout_marginEnd="@dimen/standard_padding">
 
-    <TextView
-        android:id="@+id/set_name"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="@string/default_set_name"
-        android:layout_marginTop="@dimen/name_margin_spacing"
-        android:layout_marginBottom="@dimen/name_margin_spacing"
-        android:textColor="@color/item_name"
-        android:textSize="@dimen/set_name_size"
-        android:textStyle="bold"/>
+        android:padding="@dimen/standard_padding"
+        android:layout_gravity="center">
 
-    <TextView
-        android:id="@+id/Description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/set_name"
-        android:layout_marginStart="@dimen/sets_margin_spacing"
-        android:paddingStart="@dimen/padding_spacing_5dp"
-        android:paddingEnd="@dimen/padding_spacing_5dp"
-        android:text="@string/default_descrip"
-        android:textColor="@color/item_sub_color"
-        android:textSize="@dimen/set_descip_size" />
-<!--
-    <ImageView
-        android:id="@+id/right_arrow"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        app:srcCompat="@drawable/ic_right_arrow"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"/>
--->
-</RelativeLayout>
+        <LinearLayout
+            android:id="@+id/top_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:orientation="horizontal"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/set_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/default_set_name"
+                android:layout_weight="50"
+                style="@style/TextAppearance.AppCompat.Subhead"/>
+
+            <TextView
+                android:id="@+id/set_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/default_time"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:gravity="end"
+                android:layout_weight="50"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/set_descrip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/top_row"
+            android:padding="@dimen/half_padding"
+            style="@style/Base.TextAppearance.AppCompat.Body1"
+            android:text="@string/default_descrip"/>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
+

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/bottom_sheet_title"
+        android:text="@string/placeholder_title"
+        style="@style/ListTitle"/>
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet_edit"
+        style="@style/BottomSheetLinearRow">
+
+        <ImageView
+            android:id="@+id/edit_ic_btm_sheet"
+            android:src="@drawable/ic_edit_black_24dp"
+            style="@style/BottomSheetImage"/>
+        <TextView
+            android:text="@string/bottom_sheet_edit"
+            style="@style/BottomSheetText" />
+
+    </LinearLayout>
+
+    <View style="@style/Divider"/>
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet_delete"
+        style="@style/BottomSheetLinearRow">
+
+        <ImageView
+            android:id="@+id/delete_ic_btm_sheet"
+            android:src="@drawable/ic_delete_black_24dp"
+            style="@style/BottomSheetImage" />
+        <TextView
+            android:text="@string/bottom_sheet_delete"
+            style="@style/BottomSheetText"/>
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

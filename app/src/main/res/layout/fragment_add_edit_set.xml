@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/new_set_name"
+        android:hint="@string/name_hint"
+        style="@style/DialogEditText"/>
+
+    <EditText
+        android:id="@+id/new_set_descrip"
+        android:layout_below="@+id/new_set_name"
+        android:hint="@string/descrip_hint"
+        style="@style/DialogEditText"/>
+
+    <include layout="@layout/number_spinners"
+        android:id="@+id/spinners"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/new_set_descrip"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

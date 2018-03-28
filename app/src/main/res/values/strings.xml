@@ -9,9 +9,54 @@
     <string name="item_name">Workout %1$d</string>
     <string name="item_sets">Total Sets: %1$d</string>
     <string name="item_rounds">Rounds: %1$d</string>
-    <string name="workout_hint">Name</string>
+    <string name="name_hint">Name</string>
     <string name="text_delete">Delete</string>
     <string name="title_activity_my_workout">MyWorkoutActivity</string>
     <string name="default_set_name">Set Name</string>
     <string name="default_descrip">Description for the above set</string>
+    <string name="bottom_sheet_delete">Delete</string>
+    <string name="bottom_sheet_edit">Edit</string>
+    <string name="descrip_hint">Description</string>
+    <string name="action_about">About</string>
+
+    <!-- \u0020 is a space -->
+
+    <!-- TTS Strings -->
+    <string name="tts_starting">Starting in, 5. 4. 3. 2. 1.</string>
+    <string name="tts_rest_ending">Rest ending in.</string>
+    <string name="tts_round_finished">Round finished, take a break.</string>
+    <string name="tts_finished">Finished.</string>
+    <string name="tts_take_rest">Take a rest.</string>
+    <string name="tts_next_round">Beginning next round.</string>
+    <string name="tts_begin">Begin.</string>
+    <string name="tts_five">5.</string>
+    <string name="tts_four">4.</string>
+    <string name="tts_three">3.</string>
+    <string name="tts_two">2.</string>
+    <string name="tts_one">1.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="start_workout_button">Start Workout</string>
+    <string name="menu_pause">Pause</string>
+    <string name="menu_add_set">Add Set</string>
+    <string name="rest_title_text">Rest</string>
+    <string name="default_time">0:00</string>
+    <string name="break_title_text">Break</string>
+    <string name="round_title_text">Rounds</string>
+    <string name="minute_label">M</string>
+    <string name="colon">:</string>
+    <string name="second_label">S</string>
+    <string name="set_number_title">Set Number:</string>
+    <string name="default_num">1</string>
+    <string name="round_number_title">Round Number:</string>
+    <string name="description_label">Description:</string>
+    <string name="placeholder_description">Default Description</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="placeholder_title">Title</string>
+    <string name="placeholder_number">10</string>
+    <string name="no_placeholder">No _____</string>
+    <string name="no_rest">No Rest</string>
+    <string name="no_break">No Break</string>
+
 </resources>
