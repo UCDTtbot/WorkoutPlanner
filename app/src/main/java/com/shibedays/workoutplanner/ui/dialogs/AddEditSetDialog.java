@@ -18,7 +18,6 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.Locale;
@@ -85,7 +84,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.fragment_add_edit_set, null);
+        final View view = inflater.inflate(R.layout.dialog_add_edit_set, null);
 
         mEditTextName = view.findViewById(R.id.new_set_name);
         mEditTestDescrip = view.findViewById(R.id.new_set_descrip);

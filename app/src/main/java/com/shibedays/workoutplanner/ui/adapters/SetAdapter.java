@@ -122,7 +122,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
     @Override
     public SetAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.set_list_item, parent, false));
+                .inflate(R.layout.list_set_items, parent, false));
     }
 
     @Override

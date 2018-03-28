@@ -131,7 +131,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
     @Override
     public WorkoutAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.workout_list_item, parent, false));
+                .inflate(R.layout.list_workout_items, parent, false));
     }
 
     @Override

@@ -98,7 +98,7 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.number_picker_dialog, null);
+        final View view = inflater.inflate(R.layout.dialog_number_picker, null);
         TextView noTitle = view.findViewById(R.id.no_title);
         if(mWhichTime == REST_TYPE){
             noTitle.setText(R.string.no_rest);

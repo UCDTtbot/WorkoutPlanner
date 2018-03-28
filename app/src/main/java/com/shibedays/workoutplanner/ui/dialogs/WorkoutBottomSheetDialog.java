@@ -109,7 +109,7 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_bottom_sheet, container, false);
+        View view = inflater.inflate(R.layout.edit_delete_bottom_sheet, container, false);
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
 
         mEdit = view.findViewById(R.id.bottom_sheet_edit);

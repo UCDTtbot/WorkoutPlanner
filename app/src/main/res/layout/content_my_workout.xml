@@ -20,7 +20,8 @@
         android:id="@+id/set_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="60">
+        android:layout_weight="60"
+        android:background="@color/material_blue_grey_50">
 
     </android.support.v7.widget.RecyclerView>
 
@@ -30,7 +31,8 @@
         android:id="@+id/rel_view_titles"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="40">
+        android:layout_weight="40"
+        android:background="@color/material_blue_grey_50">
 
         <TextView
             android:id="@+id/rest_title_text"

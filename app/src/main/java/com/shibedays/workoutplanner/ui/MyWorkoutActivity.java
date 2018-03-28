@@ -45,6 +45,7 @@ import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
+import com.shibedays.workoutplanner.ui.dialogs.NumberRoundsDialog;
 import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
@@ -54,7 +55,8 @@ import java.util.Locale;
 
 
 public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener,
-                                                                    NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener {
+                                                                    NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener,
+                                                                    NumberRoundsDialog.NumberRoundsListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -115,7 +117,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
-
     //endregion
 
     //region PUBLIC_VARS
@@ -663,7 +664,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         //region NUMBER_ROUND_DIALOG
     private void openNumberRoundsDialog(){
-        Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT).show();
+        NumberRoundsDialog numberRoundsDialog = new NumberRoundsDialog();
+        Bundle args = new Bundle();
+        args.putInt(NumberRoundsDialog.EXTRA_NUM_ROUNDS, mWorkoutData.getNumOfRounds());
+        numberRoundsDialog.setArguments(args);
+        numberRoundsDialog.show(mFragmentManager, DEBUG_TAG);
+    }
+
+    @Override
+    public void setNumberRounds(int num) {
+        mWorkoutData.setNumOfRounds(num);
+        mViewModel.update(mWorkoutData);
     }
         //endregion
 
