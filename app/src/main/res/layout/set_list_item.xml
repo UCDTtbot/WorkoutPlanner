@@ -6,8 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_standard_size"
     android:foreground="?attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true">
+    android:layout_marginStart="@dimen/standard_padding"
+    android:layout_marginTop="@dimen/standard_padding"
+    android:layout_marginEnd="@dimen/standard_padding">
 
     <RelativeLayout
         android:layout_width="match_parent"

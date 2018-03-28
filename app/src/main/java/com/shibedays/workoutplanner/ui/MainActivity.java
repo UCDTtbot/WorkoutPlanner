@@ -144,9 +144,8 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
 
 
         // Add the horizontal bar lines as an item decoration
-        RecyclerView.ItemDecoration itemDecoration = new
-                DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        mRecyclerView.addItemDecoration(itemDecoration);
+        //RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        //mRecyclerView.addItemDecoration(itemDecoration);
         //TODO: Add recycler animation?
 
             //region TOUCH_SWIPE_SETUP

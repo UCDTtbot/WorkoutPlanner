@@ -310,9 +310,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         mRecyclerView.setAdapter(mSetAdapter);
         mSetAdapter.notifyDataSetChanged();
 
-        RecyclerView.ItemDecoration itemDecoration = new
-                DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        mRecyclerView.addItemDecoration(itemDecoration);
+        //RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        //mRecyclerView.addItemDecoration(itemDecoration);
 
         //region TOUCH_SWIPE_SETUP
         int dragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
