@@ -576,7 +576,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
     //region INTERFACE_IMPLEMENTATIONS
 
-
         //region ADD_SET
 
     private void openAddNewSetDialog(){
@@ -677,6 +676,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     public void openBottomDialog(int setIndex){
         Bundle bundle = new Bundle();
         bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, setIndex);
+        bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, mSetList.get(setIndex).getName());
         SetBottomSheetDialog setBottomSheetDialog = new SetBottomSheetDialog();
         setBottomSheetDialog.setArguments(bundle);
         setBottomSheetDialog.show(mFragmentManager, setBottomSheetDialog.getTag());
@@ -761,6 +761,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         timerIntent.putExtra(TimerService.EXTRA_BREAK_TIME, mWorkoutData.getTimeBetweenRounds());
         timerIntent.putExtra(TimerService.EXTRA_NUM_REPS, mWorkoutData.getNumOfSets());
         timerIntent.putExtra(TimerService.EXTRA_NUM_ROUNDS, mWorkoutData.getNumOfRounds());
+        timerIntent.putExtra(TimerService.EXTRA_NO_REST_FLAG, mWorkoutData.getNoRestFlag());
+        timerIntent.putExtra(TimerService.EXTRA_NO_BREAK_FLAG, mWorkoutData.getNoBreakFlag());
 
         startService(timerIntent);
     }

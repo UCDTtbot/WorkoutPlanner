@@ -47,19 +47,25 @@ public class TimerService extends Service {
     public static final String EXTRA_BREAK_TIME = PACKAGE + "BREAK_TIME";
     public static final String EXTRA_NUM_REPS = PACKAGE + "NUM_REPS";
     public static final String EXTRA_NUM_ROUNDS = PACKAGE + "NUM_ROUNDS";
+    public static final String EXTRA_NO_REST_FLAG = PACKAGE + "NO_REST_FLAG";
+    public static final String EXTRA_NO_BREAK_FLAG = PACKAGE + "NO_BREAK_FLAG";
     public static final String EXTRA_REBUILD_BUNDLE = PACKAGE + "REBUILD";
     //endregion
 
     //region PRIVATE_VARS
     // Time Data
-    private int mTotalSetTime;
+    private int mCurSetTime;
     private int mTimeLeft;
+    private int mNextSetTime;
+
     private int mRestTime;
     private int mBreakTime;
     private int mCurRep;
     private int mCurRound;
     private int mNumReps;
     private int mNumRounds;
+    private boolean mNoRestFlag;
+    private boolean mNoBreakFlag;
     // Action Tracker
     private int mCurrentAction;
     // Notification Variables
@@ -120,11 +126,13 @@ public class TimerService extends Service {
         // TODO: Receive the bundle that contains the notification information and use it to build the notif
         if(intent != null){
             mNotifBundle = intent.getBundleExtra(MyWorkoutActivity.EXTRA_NOTIF_BUNDLE);
-            mTotalSetTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
+            mCurSetTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
             mRestTime = intent.getIntExtra(EXTRA_REST_TIME, -1);
             mBreakTime = intent.getIntExtra(EXTRA_BREAK_TIME, -1);
             mNumReps = intent.getIntExtra(EXTRA_NUM_REPS, -1);
             mNumRounds = intent.getIntExtra(EXTRA_NUM_ROUNDS, -1);
+            mNoRestFlag = intent.getBooleanExtra(EXTRA_NO_REST_FLAG, false);
+            mNoBreakFlag = intent.getBooleanExtra(EXTRA_NO_BREAK_FLAG, false);
         } else {
             // abort?
         }
@@ -133,10 +141,12 @@ public class TimerService extends Service {
         // Create the intent for rebuilding the activity
         Intent notifIntent = new Intent(this, MyWorkoutActivity.class);
         notifIntent.putExtra(EXTRA_REBUILD_BUNDLE, mNotifBundle);
+        notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notifIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NOTIF_INTENT_TYPE);
         // Create the pending intent that will bring us back to MyWorkoutActivity
         PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIF_ID, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        // TODO: Setup the notification with correct data
         mBuilder = new NotificationCompat.Builder(this, "MainTimerChannel");
         mBuilder.setContentTitle("Workout Timer")
                 .setContentText("XX Minutes Left")
@@ -152,7 +162,7 @@ public class TimerService extends Service {
         mCurRep = 0;
         mCurRound = 0;
         mCurrentAction = REP_ACTION;
-        beginTimer(mTotalSetTime, TTS_STARTING_DELAY);
+        beginTimer(mCurSetTime, TTS_STARTING_DELAY);
 
         return START_NOT_STICKY;
     }
@@ -184,13 +194,23 @@ public class TimerService extends Service {
 
     //region UTILITY
     private void beginTimer(int time, int delay){
+        mCurSetTime = time;
         mTimeLeft = time;
+
+        if(mCurRep == (mNumReps - 1)){
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_GET_FIRST_SET, 0, 0);
+            sendMessage(msg);
+        } else {
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_SET_TIME, 0, 0);
+            sendMessage(msg);
+        }
+
         mHandler.removeCallbacks(timer);
         mHandler.postDelayed(timer, ONE_SEC * delay);
     }
 
     public void setNextSetTime(int time){
-        mTotalSetTime = time;
+        mNextSetTime = time;
     }
     //endregion
 
@@ -220,65 +240,58 @@ public class TimerService extends Service {
                 }
 
                 mHandler.postDelayed(this, ONE_SEC);
-            } else if(mTimeLeft <= 0) { // Timer has finished
+            } else { // Timer has finished
                 Log.d(DEBUG_TAG, "Timer has finished.");
 
                 if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound != (mNumRounds - 1)) {  // Round Finished. Break
+                    if(mNoBreakFlag){ // No Break
+                        updateRound();
 
-                    sendTTSMessage(R.string.tts_round_finished);
+                        sendTTSMessage(R.string.tts_begin);
+                        mCurrentAction = REP_ACTION;
+                        beginTimer(mNextSetTime, TTS_NO_DELAY);
 
-                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_GET_FIRST_SET, 0, 0);
-                    sendMessage(msg);
-
-                    mCurrentAction = BREAK_ACTION;
-                    beginTimer(mBreakTime, TTS_BREAK_DELAY);
-
-                } else if(mCurrentAction == REP_ACTION && mCurRep <= (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
+                    } else {    // Yes Break
+                        sendTTSMessage(R.string.tts_round_finished);
+                        mCurrentAction = BREAK_ACTION;
+                        beginTimer(mBreakTime, TTS_BREAK_DELAY);
+                    }
+                } else if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
                     sendTTSMessage(R.string.tts_finished);
 
                     //TODO: Send us back to MyWorkoutActivity, unbind, and kill-self
 
                 } else if(mCurrentAction == REP_ACTION && mCurRep < (mNumReps - 1 )){ // Set finished. Rest
                     //Repetition finished. Rest.
-                    sendTTSMessage(R.string.tts_take_rest);
 
-                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_SET_TIME, 0, 0);
-                    sendMessage(msg);
+                    if(mNoRestFlag){
+                        updateRep();
 
-                    mCurrentAction = REST_ACTION;
-                    beginTimer(mRestTime, TTS_REST_DELAY);
+                        sendTTSMessage(R.string.tts_begin);
+                        mCurrentAction = REP_ACTION;
+                        beginTimer(mNextSetTime, TTS_NO_DELAY);
+                    } else {
+                        sendTTSMessage(R.string.tts_take_rest);
+                        mCurrentAction = REST_ACTION;
+                        beginTimer(mRestTime, TTS_REST_DELAY);
+                    }
 
                 } else if(mCurrentAction == REST_ACTION){ // Rest finished. Next Rep
                     //Rest finished. Start next rep.
-                    mCurRep++;
-                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
-                    sendMessage(msg);
+                    updateRep();
 
+                    //TODO: Custom Message
                     sendTTSMessage(R.string.tts_begin);
-                    updateNotification();
-
                     mCurrentAction = REP_ACTION;
-                    if(mTotalSetTime > 0) {
-                        beginTimer(mTotalSetTime, 1);
-                    } else {
-                        //TODO: mTotalSetTime was not set fast enough
-                        Log.e(DEBUG_TAG, "mTotalSetTime was not set fast enough");
-                    }
+                    beginTimer(mNextSetTime, 1);
+
                 } else if(mCurrentAction == BREAK_ACTION){ // Break Finished. Next Round
                     //Break finished, start next round
+                    updateRound();
+
                     sendTTSMessage(R.string.tts_next_round);
-
-                    mCurRound++;
-                    Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND_UI, mCurRound, 0);
-                    sendMessage(msg_round);
-
-                    mCurRep = 0;
-                    Message msg_rep = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
-                    sendMessage(msg_rep);
-
-                    updateNotification();
                     mCurrentAction = REP_ACTION;
-                    beginTimer(mTotalSetTime, 2);
+                    beginTimer(mNextSetTime, 2);
                 } else {
                     //TODO: Something bad happened (?)
                     Log.e(DEBUG_TAG, "mTimeLeft is negative ?");
@@ -293,6 +306,24 @@ public class TimerService extends Service {
 
     private void updateNotification(){
         //TODO: Update the notif
+    }
+
+    private void updateRep(){
+        mCurRep++;
+        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
+        sendMessage(msg);
+        updateNotification();
+    }
+
+    private void updateRound(){
+        mCurRound++;
+        Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND_UI, mCurRound, 0);
+        sendMessage(msg_round);
+
+        mCurRep = 0;
+        Message msg_rep = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
+        sendMessage(msg_rep);
+        updateNotification();
     }
 
     private void sendTTSMessage(int stringID){

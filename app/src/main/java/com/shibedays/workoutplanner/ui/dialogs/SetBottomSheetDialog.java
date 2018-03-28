@@ -28,12 +28,14 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
     //endregion
 
     //region INTENT_KEYS
+    public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
     public static final String EXTRA_SET_INDEX = PACKAGE + "SET_INDEX";
     //endregion
 
     //region PRIVATE_KEYS
     // Data
     private int mSetIndex;
+    private String mSetName;
     // UI Components
     private TextView mTitleTextView;
     private LinearLayout mEdit;
@@ -74,6 +76,7 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
 
         Bundle args = getArguments();
         if(args != null){
+            mSetName = args.getString(EXTRA_SET_NAME);
             mSetIndex = args.getInt(EXTRA_SET_INDEX);
         }
     }
@@ -84,6 +87,7 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.fragment_bottom_sheet, container, false);
 
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
+        mTitleTextView.setText(mSetName);
 
         mEdit = view.findViewById(R.id.bottom_sheet_edit);
         mEdit.setOnClickListener(new View.OnClickListener() {

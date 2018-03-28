@@ -66,10 +66,10 @@
     </style>
 
     <!-- Lists -->
-    <style name="ListTitle" parent="TextAppearance.AppCompat.Headline">
+    <style name="ListTitle" parent="TextAppearance.AppCompat.Title">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/list_title_size</item>
-        <item name="android:paddingStart">@dimen/icon_list_padding_start</item>
+        <item name="android:paddingStart">@dimen/standard_icon_margin_start</item>
         <item name="android:paddingEnd">@dimen/standard_list_padding_end</item>
         <item name="android:gravity">center_vertical</item>
     </style>

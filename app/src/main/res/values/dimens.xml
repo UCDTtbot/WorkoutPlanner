@@ -23,7 +23,7 @@
     <dimen name="no_icon_list_padding_start">16dp</dimen>
     <dimen name="standard_list_padding_end">16dp</dimen>
 
-    <dimen name="list_title_size">72dp</dimen>
+    <dimen name="list_title_size">54dp</dimen>
 
     <dimen name="list_standard_size">72dp</dimen>
     <dimen name="list_subtitle_size">48dp</dimen>
