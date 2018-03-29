@@ -82,9 +82,9 @@ public class AddEditWorkoutDialog extends DialogFragment {
         mParentActivity = (MainActivity) getActivity();
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.dialog_new_edit_workout, null);
+        final View view = inflater.inflate(R.layout.dialog_workout_name, null);
 
-        mEditText = view.findViewById(R.id.new_workout_name);
+        mEditText = view.findViewById(R.id.workout_name);
         //endregion
 
         //region BUILDER_SETUP (INTENT)

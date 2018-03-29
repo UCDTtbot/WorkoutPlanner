@@ -37,6 +37,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.shibedays.workoutplanner.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;
@@ -311,125 +312,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         mRecyclerView.setAdapter(mSetAdapter);
         mSetAdapter.notifyDataSetChanged();
 
-        //RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        //mRecyclerView.addItemDecoration(itemDecoration);
-
-        //region TOUCH_SWIPE_SETUP
         int dragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        final int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        ListItemTouchHelper listHelper =
+                new ListItemTouchHelper(this, true, dragDirs, true, swipeDirs, mSetAdapter);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
-                dragDirs, swipeDirs) {
-            // Swipe to delete help from:
-            // https://github.com/nemanja-kovacevic/recycler-view-swipe-to-delete/blob/master/app/src/main/java/net/nemanjakovacevic/recyclerviewswipetodelete/
-
-            // Cache the vars needed for onChildDraw
-            Drawable background;
-            Drawable deleteIC;
-            int deleteICMargin;
-            boolean initiated;
-
-            // Initiate the above needed data
-            private void init(){
-                background = new ColorDrawable(Color.RED);
-                deleteIC = getDrawable(R.drawable.ic_delete_white_24dp);
-                deleteICMargin = (int) getResources().getDimension(R.dimen.standard_icon_touchable_padding);
-                initiated = true;
-            }
-
-            // This is for dragging, we don't need (for now)
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                int from = viewHolder.getAdapterPosition();
-                int to = target.getAdapterPosition();
-                swapSets(from, to);
-                mSetAdapter.notifyItemMoved(from, to);
-
-                return false;
-            }
-
-            // For getting the swiped direction. If we somehow swipe an item that's already pendingRemoval, return 0
-            @Override
-            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder){
-                int itemPos = viewHolder.getAdapterPosition();
-                SetAdapter adapter = (SetAdapter) recyclerView.getAdapter();
-                if(adapter.isPendingRemoval(itemPos)){
-                    return 0;
-                } else {
-                    return super.getSwipeDirs(recyclerView, viewHolder);
-                }
-            }
-
-            // When an item is swiped, put it up for removal
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int swipedPos = viewHolder.getAdapterPosition();
-                SetAdapter adapter = (SetAdapter) mRecyclerView.getAdapter();
-                adapter.pendingRemoval(swipedPos);
-                // Snackbar is creating in pendingRemoval
-            }
-
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
-
-                View itemView = viewHolder.itemView;
-
-                // This also gets called for viewholders that are already swiped away, so handle for that
-                if(viewHolder.getAdapterPosition() < 0){
-                    return;
-                }
-
-                if(!initiated){
-                    init();
-                }
-                //if dX > 0, swiping right
-                //if dX < 0 swiping left
-                if(dX < 0) {
-                    // draw the background for the child view
-                    // The background bounds will be from the edge of the view to the edge of the device
-                    background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                    background.draw(c);
-
-                    // Draw the relevent icon
-                    int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
-                    int intristicHeight = deleteIC.getIntrinsicHeight();
-                    int intristicWidth = deleteIC.getIntrinsicWidth();
-
-                    int deleteICLeft = itemView.getRight() - deleteICMargin - intristicWidth;
-                    int deleteICRight = itemView.getRight() - deleteICMargin;
-                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
-                    int deleteICBottom = deleteICTop + intristicHeight;
-                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
-
-                    deleteIC.draw(c);
-                } else if (dX > 0) {
-                    // draw the background for the child view
-                    // The background bounds will be from the edge of the view to the edge of the device
-                    //background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(),itemView.getRight(), itemView.getBottom());
-                    background.setBounds(itemView.getLeft(), itemView.getTop(),
-                            itemView.getLeft() + (int) dX, itemView.getBottom());
-                    background.draw(c);
-
-                    // Draw the relevent icon
-                    int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
-                    int intristicHeight = deleteIC.getIntrinsicHeight();
-                    int intristicWidth = deleteIC.getIntrinsicWidth();
-
-                    int deleteICLeft = itemView.getLeft() + deleteICMargin;
-                    int deleteICRight = itemView.getLeft() + deleteICMargin + intristicWidth;
-                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
-                    int deleteICBottom = deleteICTop + intristicHeight;
-                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
-
-                    deleteIC.draw(c);
-                }
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        });
-        itemTouchHelper.attachToRecyclerView(mRecyclerView);
-        //endregion
+        listHelper.getHelper().attachToRecyclerView(mRecyclerView);
 
         //endregion
 
