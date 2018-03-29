@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class SetAdapter extends PendingRemovalAdapter {
+public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> {
 
     // Constants
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
@@ -41,6 +41,8 @@ public class SetAdapter extends PendingRemovalAdapter {
     // Threading Components
     private Handler handler = new Handler();
     private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
+
+
     //endregion
 
     //region INTERFACES
@@ -78,13 +80,13 @@ public class SetAdapter extends PendingRemovalAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(SetViewHolder viewHolder, int position) {
         // Get the current data
-        SetViewHolder vh = (SetViewHolder) holder;
         Set currentSet = mSetData.get(position);
-        vh.bindTo(currentSet);
+        viewHolder.bindTo(currentSet);
         // Populate anymore data
     }
+
     //endregion
 
     //region UTILITY
@@ -96,6 +98,11 @@ public class SetAdapter extends PendingRemovalAdapter {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public int getSwipeLayoutResourceId(int position) {
+        return 0;
     }
 
     public void setData(List<Set> data){
@@ -110,6 +117,8 @@ public class SetAdapter extends PendingRemovalAdapter {
         }
         notifyDataSetChanged();
     }
+
+
     //endregion
 
     //region PENDING_DELETE

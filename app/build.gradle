@@ -55,4 +55,14 @@ dependencies {
     // Database debugging
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.3'
 
+    // Swipe Helper
+    implementation "com.daimajia.swipelayout:library:1.2.0@aar"
+
+    // Recycler View Animator
+    implementation 'jp.wasabeef:recyclerview-animators:2.3.0'
+
+    // View Animators
+    implementation 'com.daimajia.easing:library:2.0@aar'
+    implementation 'com.daimajia.androidanimations:library:2.3@aar'
+
 }

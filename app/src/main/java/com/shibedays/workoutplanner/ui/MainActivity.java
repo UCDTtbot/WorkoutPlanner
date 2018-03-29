@@ -27,6 +27,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.daimajia.swipe.SimpleSwipeListener;
+import com.daimajia.swipe.SwipeLayout;
 import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
@@ -40,9 +42,12 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.jar.Attributes;
+
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
-public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener {
+public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener, AddEditWorkoutDialog.WorkoutDialogListener {
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     private SharedPreferences mPrivateSharedPrefs;
     private SharedPreferences mDefaultSharedPrefs;
     private FragmentManager mFragmentManager;
+    private SwipeLayout mSwipeLayout;
 
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
@@ -135,20 +141,14 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
         // Set the Layout Manager to Linear Layout
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        //TODO: Add recycler animation/decorations
+        mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
         // Setup the adapter with correct data
         mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
 
-        //TODO: Add recycler animation/decorations
 
-        int dragDirs = 0;
-        int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-        ListItemTouchHelper listHelper =
-                new ListItemTouchHelper(this, false, dragDirs,true, swipeDirs, mWorkoutAdapter);
-        listHelper.getHelper().attachToRecyclerView(mRecyclerView);
-        //endregion
 
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -272,19 +272,19 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     //region INTERFACE_IMPLEMENTATIONS
 
         //region NEW_WORKOUT
-
+    /*
     private void addWorkout(){
-        /*
+
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
         fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-         */
-    }
 
+    }
+    */
             //region OLD_ADD_WORKOUT_CODE
-    /*
+
     public void addWorkout(){
         AddEditWorkoutDialog addWorkoutDialog = new AddEditWorkoutDialog();
         Bundle args = new Bundle();
@@ -306,8 +306,13 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         }
 
     }
-    */
-            //endregion
+
+    @Override
+    public void onEditWorkoutDialogPositiveClick(String name, int index) {
+
+    }
+
+    //endregion
 
         //endregion
 
