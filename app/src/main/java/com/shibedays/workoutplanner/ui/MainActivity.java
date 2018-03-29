@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     private SharedPreferences mPrivateSharedPrefs;
     private SharedPreferences mDefaultSharedPrefs;
     private FragmentManager mFragmentManager;
-    private SwipeLayout mSwipeLayout;
 
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
@@ -147,8 +146,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
-
-
 
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

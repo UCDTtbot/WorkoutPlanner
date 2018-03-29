@@ -17,16 +17,16 @@
 
         <LinearLayout
             android:id="@+id/workout_list_background"
-            android:layout_width="72dp"
+            android:layout_width="@dimen/background_icon_size"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:background="#FF5534"
             android:gravity="center"
             android:weightSum="100">
             <ImageView
-                android:id="@+id/trash"
+                android:id="@+id/workout_trash"
                 android:layout_width="0dp"
-                android:layout_height="24dp"
+                android:layout_height="@dimen/standard_icon_size"
                 android:layout_weight="100"
                 android:src="@drawable/ic_delete_white_24dp" />
 

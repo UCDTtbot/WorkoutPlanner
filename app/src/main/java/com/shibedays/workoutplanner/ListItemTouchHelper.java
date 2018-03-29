@@ -8,11 +8,21 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.View;
 
+import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.adapters.PendingRemovalAdapter;
 
+import javax.crypto.spec.DESedeKeySpec;
+
 public class ListItemTouchHelper {
+
+    //region CONSTANTS
+    // Package and Debug Constants
+    private static final String DEBUG_TAG = ListItemTouchHelper.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ListItemTouchHelper.";
+    //endregion
 
     public interface SwapItems{
         void swap(int from, int to);
@@ -44,6 +54,9 @@ public class ListItemTouchHelper {
         if(context instanceof Activity){
             try{
                 mListener = (SwapItems) context;
+                if(mListener == null){
+                    Log.e(DEBUG_TAG, context.getClass().getSimpleName() + " MUST IMPLEMENT SWAP_ITEMS LISTENER");
+                }
             } catch (ClassCastException e){
                 e.printStackTrace();
             }
@@ -87,8 +100,10 @@ public class ListItemTouchHelper {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int swipedPos = viewHolder.getAdapterPosition();
-                mAdapter.pendingRemoval(swipedPos);
+                if(mSwipeable) {
+                    int swipedPos = viewHolder.getAdapterPosition();
+                    mAdapter.pendingRemoval(swipedPos);
+                }
             }
 
             @Override

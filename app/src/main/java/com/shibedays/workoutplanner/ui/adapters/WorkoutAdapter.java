@@ -2,9 +2,7 @@ package com.shibedays.workoutplanner.ui.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.media.Image;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -12,15 +10,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
@@ -43,24 +38,29 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     //region VIEW_HOLDER
     class WorkoutViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
+        // Data
+        private Workout curWorkout;
+        // Swipe
+        private SwipeLayout swipeLayout;
+        // Foreground
         private TextView itemName;
         private TextView sets;
-        private Workout curWorkout;
-        private SwipeLayout swipeLayout;
-        private ImageView tempDelete;
+        // Background
+        private ImageView delIcon;
 
+        //TEMP
         private TextView TEST_POS_ID;
         private TextView TEST_WRK_ID;
-        //private TextView rounds;
 
         public WorkoutViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
             itemName = itemView.findViewById(R.id.item_name);
             sets = itemView.findViewById(R.id.item_sets);
+            delIcon = itemView.findViewById(R.id.workout_trash);
+
             swipeLayout = itemView.findViewById(R.id.workout_swipe);
             swipeLayout.addDrag(SwipeLayout.DragEdge.Right, itemView.findViewById(R.id.workout_list_background));
-            tempDelete = itemView.findViewById(R.id.trash);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -72,22 +72,27 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
         void bindTo(final Workout curWorkout, final int pos){
             //Populate data when they bind the workouts to the view holder
+            this.curWorkout = curWorkout;
+
             itemName.setText(curWorkout.getName());
             sets.setText(String.format(mContext.getString(R.string.item_sets), curWorkout.getNumOfSets()));
 
             TEST_POS_ID.setText(String.format(Locale.US, "PosID: %1$d", mWorkoutData.indexOf(curWorkout)));
             TEST_WRK_ID.setText(String.format(Locale.US, "WrkID: %1$d", curWorkout.getWorkoutID()));
-            this.curWorkout = curWorkout;
 
             swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
-            swipeLayout.addSwipeListener(new SimpleSwipeListener());
+            swipeLayout.addSwipeListener(new SimpleSwipeListener() {
+                @Override
+                public void onStartOpen(SwipeLayout layout) {
+                    mItemManager.closeAllExcept(layout);
+                    super.onStartOpen(layout);
+                }
+            });
             swipeLayout.getSurfaceView().setOnClickListener(this);
-            tempDelete.setOnClickListener(new View.OnClickListener() {
+            delIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //TODO: Add Confirmation Dialog
-                    int pos = mWorkoutData.indexOf(curWorkout);
-                    Log.d(DEBUG_TAG, "Deleting Workout at Pos: " + pos);
                     pendingRemoval(mWorkoutData.indexOf(curWorkout));
                 }
             });
@@ -120,6 +125,8 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     // Threading Components
     private Handler handler = new Handler(); // Handler for running async delayed tasks
     private HashMap<Workout, Runnable> pendingRunnables = new HashMap<>(); // Map of the items to their async runnable rasks
+
+    private SwipeItemRecyclerMangerImpl mItemManager = new SwipeItemRecyclerMangerImpl(this);
 
 
     //endregion
@@ -165,6 +172,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         Workout currentWorkout = mWorkoutData.get(position);
         // Bind to the correct data
         viewHolder.bindTo(currentWorkout, position);
+        mItemManager.bindView(viewHolder.itemView, position);
     }
 
     //endregion

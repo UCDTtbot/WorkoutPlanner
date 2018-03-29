@@ -54,10 +54,12 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import java.util.List;
 import java.util.Locale;
 
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
+
 
 public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener,
                                                                     NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener,
-                                                                    NumberRoundsDialog.NumberRoundsListener{
+                                                                    NumberRoundsDialog.NumberRoundsListener, ListItemTouchHelper.SwapItems{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -118,6 +120,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
+
     //endregion
 
     //region PUBLIC_VARS
@@ -308,14 +311,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
+
         mSetAdapter = new SetAdapter(this, findViewById(R.id.set_coord_layout));
         mRecyclerView.setAdapter(mSetAdapter);
         mSetAdapter.notifyDataSetChanged();
 
         int dragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        int swipeDirs = 0;
         ListItemTouchHelper listHelper =
-                new ListItemTouchHelper(this, true, dragDirs, true, swipeDirs, mSetAdapter);
+                new ListItemTouchHelper(this, true, dragDirs, false, swipeDirs, mSetAdapter);
 
         listHelper.getHelper().attachToRecyclerView(mRecyclerView);
 
@@ -626,6 +631,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
             //endregion
 
+        //endregion
+
+        //region SWAP_SETS
+        @Override
+    public void swap(int from, int to) {
+        swapSets(from, to);
+    }
         //endregion
 
     //endregion

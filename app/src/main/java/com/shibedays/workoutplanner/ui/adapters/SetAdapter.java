@@ -11,8 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.daimajia.swipe.SimpleSwipeListener;
+import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -25,10 +29,87 @@ import java.util.Locale;
 
 public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> {
 
-    // Constants
+    //region CONSTANTS
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
     private static final String DEBUG_TAG = SetAdapter.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.SetAdapter.";
+    //endregion
+
+    //region VIEW_HOLDER
+    class SetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+
+        // Data
+        private Set curSet;
+        // Swipe
+        private SwipeLayout swipeLayout;
+        // Foreground
+        private TextView setNameTextView;
+        private TextView descripTextView;
+        private TextView timeTextView;
+        // Background
+        private ImageView delIcon;
+
+        public SetViewHolder(View itemView) {
+            super(itemView);
+            //Initialize the views for the RecyclerView
+            setNameTextView = itemView.findViewById(R.id.set_name);
+            descripTextView = itemView.findViewById(R.id.set_descrip);
+            timeTextView = itemView.findViewById(R.id.set_time);
+            delIcon = itemView.findViewById(R.id.set_trash);
+
+            swipeLayout = itemView.findViewById(R.id.set_swipe);
+            swipeLayout.addDrag(SwipeLayout.DragEdge.Right, itemView.findViewById(R.id.set_list_background));
+
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
+        }
+
+        void bindTo(final Set curSet){
+            //Populate data when they bind the workouts to the view holder
+            this.curSet = curSet;
+
+            setNameTextView.setText(curSet.getName());
+            descripTextView.setText(curSet.getDescrip());
+
+            int[] time = MainActivity.convertFromMillis(curSet.getTime());
+            int minutes = time[0], seconds = time[1];
+
+            if(seconds == 0){
+                timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, seconds, 0));
+            } else if( seconds < 10){
+                timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, 0, seconds));
+            }
+            else {
+                timeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
+            }
+
+            swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
+            swipeLayout.addSwipeListener(new SimpleSwipeListener() {
+                @Override
+                public void onStartOpen(SwipeLayout layout) {
+                    mItemManager.closeAllExcept(layout);
+                    super.onStartOpen(layout);
+                }
+            });
+            swipeLayout.getSurfaceView().setOnClickListener(this);
+            delIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    pendingRemoval(mSetData.indexOf(curSet));
+                }
+            });
+        }
+
+        @Override
+        public void onClick(View v) {
+            mListener.onSetClick(mSetData.indexOf(curSet));
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            return false;
+        }
+    }
     //endregion
 
     //region PRIVATE_VARS
@@ -42,6 +123,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     private Handler handler = new Handler();
     private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
 
+    private SwipeItemRecyclerMangerImpl mItemManager = new SwipeItemRecyclerMangerImpl(this);
 
     //endregion
 
@@ -73,6 +155,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         }
     }
 
+    @NonNull
     @Override
     public SetViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new SetViewHolder(LayoutInflater.from(mContext)
@@ -84,6 +167,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         // Get the current data
         Set currentSet = mSetData.get(position);
         viewHolder.bindTo(currentSet);
+        mItemManager.bindView(viewHolder.itemView, position);
         // Populate anymore data
     }
 
@@ -102,7 +186,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return 0;
+        return R.id.set_swipe;
     }
 
     public void setData(List<Set> data){
@@ -117,8 +201,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         }
         notifyDataSetChanged();
     }
-
-
     //endregion
 
     //region PENDING_DELETE
@@ -181,55 +263,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     }
     //endregion
 
-    //region VIEW_HOLDER
-    class SetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-
-        private TextView setNameTextView;
-        private TextView descripTextView;
-        private TextView timeTextView;
-        private Set curSet;
-
-        public SetViewHolder(View itemView) {
-            super(itemView);
-            //Initialize the views for the RecyclerView
-
-            setNameTextView = itemView.findViewById(R.id.set_name);
-            descripTextView = itemView.findViewById(R.id.set_descrip);
-            timeTextView = itemView.findViewById(R.id.set_time);
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
-        }
-
-        void bindTo(Set curSet){
-            //Populate data when they bind the workouts to the view holder
-            setNameTextView.setText(curSet.getName());
-            descripTextView.setText(curSet.getDescrip());
-            int[] time = MainActivity.convertFromMillis(curSet.getTime());
-            int minutes = time[0], seconds = time[1];
-            if(seconds == 0){
-                timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, seconds, 0));
-            } else if( seconds < 10){
-                timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, 0, seconds));
-            }
-            else {
-                timeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
-            }
-
-
-            this.curSet = curSet;
-        }
-
-        @Override
-        public void onClick(View v) {
-            mListener.onSetClick(mSetData.indexOf(curSet));
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            return false;
-        }
-    }
-    //endregion
 
 
 }

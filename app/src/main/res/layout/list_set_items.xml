@@ -10,49 +10,75 @@
     android:layout_marginTop="@dimen/standard_padding"
     android:layout_marginEnd="@dimen/standard_padding">
 
-    <RelativeLayout
+    <com.daimajia.swipe.SwipeLayout
+        android:id="@+id/set_swipe"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/standard_padding"
-        android:layout_gravity="center">
-
+        android:layout_height="match_parent">
+    <!-- Background View(s) -->
         <LinearLayout
-            android:id="@+id/top_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:id="@+id/set_list_background"
+            android:layout_width="@dimen/background_icon_size"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
+            android:background="#FF5534"
+            android:gravity="center"
             android:weightSum="100">
-
-            <TextView
-                android:id="@+id/set_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/default_set_name"
-                android:layout_weight="50"
-                style="@style/TextAppearance.AppCompat.Subhead"/>
-
-            <TextView
-                android:id="@+id/set_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/default_time"
-                style="@style/TextAppearance.AppCompat.Subhead"
-                android:gravity="end"
-                android:layout_weight="50"/>
+            <ImageView
+                android:id="@+id/set_trash"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/standard_icon_size"
+                android:layout_weight="100"
+                android:src="@drawable/ic_delete_white_24dp" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/set_descrip"
-            android:layout_width="wrap_content"
+        <!-- Foreground View -->
+        <RelativeLayout
+            android:id="@+id/set_list_foreground"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/top_row"
-            android:padding="@dimen/half_padding"
-            style="@style/Base.TextAppearance.AppCompat.Body1"
-            android:text="@string/default_descrip"/>
+            android:padding="@dimen/standard_padding"
+            android:layout_gravity="center">
 
-    </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/top_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:id="@+id/set_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/default_set_name"
+                    android:layout_weight="50"
+                    style="@style/TextAppearance.AppCompat.Subhead"/>
+
+                <TextView
+                    android:id="@+id/set_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/default_time"
+                    style="@style/TextAppearance.AppCompat.Subhead"
+                    android:gravity="end"
+                    android:layout_weight="50"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/set_descrip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/top_row"
+                android:padding="@dimen/half_padding"
+                style="@style/Base.TextAppearance.AppCompat.Body1"
+                android:text="@string/default_descrip"/>
+
+        </RelativeLayout>
+    </com.daimajia.swipe.SwipeLayout>
+
 
 </android.support.v7.widget.CardView>
 

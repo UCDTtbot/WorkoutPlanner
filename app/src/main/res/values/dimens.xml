@@ -13,10 +13,13 @@
     <dimen name="standard_padding">8dp</dimen>
     <dimen name="deep_padding">16dp</dimen>
 
+    <dimen name="standard_icon_size">24dp</dimen>
     <dimen name="standard_icon_touchable_size">48dp</dimen>
     <dimen name="standard_icon_touchable_padding">12dp</dimen>
     <dimen name="standard_icon_margin_start">16dp</dimen>
     <dimen name="standard_icon_margin_end">16dp</dimen>
+
+    <dimen name="background_icon_size">72dp</dimen>
 
     <dimen name="icon_list_padding_start">72dp</dimen>
     <dimen name="icon_list_margin_start">72dp</dimen>
