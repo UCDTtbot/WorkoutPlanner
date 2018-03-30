@@ -66,14 +66,11 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Activity activity = null;
-        if(context instanceof Activity){
-            activity = (Activity) context;
-            try{
-                mListener = (AddSetDialogListener) activity;
-            } catch (ClassCastException e){
-                Log.e(DEBUG_TAG, "ERROR IN ADD SET DIALOG LISTENER: " + e.getMessage());
-            }
+        if(context instanceof AddSetDialogListener) {
+            mListener = (AddSetDialogListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement AddSetDialogListener");
         }
     }
 
@@ -155,7 +152,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
                             }
                         });
             } else {
-                Log.e(DEBUG_TAG, "SET BOTTOM DIALOG TYPE WAS NEVER SET");
+                throw new RuntimeException(AddEditWorkoutDialog.class.getSimpleName() + " Set Bottom Dialog Type was never set");
             }
         }
 

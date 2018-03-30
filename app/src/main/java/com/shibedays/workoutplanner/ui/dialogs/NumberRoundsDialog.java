@@ -41,6 +41,7 @@ public class NumberRoundsDialog extends DialogFragment {
     private EditText mNumRoundsEditText;
     // Parent Activity
     private MyWorkoutActivity mParentActivity;
+    //endregion
 
     //region INTERFACES
     public interface NumberRoundsListener {
@@ -54,14 +55,10 @@ public class NumberRoundsDialog extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Activity activity = null;
-        if(context instanceof Activity){
-            activity = (Activity) context;
-            try{
-                mListener = (NumberRoundsListener) activity;
-            } catch (ClassCastException e) {
-                Log.e(DEBUG_TAG, "ERROR IN NUMBER ROUND DIALOG: " + e.getMessage());
-            }
+        if(context instanceof NumberRoundsListener) {
+            mListener = (NumberRoundsListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement NumberRoundListener");
         }
     }
 

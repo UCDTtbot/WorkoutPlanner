@@ -159,7 +159,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                     if(mTimerFragment != null){
                         mTimerFragment.updateTime(msg.arg1);
                     } else {
-                        Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
+                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
                     break;
                 case MSG_NEXT_REP_UI:
@@ -167,7 +167,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                         if(mTimerFragment != null) {
                             mTimerFragment.updateRep(msg.arg1);
                         } else {
-                            Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_NEXT_REP_UI");
+                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_REP_UI");
                         }
                     }
                     break;
@@ -176,7 +176,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                         if(mTimerFragment != null) {
                             mTimerFragment.updateRound(msg.arg1);
                         } else {
-                            Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_NEXT_ROUND_UI");
+                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_ROUND_UI");
                         }
                     }
                     break;
@@ -186,7 +186,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                         Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, nextSet.getTime(), 0);
                         sendTimerMessage(message);
                     } else {
-                        Log.e(DEBUG_TAG, "There is no next set");
+                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "No next set exists. Something went wrong with curRep counter");
                     }
                     break;
                 case MSG_GET_FIRST_SET:
@@ -263,9 +263,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                             mSetList = mWorkoutData.getSetList();
                             mSetAdapter.setData(mSetList);
                             dataUpdate();
-
                         } else {
-                            Log.e(DEBUG_TAG, "Workout not found");
+                            throw new RuntimeException(DEBUG_TAG + " workout not found for LiveData");
                         }
 
                         }
@@ -273,10 +272,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             } else if (mIntentType == NOTIF_INTENT_TYPE){
                 // This is what happens if we're opening this activity from the notification
             } else {
-                Log.e(DEBUG_TAG, "EXTRA_INTENT_TYPE was not set");
+                throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
             }
         } else {
-            Log.e(DEBUG_TAG, "Intent was empty. onCreate MyWorkoutActivity");
+            throw new RuntimeException(DEBUG_TAG + " Intent was empty in onCreate");
         }
         //endregion
 
@@ -481,7 +480,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
     @Override
     public void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec) {
-        Log.d(DEBUG_TAG, "Name: " + name + " Descrip: " + descrip + " Time: " + min + ":" + sec);
         // TODO: add description to the add new set
         Set newSet = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
         mWorkoutData.addSet(newSet);
@@ -696,7 +694,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                 Log.e(DEBUG_TAG, "Invalid String ID in sendTTSMessage");
             }
         } else {
-            Log.e(DEBUG_TAG, "TTS is not bound but trying to send a message");
+            throw new RuntimeException(DEBUG_TAG + " TTS was not bound. Unable to send message");
         }
     }
     //endregion
@@ -712,7 +710,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                 }
             }
         } else {
-            Log.e(DEBUG_TAG, "Timer is not bound");
+            throw new RuntimeException(DEBUG_TAG + " Timer is unbound. Unable to send message");
         }
     }
     //endregion

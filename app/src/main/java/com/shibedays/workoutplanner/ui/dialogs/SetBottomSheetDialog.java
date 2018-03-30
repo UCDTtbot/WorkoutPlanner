@@ -58,15 +58,10 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        // Make sure our context is an activity and set the Listener to it
-        Activity activity = null;
-        if(context instanceof Activity)
-            activity = (Activity) context;
-        try{
-            mListener = (SetBottomSheetDialogListener) activity;
-        } catch (ClassCastException e){
-            Log.e(DEBUG_TAG, "ERROR IN SET BOTTOM DIALOG LISTENER: " + e.getMessage());
+        if(context instanceof SetBottomSheetDialogListener) {
+            mListener = (SetBottomSheetDialogListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement SetBottomSheetDialogListener");
         }
     }
 

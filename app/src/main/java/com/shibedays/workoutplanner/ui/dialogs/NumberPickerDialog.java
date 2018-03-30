@@ -70,14 +70,10 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Activity activity = null;
-        if(context instanceof Activity){
-            activity = (Activity) context;
-            try{
-                mListener = (NumberPickerDialogListener) activity;
-            } catch (ClassCastException e){
-                Log.e(DEBUG_TAG, "ERROR IN NUMBER PICKER DIALOG LISTENER: " + e.getMessage());
-            }
+        if(context instanceof NumberPickerDialogListener){
+            mListener = (NumberPickerDialogListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement NumberPickerDialogListener");
         }
     }
 

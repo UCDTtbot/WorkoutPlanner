@@ -98,13 +98,6 @@ public class TimerFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Factory method to instantiate a new instance of a TimerFragment
-     *
-     * @param workoutJSON String
-     * @return TimerFragment
-     */
-    // TODO: Rename and change types and number of parameters
     public static TimerFragment newInstance(String workoutJSON) {
         if(mTimerFragmentInstance == null) {
             mTimerFragmentInstance = new TimerFragment();
@@ -143,7 +136,7 @@ public class TimerFragment extends Fragment {
             mCurRep = 0;
             mCurRound = 0;
         } else {
-            Log.e(DEBUG_TAG, "get args was null");
+            throw new RuntimeException(TimerFragment.class.getSimpleName() + " getArguments returned null. Fragment started incorrectly");
         }
         setHasOptionsMenu(true);
 
@@ -169,25 +162,25 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_START");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_START");
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_RESUME");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_RESUME");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_PAUSE");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_PAUSE");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_STOP");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_STOP");
     }
 
     @Override
@@ -197,7 +190,7 @@ public class TimerFragment extends Fragment {
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mTimerFragmentInstance = null;
-        Log.d(DEBUG_TAG, "FRAGMENT ON_DESTROY");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");
     }
 
     @Override
@@ -209,7 +202,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(DEBUG_TAG, "FRAGMENT SAVING INSTANCE STATE");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT SAVING INSTANCE STATE");
 
     }
 

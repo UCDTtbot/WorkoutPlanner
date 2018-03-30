@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,7 +48,7 @@ import java.util.jar.Attributes;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
-public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener, AddEditWorkoutDialog.WorkoutDialogListener {
+public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener {
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
                 NEXT_WORKOUT_ID = mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, -DATA_DOESNT_EXIST);
                 if(NEXT_WORKOUT_ID == DATA_DOESNT_EXIST){
                     Log.e(DEBUG_TAG, "NEXT WORKOUT NUM DATA DOESN'T EXIST");
+                    NEXT_WORKOUT_ID = mWorkoutData.size() + 1;
                 }
             }else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
                 editor.apply();
             }else{
                 // Fatal error
-                Log.e(DEBUG_TAG, "Unknown Error in SharedPrefs");
+                throw new RuntimeException(MainActivity.class.getSimpleName() + " Unknown error in Shared Prefs. savedVersionCode may not exist or is incorrect");
             }
         }
 
@@ -269,19 +271,19 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     //region INTERFACE_IMPLEMENTATIONS
 
         //region NEW_WORKOUT
-    /*
+
     private void addWorkout(){
 
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
-        fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+        //mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
+        //fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
     }
-    */
-            //region OLD_ADD_WORKOUT_CODE
 
+            //region OLD_ADD_WORKOUT_CODE
+    /*
     public void addWorkout(){
         AddEditWorkoutDialog addWorkoutDialog = new AddEditWorkoutDialog();
         Bundle args = new Bundle();
@@ -308,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     public void onEditWorkoutDialogPositiveClick(String name, int index) {
 
     }
-
+    */
     //endregion
 
         //endregion

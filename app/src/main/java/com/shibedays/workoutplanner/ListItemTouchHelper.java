@@ -24,11 +24,6 @@ public class ListItemTouchHelper {
     private static final String PACKAGE = "com.shibedays.workoutplanner.ListItemTouchHelper.";
     //endregion
 
-    public interface SwapItems{
-        void swap(int from, int to);
-    }
-    private SwapItems mListener;
-
     private Context mContext;
 
     private int mDragDirs;
@@ -42,6 +37,12 @@ public class ListItemTouchHelper {
     private int mDeleteICMargin;
 
     private PendingRemovalAdapter mAdapter;
+    //region INTERFACES
+    public interface SwapItems{
+        void swap(int from, int to);
+    }
+    private SwapItems mListener;
+    //endregion
 
     // Constructor
     public ListItemTouchHelper(Context context, boolean draggable,
@@ -51,15 +52,10 @@ public class ListItemTouchHelper {
 
         mAdapter = (PendingRemovalAdapter) adapter;
 
-        if(context instanceof Activity){
-            try{
-                mListener = (SwapItems) context;
-                if(mListener == null){
-                    Log.e(DEBUG_TAG, context.getClass().getSimpleName() + " MUST IMPLEMENT SWAP_ITEMS LISTENER");
-                }
-            } catch (ClassCastException e){
-                e.printStackTrace();
-            }
+        if(context instanceof SwapItems){
+            mListener = (SwapItems) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement SwapItems");
         }
 
         mDraggable = draggable;

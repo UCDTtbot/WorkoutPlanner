@@ -100,7 +100,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
         @Override
         public void onClick(View v) {
-            Log.d(DEBUG_TAG, curWorkout.getName() + " clicked");
             // Go to the Workout Activity
             // TODO: Go to the my_workout activity with the given current curWorkout
             mListener.onWorkoutClicked(curWorkout.getWorkoutID());
@@ -147,15 +146,13 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout) coordLayout;
         }else{
-            Log.e(DEBUG_TAG, "PASSED INCORRECT VIEW TO WORKOUT_ADAPTER");
+            throw new RuntimeException(WorkoutAdapter.class.getSimpleName() + " was passed a non-coord layout view");
         }        // Make sure our context is an activity and set the Listener to it
-        Activity activity = null;
-        if(context instanceof Activity)
-            activity = (Activity) context;
-        try{
-            mListener = (WorkoutAdapter.WorkoutAdapterListener) activity;
-        } catch (ClassCastException e){
-            Log.e(DEBUG_TAG, "ERROR IN WORKOUT ADAPTER LISTENER: " + e.getMessage());
+
+        if(context instanceof WorkoutAdapterListener) {
+            mListener = (WorkoutAdapterListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement WorkoutAdapterListener");
         }
 
     }
@@ -215,7 +212,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             mWorkoutData.remove(swipedPos);
             notifyItemRemoved(swipedPos);
             notifyItemRangeChanged(swipedPos, mWorkoutData.size());
-            Log.d(DEBUG_TAG, "Workout at position: " + swipedPos + " is being put up for pending removal.");
             Runnable pendingRemovalRunnable = new Runnable(){
                 @Override
                 public void run() {
@@ -229,9 +225,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             undoBar.setAction("Undo", new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
-                    Log.d(DEBUG_TAG, "Pending removal item: "+ pendingPos + " is being undone at inserting at: " + swipedPos);
                     undo(swipedPos, pendingPos);
-                    Log.d(DEBUG_TAG, Integer.toString(mWorkoutData.size()));
                 }
             });
             undoBar.show();
@@ -267,7 +261,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
                 handler.removeCallbacks(pendingRunnable);
             }
             mWorkoutsPendingRemoval.remove(pendingPos);
-            Log.d(DEBUG_TAG,workout.getName() + " is should be inserted at pos: " + Integer.toString(itemPos));
             mWorkoutData.add(itemPos, workout);
             notifyItemInserted(itemPos);
         }

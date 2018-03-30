@@ -11,11 +11,13 @@ import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    //region CONSTANTS
     private static final String DEBUG_TAG = SettingsActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.settings.SettingsActivity.";
 
     public static final int MAIN_ACTVITIY = 0;
     public static final int MY_WORKOUT_ACTIVITY = 1;
+    //endregion
 
     //region INTENT_KEYS
     public static final String EXTRA_PARENT = PACKAGE + "PARENT";
@@ -52,7 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             } else {
                 // Fatal error
-                Log.e(DEBUG_TAG, "Fatal error in determining parent activity in Settings Activity");
+                throw new RuntimeException(SettingsActivity.class.toString() + " could not determine parent activity: " + Integer.toString(mParentClassType));
             }
         }
 

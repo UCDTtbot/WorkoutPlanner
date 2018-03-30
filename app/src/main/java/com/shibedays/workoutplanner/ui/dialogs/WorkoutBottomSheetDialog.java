@@ -63,16 +63,12 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        // Make sure our context is an activity and set the Listener to it
-        Activity activity = null;
-        if(context instanceof Activity)
-            activity = (Activity) context;
-        try{
-            mListener = (WorkoutBottomSheetDialogListener) activity;
-        } catch (ClassCastException e){
-            Log.e(DEBUG_TAG, "ERROR IN WORKOUT BOTTOM DIALOG LISTENER: " + e.getMessage());
+        if(context instanceof WorkoutBottomSheetDialogListener) {
+            mListener = (WorkoutBottomSheetDialogListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement WorkoutBottomSheetDialogListener");
         }
+
     }
 
     @Override
@@ -95,7 +91,7 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
                             Log.e(DEBUG_TAG, "Workout not found");
                         }
                     } else {
-                        Log.e(DEBUG_TAG, "Title view not set in time");
+                        throw new RuntimeException(WorkoutBottomSheetDialog.class.getSimpleName() + " Title view was not set in time.");
                     }
                 }
             });

@@ -142,16 +142,13 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout)coordLayout;
         } else {
-            Log.e(DEBUG_TAG, "THE VIEW PASSED WAS NOT A COORDINATOR LAYOUT");
+            throw new RuntimeException(SetAdapter.class.getSimpleName() + " was passed a non-coordinate layout view");
         }
-        Activity activity = null;
-        if(context instanceof Activity){
-            activity = (Activity) context;
-            try{
-                mListener = (SetAdapter.SetAdapaterListener) activity;
-            } catch (ClassCastException e){
-                Log.e(DEBUG_TAG, "ERROR IN SET ADAPTER LISTENER: " + e.getMessage());
-            }
+
+        if(context instanceof SetAdapaterListener){
+            mListener = (SetAdapaterListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement SetAdapterListener");
         }
     }
 
