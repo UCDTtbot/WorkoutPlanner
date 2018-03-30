@@ -1,18 +1,7 @@
 package com.shibedays.workoutplanner.ui;
 
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.net.ConnectivityManager;
-import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,21 +10,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.services.TimerService;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 
 /**
@@ -186,7 +169,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        getActivity().findViewById(R.id.fragment_container).setVisibility(View.GONE);
+        getActivity().findViewById(R.id.timer_fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mTimerFragmentInstance = null;

@@ -1,9 +1,11 @@
 package com.shibedays.workoutplanner.ui;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,6 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.shibedays.workoutplanner.R;
 
 public class NewWorkoutFragment extends Fragment {
     //region CONSTANTS
@@ -88,36 +92,49 @@ public class NewWorkoutFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_START");
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_RESUME");
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_PAUSE");
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_STOP");
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        getActivity().findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
+        Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener = null;
     }
 
+    @NonNull
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT SAVING INSTANCE STATE");
     }
 
     //endregion

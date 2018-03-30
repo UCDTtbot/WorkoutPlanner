@@ -7,10 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,7 +18,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -31,9 +26,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -224,7 +216,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         //region INSTANCE_STATE
         if(savedInstanceState != null){
-            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
+            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.timer_fragment_container);
         }
         //endregion
 
@@ -645,10 +637,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     public void startTimer(View view){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
-        fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+        fragmentTransaction.replace(R.id.timer_fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.timer_fragment_container).setVisibility(View.VISIBLE);
         Log.d(DEBUG_TAG, "Timer Fragment Created");
         bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
 

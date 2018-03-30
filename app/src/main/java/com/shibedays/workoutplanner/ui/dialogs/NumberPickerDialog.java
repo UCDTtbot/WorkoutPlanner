@@ -165,6 +165,13 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     //endregion
 
     @Override

@@ -104,6 +104,13 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
 
         return view;
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     //endregion
 
     //region UTILITY

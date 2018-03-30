@@ -168,6 +168,9 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         // Populate anymore data
     }
 
+
+
+
     //endregion
 
     //region UTILITY

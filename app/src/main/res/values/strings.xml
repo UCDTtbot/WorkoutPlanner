@@ -58,5 +58,6 @@
     <string name="no_placeholder">No _____</string>
     <string name="no_rest">No Rest</string>
     <string name="no_break">No Break</string>
+    <string name="button_save">Save</string>
 
 </resources>

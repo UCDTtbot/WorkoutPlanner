@@ -168,6 +168,13 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     //endregion
 
     //region OVERRIDE_IMPLEMENTATIONS

@@ -9,6 +9,12 @@
     tools:showIn="@layout/activity_main"
     android:background="@color/material_blue_grey_50">
 
+    <FrameLayout
+        android:id="@+id/new_workout_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:scrollbars="vertical"

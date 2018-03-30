@@ -107,6 +107,13 @@ public class NumberRoundsDialog extends DialogFragment {
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     //endregion
 
 

@@ -88,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     // View Model
     private WorkoutViewModel mWorkoutViewModel;
 
+    // Fragment(s)
+    NewWorkoutFragment mNewWorkoutFragment;
+
     //endregion
 
     //region PUBLIC_VARS
@@ -273,13 +276,13 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         //region NEW_WORKOUT
 
     private void addWorkout(){
-
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        //mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
-        //fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance();
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
+        findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+        Log.d(DEBUG_TAG, "New Workout Fragment Created");
     }
 
             //region OLD_ADD_WORKOUT_CODE
@@ -397,8 +400,4 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         //endregion
 
     //endregion
-
-
-
-
 }
