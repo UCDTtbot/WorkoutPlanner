@@ -304,7 +304,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
 
-        mSetAdapter = new SetAdapter(this, findViewById(R.id.set_coord_layout));
+        mSetAdapter = new SetAdapter(this, findViewById(R.id.set_coord_layout), true);
         mRecyclerView.setAdapter(mSetAdapter);
         mSetAdapter.notifyDataSetChanged();
 

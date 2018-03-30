@@ -7,21 +7,26 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.shibedays.workoutplanner.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 
 import java.util.ArrayList;
@@ -39,6 +44,8 @@ public class NewWorkoutFragment extends Fragment {
     //endregion
 
     //region PRIVATE_VARS
+    // Workout
+    private Workout mNewWorkout;
     // Data
     private List<Set> mDefaultSets;
     private List<Set> mUserSets;
@@ -66,7 +73,7 @@ public class NewWorkoutFragment extends Fragment {
      * activity.
      */
     public interface OnFragmentInteractionListener {
-
+        void addNewWorkout();
     }
     private OnFragmentInteractionListener mListener;
     //endregion
@@ -115,6 +122,18 @@ public class NewWorkoutFragment extends Fragment {
         mDefaultSets.add(new Set("Set 1", "Descrip 1", 10000));
         mDefaultSets.add(new Set("Set 2", "Descrip 1", 10000));
         mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserSets.add(new Set("My Set", "Descrip", 50000));
+
+        mNewWorkout = new Workout(mParentActivity.getNextWorkoutId(), "No Name");
+
+        mNewWorkout.addSets(mUserSets);
     }
 
     @Nullable
@@ -126,35 +145,39 @@ public class NewWorkoutFragment extends Fragment {
         mSaveButton = view.findViewById(R.id.button_save);
         mCoordLayout = mParentActivity.findViewById(R.id.main_coord_layout);
         //endregion
+
         //region RECYCLER_VIEWS
             //region LEFT_RV
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mLeftRecyclerView.setItemAnimator(new FadeInLeftAnimator());
 
-        mLeftAdapter = new SetAdapter(getContext(), mCoordLayout);
+        mLeftAdapter = new SetAdapter(getContext(), mCoordLayout, false);
         mLeftRecyclerView.setAdapter(mLeftAdapter);
         mLeftAdapter.setData(mDefaultSets);
         mLeftAdapter.notifyDataSetChanged();
 
-        int dragDirs = 0;
+        int leftDragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT;
         int swipeDirs = 0;
-        ListItemTouchHelper leftHelper = new ListItemTouchHelper(getContext(), false, dragDirs, false, swipeDirs, mLeftAdapter);
+        ListItemTouchHelper leftHelper = new ListItemTouchHelper(getContext(), true, leftDragDirs, false, swipeDirs, mLeftAdapter);
+        leftHelper.getHelper().attachToRecyclerView(mLeftRecyclerView);
             //endregion
+
             //region RIGHT_RV
         mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
         mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRightRecyclerView.setItemAnimator(new FadeInLeftAnimator());
 
-        mRightAdapter = new SetAdapter(getContext(), mCoordLayout);
-        mRightRecyclerView.setAdapter(mLeftAdapter);
+        mRightAdapter = new SetAdapter(getContext(), mCoordLayout, true);
+        mRightRecyclerView.setAdapter(mRightAdapter);
         mRightAdapter.setData(mUserSets);
-        mLeftAdapter.notifyDataSetChanged();
+        mRightAdapter.notifyDataSetChanged();
 
-        ListItemTouchHelper rightHelper = new ListItemTouchHelper(getContext(), false, dragDirs, false, swipeDirs, mRightAdapter);
+        int rightDragDirs = 0;
+        ListItemTouchHelper rightHelper = new ListItemTouchHelper(getContext(), false, rightDragDirs, false, swipeDirs, mRightAdapter);
+        rightHelper.getHelper().attachToRecyclerView(mRightRecyclerView);
             //endregion
         //endregion
-
         return view;
     }
 
@@ -229,5 +252,14 @@ public class NewWorkoutFragment extends Fragment {
     }
 
     //endregion
+
+    public void deleteSet(Set set){
+        mNewWorkout.removeSet(set);
+    }
+
+    public void swapSets(int from, int to){
+        mNewWorkout.swapSets(from, to);
+
+    }
 
 }
