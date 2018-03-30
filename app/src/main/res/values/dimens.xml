@@ -29,6 +29,8 @@
 
     <dimen name="list_title_size">54dp</dimen>
 
+    <dimen name="list_half_vertical_size">36dp</dimen>
+    <dimen name="list_three_quarters_vertical_size">54dp</dimen>
     <dimen name="list_standard_vertical_size">72dp</dimen>
     <dimen name="list_standard_horizontal_size">180dp</dimen>
     <dimen name="list_subtitle_size">48dp</dimen>

@@ -53,7 +53,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             super(itemView);
             //Initialize the views for the RecyclerView
             setNameTextView = itemView.findViewById(R.id.set_name);
-            descripTextView = itemView.findViewById(R.id.set_descrip);
+            //descripTextView = itemView.findViewById(R.id.set_descrip);
             timeTextView = itemView.findViewById(R.id.set_time);
             delIcon = itemView.findViewById(R.id.set_trash);
 
@@ -167,9 +167,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         mItemManager.bindView(viewHolder.itemView, position);
         // Populate anymore data
     }
-
-
-
 
     //endregion
 

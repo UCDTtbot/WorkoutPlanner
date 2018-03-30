@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,6 +35,7 @@ import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditWorkoutDialog;
@@ -48,7 +50,8 @@ import java.util.jar.Attributes;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
-public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener {
+public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
+                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItems {
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     private SharedPreferences mPrivateSharedPrefs;
     private SharedPreferences mDefaultSharedPrefs;
     private FragmentManager mFragmentManager;
+    private ActionBar mActionBar;
 
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
@@ -103,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mFragmentManager = getSupportFragmentManager();
-
         //region SHARED_PREFS
         // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
@@ -204,9 +207,21 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
             intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MAIN_ACTVITIY);
             startActivity(intent);
             return true;
+        } else if (id == android.R.id.home){
+            if(mFragmentManager.getBackStackEntryCount() > 0){
+                mFragmentManager.popBackStack();
+                toggleUpArrow(false);
+            }
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mActionBar = getSupportActionBar();
     }
 
     @Override
@@ -282,6 +297,8 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
         findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.fab).setVisibility(View.GONE);
+        toggleUpArrow(true);
         Log.d(DEBUG_TAG, "New Workout Fragment Created");
     }
 
@@ -383,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         editWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
-            //region OLD_EDIT_WORKOUT_CODE
+    //region OLD_EDIT_WORKOUT_CODE
     /*
     @Override
     public void onEditWorkoutDialogPositiveClick(String name, int index) {
@@ -399,5 +416,23 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
         //endregion
 
+    @Override
+    public void onSetClick(int setIndex) {
+
+    }
+
+    @Override
+    public void deleteSet(Set set) {
+
+    }
+
+    @Override
+    public void swap(int from, int to) {
+
+    }
     //endregion
+
+    public void toggleUpArrow(boolean flag){
+        mActionBar.setDisplayHomeAsUpEnabled(flag);
+    }
 }

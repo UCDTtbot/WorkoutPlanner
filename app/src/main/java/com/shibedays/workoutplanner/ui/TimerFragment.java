@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -55,6 +56,8 @@ public class TimerFragment extends Fragment {
     private TextView mCurRepTextView;
     private TextView mCurRoundTextView;
     private TextView mServiceTextView;
+    // Activity
+    private MyWorkoutActivity mParentActivity;
     //endregion
 
     //region PUBLIC_VARS
@@ -103,6 +106,12 @@ public class TimerFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
+        }
+        Activity act = getActivity();
+        if(act instanceof MyWorkoutActivity){
+            mParentActivity = (MyWorkoutActivity) act;
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " wasn't created from MyWorkoutActivity");
         }
     }
 
@@ -169,7 +178,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        getActivity().findViewById(R.id.timer_fragment_container).setVisibility(View.GONE);
+        mParentActivity.findViewById(R.id.timer_fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mTimerFragmentInstance = null;
