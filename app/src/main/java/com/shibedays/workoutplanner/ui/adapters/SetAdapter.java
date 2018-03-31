@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -14,9 +13,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.daimajia.swipe.SimpleSwipeListener;
-import com.daimajia.swipe.SwipeLayout;
-import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl;
+import com.shibedays.androidswipelayout.SimpleSwipeListener;
+import com.shibedays.androidswipelayout.SwipeLayout;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -129,7 +127,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     private Handler handler = new Handler();
     private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
     // Swiping
-    private SwipeItemRecyclerMangerImpl mItemManager = new SwipeItemRecyclerMangerImpl(this);
     private Boolean mCanSwipe;
 
     //endregion
@@ -172,7 +169,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         // Get the current data
         Set currentSet = mSetData.get(position);
         viewHolder.bindTo(currentSet);
-        mItemManager.bindView(viewHolder.itemView, position);
+        mItemManager.bind(viewHolder.itemView, position);
         // Populate anymore data
     }
 

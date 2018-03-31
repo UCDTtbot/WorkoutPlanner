@@ -5,10 +5,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -17,22 +13,19 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.daimajia.swipe.SimpleSwipeListener;
-import com.daimajia.swipe.SwipeLayout;
+import com.shibedays.androidswipelayout.SimpleSwipeListener;
+import com.shibedays.androidswipelayout.SwipeLayout;
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.ListItemTouchHelper;
+import com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
@@ -45,7 +38,6 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.jar.Attributes;
 
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 

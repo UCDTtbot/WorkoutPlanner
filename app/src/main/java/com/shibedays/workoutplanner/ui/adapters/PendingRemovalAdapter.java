@@ -5,9 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
+import com.shibedays.androidswipelayout.adapters.RecyclerSwipeAdapter;
 
-public abstract class PendingRemovalAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerSwipeAdapter<VH>{
+
+public abstract class PendingRemovalAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerSwipeAdapter<VH> {
 
     public abstract void pendingRemoval(final int swipedPos);
     public abstract void deletePending(int pendingIndex, int origPos);
