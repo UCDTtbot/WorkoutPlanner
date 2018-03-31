@@ -144,6 +144,8 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
         // Setup the adapter with correct data
         mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
+        mWorkoutAdapter.shouldShowHeadersForEmptySections(true);
+        mWorkoutAdapter.shouldShowFooters(false);
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
 

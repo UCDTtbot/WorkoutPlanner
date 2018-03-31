@@ -5,7 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-public abstract class PendingRemovalAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH>{
+import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
+import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
+
+public abstract class PendingRemovalAdapter<VH extends SectionedViewHolder> extends SectionedRecyclerViewAdapter<VH>{
 
     public abstract void pendingRemoval(final int swipedPos);
     public abstract void deletePending(int pendingIndex, int origPos);

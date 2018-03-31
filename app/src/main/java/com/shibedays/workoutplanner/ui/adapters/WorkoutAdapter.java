@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
@@ -33,29 +34,33 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     //endregion
 
     //region VIEW_HOLDER
-    public class WorkoutViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class WorkoutViewHolder extends SectionedViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         // Data
         private Workout curWorkout;
-        // Foreground
+        // Header
+        private ImageView caret;
+        private TextView title;
+        // Item
         private TextView itemName;
         private TextView sets;
-        // Background
-        private ImageView delIcon;
 
         //TEMP
         private TextView TEST_POS_ID;
         private TextView TEST_WRK_ID;
+        // Adapter
+        private WorkoutAdapter adapter;
 
-        public WorkoutViewHolder(View itemView) {
+        public WorkoutViewHolder(View itemView, WorkoutAdapter adapter) {
             super(itemView);
             //Initialize the views for the RecyclerView
             itemName = itemView.findViewById(R.id.item_name);
             sets = itemView.findViewById(R.id.item_sets);
+            caret = itemView.findViewById(R.id.caret);
+            title = itemView.findViewById(R.id.header_title);
+            this.adapter = adapter;
 
             itemView.setOnClickListener(this);
-            //itemView.setOnLongClickListener(this);
-            //rounds = itemView.findViewById(R.id.item_rounds);
 
             TEST_POS_ID = itemView.findViewById(R.id.TEST_POS_ID);
             TEST_WRK_ID = itemView.findViewById(R.id.TEST_WRK_ID);
@@ -74,9 +79,12 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
         @Override
         public void onClick(View v) {
-            // Go to the Workout Activity
-            // TODO: Go to the my_workout activity with the given current curWorkout
-            mListener.onWorkoutClicked(curWorkout.getWorkoutID());
+
+            if(isHeader()){
+                adapter.toggleSectionExpanded(getRelativePosition().section());
+            } else {
+                mListener.onWorkoutClicked(curWorkout.getWorkoutID());
+            }
         }
 
         @Override
@@ -136,28 +144,61 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
     @Override
     public WorkoutViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new WorkoutViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.list_workout_items, parent, false));
+        int layout = 0;
+        switch (viewType){
+            case VIEW_TYPE_HEADER:
+                layout = R.layout.list_item_favorite_header;
+                break;
+            case VIEW_TYPE_ITEM:
+                layout = R.layout.list_workout_items;
+                break;
+            case VIEW_TYPE_FOOTER:
+                break;
+            default:
+                layout = R.layout.list_workout_items;
+                break;
+        }
+        View v = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+        return new WorkoutViewHolder(v, this);
     }
 
-    @Override
-    public void onBindViewHolder(WorkoutViewHolder viewHolder, int position) {
-        // Get the current data
-        Workout currentWorkout = mWorkoutData.get(position);
-        // Bind to the correct data
-        viewHolder.bindTo(currentWorkout, position);
-    }
 
     //endregion
 
-    //region UTILITY
     @Override
-    public int getItemCount() {
-        if(mWorkoutData != null)
-            return mWorkoutData.size();
-        else
-            return 0;
+    public int getSectionCount() {
+        return 1;
     }
+
+    @Override
+    public int getItemCount(int section) {
+        if(mWorkoutData == null){
+            return 0;
+        } else {
+            return mWorkoutData.size();
+        }
+    }
+
+    @Override
+    public void onBindHeaderViewHolder(WorkoutViewHolder holder, int section, boolean expanded) {
+        holder.title.setText(String.format(Locale.US, "Favorites " + section));
+        holder.caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
+    }
+
+    @Override
+    public void onBindFooterViewHolder(WorkoutViewHolder holder, int section) {
+
+    }
+
+    @Override
+    public void onBindViewHolder(WorkoutViewHolder holder, int section, int relativePosition, int absolutePosition) {
+        // Get the current data
+        Workout currentWorkout = mWorkoutData.get(relativePosition);
+        // Bind to the correct data
+        holder.bindTo(currentWorkout, relativePosition);
+    }
+
+    //region UTILITY
 
     public void setData(List<Workout> workouts){
         mWorkoutData = workouts;

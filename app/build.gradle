@@ -55,6 +55,7 @@ dependencies {
     // Database debugging
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.3'
 
+    // Sectioned Recycler View
     implementation 'com.afollestad:sectioned-recyclerview:0.5.0'
 
     // Recycler View Animator
