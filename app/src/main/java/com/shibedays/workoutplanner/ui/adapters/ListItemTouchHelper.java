@@ -258,7 +258,7 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
             mContext = context;
             mColor = color;
             mDeleteIc = context.getResources().getDrawable(imageId, null);
-            mDeleteMargin = context.getResources().getDimension(R.dimen.icon_list_margin_start);
+            mDeleteMargin = 72;
             mBackground = new ColorDrawable(mColor);
             mClickListener = clickListener;
         }
