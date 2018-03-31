@@ -13,9 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.daimajia.swipe.SimpleSwipeListener;
-import com.daimajia.swipe.SwipeLayout;
-import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
@@ -36,12 +33,10 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     //endregion
 
     //region VIEW_HOLDER
-    class WorkoutViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class WorkoutViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         // Data
         private Workout curWorkout;
-        // Swipe
-        private SwipeLayout swipeLayout;
         // Foreground
         private TextView itemName;
         private TextView sets;
@@ -57,13 +52,9 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             //Initialize the views for the RecyclerView
             itemName = itemView.findViewById(R.id.item_name);
             sets = itemView.findViewById(R.id.item_sets);
-            delIcon = itemView.findViewById(R.id.workout_trash);
-
-            swipeLayout = itemView.findViewById(R.id.workout_swipe);
-            swipeLayout.addDrag(SwipeLayout.DragEdge.Right, itemView.findViewById(R.id.workout_list_background));
 
             itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
+            //itemView.setOnLongClickListener(this);
             //rounds = itemView.findViewById(R.id.item_rounds);
 
             TEST_POS_ID = itemView.findViewById(R.id.TEST_POS_ID);
@@ -79,23 +70,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
             TEST_POS_ID.setText(String.format(Locale.US, "PosID: %1$d", mWorkoutData.indexOf(curWorkout)));
             TEST_WRK_ID.setText(String.format(Locale.US, "WrkID: %1$d", curWorkout.getWorkoutID()));
-
-            swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
-            swipeLayout.addSwipeListener(new SimpleSwipeListener() {
-                @Override
-                public void onStartOpen(SwipeLayout layout) {
-                    mItemManager.closeAllExcept(layout);
-                    super.onStartOpen(layout);
-                }
-            });
-            swipeLayout.getSurfaceView().setOnClickListener(this);
-            delIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO: Add Confirmation Dialog
-                    pendingRemoval(mWorkoutData.indexOf(curWorkout));
-                }
-            });
         }
 
         @Override
@@ -111,6 +85,10 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             // return true to indicate the click was handled
             return true;
         }
+
+         public Workout getWorkout(){
+            return curWorkout;
+        }
     }
     //endregion
 
@@ -125,7 +103,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     private Handler handler = new Handler(); // Handler for running async delayed tasks
     private HashMap<Workout, Runnable> pendingRunnables = new HashMap<>(); // Map of the items to their async runnable rasks
 
-    private SwipeItemRecyclerMangerImpl mItemManager = new SwipeItemRecyclerMangerImpl(this);
 
 
     //endregion
@@ -169,7 +146,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         Workout currentWorkout = mWorkoutData.get(position);
         // Bind to the correct data
         viewHolder.bindTo(currentWorkout, position);
-        mItemManager.bindView(viewHolder.itemView, position);
     }
 
     //endregion
@@ -181,11 +157,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             return mWorkoutData.size();
         else
             return 0;
-    }
-
-    @Override
-    public int getSwipeLayoutResourceId(int position) {
-        return R.id.workout_swipe;
     }
 
     public void setData(List<Workout> workouts){

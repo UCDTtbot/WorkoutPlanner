@@ -29,7 +29,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.shibedays.workoutplanner.ListItemTouchHelper;
+import com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;
@@ -310,10 +310,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         int dragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
         int swipeDirs = 0;
-        ListItemTouchHelper listHelper =
-                new ListItemTouchHelper(this, true, dragDirs, false, swipeDirs, mSetAdapter);
-
-        listHelper.getHelper().attachToRecyclerView(mRecyclerView);
 
         //endregion
 

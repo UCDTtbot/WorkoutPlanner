@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -16,14 +15,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.shibedays.workoutplanner.ListItemTouchHelper;
+import com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
@@ -158,9 +154,6 @@ public class NewWorkoutFragment extends Fragment {
         mLeftAdapter.notifyDataSetChanged();
 
         int leftDragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT;
-        int swipeDirs = 0;
-        ListItemTouchHelper leftHelper = new ListItemTouchHelper(getContext(), true, leftDragDirs, false, swipeDirs, mLeftAdapter);
-        leftHelper.getHelper().attachToRecyclerView(mLeftRecyclerView);
             //endregion
 
             //region RIGHT_RV
@@ -174,8 +167,6 @@ public class NewWorkoutFragment extends Fragment {
         mRightAdapter.notifyDataSetChanged();
 
         int rightDragDirs = 0;
-        ListItemTouchHelper rightHelper = new ListItemTouchHelper(getContext(), false, rightDragDirs, false, swipeDirs, mRightAdapter);
-        rightHelper.getHelper().attachToRecyclerView(mRightRecyclerView);
             //endregion
         //endregion
         return view;

@@ -14,9 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.daimajia.swipe.SimpleSwipeListener;
-import com.daimajia.swipe.SwipeLayout;
-import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -40,8 +37,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
         // Data
         private Set curSet;
-        // Swipe
-        private SwipeLayout swipeLayout;
         // Foreground
         private TextView setNameTextView;
         //private TextView descripTextView;
@@ -55,11 +50,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             setNameTextView = itemView.findViewById(R.id.set_name);
             //descripTextView = itemView.findViewById(R.id.set_descrip);
             timeTextView = itemView.findViewById(R.id.set_time);
-            delIcon = itemView.findViewById(R.id.set_trash);
-
-            swipeLayout = itemView.findViewById(R.id.set_swipe);
-            swipeLayout.addDrag(SwipeLayout.DragEdge.Right, itemView.findViewById(R.id.set_list_background));
-
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -85,24 +75,9 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             }
 
             if(mCanSwipe) {
-                swipeLayout.setSwipeEnabled(true);
-                swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
-                swipeLayout.addSwipeListener(new SimpleSwipeListener() {
-                    @Override
-                    public void onStartOpen(SwipeLayout layout) {
-                        mItemManager.closeAllExcept(layout);
-                        super.onStartOpen(layout);
-                    }
-                });
-                swipeLayout.getSurfaceView().setOnClickListener(this);
-                delIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        pendingRemoval(mSetData.indexOf(curSet));
-                    }
-                });
+
             } else {
-                swipeLayout.setSwipeEnabled(false);
+
             }
         }
 
@@ -129,7 +104,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     private Handler handler = new Handler();
     private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
     // Swiping
-    private SwipeItemRecyclerMangerImpl mItemManager = new SwipeItemRecyclerMangerImpl(this);
     private Boolean mCanSwipe;
 
     //endregion
@@ -172,7 +146,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         // Get the current data
         Set currentSet = mSetData.get(position);
         viewHolder.bindTo(currentSet);
-        mItemManager.bindView(viewHolder.itemView, position);
         // Populate anymore data
     }
 
@@ -187,11 +160,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         } else {
             return 0;
         }
-    }
-
-    @Override
-    public int getSwipeLayoutResourceId(int position) {
-        return R.id.set_swipe;
     }
 
     public void setData(List<Set> data){
