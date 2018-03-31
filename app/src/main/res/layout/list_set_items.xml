@@ -16,12 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     <!-- Background View(s) -->
-        <Switch
-            android:id="@+id/switch1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Switch" />
-
         <LinearLayout
             android:id="@+id/set_list_background"
             android:layout_width="@dimen/background_icon_size"
@@ -44,9 +38,8 @@
             android:id="@+id/set_list_foreground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:padding="@dimen/standard_padding"
-            android:visibility="visible">
+            android:layout_gravity="center">
 
             <LinearLayout
                 android:id="@+id/top_row"
@@ -58,20 +51,20 @@
 
                 <TextView
                     android:id="@+id/set_name"
-                    style="@style/TextAppearance.AppCompat.Subhead"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="@string/default_set_name"
                     android:layout_weight="50"
-                    android:text="@string/default_set_name" />
+                    style="@style/TextAppearance.AppCompat.Subhead"/>
 
                 <TextView
                     android:id="@+id/set_time"
-                    style="@style/TextAppearance.AppCompat.Subhead"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="50"
+                    android:text="@string/default_time"
+                    style="@style/TextAppearance.AppCompat.Subhead"
                     android:gravity="end"
-                    android:text="@string/default_time" />
+                    android:layout_weight="50"/>
 
             </LinearLayout>
             <!--

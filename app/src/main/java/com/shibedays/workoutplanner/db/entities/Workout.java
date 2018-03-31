@@ -132,9 +132,6 @@ public class Workout{
     public void addSet(Set set){
         setList.add(set);
     }
-    public void addSets(List<Set> sets){
-        setList.addAll(sets);
-    }
     public void swapSets(int from, int to){
         //Log.d("WORKOUT", "Swapping");
         Set temp = setList.get(to);

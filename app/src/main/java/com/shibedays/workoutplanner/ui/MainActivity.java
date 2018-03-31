@@ -408,22 +408,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
         //endregion
 
-
-    //endregion
-
-    public void toggleUpArrow(boolean flag){
-        mActionBar.setDisplayHomeAsUpEnabled(flag);
-    }
-
-    public int getNextWorkoutId(){
-        return NEXT_WORKOUT_ID;
-    }
-
-    @Override
-    public void addNewWorkout() {
-        NEXT_WORKOUT_ID++;
-    }
-
     @Override
     public void onSetClick(int setIndex) {
 
@@ -431,13 +415,16 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     @Override
     public void deleteSet(Set set) {
-        if(mNewWorkoutFragment != null){
-            mNewWorkoutFragment.deleteSet(set);
-        }
+
     }
 
     @Override
     public void swap(int from, int to) {
 
+    }
+    //endregion
+
+    public void toggleUpArrow(boolean flag){
+        mActionBar.setDisplayHomeAsUpEnabled(flag);
     }
 }

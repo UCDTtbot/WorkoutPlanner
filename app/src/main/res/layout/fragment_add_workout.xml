@@ -5,86 +5,30 @@
     android:layout_height="match_parent"
     android:background="@color/material_blue_grey_50">
 
-    <ScrollView
+    <android.support.v7.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/button_save">
+        android:orientation="horizontal"
+        android:layout_above="@+id/button_save"
+        android:weightSum="100">
 
-        <android.support.v7.widget.LinearLayoutCompat
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/left_recyclerview"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="50">
 
+        </android.support.v7.widget.RecyclerView>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_shallow_vertical_margin">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/right_recyclerview"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="50">
 
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Name"
-                    android:inputType="text"/>
-            </android.support.design.widget.TextInputLayout>
+        </android.support.v7.widget.RecyclerView>
 
-
-            <android.support.v7.widget.LinearLayoutCompat
-                android:layout_width="match_parent"
-                android:layout_height="260dp"
-                android:orientation="horizontal"
-                android:weightSum="100">
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/left_recyclerview"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="50">
-
-                </android.support.v7.widget.RecyclerView>
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/right_recyclerview"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="50">
-
-                </android.support.v7.widget.RecyclerView>
-            </android.support.v7.widget.LinearLayoutCompat>
-
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_shallow_vertical_margin">
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Placeholder"
-                    android:inputType="text"/>
-            </android.support.design.widget.TextInputLayout>
-
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_shallow_vertical_margin">
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Placeholder"
-                    android:inputType="text"/>
-            </android.support.design.widget.TextInputLayout>
-
-        </android.support.v7.widget.LinearLayoutCompat>
-    </ScrollView>
+    </android.support.v7.widget.LinearLayoutCompat>
 
     <Button
         android:id="@+id/button_save"

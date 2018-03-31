@@ -42,7 +42,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         private SwipeLayout swipeLayout;
         // Foreground
         private TextView setNameTextView;
-        //private TextView descripTextView;
+        private TextView descripTextView;
         private TextView timeTextView;
         // Background
         private ImageView delIcon;
@@ -58,7 +58,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             swipeLayout = itemView.findViewById(R.id.set_swipe);
             swipeLayout.addDrag(SwipeLayout.DragEdge.Right, itemView.findViewById(R.id.set_list_background));
 
-
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
@@ -68,7 +67,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             this.curSet = curSet;
 
             setNameTextView.setText(curSet.getName());
-            //descripTextView.setText(curSet.getDescrip());
+            descripTextView.setText(curSet.getDescrip());
 
             int[] time = MainActivity.convertFromMillis(curSet.getTime());
             int minutes = time[0], seconds = time[1];
@@ -82,26 +81,21 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
                 timeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
             }
 
-            if(mCanSwipe) {
-                swipeLayout.setSwipeEnabled(true);
-                swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
-                swipeLayout.addSwipeListener(new SimpleSwipeListener() {
-                    @Override
-                    public void onStartOpen(SwipeLayout layout) {
-                        mItemManager.closeAllExcept(layout);
-                        super.onStartOpen(layout);
-                    }
-                });
-                swipeLayout.getSurfaceView().setOnClickListener(this);
-                delIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        pendingRemoval(mSetData.indexOf(curSet));
-                    }
-                });
-            } else {
-                swipeLayout.setSwipeEnabled(false);
-            }
+            swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
+            swipeLayout.addSwipeListener(new SimpleSwipeListener() {
+                @Override
+                public void onStartOpen(SwipeLayout layout) {
+                    mItemManager.closeAllExcept(layout);
+                    super.onStartOpen(layout);
+                }
+            });
+            swipeLayout.getSurfaceView().setOnClickListener(this);
+            delIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    pendingRemoval(mSetData.indexOf(curSet));
+                }
+            });
         }
 
         @Override
@@ -126,8 +120,13 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     // Threading Components
     private Handler handler = new Handler();
     private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
+<<<<<<< HEAD
     // Swiping
     private Boolean mCanSwipe;
+=======
+
+    private SwipeItemRecyclerMangerImpl mItemManager = new SwipeItemRecyclerMangerImpl(this);
+>>>>>>> parent of 066fa36... Fixed Item Dragging for the new recyclers
 
     //endregion
 
@@ -140,10 +139,9 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     //endregion
 
     //region LIFECYCLE
-    public SetAdapter(Context context, View coordLayout, boolean swipeable){
+    public SetAdapter(Context context, View coordLayout){
         mSetsPendingRemoval = new ArrayList<>();
         mContext = context;
-        mCanSwipe = swipeable;
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout)coordLayout;
         } else {
