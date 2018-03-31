@@ -94,7 +94,16 @@ public class ListItemTouchHelper {
                     mAdapter.pendingRemoval(swipedPos);
                 }
             }
+        });
 
+
+    }
+}
+
+
+//region OLD_CHILD_DRAW
+
+            /*
             @Override
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 View itemView = viewHolder.itemView;
@@ -114,7 +123,6 @@ public class ListItemTouchHelper {
 
                     // Draw the relevent icon
                     int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
                     int intristicHeight = mDeleteIC.getIntrinsicHeight();
                     int intristicWidth = mDeleteIC.getIntrinsicWidth();
 
@@ -135,7 +143,6 @@ public class ListItemTouchHelper {
 
                     // Draw the relevent icon
                     int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
                     int intristicHeight = mDeleteIC.getIntrinsicHeight();
                     int intristicWidth = mDeleteIC.getIntrinsicWidth();
 
@@ -149,9 +156,5 @@ public class ListItemTouchHelper {
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
-
-        });
-
-
-    }
-}
+            */
+//endregion
