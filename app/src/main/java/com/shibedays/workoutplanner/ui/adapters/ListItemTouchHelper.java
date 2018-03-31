@@ -70,7 +70,6 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
         public boolean onSingleTapConfirmed(MotionEvent e) {
             for(UnderlayButton button : mButtons){
                 if(button.onClick(e.getX(), e.getY())) {
-                    Log.d(DEBUG_TAG, "button.onClick(e.getX(), e.getY())");
                     break;
                 }
             }
@@ -82,7 +81,6 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if(mSwipedPos < 0) {
-                Log.d(DEBUG_TAG, "mSwipedPos < 0");
                 return false;
             }
             Point point = new Point((int) event.getRawX(), (int) event.getRawY());
@@ -94,10 +92,10 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
 
             if(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_MOVE){
                 if(rect.top < point.y && rect.bottom > point.y){
-                    Log.d(DEBUG_TAG, "mGestureDetector onTouchEvent");
                     mGestureDetector.onTouchEvent(event);
                 } else {
                     Log.d(DEBUG_TAG, "mGestureDetector onTouchEvent ELSE STATEMENT");
+                    //TODO: Close other open swipers
                 }
             }
             return false;
@@ -260,7 +258,7 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
             mContext = context;
             mColor = color;
             mDeleteIc = context.getResources().getDrawable(imageId, null);
-            mDeleteMargin = 72;
+            mDeleteMargin = context.getResources().getDimension(R.dimen.icon_list_margin_start);
             mBackground = new ColorDrawable(mColor);
             mClickListener = clickListener;
         }
