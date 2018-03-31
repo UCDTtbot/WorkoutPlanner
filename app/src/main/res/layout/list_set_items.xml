@@ -11,7 +11,7 @@
     android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
     android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin">
 
-    <com.shibedays.androidswipelayout.SwipeLayout
+    <com.daimajia.swipe.SwipeLayout
         android:id="@+id/set_swipe"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -85,7 +85,7 @@
                 android:text="@string/default_descrip"/>
             -->
         </RelativeLayout>
-    </com.shibedays.androidswipelayout.SwipeLayout>
+    </com.daimajia.swipe.SwipeLayout>
 
 
 </android.support.v7.widget.CardView>

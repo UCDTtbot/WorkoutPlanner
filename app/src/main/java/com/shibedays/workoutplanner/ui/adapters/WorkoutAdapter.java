@@ -13,8 +13,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.shibedays.androidswipelayout.SimpleSwipeListener;
-import com.shibedays.androidswipelayout.SwipeLayout;
+import com.daimajia.swipe.SimpleSwipeListener;
+import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
@@ -124,6 +125,9 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     private Handler handler = new Handler(); // Handler for running async delayed tasks
     private HashMap<Workout, Runnable> pendingRunnables = new HashMap<>(); // Map of the items to their async runnable rasks
 
+    private SwipeItemRecyclerMangerImpl mItemManager = new SwipeItemRecyclerMangerImpl(this);
+
+
     //endregion
 
     //region INTERFACES
@@ -165,7 +169,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         Workout currentWorkout = mWorkoutData.get(position);
         // Bind to the correct data
         viewHolder.bindTo(currentWorkout, position);
-        mItemManager.bind(viewHolder.itemView, position);
+        mItemManager.bindView(viewHolder.itemView, position);
     }
 
     //endregion

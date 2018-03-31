@@ -1,20 +1,27 @@
-package com.shibedays.workoutplanner.ui.adapters;
+package com.shibedays.workoutplanner;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
+import android.view.View;
 
-import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ui.MainActivity;
+import com.shibedays.workoutplanner.ui.adapters.PendingRemovalAdapter;
+
+import javax.crypto.spec.DESedeKeySpec;
 
 public class ListItemTouchHelper {
 
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = ListItemTouchHelper.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ListItemTouchHelper.";
     //endregion
 
     private Context mContext;
