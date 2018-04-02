@@ -1,10 +1,12 @@
 package com.shibedays.workoutplanner.db.entities;
 
 
+import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.migration.Migration;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -28,6 +30,8 @@ public class Workout{
     private int timeBetweenRounds;
     private boolean noRestFlag;
     private boolean noBreakFlag;
+    @ColumnInfo(name = "favorite")
+    private boolean isFavorite;
 
     private String name;
 
@@ -47,6 +51,7 @@ public class Workout{
         timeBetweenRounds = 30000;
         noRestFlag = false;
         noBreakFlag = false;
+        isFavorite = false;
     }
     public Workout(Workout workout){
         workoutID = workout.getWorkoutID();
@@ -57,6 +62,7 @@ public class Workout{
         timeBetweenRounds = workout.getTimeBetweenSets();
         noRestFlag = false;
         noBreakFlag = false;
+        isFavorite = false;
     }
 
     public int getWorkoutID(){
@@ -113,6 +119,9 @@ public class Workout{
     public void setNoBreakFlag(boolean flag){
         noBreakFlag = flag;
     }
+
+    public boolean getIsFavorite(){ return isFavorite; }
+    public void setIsFavorite(boolean favorite) { isFavorite = favorite; }
 
     public String getSetListJSON(){
         Gson gson = new Gson();

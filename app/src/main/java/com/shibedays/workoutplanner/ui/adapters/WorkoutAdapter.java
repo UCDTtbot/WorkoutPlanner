@@ -1,17 +1,24 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
 import com.shibedays.workoutplanner.R;
@@ -23,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.WorkoutViewHolder> {
+public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.WorkoutViewHolder> implements ListItemTouchHelper.UnderlayButtonClickListener {
 
     //region CONSTANTS
     // Timeout Constant
@@ -31,19 +38,27 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     // Package and Debug Constants
     private static final String DEBUG_TAG = WorkoutAdapter.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter.";
+
+    private static final int NUM_SECIONS = 2;
+    private static final int FAVORITE = 0;
+    private static final int NORMAL = 1;
+
+
     //endregion
 
     //region VIEW_HOLDER
-    public class WorkoutViewHolder extends SectionedViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class WorkoutViewHolder extends SectionedViewHolder implements View.OnClickListener, View.OnLongClickListener, CompoundButton.OnCheckedChangeListener {
 
         // Data
         private Workout curWorkout;
+        private int absolutePos;
         // Header
         private ImageView caret;
         private TextView title;
         // Item
         private TextView itemName;
         private TextView sets;
+        private ToggleButton favStar;
 
         //TEMP
         private TextView TEST_POS_ID;
@@ -51,13 +66,16 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         // Adapter
         private WorkoutAdapter adapter;
 
-        public WorkoutViewHolder(View itemView, WorkoutAdapter adapter) {
+        private boolean onBind;
+
+        private WorkoutViewHolder(View itemView, WorkoutAdapter adapter) {
             super(itemView);
             //Initialize the views for the RecyclerView
             itemName = itemView.findViewById(R.id.item_name);
             sets = itemView.findViewById(R.id.item_sets);
             caret = itemView.findViewById(R.id.caret);
             title = itemView.findViewById(R.id.header_title);
+            favStar = itemView.findViewById(R.id.workout_favorite);
             this.adapter = adapter;
 
             itemView.setOnClickListener(this);
@@ -66,15 +84,30 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             TEST_WRK_ID = itemView.findViewById(R.id.TEST_WRK_ID);
         }
 
-        void bindTo(final Workout curWorkout, final int pos){
+        void bindTo(final Workout curWorkout, final int absolute){
+            onBind = true;
+
             //Populate data when they bind the workouts to the view holder
             this.curWorkout = curWorkout;
+            absolutePos = absolute;
 
             itemName.setText(curWorkout.getName());
             sets.setText(String.format(mContext.getString(R.string.item_sets), curWorkout.getNumOfSets()));
+            favStar.setTextOff("");
+            favStar.setTextOn("");
 
-            TEST_POS_ID.setText(String.format(Locale.US, "PosID: %1$d", mWorkoutData.indexOf(curWorkout)));
+            if(curWorkout.getIsFavorite()){
+                favStar.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_star_gold_24dp));
+                favStar.setChecked(true);
+            } else {
+                favStar.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_star_border_black_24dp));
+                favStar.setChecked(false);
+            }
+            favStar.setOnCheckedChangeListener(this);
+
+            TEST_POS_ID.setText(String.format(Locale.US, "AbsPos: %1$d", absolute));
             TEST_WRK_ID.setText(String.format(Locale.US, "WrkID: %1$d", curWorkout.getWorkoutID()));
+            onBind = false;
         }
 
         @Override
@@ -88,8 +121,23 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         }
 
         @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if(!onBind) {
+                if (isChecked) {
+                    favStar.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_star_gold_24dp));
+                    curWorkout.setIsFavorite(true);
+                    toggleFav(curWorkout, absolutePos);
+                } else {
+                    favStar.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_star_border_black_24dp));
+                    curWorkout.setIsFavorite(false);
+                    toggleFav(curWorkout, absolutePos);
+                }
+            }
+        }
+
+        @Override
         public boolean onLongClick(View view) {
-            mListener.onWorkoutLongClick(mWorkoutData.indexOf(curWorkout), curWorkout.getWorkoutID());
+            mListener.onWorkoutLongClick(mAllWorkoutData.indexOf(curWorkout), curWorkout.getWorkoutID());
             // return true to indicate the click was handled
             return true;
         }
@@ -102,7 +150,9 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
     //region PRIVATE_VARS
     // Data
-    private List<Workout> mWorkoutData;
+    private List<Workout> mAllWorkoutData;
+    private List<Workout> mFavorite;
+    private List<Workout> mNonFavorite;
     private List<Workout> mWorkoutsPendingRemoval;
     // UI Components
     private CoordinatorLayout mCoordLayout;
@@ -128,6 +178,9 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     public WorkoutAdapter(Context context, View coordLayout){
         mWorkoutsPendingRemoval = new ArrayList<>();
         mContext = context;
+        mAllWorkoutData = new ArrayList<>();
+        mFavorite = new ArrayList<>();
+        mNonFavorite = new ArrayList<>();
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout) coordLayout;
         }else{
@@ -142,8 +195,9 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
     }
 
+    @NonNull
     @Override
-    public WorkoutViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public WorkoutViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layout = 0;
         switch (viewType){
             case VIEW_TYPE_HEADER:
@@ -167,22 +221,31 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
     @Override
     public int getSectionCount() {
-        return 1;
+        return NUM_SECIONS;
     }
 
     @Override
     public int getItemCount(int section) {
-        if(mWorkoutData == null){
+        if(mAllWorkoutData == null){
             return 0;
+        } else if(section == FAVORITE) {
+            return mFavorite.size();
+        } else if(section == NORMAL) {
+            return mNonFavorite.size();
         } else {
-            return mWorkoutData.size();
+            return 0;
         }
     }
 
     @Override
     public void onBindHeaderViewHolder(WorkoutViewHolder holder, int section, boolean expanded) {
-        holder.title.setText(String.format(Locale.US, "Favorites " + section));
-        holder.caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
+        if(section == FAVORITE) {
+            holder.title.setText(String.format(Locale.US, "Favorites %d", section));
+            holder.caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
+        } else if (section == NORMAL){
+            holder.title.setText(String.format(Locale.US, "Workouts %d", section));
+            holder.caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
+        }
     }
 
     @Override
@@ -193,37 +256,79 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     @Override
     public void onBindViewHolder(WorkoutViewHolder holder, int section, int relativePosition, int absolutePosition) {
         // Get the current data
-        Workout currentWorkout = mWorkoutData.get(relativePosition);
+        Workout currentWorkout = null;
+        switch(section){
+            case FAVORITE:
+                currentWorkout = mFavorite.get(relativePosition);
+                break;
+            case NORMAL:
+                currentWorkout = mNonFavorite.get(relativePosition);
+                break;
+            default:
+                throw new RuntimeException(DEBUG_TAG + "workout doesn't exist in mFavorite or mNonFavorite");
+        }
+        //Workout currentWorkout = mAllWorkoutData.get(absolutePosition);
         // Bind to the correct data
-        holder.bindTo(currentWorkout, relativePosition);
+        holder.bindTo(currentWorkout, absolutePosition);
     }
 
     //region UTILITY
 
-    public void setData(List<Workout> workouts){
-        mWorkoutData = workouts;
+    public void addData(Workout workout){
+        mAllWorkoutData.add(workout);
+        if(workout.getIsFavorite()) {
+            mFavorite.add(workout);
+        } else {
+            mNonFavorite.add(workout);
+        }
         if(mWorkoutsPendingRemoval.size() > 0){
             for(int i = 0; i < mWorkoutsPendingRemoval.size(); i++){
-                Workout workout = mWorkoutsPendingRemoval.get(i);
-                if (mWorkoutData.contains(workout)){
-                    mWorkoutData.remove(workout);
+                Workout w = mWorkoutsPendingRemoval.get(i);
+                if (mAllWorkoutData.contains(w)){
+                    mAllWorkoutData.remove(w);
                 }
             }
         }
         notifyDataSetChanged();
     }
+
+    private void toggleFav(Workout wrk, int absolute){
+        boolean isFav = wrk.getIsFavorite();
+        if(isFav){ // became fav
+            if(mNonFavorite.contains(wrk)) {
+                mNonFavorite.remove(wrk);
+                mFavorite.add(wrk);
+                notifyItemChanged(absolute);
+            } else {
+                throw new RuntimeException(DEBUG_TAG + wrk.getName() + " wasn't in the normal list");
+            }
+        } else {
+            if(mFavorite.contains(wrk)){
+                mNonFavorite.add(wrk);
+                mFavorite.remove(wrk);
+                notifyItemChanged(absolute);
+            } else {
+                throw new RuntimeException(DEBUG_TAG + wrk.getName() + " wasn't in the fav list");
+            }
+        }
+    }
     //endregion
 
     //region PENDING_DELETE
     @Override
+    public void onDeleteButtonClick(int absolutePos) {
+
+    }
+
+    @Override
     public void pendingRemoval(final int swipedPos){
-        final Workout workout = mWorkoutData.get(swipedPos);
+        final Workout workout = mAllWorkoutData.get(swipedPos);
         if(!mWorkoutsPendingRemoval.contains(workout)){
             mWorkoutsPendingRemoval.add(workout);
             final int pendingPos = mWorkoutsPendingRemoval.indexOf(workout);
-            mWorkoutData.remove(swipedPos);
+            mAllWorkoutData.remove(swipedPos);
             notifyItemRemoved(swipedPos);
-            notifyItemRangeChanged(swipedPos, mWorkoutData.size());
+            notifyItemRangeChanged(swipedPos, mAllWorkoutData.size());
             Runnable pendingRemovalRunnable = new Runnable(){
                 @Override
                 public void run() {
@@ -249,13 +354,13 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     public void deletePending(int pendingIndex, int origWorkoutPos){
         mWorkoutsPendingRemoval.remove(pendingIndex);
 
-        mListener.deleteWorkout(mWorkoutData.get(origWorkoutPos));
+        mListener.deleteWorkout(mAllWorkoutData.get(origWorkoutPos));
         // Update the file that we have removed a curWorkout
     }
 
     @Override
     public boolean isPendingRemoval(int pos){
-        Workout workout = mWorkoutData.get(pos);
+        Workout workout = mAllWorkoutData.get(pos);
         return mWorkoutsPendingRemoval.contains(workout);
     }
 
@@ -273,7 +378,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
                 handler.removeCallbacks(pendingRunnable);
             }
             mWorkoutsPendingRemoval.remove(pendingPos);
-            mWorkoutData.add(itemPos, workout);
+            mAllWorkoutData.add(itemPos, workout);
             notifyItemInserted(itemPos);
         }
     }

@@ -150,12 +150,12 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mWorkoutAdapter.notifyDataSetChanged();
 
         //    public ListItemTouchHelper(Context context, boolean draggable, int dragDirs, boolean swipeable, RecyclerView recyclerView) {
-        ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, false, 0, true, mRecyclerView) {
+        ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, true, ItemTouchHelper.UP | ItemTouchHelper.DOWN, true, mRecyclerView) {
             @Override
             public void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new ListItemTouchHelper.UnderlayButton(R.drawable.ic_delete_white_24dp, Color.RED, context, new UnderlayButtonClickListener() {
                     @Override
-                    public void onClick(int pos) {
+                    public void onDeleteButtonClick(int pos) {
                         WorkoutAdapter.WorkoutViewHolder vh = (WorkoutAdapter.WorkoutViewHolder) viewHolder;
                         Log.d(DEBUG_TAG, "Deleting" + vh.getWorkout().getName());
                     }
@@ -188,8 +188,12 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
-                mWorkoutAdapter.setData(workouts);
                 mWorkoutData = workouts;
+                if(mWorkoutData != null) {
+                    for (Workout w : mWorkoutData) {
+                        mWorkoutAdapter.addData(w);
+                    }
+                }
             }
         });
         //endregion
@@ -231,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     protected void onStart() {
         super.onStart();
         mActionBar = getSupportActionBar();
+
     }
 
     @Override
@@ -378,8 +383,8 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
             //region DELETE_WORKOUT
     @Override
     public void deleteItem(int index) {
-        WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
-        adapter.pendingRemoval(index);
+        //WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
+        //adapter.pendingRemoval(index);
         // Snackbar is creating in pendingRemoval
     }
 
@@ -455,6 +460,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     @Override
     public void swap(int from, int to) {
-
+        // TODO : SWAP WORKOUTS YA
     }
 }

@@ -1,12 +1,7 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
-import android.content.ClipData;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -18,19 +13,13 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
-
-import com.shibedays.workoutplanner.R;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-
-import javax.crypto.spec.DESedeKeySpec;
 
 public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
@@ -93,6 +82,8 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
             if(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_MOVE){
                 if(rect.top < point.y && rect.bottom > point.y){
                     mGestureDetector.onTouchEvent(event);
+                    if(event.getAction() == MotionEvent.ACTION_UP){
+                    }
                 } else {
                     Log.d(DEBUG_TAG, "mGestureDetector onTouchEvent ELSE STATEMENT");
                     //TODO: Close other open swipers
@@ -241,7 +232,6 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
         }
     }
 
-
     public abstract void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons);
 
     public static class UnderlayButton {
@@ -265,7 +255,7 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
 
         public boolean onClick(float x, float y){
             if(mClickRegion != null && mClickRegion.contains(x, y)){
-                mClickListener.onClick(mPos);
+                mClickListener.onDeleteButtonClick(mPos);
                 return true;
             }
             return false;
@@ -296,7 +286,7 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
     }
 
     public interface UnderlayButtonClickListener{
-        void onClick(int pos);
+        void onDeleteButtonClick(int absolutePos);
     }
 }
 
