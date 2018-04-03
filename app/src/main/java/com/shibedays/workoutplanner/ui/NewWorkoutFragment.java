@@ -118,13 +118,6 @@ public class NewWorkoutFragment extends Fragment {
         mDefaultSets.add(new Set("Set 2", "Descrip 1", 10000));
         mUserSets.add(new Set("My Set", "Descrip", 50000));
         mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
 
         mNewWorkout = new Workout(mParentActivity.getNextWorkoutId(), "No Name");
 
@@ -145,20 +138,31 @@ public class NewWorkoutFragment extends Fragment {
             //region LEFT_RV
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mLeftRecyclerView.setItemAnimator(new FadeInLeftAnimator());
 
         mLeftAdapter = new SetAdapter(getContext(), mCoordLayout, false);
         mLeftRecyclerView.setAdapter(mLeftAdapter);
         mLeftAdapter.setData(mDefaultSets);
         mLeftAdapter.notifyDataSetChanged();
 
-        int leftDragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT;
+        int leftDragDirs = 0;
+        int leftSwipeDirs = 0;
+        ItemTouchHelper left_helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(leftDragDirs, leftSwipeDirs) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+        });
+
             //endregion
 
             //region RIGHT_RV
         mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
         mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRightRecyclerView.setItemAnimator(new FadeInLeftAnimator());
 
         mRightAdapter = new SetAdapter(getContext(), mCoordLayout, true);
         mRightRecyclerView.setAdapter(mRightAdapter);
@@ -166,6 +170,18 @@ public class NewWorkoutFragment extends Fragment {
         mRightAdapter.notifyDataSetChanged();
 
         int rightDragDirs = 0;
+        int rightSwipeDirs = 0;
+        ItemTouchHelper right_helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(rightDragDirs, rightSwipeDirs) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+        });
             //endregion
         //endregion
         return view;

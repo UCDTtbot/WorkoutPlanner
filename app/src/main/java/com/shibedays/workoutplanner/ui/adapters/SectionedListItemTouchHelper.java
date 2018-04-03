@@ -101,8 +101,6 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
     //endregion
 
     // Constructor
-
-
     public SectionedListItemTouchHelper(Context context, boolean draggable, int dragDirs, boolean swipeable, RecyclerView recyclerView) {
         super(dragDirs, ItemTouchHelper.LEFT);
         mContext = context;

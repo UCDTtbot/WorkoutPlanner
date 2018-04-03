@@ -59,5 +59,8 @@
     <string name="no_rest">No Rest</string>
     <string name="no_break">No Break</string>
     <string name="button_save">Save</string>
+    <string name="header_title_default">Default Sets</string>
+    <string name="header_title_user_created">User Created</string>
+    <string name="header_title_my_sets">My Sets</string>
 
 </resources>

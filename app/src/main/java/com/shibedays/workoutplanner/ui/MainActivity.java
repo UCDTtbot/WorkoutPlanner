@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         // Set the Layout Manager to Linear Layout
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         //TODO: Add recycler animation/decorations
-        mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
+        //mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
         // Setup the adapter with correct data
         mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
         mRecyclerView.setAdapter(mWorkoutAdapter);
@@ -150,10 +151,12 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, true, ItemTouchHelper.UP | ItemTouchHelper.DOWN, true, mRecyclerView) {
             @Override
             public void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
-                underlayButtons.add(new ListItemTouchHelper.UnderlayButton(R.drawable.ic_delete_white_24dp, Color.RED, context, new UnderlayButtonClickListener() {
+                underlayButtons.add(new ListItemTouchHelper.UnderlayButton(R.drawable.ic_delete_white_24dp,
+                        ResourcesCompat.getColor(getResources(),R.color.material_red_500, null), context, new UnderlayButtonClickListener() {
                     @Override
                     public void onDeleteButtonClick(int pos) {
                         WorkoutAdapter.WorkoutViewHolder vh = (WorkoutAdapter.WorkoutViewHolder) viewHolder;
+                        mWorkoutAdapter.pendingRemoval(pos);
                         Log.d(DEBUG_TAG, "Deleting" + vh.getWorkout().getName());
                     }
                 }));
@@ -371,8 +374,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
     }
 
-
-
             //region DELETE_WORKOUT
     @Override
     public void deleteItem(int index) {
@@ -380,7 +381,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         //adapter.pendingRemoval(index);
         // Snackbar is creating in pendingRemoval
     }
-
 
             // Deleting workout
     @Override

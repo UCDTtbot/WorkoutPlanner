@@ -2,7 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/list_half_vertical_size"
     android:background="?selectableItemBackground"
     android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
     android:layout_marginStart="@dimen/activity_shallow_horizontal_margin"
@@ -16,7 +16,7 @@
         android:layout_centerVertical="true"
         style="@style/TextAppearance.AppCompat.Subhead"
         android:layout_toStartOf="@id/caret"
-        android:text="Favorite"/>
+        android:text="Title"/>
 
     <ImageView
         android:id="@+id/caret"

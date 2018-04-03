@@ -210,27 +210,6 @@ public class SectionedWorkoutAdapter extends SectionedPendingRemovalAdapter<Sect
         return new WorkoutViewHolder(v, this);
     }
 
-
-    //endregion
-
-    @Override
-    public int getSectionCount() {
-        return NUM_SECIONS;
-    }
-
-    @Override
-    public int getItemCount(int section) {
-        if(mAllWorkoutData == null){
-            return 0;
-        } else if(section == FAVORITE) {
-            return mFavorite.size();
-        } else if(section == NORMAL) {
-            return mNonFavorite.size();
-        } else {
-            return 0;
-        }
-    }
-
     @Override
     public void onBindHeaderViewHolder(WorkoutViewHolder holder, int section, boolean expanded) {
         if(section == FAVORITE) {
@@ -240,11 +219,6 @@ public class SectionedWorkoutAdapter extends SectionedPendingRemovalAdapter<Sect
             holder.title.setText(String.format(Locale.US, "Workouts %d", section));
             holder.caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
         }
-    }
-
-    @Override
-    public void onBindFooterViewHolder(WorkoutViewHolder holder, int section) {
-
     }
 
     @Override
@@ -266,8 +240,29 @@ public class SectionedWorkoutAdapter extends SectionedPendingRemovalAdapter<Sect
         holder.bindTo(currentWorkout, absolutePosition);
     }
 
-    //region UTILITY
+    //endregion
 
+    //region GETTERS
+    @Override
+    public int getSectionCount() {
+        return NUM_SECIONS;
+    }
+
+    @Override
+    public int getItemCount(int section) {
+        if(mAllWorkoutData == null){
+            return 0;
+        } else if(section == FAVORITE) {
+            return mFavorite.size();
+        } else if(section == NORMAL) {
+            return mNonFavorite.size();
+        } else {
+            return 0;
+        }
+    }
+    //endregion
+
+    //region UTILITY
     public void addData(Workout workout){
         mAllWorkoutData.add(workout);
         if(workout.getIsFavorite()) {
@@ -376,7 +371,13 @@ public class SectionedWorkoutAdapter extends SectionedPendingRemovalAdapter<Sect
             notifyItemInserted(itemPos);
         }
     }
-
     //endregion
 
+    //region UNUSED
+    @Override
+    public void onBindFooterViewHolder(WorkoutViewHolder holder, int section) {
+
+    }
+
+    //endregion
 }

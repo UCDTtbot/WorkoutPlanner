@@ -11,25 +11,6 @@
     android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
     android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin">
 
-    <!--
-    <LinearLayout
-        android:id="@+id/set_list_background"
-        android:layout_width="@dimen/background_icon_size"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:background="#FF5534"
-        android:gravity="center"
-        android:weightSum="100">
-        <ImageView
-            android:id="@+id/set_trash"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/standard_icon_size"
-            android:layout_weight="100"
-            android:src="@drawable/ic_delete_white_24dp" />
-
-    </LinearLayout>
-    -->
-    <!-- Foreground View -->
     <RelativeLayout
         android:id="@+id/set_list_foreground"
         android:layout_width="match_parent"
@@ -48,7 +29,7 @@
 
             <TextView
                 android:id="@+id/set_name"
-                style="@style/TextAppearance.AppCompat.Subhead"
+                style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="50"
@@ -56,7 +37,7 @@
 
             <TextView
                 android:id="@+id/set_time"
-                style="@style/TextAppearance.AppCompat.Subhead"
+                style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="50"
