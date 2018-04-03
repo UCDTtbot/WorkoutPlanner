@@ -77,6 +77,14 @@
             android:paddingStart="@dimen/half_padding"
             android:text="Wrkout ID: 1" />
 
+        <ImageView
+            android:id="@+id/right_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            app:srcCompat="@drawable/ic_right_arrow_24dp" />
+        <!--
         <ToggleButton
             android:id="@+id/workout_favorite"
             android:layout_width="54dp"
@@ -86,7 +94,7 @@
             android:checked="false"
             android:scaleX="0.5"
             android:scaleY="0.5" />
-
+        -->
     </RelativeLayout>
 
 

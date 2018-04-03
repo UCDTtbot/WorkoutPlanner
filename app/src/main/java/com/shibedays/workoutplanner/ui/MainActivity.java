@@ -29,8 +29,8 @@ import com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
-import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditWorkoutDialog;
 import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
@@ -144,12 +144,9 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
         // Setup the adapter with correct data
         mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
-        mWorkoutAdapter.shouldShowHeadersForEmptySections(true);
-        mWorkoutAdapter.shouldShowFooters(false);
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
 
-        //    public ListItemTouchHelper(Context context, boolean draggable, int dragDirs, boolean swipeable, RecyclerView recyclerView) {
         ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, true, ItemTouchHelper.UP | ItemTouchHelper.DOWN, true, mRecyclerView) {
             @Override
             public void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
@@ -189,11 +186,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
                 mWorkoutData = workouts;
-                if(mWorkoutData != null) {
-                    for (Workout w : mWorkoutData) {
-                        mWorkoutAdapter.addData(w);
-                    }
-                }
+                mWorkoutAdapter.setData(workouts);
             }
         });
         //endregion
@@ -430,7 +423,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
         //endregion
 
-
     //endregion
 
     public void toggleUpArrow(boolean flag){
@@ -461,5 +453,9 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     @Override
     public void swap(int from, int to) {
         // TODO : SWAP WORKOUTS YA
+        Workout wrkFrom = mWorkoutData.get(from);
+        Workout wrkTo = mWorkoutData.get(to);
+        mWorkoutData.set(from, wrkTo);
+        mWorkoutData.set(to, wrkFrom);
     }
 }

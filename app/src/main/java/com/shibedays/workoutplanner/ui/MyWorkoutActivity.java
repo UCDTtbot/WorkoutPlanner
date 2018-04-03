@@ -29,7 +29,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper;
+import com.shibedays.workoutplanner.ui.adapters.SectionedListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;
@@ -51,7 +51,7 @@ import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener,
                                                                     NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener,
-                                                                    NumberRoundsDialog.NumberRoundsListener, ListItemTouchHelper.SwapItems{
+                                                                    NumberRoundsDialog.NumberRoundsListener, SectionedListItemTouchHelper.SwapItems{
 
     //region CONSTANTS
     // Package and Debug Constants

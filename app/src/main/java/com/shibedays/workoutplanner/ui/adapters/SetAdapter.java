@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class SetAdapter extends PendingAdapterOLD<SetAdapter.SetViewHolder> {
+public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> {
 
     //region CONSTANTS
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case

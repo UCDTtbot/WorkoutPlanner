@@ -1,12 +1,7 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
-import android.content.ClipData;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -18,26 +13,20 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
-
-import com.shibedays.workoutplanner.R;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import javax.crypto.spec.DESedeKeySpec;
-
-public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback {
+public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = ListItemTouchHelper.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper.";
+    private static final String DEBUG_TAG = SectionedListItemTouchHelper.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.SectionedListItemTouchHelper.";
 
     private static final int BUTTON_WIDTH = 204; //PIXEL WIDTH PER BUTTON
     //endregion
@@ -60,7 +49,7 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
     private boolean mSwipeable;
 
     private RecyclerView mRecyclerView;
-    private PendingRemovalAdapter mAdapter;
+    private SectionedPendingRemovalAdapter mAdapter;
 
 
     //region INTERFACES
@@ -93,6 +82,8 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
             if(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_MOVE){
                 if(rect.top < point.y && rect.bottom > point.y){
                     mGestureDetector.onTouchEvent(event);
+                    if(event.getAction() == MotionEvent.ACTION_UP){
+                    }
                 } else {
                     Log.d(DEBUG_TAG, "mGestureDetector onTouchEvent ELSE STATEMENT");
                     //TODO: Close other open swipers
@@ -112,13 +103,13 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
     // Constructor
 
 
-    public ListItemTouchHelper(Context context, boolean draggable, int dragDirs, boolean swipeable, RecyclerView recyclerView) {
+    public SectionedListItemTouchHelper(Context context, boolean draggable, int dragDirs, boolean swipeable, RecyclerView recyclerView) {
         super(dragDirs, ItemTouchHelper.LEFT);
         mContext = context;
 
         mRecyclerView = recyclerView;
         mRecyclerView.setOnTouchListener(mOnTouchListener);
-        mAdapter = (PendingRemovalAdapter) recyclerView.getAdapter();
+        mAdapter = (SectionedPendingRemovalAdapter) recyclerView.getAdapter();
 
         if (context instanceof SwapItems) {
             mListener = (SwapItems) context;
@@ -241,7 +232,6 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
         }
     }
 
-
     public abstract void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons);
 
     public static class UnderlayButton {
@@ -296,7 +286,7 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
     }
 
     public interface UnderlayButtonClickListener{
-        void onDeleteButtonClick(int pos);
+        void onDeleteButtonClick(int absolutePos);
     }
 }
 
