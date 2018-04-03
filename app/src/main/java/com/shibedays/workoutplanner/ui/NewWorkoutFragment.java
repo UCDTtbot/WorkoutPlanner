@@ -22,12 +22,10 @@ import android.widget.Button;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
+import com.shibedays.workoutplanner.ui.adapters.SectionedSetAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 public class NewWorkoutFragment extends Fragment {
     //region CONSTANTS
@@ -43,10 +41,13 @@ public class NewWorkoutFragment extends Fragment {
     private Workout mNewWorkout;
     // Data
     private List<Set> mDefaultSets;
-    private List<Set> mUserSets;
+    private List<Set> mUserCreatedSets;
+    private List<Set> mUsersSets;
     // Adapters
-    private SetAdapter mLeftAdapter;
-    private SetAdapter mRightAdapter;
+    //private SetAdapter mLeftAdapter;
+    //private SetAdapter mRightAdapter;
+    private SectionedSetAdapter mLeftAdapter;
+    private SectionedSetAdapter mRightAdapter;
     // UI Components
     private RecyclerView mLeftRecyclerView;
     private RecyclerView mRightRecyclerView;
@@ -113,15 +114,16 @@ public class NewWorkoutFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDefaultSets = new ArrayList<>();
-        mUserSets = new ArrayList<>();
+        mUserCreatedSets = new ArrayList<>();
+        mUsersSets = new ArrayList<>();
         mDefaultSets.add(new Set("Set 1", "Descrip 1", 10000));
         mDefaultSets.add(new Set("Set 2", "Descrip 1", 10000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
-        mUserSets.add(new Set("My Set", "Descrip", 50000));
+        mUserCreatedSets.add(new Set("User Created", "Made by Tyler", 50000));
+        mUsersSets.add(new Set("My First Set", "First Set", 60000));
 
         mNewWorkout = new Workout(mParentActivity.getNextWorkoutId(), "No Name");
 
-        mNewWorkout.addSets(mUserSets);
+        mNewWorkout.addSets(mUserCreatedSets);
     }
 
     @Nullable
@@ -139,10 +141,14 @@ public class NewWorkoutFragment extends Fragment {
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mLeftAdapter = new SetAdapter(getContext(), mCoordLayout, false);
+        mLeftAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.LEFT_VIEW);
         mLeftRecyclerView.setAdapter(mLeftAdapter);
-        mLeftAdapter.setData(mDefaultSets);
+        mLeftAdapter.setDefaultSets(mDefaultSets);
+        mLeftAdapter.setUserCreated(mUserCreatedSets);
         mLeftAdapter.notifyDataSetChanged();
+        mLeftAdapter.shouldShowHeadersForEmptySections(true);
+        mLeftAdapter.shouldShowFooters(false);
+
 
         int leftDragDirs = 0;
         int leftSwipeDirs = 0;
@@ -164,10 +170,13 @@ public class NewWorkoutFragment extends Fragment {
         mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
         mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mRightAdapter = new SetAdapter(getContext(), mCoordLayout, true);
+        mRightAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.RIGHT_VIEW);
         mRightRecyclerView.setAdapter(mRightAdapter);
-        mRightAdapter.setData(mUserSets);
+        mRightAdapter.setUserSets(mUsersSets);
         mRightAdapter.notifyDataSetChanged();
+        mRightAdapter.shouldShowHeadersForEmptySections(true);
+        mRightAdapter.shouldShowFooters(false);
+
 
         int rightDragDirs = 0;
         int rightSwipeDirs = 0;
@@ -182,6 +191,20 @@ public class NewWorkoutFragment extends Fragment {
 
             }
         });
+
+        //region old_code
+        /*
+        mLeftAdapter = new SetAdapter(getContext(), mCoordLayout, false);
+        mLeftRecyclerView.setAdapter(mLeftAdapter);
+        mLeftAdapter.setData(mDefaultSets);
+        mLeftAdapter.notifyDataSetChanged();
+
+        mRightAdapter = new SetAdapter(getContext(), mCoordLayout, true);
+        mRightRecyclerView.setAdapter(mRightAdapter);
+        mRightAdapter.setData(mUserCreatedSets);
+        mRightAdapter.notifyDataSetChanged();
+        */
+        //endregion
             //endregion
         //endregion
         return view;

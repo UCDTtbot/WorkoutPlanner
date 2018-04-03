@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="@dimen/list_half_vertical_size"
     android:background="?selectableItemBackground"
     android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
@@ -10,11 +10,11 @@
 
     <TextView
         android:id="@+id/header_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        style="@style/TextAppearance.AppCompat.Subhead"
+        style="@style/TextAppearance.AppCompat.Body1"
         android:layout_toStartOf="@id/caret"
         android:text="Title"/>
 

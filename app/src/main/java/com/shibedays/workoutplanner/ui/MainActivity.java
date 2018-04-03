@@ -29,6 +29,7 @@ import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.ui.adapters.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
@@ -44,7 +45,8 @@ import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
 public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
-                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItems {
+                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItems,
+                                                                SectionedSetAdapter.SectionedSetListener {
 
     //region CONSTANTS
     // Package and Debug Constants
