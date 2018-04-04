@@ -41,7 +41,7 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
     private GestureDetector mGestureDetector;
 
     private int mSwipedPos = -1;
-    private float mSwipedThreshold = 0.5f;
+    private float mSwipedThreshold = 0.25f;
     private Map<Integer, List<UnderlayButton>> mButtonsBuffer;
     private Queue<Integer> mRecoverQueue;
 
@@ -178,7 +178,7 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
 
     @Override
     public float getSwipeEscapeVelocity(float defaultValue) {
-        return 1.25f * defaultValue;
+        return 1.5f * defaultValue;
     }
 
     @Override
