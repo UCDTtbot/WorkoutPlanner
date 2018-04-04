@@ -1,11 +1,9 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +36,10 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
     private String mSetName;
     // UI Components
     private TextView mTitleTextView;
-    private LinearLayout mEdit;
-    private LinearLayout mDelete;
+
+    private LinearLayout mTopLine;
+
+    private LinearLayout mBottomLine;
     //endregion
 
     //region INTERFACES
@@ -79,13 +79,13 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.edit_delete_bottom_sheet, container, false);
+        View view = inflater.inflate(R.layout.bottom_sheet, container, false);
 
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
         mTitleTextView.setText(mSetName);
 
-        mEdit = view.findViewById(R.id.bottom_sheet_edit);
-        mEdit.setOnClickListener(new View.OnClickListener() {
+        mTopLine = view.findViewById(R.id.bottom_sheet_top);
+        mTopLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.editItem(mSetIndex);
@@ -93,8 +93,8 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
             }
         });
 
-        mDelete = view.findViewById(R.id.bottom_sheet_delete);
-        mDelete.setOnClickListener(new View.OnClickListener() {
+        mBottomLine = view.findViewById(R.id.bottom_sheet_bottom);
+        mBottomLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.deleteItem(mSetIndex);

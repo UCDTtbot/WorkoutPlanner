@@ -1,18 +1,19 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -41,15 +42,22 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
     private LiveData<Workout> mWorkoutLiveData;
     // UI Components
     private TextView mTitleTextView;
-    private LinearLayout mEdit;
-    private LinearLayout mDelete;
+
+    private LinearLayout mTopLine;
+    private TextView mTopText;
+
+    private LinearLayout mBottomLine;
+    private TextView mBottomText;
+
+    private ImageView mTopIc;
+    private ImageView mBotIc;
     // View Model
     private WorkoutViewModel mViewModel;
     //endregion
 
     //region INTERFACES
     public interface WorkoutBottomSheetDialogListener {
-        void editItem(int index);
+        void duplicateWorkout(int index);
         void deleteItem(int index);
     }
     WorkoutBottomSheetDialogListener mListener;
@@ -98,6 +106,7 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
         }
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return super.onCreateDialog(savedInstanceState);
@@ -105,20 +114,25 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.edit_delete_bottom_sheet, container, false);
+        View view = inflater.inflate(R.layout.bottom_sheet, container, false);
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
 
-        mEdit = view.findViewById(R.id.bottom_sheet_edit);
-        mEdit.setOnClickListener(new View.OnClickListener() {
+        mTopIc   = view.findViewById(R.id.bottom_sheet_top_ic);
+        mTopText = view.findViewById(R.id.bottom_sheet_top_text);
+        mTopLine = view.findViewById(R.id.bottom_sheet_top);
+
+        mTopText.setText(R.string.bottom_sheet_dup);
+        mTopLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.editItem(mWorkoutIndex);
+                mListener.duplicateWorkout(mWorkoutIndex);
                 dismiss();
             }
         });
 
-        mDelete = view.findViewById(R.id.bottom_sheet_delete);
-        mDelete.setOnClickListener(new View.OnClickListener() {
+        mBottomText = view.findViewById(R.id.bottom_sheet_bottom_text);
+        mBottomLine = view.findViewById(R.id.bottom_sheet_bottom);
+        mBottomLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.deleteItem(mWorkoutIndex);

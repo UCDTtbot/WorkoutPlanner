@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -18,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -26,10 +24,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper;
+import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.adapters.SectionedSetAdapter;
+import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
@@ -41,12 +39,9 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
-
 
 public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
-                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItems,
-                                                                SectionedSetAdapter.SectionedSetListener {
+                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItems{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -150,7 +145,10 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
 
-        ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, true, ItemTouchHelper.UP | ItemTouchHelper.DOWN, true, mRecyclerView) {
+            //region item_touch_helper
+        /*
+        int dragDirs = 0;
+        ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, false, false, dragDirs ,mRecyclerView) {
             @Override
             public void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new ListItemTouchHelper.UnderlayButton(R.drawable.ic_delete_white_24dp,
@@ -164,6 +162,9 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
                 }));
             }
         };
+        */
+            //endregion
+
         //endregion
 
         //region TOOLBAR
@@ -362,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         //endregion
 
         //region BOTTOM_SHEET
+
     @Override
     public void onWorkoutLongClick(int workoutIndex, int workoutID) {
         openBottomDialog(workoutIndex, workoutID);
@@ -391,23 +393,11 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
             //endregion
 
-        //endregion
-
-        //region EDIT_WORKOUT
     @Override
-    public void editItem(int index) {
-        editWorkout(index);
+    public void duplicateWorkout(int index) {
+
     }
 
-    public void editWorkout(int workoutIndex){
-        AddEditWorkoutDialog editWorkoutDialog = new AddEditWorkoutDialog();
-        Bundle args = new Bundle();
-        args.putInt(AddEditWorkoutDialog.EXTRA_DIALOG_TYPE, AddEditWorkoutDialog.EDIT_WORKOUT);
-        args.putString(AddEditWorkoutDialog.EXTRA_WORKOUT_NAME, mWorkoutData.get(workoutIndex).getName());
-        args.putInt(AddEditWorkoutDialog.EXTRA_WORKOUT_INDEX, workoutIndex);
-        editWorkoutDialog.setArguments(args);
-        editWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
-    }
 
     //region OLD_EDIT_WORKOUT_CODE
     /*
@@ -421,9 +411,10 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         }
     }
     */
-            //endregion
+    //endregion
 
-        //endregion
+
+    //endregion
 
     //endregion
 

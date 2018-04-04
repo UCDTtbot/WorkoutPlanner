@@ -1,12 +1,7 @@
-package com.shibedays.workoutplanner.ui.adapters;
+package com.shibedays.workoutplanner.ui.helpers;
 
-import android.content.ClipData;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -18,26 +13,22 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
-import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ui.adapters.PendingRemovalAdapter;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import javax.crypto.spec.DESedeKeySpec;
-
 public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = ListItemTouchHelper.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.ListItemTouchHelper.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper.";
 
     private static final int BUTTON_WIDTH = 204; //PIXEL WIDTH PER BUTTON
     //endregion
@@ -112,7 +103,7 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
     // Constructor
 
 
-    public ListItemTouchHelper(Context context, boolean draggable, int dragDirs, boolean swipeable, RecyclerView recyclerView) {
+    public ListItemTouchHelper(Context context, boolean draggable, boolean swipeable, int dragDirs, RecyclerView recyclerView) {
         super(dragDirs, ItemTouchHelper.LEFT);
         mContext = context;
 
@@ -143,10 +134,10 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
         mGestureDetector = new GestureDetector(context, mGestureListener);
 
         mDraggable = draggable;
-        mDragDirs = dragDirs;
+        mDragDirs = mDraggable ? dragDirs : 0;
 
         mSwipeable = swipeable;
-        mSwipeDirs = ItemTouchHelper.LEFT;
+        mSwipeDirs = mSwipeable ? ItemTouchHelper.LEFT : 0;
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(this);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -240,7 +231,6 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
             right = left;
         }
     }
-
 
     public abstract void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons);
 

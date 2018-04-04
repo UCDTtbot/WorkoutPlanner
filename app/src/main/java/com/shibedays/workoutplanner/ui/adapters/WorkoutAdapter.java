@@ -54,8 +54,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             sets = itemView.findViewById(R.id.item_sets);
 
             itemView.setOnClickListener(this);
-            //itemView.setOnLongClickListener(this);
-            //rounds = itemView.findViewById(R.id.item_rounds);
+            itemView.setOnLongClickListener(this);
 
             TEST_POS_ID = itemView.findViewById(R.id.TEST_POS_ID);
             TEST_WRK_ID = itemView.findViewById(R.id.TEST_WRK_ID);
@@ -74,7 +73,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
         @Override
         public void onClick(View v) {
-            // Go to the Workout Activity
             // TODO: Go to the my_workout activity with the given current curWorkout
             mListener.onWorkoutClicked(curWorkout.getWorkoutID());
         }
@@ -82,7 +80,6 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         @Override
         public boolean onLongClick(View view) {
             mListener.onWorkoutLongClick(mWorkoutData.indexOf(curWorkout), curWorkout.getWorkoutID());
-            // return true to indicate the click was handled
             return true;
         }
 

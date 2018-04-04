@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui.adapters;
+package com.shibedays.workoutplanner.ui.adapters.sectioned;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

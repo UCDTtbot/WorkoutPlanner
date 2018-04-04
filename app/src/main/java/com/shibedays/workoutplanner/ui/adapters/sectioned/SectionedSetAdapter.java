@@ -1,7 +1,9 @@
-package com.shibedays.workoutplanner.ui.adapters;
+package com.shibedays.workoutplanner.ui.adapters.sectioned;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +24,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
     //region CONSTANTS
     private static final String DEBUG_TAG = SectionedSetAdapter.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.SectionedSetAdapter.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter.";
 
     // Sections
     public static final int DEFAULT_AND_USER_SETS = 0;
@@ -44,6 +46,8 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         // Header
         private ImageView caret;
         private TextView title;
+        // Footer
+        private CardView footerCard;
         // Is Binding
         private boolean onBind;
         // Adapter
@@ -57,7 +61,8 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             // List Item Views
             setNameTextView = itemView.findViewById(R.id.set_name);
             timeTextView = itemView.findViewById(R.id.set_time);
-
+            // Header Item Views
+            footerCard = itemView.findViewById(R.id.add_set_card_view);
             this.adapter = adapter;
 
             itemView.setOnClickListener(this);
@@ -101,12 +106,22 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             onBind = false;
         }
 
+        void bindFooter(int section){
+            if(section != USER_CREATED_SECTION){
+                footerCard.setVisibility(View.GONE);
+            } else {
+                footerCard.setVisibility(View.VISIBLE);
+            }
+        }
+
         @Override
         public void onClick(View v) {
             if(isHeader()){
                 adapter.toggleSectionExpanded(getRelativePosition().section());
+            } else if (isFooter()){
+                Log.d(DEBUG_TAG, "clicked footer");
             } else {
-                //TODO: Send to the other RV
+                mListener.onClick(curSet);
             }
         }
 
@@ -134,13 +149,13 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
     //region INTERFACES
     public interface SectionedSetListener{
-
+        void onClick(Set set);
     }
     private SectionedSetListener mListener;
     //endregion
 
     //region LIFECYCLE
-    public SectionedSetAdapter(Context context, int adapterType){
+    public SectionedSetAdapter(Context context, int adapterType, SectionedSetListener listener){
         mContext = context;
 
         mUserSetData = new ArrayList<>();
@@ -152,11 +167,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
         mAdapterType = adapterType;
 
-        if(context instanceof SectionedSetListener){
-            mListener = (SectionedSetListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement SectionedSetListener");
-        }
+        mListener = listener;
     }
 
     @NonNull
@@ -173,6 +184,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
                 mItemSetup = true;
                 break;
             case VIEW_TYPE_FOOTER:
+                layout = R.layout.list_set_footer;
                 break;
             default:
                 layout = R.layout.list_set_items;
@@ -204,6 +216,11 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
                 throw new RuntimeException(DEBUG_TAG + " set doesn't exist in any lists");
         }
         holder.bindToItem(curSet);
+    }
+
+    @Override
+    public void onBindFooterViewHolder(SectionedSetViewHolder holder, int section) {
+        holder.bindFooter(section);
     }
     //endregion
 
@@ -243,12 +260,11 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
     public void setUserSets(List<Set> sets){
         mUserSetData = sets;
     }
-    //endregion
 
-    //region UNUSED
-    @Override
-    public void onBindFooterViewHolder(SectionedSetViewHolder holder, int section) {
-
+    public void addToUserSets(Set set){
+        mUserSetData.add(set);
+        //notifyItemInserted(mUserSetData.indexOf(set));
+        notifyDataSetChanged();
     }
     //endregion
 }

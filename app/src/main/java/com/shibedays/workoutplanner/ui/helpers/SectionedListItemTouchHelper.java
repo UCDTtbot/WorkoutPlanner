@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui.adapters;
+package com.shibedays.workoutplanner.ui.helpers;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -14,6 +14,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedPendingRemovalAdapter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,7 +28,7 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = SectionedListItemTouchHelper.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.SectionedListItemTouchHelper.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper.";
 
     private static final int BUTTON_WIDTH = 204; //PIXEL WIDTH PER BUTTON
     //endregion

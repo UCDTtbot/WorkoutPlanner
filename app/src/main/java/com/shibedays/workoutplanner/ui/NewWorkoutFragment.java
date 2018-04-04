@@ -22,7 +22,7 @@ import android.widget.Button;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.adapters.SectionedSetAdapter;
+import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,8 +122,7 @@ public class NewWorkoutFragment extends Fragment {
         mUsersSets.add(new Set("My First Set", "First Set", 60000));
 
         mNewWorkout = new Workout(mParentActivity.getNextWorkoutId(), "No Name");
-
-        mNewWorkout.addSets(mUserCreatedSets);
+        mNewWorkout.addSets(mUsersSets);
     }
 
     @Nullable
@@ -141,28 +140,20 @@ public class NewWorkoutFragment extends Fragment {
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mLeftAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.LEFT_VIEW);
+        mLeftAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.LEFT_VIEW, new SectionedSetAdapter.SectionedSetListener() {
+            @Override
+            public void onClick(Set setToAdd) {
+                //TODO: Move to mRightAdapter
+                mRightAdapter.addToUserSets(setToAdd);
+                mNewWorkout.addSet(setToAdd);
+            }
+        });
         mLeftRecyclerView.setAdapter(mLeftAdapter);
         mLeftAdapter.setDefaultSets(mDefaultSets);
         mLeftAdapter.setUserCreated(mUserCreatedSets);
         mLeftAdapter.notifyDataSetChanged();
         mLeftAdapter.shouldShowHeadersForEmptySections(true);
-        mLeftAdapter.shouldShowFooters(false);
-
-
-        int leftDragDirs = 0;
-        int leftSwipeDirs = 0;
-        ItemTouchHelper left_helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(leftDragDirs, leftSwipeDirs) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-
-            }
-        });
+        mLeftAdapter.shouldShowFooters(true);
 
             //endregion
 
@@ -170,27 +161,18 @@ public class NewWorkoutFragment extends Fragment {
         mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
         mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mRightAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.RIGHT_VIEW);
+        mRightAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.RIGHT_VIEW, new SectionedSetAdapter.SectionedSetListener() {
+            @Override
+            public void onClick(Set set) {
+                //TODO: Delete?
+            }
+        });
         mRightRecyclerView.setAdapter(mRightAdapter);
         mRightAdapter.setUserSets(mUsersSets);
         mRightAdapter.notifyDataSetChanged();
         mRightAdapter.shouldShowHeadersForEmptySections(true);
         mRightAdapter.shouldShowFooters(false);
 
-
-        int rightDragDirs = 0;
-        int rightSwipeDirs = 0;
-        ItemTouchHelper right_helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(rightDragDirs, rightSwipeDirs) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-
-            }
-        });
 
         //region old_code
         /*

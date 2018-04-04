@@ -11,35 +11,38 @@
         style="@style/ListTitle"/>
 
     <LinearLayout
-        android:id="@+id/bottom_sheet_edit"
+        android:id="@+id/bottom_sheet_top"
         style="@style/BottomSheetLinearRow">
 
         <ImageView
-            android:id="@+id/edit_ic_btm_sheet"
+            android:id="@+id/bottom_sheet_top_ic"
             android:src="@drawable/ic_edit_black_24dp"
             style="@style/BottomSheetImage"/>
         <TextView
+            android:id="@+id/bottom_sheet_top_text"
             android:text="@string/bottom_sheet_edit"
             style="@style/BottomSheetText" />
 
     </LinearLayout>
 
-    <View style="@style/Divider"/>
+    <!-- <View style="@style/Divider"/> -->
 
     <LinearLayout
-        android:id="@+id/bottom_sheet_delete"
+        android:id="@+id/bottom_sheet_bottom"
         style="@style/BottomSheetLinearRow">
 
         <ImageView
-            android:id="@+id/delete_ic_btm_sheet"
+            android:id="@+id/bottom_sheet_bottom_ic"
             android:src="@drawable/ic_delete_black_24dp"
             style="@style/BottomSheetImage" />
         <TextView
+            android:id="@+id/bottom_sheet_bottom_text"
             android:text="@string/bottom_sheet_delete"
             style="@style/BottomSheetText"/>
 
     </LinearLayout>
 
+    <View style="@style/Divider" />
 
 
 

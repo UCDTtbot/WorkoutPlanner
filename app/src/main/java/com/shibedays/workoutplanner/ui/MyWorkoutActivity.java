@@ -29,7 +29,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.shibedays.workoutplanner.ui.adapters.SectionedListItemTouchHelper;
+import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;

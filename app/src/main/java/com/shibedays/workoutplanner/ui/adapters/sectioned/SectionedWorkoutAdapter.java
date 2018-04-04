@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui.adapters;
+package com.shibedays.workoutplanner.ui.adapters.sectioned;
 
 import android.content.Context;
 import android.os.Handler;
@@ -17,6 +17,7 @@ import android.widget.ToggleButton;
 import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class SectionedWorkoutAdapter extends SectionedPendingRemovalAdapter<Sect
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
     // Package and Debug Constants
     private static final String DEBUG_TAG = SectionedWorkoutAdapter.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.SectionedWorkoutAdapter.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedWorkoutAdapter.";
 
     private static final int NUM_SECIONS = 2;
     private static final int FAVORITE = 0;
