@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,11 +26,9 @@ import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditWorkoutDialog;
 import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
@@ -41,7 +38,7 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
-                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItems{
+                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItemsListener {
 
     //region CONSTANTS
     // Package and Debug Constants

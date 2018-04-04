@@ -3,10 +3,12 @@ package com.shibedays.workoutplanner.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -23,9 +25,14 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
+import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
+import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.crypto.spec.DESedeKeySpec;
 
 public class NewWorkoutFragment extends Fragment {
     //region CONSTANTS
@@ -37,8 +44,6 @@ public class NewWorkoutFragment extends Fragment {
     //endregion
 
     //region PRIVATE_VARS
-    // Workout
-    private Workout mNewWorkout;
     // Data
     private List<Set> mDefaultSets;
     private List<Set> mUserCreatedSets;
@@ -120,9 +125,6 @@ public class NewWorkoutFragment extends Fragment {
         mDefaultSets.add(new Set("Set 2", "Descrip 1", 10000));
         mUserCreatedSets.add(new Set("User Created", "Made by Tyler", 50000));
         mUsersSets.add(new Set("My First Set", "First Set", 60000));
-
-        mNewWorkout = new Workout(mParentActivity.getNextWorkoutId(), "No Name");
-        mNewWorkout.addSets(mUsersSets);
     }
 
     @Nullable
@@ -143,15 +145,13 @@ public class NewWorkoutFragment extends Fragment {
         mLeftAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.LEFT_VIEW, new SectionedSetAdapter.SectionedSetListener() {
             @Override
             public void onClick(Set setToAdd) {
-                //TODO: Move to mRightAdapter
                 mRightAdapter.addToUserSets(setToAdd);
-                mNewWorkout.addSet(setToAdd);
+                Log.d(DEBUG_TAG, Integer.toString(mUsersSets.size()));
             }
         });
         mLeftRecyclerView.setAdapter(mLeftAdapter);
         mLeftAdapter.setDefaultSets(mDefaultSets);
         mLeftAdapter.setUserCreated(mUserCreatedSets);
-        mLeftAdapter.notifyDataSetChanged();
         mLeftAdapter.shouldShowHeadersForEmptySections(true);
         mLeftAdapter.shouldShowFooters(true);
 
@@ -169,10 +169,22 @@ public class NewWorkoutFragment extends Fragment {
         });
         mRightRecyclerView.setAdapter(mRightAdapter);
         mRightAdapter.setUserSets(mUsersSets);
-        mRightAdapter.notifyDataSetChanged();
         mRightAdapter.shouldShowHeadersForEmptySections(true);
         mRightAdapter.shouldShowFooters(false);
 
+        SectionedListItemTouchHelper rightItemHelper = new SectionedListItemTouchHelper(getContext(), false, true, 0, mRightRecyclerView){
+            @Override
+            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
+                underlayButtons.add(new UnderlayButton(R.drawable.ic_delete_white_24dp,
+                        ResourcesCompat.getColor(getResources(), R.color.material_red_500, null), getContext(), new UnderlayButtonClickListener() {
+                    @Override
+                    public void onDeleteButtonClick(int pos) {
+                        mRightAdapter.removeFromUserSets(pos);
+                        Log.d(DEBUG_TAG, Integer.toString(mUsersSets.size()));
+                    }
+                }));
+            }
+        };
 
         //region old_code
         /*
@@ -265,12 +277,7 @@ public class NewWorkoutFragment extends Fragment {
     //endregion
 
     public void deleteSet(Set set){
-        mNewWorkout.removeSet(set);
-    }
-
-    public void swapSets(int from, int to){
-        mNewWorkout.swapSets(from, to);
-
+        Log.d(DEBUG_TAG, "Should be deleting?");
     }
 
 }

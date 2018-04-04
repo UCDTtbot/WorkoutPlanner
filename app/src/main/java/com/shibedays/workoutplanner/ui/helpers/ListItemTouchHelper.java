@@ -14,6 +14,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
 import com.shibedays.workoutplanner.ui.adapters.PendingRemovalAdapter;
 
 import java.util.ArrayList;
@@ -93,11 +94,10 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
         }
     };
 
-    public interface SwapItems {
+    public interface SwapItemsListener {
         void swap(int from, int to);
     }
-
-    private SwapItems mListener;
+    private SwapItemsListener mListener;
     //endregion
 
     // Constructor
@@ -111,10 +111,10 @@ public abstract class ListItemTouchHelper extends ItemTouchHelper.SimpleCallback
         mRecyclerView.setOnTouchListener(mOnTouchListener);
         mAdapter = (PendingRemovalAdapter) recyclerView.getAdapter();
 
-        if (context instanceof SwapItems) {
-            mListener = (SwapItems) context;
+        if (context instanceof SwapItemsListener) {
+            mListener = (SwapItemsListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " must implement SwapItems");
+            throw new RuntimeException(context.toString() + " must implement SwapItemsListener");
         }
 
         mButtons = new ArrayList<>();

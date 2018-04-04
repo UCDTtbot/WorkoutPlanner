@@ -4,12 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/set_card_view"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_half_vertical_size"
+    android:layout_height="@dimen/list_45_vert_size"
     android:foreground="?attr/selectableItemBackground"
-    app:cardCornerRadius="12dp"
     android:layout_marginStart="@dimen/activity_shallow_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
-    android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin">
+    android:layout_marginTop="@dimen/activity_quarter_margin"
+    android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin"
+    android:layout_marginBottom="@dimen/activity_quarter_margin">
+
 
     <RelativeLayout
         android:id="@+id/set_list_foreground"

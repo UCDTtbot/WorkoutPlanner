@@ -253,18 +253,24 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
     //region UTILITY
     public void setDefaultSets(List<Set> sets){
         mDefaultSetData = sets;
+        notifyDataSetChanged();
     }
     public void setUserCreated(List<Set> sets){
         mUserCreatedSetData = sets;
+        notifyDataSetChanged();
     }
     public void setUserSets(List<Set> sets){
         mUserSetData = sets;
+        notifyDataSetChanged();
     }
 
     public void addToUserSets(Set set){
         mUserSetData.add(set);
-        //notifyItemInserted(mUserSetData.indexOf(set));
-        notifyDataSetChanged();
+        notifyItemInserted(mUserSetData.size());
+    }
+    public void removeFromUserSets(int pos){
+        mUserSetData.remove((pos - 1)); // account for the header as pos is absolute
+        notifyItemRemoved(pos);
     }
     //endregion
 }

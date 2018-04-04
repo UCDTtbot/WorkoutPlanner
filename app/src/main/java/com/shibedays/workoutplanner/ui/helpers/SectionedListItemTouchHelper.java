@@ -14,6 +14,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedPendingRemovalAdapter;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
     private static final String DEBUG_TAG = SectionedListItemTouchHelper.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper.";
 
-    private static final int BUTTON_WIDTH = 204; //PIXEL WIDTH PER BUTTON
+    private static final int BUTTON_WIDTH = 162; //PIXEL WIDTH PER BUTTON
     //endregion
 
     private Context mContext;
@@ -51,7 +52,7 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
     private boolean mSwipeable;
 
     private RecyclerView mRecyclerView;
-    private SectionedPendingRemovalAdapter mAdapter;
+    private SectionedRecyclerViewAdapter mAdapter;
 
 
     //region INTERFACES
@@ -103,19 +104,13 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
     //endregion
 
     // Constructor
-    public SectionedListItemTouchHelper(Context context, boolean draggable, int dragDirs, boolean swipeable, RecyclerView recyclerView) {
+    public SectionedListItemTouchHelper(Context context, boolean draggable, boolean swipeable, int dragDirs, RecyclerView recyclerView) {
         super(dragDirs, ItemTouchHelper.LEFT);
         mContext = context;
 
         mRecyclerView = recyclerView;
         mRecyclerView.setOnTouchListener(mOnTouchListener);
-        mAdapter = (SectionedPendingRemovalAdapter) recyclerView.getAdapter();
-
-        if (context instanceof SwapItems) {
-            mListener = (SwapItems) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement SwapItems");
-        }
+        mAdapter = (SectionedRecyclerViewAdapter) recyclerView.getAdapter();
 
         mButtons = new ArrayList<>();
         mButtonsBuffer = new HashMap<>();
@@ -248,7 +243,7 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
             mContext = context;
             mColor = color;
             mDeleteIc = context.getResources().getDrawable(imageId, null);
-            mDeleteMargin = 72;
+            mDeleteMargin = 54;
             mBackground = new ColorDrawable(mColor);
             mClickListener = clickListener;
         }
@@ -286,7 +281,7 @@ public abstract class SectionedListItemTouchHelper extends ItemTouchHelper.Simpl
     }
 
     public interface UnderlayButtonClickListener{
-        void onDeleteButtonClick(int absolutePos);
+        void onDeleteButtonClick(int pos);
     }
 }
 
