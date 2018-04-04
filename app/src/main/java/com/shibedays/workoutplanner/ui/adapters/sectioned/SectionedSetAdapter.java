@@ -3,7 +3,6 @@ package com.shibedays.workoutplanner.ui.adapters.sectioned;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +51,10 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         private boolean onBind;
         // Adapter
         private SectionedSetAdapter adapter;
+        // Section and Pos
+        private int section;
+        private int relativePos;
+
 
         public SectionedSetViewHolder(View itemView, SectionedSetAdapter adapter) {
             super(itemView);
@@ -86,10 +89,13 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             }
         }
 
-        void bindToItem(final Set curSet){
+        void bindToItem(final Set curSet, int section, int relPos){
             onBind = true;
             //Populate data when they bind the workouts to the view holder
             this.curSet = curSet;
+
+            this.section = section;
+            relativePos = relPos;
 
             setNameTextView.setText(curSet.getName());
             int[] time = MainActivity.convertFromMillis(curSet.getTime());
@@ -109,6 +115,9 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         void bindFooter(int section){
             if(section != USER_CREATED_SECTION){
                 footerCard.setVisibility(View.GONE);
+                int width = footerCard.getWidth();
+                int height = 0;
+                footerCard.setLayoutParams(new CardView.LayoutParams(width, height));
             } else {
                 footerCard.setVisibility(View.VISIBLE);
             }
@@ -119,7 +128,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             if(isHeader()){
                 adapter.toggleSectionExpanded(getRelativePosition().section());
             } else if (isFooter()){
-                Log.d(DEBUG_TAG, "clicked footer");
+                mListener.createUserSet();
             } else {
                 mListener.onClick(curSet);
             }
@@ -127,8 +136,18 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
         @Override
         public boolean onLongClick(View v) {
-            // TODO: Open Bottom Sheet
-            return false;
+            if(isHeader()){
+                // Nothing
+            } else if (isFooter()){
+                // Nothing
+            } else {
+                if(section == DEFAULT_AND_USER_SETS){
+                    mListener.onLongClicked(curSet);
+                } else if(section == USER_CREATED_SECTION) {
+                    mListener.onUserCreatedLongClicked(curSet);
+                }
+            }
+            return true;
         }
     }
     //endregion
@@ -150,6 +169,9 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
     //region INTERFACES
     public interface SectionedSetListener{
         void onClick(Set set);
+        void createUserSet();
+        void onLongClicked(Set set);
+        void onUserCreatedLongClicked(Set set);
     }
     private SectionedSetListener mListener;
     //endregion
@@ -215,7 +237,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             default:
                 throw new RuntimeException(DEBUG_TAG + " set doesn't exist in any lists");
         }
-        holder.bindToItem(curSet);
+        holder.bindToItem(curSet, section, relativePosition);
     }
 
     @Override
@@ -271,6 +293,11 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
     public void removeFromUserSets(int pos){
         mUserSetData.remove((pos - 1)); // account for the header as pos is absolute
         notifyItemRemoved(pos);
+    }
+
+    public void addToUserCreated(Set set){
+        mUserCreatedSetData.add(set);
+        notifySectionChanged(USER_CREATED_SECTION);
     }
     //endregion
 }

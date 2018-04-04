@@ -25,6 +25,7 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
+import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 
@@ -148,6 +149,30 @@ public class NewWorkoutFragment extends Fragment {
                 mRightAdapter.addToUserSets(setToAdd);
                 Log.d(DEBUG_TAG, Integer.toString(mUsersSets.size()));
             }
+
+            @Override
+            public void createUserSet() {
+                // TODO: Create a new set
+                Bundle bundle = new Bundle();
+                bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.NEW_SET);
+                AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
+                addEditSetDialog.setArguments(bundle);
+                if (getFragmentManager() != null) {
+                    addEditSetDialog.show(getFragmentManager(), DEBUG_TAG);
+                }
+            }
+
+            @Override
+            public void onLongClicked(Set set) {
+                // TODO: Display Info
+                Log.d(DEBUG_TAG, "Left Adapter Default Long Click: Display Info");
+            }
+
+            @Override
+            public void onUserCreatedLongClicked(Set set) {
+                // TODO: User - Bottom Sheet (Edit/Delete)
+                Log.d(DEBUG_TAG, "Left Adapter User Created Long Click: Bottom Sheet");
+            }
         });
         mLeftRecyclerView.setAdapter(mLeftAdapter);
         mLeftAdapter.setDefaultSets(mDefaultSets);
@@ -164,7 +189,23 @@ public class NewWorkoutFragment extends Fragment {
         mRightAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.RIGHT_VIEW, new SectionedSetAdapter.SectionedSetListener() {
             @Override
             public void onClick(Set set) {
-                //TODO: Delete?
+                // Nothing
+            }
+
+            @Override
+            public void createUserSet() {
+                throw new RuntimeException(DEBUG_TAG + " createUserSet called within mRightAdapter. Footer shouldn't exist");
+            }
+
+            @Override
+            public void onLongClicked(Set set) {
+                // TODO: Bottom Sheet (Edit/Delete)
+                Log.d(DEBUG_TAG, "Right Adapter Long Clicked: Bottom Sheet");
+            }
+
+            @Override
+            public void onUserCreatedLongClicked(Set set) {
+                // Nothing
             }
         });
         mRightRecyclerView.setAdapter(mRightAdapter);
@@ -172,7 +213,7 @@ public class NewWorkoutFragment extends Fragment {
         mRightAdapter.shouldShowHeadersForEmptySections(true);
         mRightAdapter.shouldShowFooters(false);
 
-        SectionedListItemTouchHelper rightItemHelper = new SectionedListItemTouchHelper(getContext(), false, true, 0, mRightRecyclerView){
+        SectionedListItemTouchHelper rightItemHelper = new SectionedListItemTouchHelper(getContext(), false, true, 0, mRightRecyclerView, false){
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
                 underlayButtons.add(new UnderlayButton(R.drawable.ic_delete_white_24dp,
@@ -278,6 +319,11 @@ public class NewWorkoutFragment extends Fragment {
 
     public void deleteSet(Set set){
         Log.d(DEBUG_TAG, "Should be deleting?");
+    }
+
+
+    public void addUserCreatedSet(Set set){
+        mLeftAdapter.addToUserCreated(set);
     }
 
 }

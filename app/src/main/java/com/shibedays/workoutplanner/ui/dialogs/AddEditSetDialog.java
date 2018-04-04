@@ -15,9 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.NumberPicker;
 
+import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.Locale;
@@ -50,7 +51,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     private NumberPicker mMinutePicker;
     private NumberPicker mSecondPicker;
     // Utility
-    private MyWorkoutActivity mParentActivity;
+    private MainActivity mParentActivity;
     //endregion
 
     //region INTERFACES
@@ -63,6 +64,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     //endregion
 
     //region LIFECYCLE
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -77,7 +79,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mParentActivity = (MyWorkoutActivity) getActivity();
+        mParentActivity = (MainActivity) getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
@@ -92,6 +94,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
         mMinutePicker.setMaxValue(30);
         mMinutePicker.setWrapSelectorWheel(true);
         mMinutePicker.setOnValueChangedListener(this);
+        mMinutePicker.setFadingEdgeEnabled(true);
 
         mSecondPicker = number_spinners.findViewById(R.id.SecondsPicker);
         mSecondPicker.setMinValue(1);
@@ -105,6 +108,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
         });
         mSecondPicker.setWrapSelectorWheel(true);
         mSecondPicker.setOnValueChangedListener(this);
+        mSecondPicker.setFadingEdgeEnabled(true);
 
         Bundle args = getArguments();
         if(args!= null){
@@ -163,9 +167,8 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        mEditTextName.requestFocus();
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        //mEditTextName.requestFocus();
+        //getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 

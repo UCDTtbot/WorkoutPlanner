@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
+import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -38,7 +39,8 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
-                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItemsListener {
+                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItemsListener,
+                                                                AddEditSetDialog.AddSetDialogListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -447,5 +449,21 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         Workout wrkTo = mWorkoutData.get(to);
         mWorkoutData.set(from, wrkTo);
         mWorkoutData.set(to, wrkFrom);
+    }
+
+
+
+
+    // addint sets
+    @Override
+    public void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec) {
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.addUserCreatedSet(new Set(name, descrip, MainActivity.convertToMillis(min, sec)));
+        }
+    }
+
+    @Override
+    public void onEditSetDialogPositiveClick(int index, String name, String descrip, int min, int sec) {
+
     }
 }
