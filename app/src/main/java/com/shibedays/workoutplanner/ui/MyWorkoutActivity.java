@@ -467,7 +467,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     }
 
     @Override
-    public void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec) {
+    public void addUserCreatedSet(String name, String descrip, int min, int sec) {
         // TODO: add description to the add new set
         Set newSet = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
         mWorkoutData.addSet(newSet);
@@ -571,43 +571,29 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         setBottomSheetDialog.show(mFragmentManager, setBottomSheetDialog.getTag());
     }
 
-            //region EDIT
+
+    //TODO : FIX THIS SHIT
     @Override
-    public void editItem(int index) {
-        editSet(index);
+    public void bottomSheetTopRowClicked(int index, int section) {
+
     }
 
     private void editSet(int setIndex){
-        AddEditSetDialog editSetDialog = new AddEditSetDialog();
-        Bundle args = new Bundle();
-        Set curSet = mSetList.get(setIndex);
-        args.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.EDIT_SET);
-        args.putInt(AddEditSetDialog.EXTRA_SET_INDEX, setIndex);
-        args.putString(AddEditSetDialog.EXTRA_SET_NAME, curSet.getName());
-        args.putString(AddEditSetDialog.EXTRA_SET_DESCIP, curSet.getDescrip());
-        int[] time = MainActivity.convertFromMillis(curSet.getTime());
-        args.putInt(AddEditSetDialog.EXTRA_SET_MIN, time[0]);
-        args.putInt(AddEditSetDialog.EXTRA_SET_SEC, time[1]);
-        editSetDialog.setArguments(args);
-        editSetDialog.show(mFragmentManager, DEBUG_TAG);
+
     }
 
     @Override
-    public void onEditSetDialogPositiveClick(int index, String name, String descrip, int min, int sec) {
-        Set editSet = mSetList.get(index);
-        editSet.setName(name);
-        editSet.setDescrip(descrip);
-        editSet.setTime(MainActivity.convertToMillis(min, sec));
-        mWorkoutData.updateSet(editSet, index);
-        mViewModel.update(mWorkoutData);
-    }
-            //endregion
+    public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
 
-            //region DELETE
+    }
     @Override
-    public void deleteItem(int index) {
-        SetAdapter adapter = (SetAdapter) mRecyclerView.getAdapter();
-        adapter.pendingRemoval(index);
+    public void editUserSet(int index, String name, String descrip, int min, int sec) {
+
+    }
+
+    @Override
+    public void bottomSheetBottomRowClicked(int index, int section) {
+
     }
 
     @Override

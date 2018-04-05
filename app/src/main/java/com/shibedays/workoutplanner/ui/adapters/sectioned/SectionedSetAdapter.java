@@ -142,9 +142,9 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
                 // Nothing
             } else {
                 if(section == DEFAULT_AND_USER_SETS){
-                    mListener.onLongClicked(curSet);
+                    mListener.onLongClick(curSet, section, relativePos);
                 } else if(section == USER_CREATED_SECTION) {
-                    mListener.onUserCreatedLongClicked(curSet);
+                    mListener.onUserCreatedLongClicked(curSet, section, relativePos);
                 }
             }
             return true;
@@ -170,8 +170,8 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
     public interface SectionedSetListener{
         void onClick(Set set);
         void createUserSet();
-        void onLongClicked(Set set);
-        void onUserCreatedLongClicked(Set set);
+        void onLongClick(Set set, int section, int relativePos);
+        void onUserCreatedLongClicked(Set set, int section, int relativePos);
     }
     private SectionedSetListener mListener;
     //endregion
@@ -291,7 +291,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         notifyItemInserted(mUserSetData.size());
     }
     public void removeFromUserSets(int pos){
-        mUserSetData.remove((pos - 1)); // account for the header as pos is absolute
+        mUserSetData.remove((pos)); // account for the header as pos is absolute
         notifyItemRemoved(pos);
     }
 

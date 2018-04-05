@@ -26,6 +26,7 @@ import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 
@@ -42,6 +43,8 @@ public class NewWorkoutFragment extends Fragment {
     // Package and Debug Constants
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.NewWorkoutFragment.";
     private static final String DEBUG_TAG = NewWorkoutFragment.class.getSimpleName();
+    public static int LEFT_SIDE = 0;
+    public static int RIGHT_SIDE = 1;
     //endregion
 
     //region PRIVATE_VARS
@@ -163,14 +166,35 @@ public class NewWorkoutFragment extends Fragment {
             }
 
             @Override
-            public void onLongClicked(Set set) {
+            public void onLongClick(Set set, int section, int relPos) {
                 // TODO: Display Info
+                Bundle bundle = new Bundle();
+                bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.DISPLAY_SET);
+                bundle.putString(AddEditSetDialog.EXTRA_SET_NAME, set.getName());
+                bundle.putString(AddEditSetDialog.EXTRA_SET_DESCIP, set.getDescrip());
+                int[] time = MainActivity.convertFromMillis(set.getTime());
+                bundle.putInt(AddEditSetDialog.EXTRA_SET_MIN, time[0]);
+                bundle.putInt(AddEditSetDialog.EXTRA_SET_SEC, time[1]);
+                AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
+                addEditSetDialog.setArguments(bundle);
+                if(getFragmentManager() != null){
+                    addEditSetDialog.show(getFragmentManager(), DEBUG_TAG);
+                }
                 Log.d(DEBUG_TAG, "Left Adapter Default Long Click: Display Info");
             }
 
             @Override
-            public void onUserCreatedLongClicked(Set set) {
+            public void onUserCreatedLongClicked(Set set, int section, int relPos) {
                 // TODO: User - Bottom Sheet (Edit/Delete)
+                Bundle bundle = new Bundle();
+                bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, set.getName());
+                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, relPos);
+                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_SECTION, LEFT_SIDE);
+                SetBottomSheetDialog setBottomSheetDialog = new SetBottomSheetDialog();
+                setBottomSheetDialog.setArguments(bundle);
+                if(getFragmentManager() != null){
+                    setBottomSheetDialog.show(getFragmentManager(), DEBUG_TAG);
+                }
                 Log.d(DEBUG_TAG, "Left Adapter User Created Long Click: Bottom Sheet");
             }
         });
@@ -198,13 +222,22 @@ public class NewWorkoutFragment extends Fragment {
             }
 
             @Override
-            public void onLongClicked(Set set) {
+            public void onLongClick(Set set, int section, int relPos) {
                 // TODO: Bottom Sheet (Edit/Delete)
+                Bundle bundle = new Bundle();
+                bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, set.getName());
+                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, relPos);
+                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_SECTION, RIGHT_SIDE);
+                SetBottomSheetDialog setBottomSheetDialog = new SetBottomSheetDialog();
+                setBottomSheetDialog.setArguments(bundle);
+                if(getFragmentManager() != null){
+                    setBottomSheetDialog.show(getFragmentManager(), DEBUG_TAG);
+                }
                 Log.d(DEBUG_TAG, "Right Adapter Long Clicked: Bottom Sheet");
             }
 
             @Override
-            public void onUserCreatedLongClicked(Set set) {
+            public void onUserCreatedLongClicked(Set set, int section, int relPos) {
                 // Nothing
             }
         });
@@ -220,7 +253,7 @@ public class NewWorkoutFragment extends Fragment {
                         ResourcesCompat.getColor(getResources(), R.color.material_red_500, null), getContext(), new UnderlayButtonClickListener() {
                     @Override
                     public void onDeleteButtonClick(int pos) {
-                        mRightAdapter.removeFromUserSets(pos);
+                        mRightAdapter.removeFromUserSets(pos - 1); // pos in this case is absolute, so ( - 1) to account for the header
                         Log.d(DEBUG_TAG, Integer.toString(mUsersSets.size()));
                     }
                 }));
@@ -317,13 +350,76 @@ public class NewWorkoutFragment extends Fragment {
 
     //endregion
 
-    public void deleteSet(Set set){
-        Log.d(DEBUG_TAG, "Should be deleting?");
-    }
+    //region UTILITY
 
+    //region USER_CREATED_SETS
+    public void editUserCreatedSet(int pos, int section){
+        Set set = mUserCreatedSets.get(pos);
+        Bundle bundle = new Bundle();
+        bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.EDIT_SET);
+        bundle.putString(AddEditSetDialog.EXTRA_SET_NAME, set.getName());
+        bundle.putString(AddEditSetDialog.EXTRA_SET_DESCIP, set.getDescrip());
+        int[] time = MainActivity.convertFromMillis(set.getTime());
+        bundle.putInt(AddEditSetDialog.EXTRA_SET_MIN, time[0]);
+        bundle.putInt(AddEditSetDialog.EXTRA_SET_SEC, time[1]);
+        bundle.putInt(AddEditSetDialog.EXTRA_SET_SECTION, section);
+        AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
+        addEditSetDialog.setArguments(bundle);
+        if(getFragmentManager() != null){
+            addEditSetDialog.show(getFragmentManager(), DEBUG_TAG);
+        }
+    }
+    public void updateUserCreatedSet(int index, String name, String descrip, int min, int sec){
+        Set set = mUserCreatedSets.get(index);
+        set.setName(name);
+        set.setDescrip(descrip);
+        set.setTime(MainActivity.convertToMillis(min, sec));
+        mLeftAdapter.notifyDataSetChanged();
+    }
 
     public void addUserCreatedSet(Set set){
         mLeftAdapter.addToUserCreated(set);
     }
+
+    public void deleteUserCreatedSet(int pos){
+        mUserCreatedSets.remove(pos);
+        mLeftAdapter.notifyDataSetChanged();
+    }
+    //endregion
+
+    //region USER_SETS
+    public void editUserSet(int pos, int section) {
+        Set set = mUsersSets.get(pos);
+        Bundle bundle = new Bundle();
+        bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.EDIT_SET);
+        bundle.putString(AddEditSetDialog.EXTRA_SET_NAME, set.getName());
+        bundle.putString(AddEditSetDialog.EXTRA_SET_DESCIP, set.getDescrip());
+        int[] time = MainActivity.convertFromMillis(set.getTime());
+        bundle.putInt(AddEditSetDialog.EXTRA_SET_MIN, time[0]);
+        bundle.putInt(AddEditSetDialog.EXTRA_SET_SEC, time[1]);
+        bundle.putInt(AddEditSetDialog.EXTRA_SET_SECTION, section);
+        AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
+        addEditSetDialog.setArguments(bundle);
+        if(getFragmentManager() != null){
+            addEditSetDialog.show(getFragmentManager(), DEBUG_TAG);
+        }
+    }
+    public void updateUserSet(int index, String name, String descrip, int min, int sec){
+        Set set = mUsersSets.get(index);
+        set.setName(name);
+        set.setDescrip(descrip);
+        set.setTime(MainActivity.convertToMillis(min, sec));
+        mRightAdapter.notifyDataSetChanged();
+    }
+
+    public void deleteUserSet(int pos){
+        mRightAdapter.removeFromUserSets(pos);
+    }
+    //endregion
+
+
+
+
+    //endregion
 
 }
