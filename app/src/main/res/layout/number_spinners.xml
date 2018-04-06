@@ -23,11 +23,13 @@
             app:np_selectedTextSize="16sp"
             app:np_textSize="12sp"
             android:descendantFocusability="blocksDescendants" />
+
         <TextView
             android:id="@+id/MinutesLabel"
-            android:text="@string/minute_label"
+            style="@style/NumberPickerLabel"
             android:layout_below="@+id/MinutePicker"
-            style="@style/NumberPickerLabel"/>
+            android:text="@string/minute_label"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <TextView
@@ -53,9 +55,10 @@
 
         <TextView
             android:id="@+id/SecondsLabel"
-            android:text="@string/second_label"
+            style="@style/NumberPickerLabel"
             android:layout_below="@id/SecondsPicker"
-            style="@style/NumberPickerLabel"/>
+            android:text="@string/second_label"
+            android:visibility="gone" />
     </RelativeLayout>
 
 

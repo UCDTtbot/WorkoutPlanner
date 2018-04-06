@@ -168,7 +168,7 @@ public class NewWorkoutFragment extends Fragment {
             }
 
             @Override
-            public void onLongClick(Set set, int section, int relPos) {
+            public void onDefaultLongClick(Set set, int section, int relPos) {
                 // TODO: Display Info
                 Bundle bundle = new Bundle();
                 bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.DISPLAY_SET);
@@ -186,7 +186,7 @@ public class NewWorkoutFragment extends Fragment {
             }
 
             @Override
-            public void onUserCreatedLongClicked(Set set, int section, int relPos) {
+            public void onUserLongClicked(Set set, int section, int relPos) {
                 // TODO: User - Bottom Sheet (Edit/Delete)
                 Bundle bundle = new Bundle();
                 bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, set.getName());
@@ -224,8 +224,12 @@ public class NewWorkoutFragment extends Fragment {
             }
 
             @Override
-            public void onLongClick(Set set, int section, int relPos) {
-                // TODO: Bottom Sheet (Edit/Delete)
+            public void onDefaultLongClick(Set set, int section, int relPos) {
+
+            }
+
+            @Override
+            public void onUserLongClicked(Set set, int section, int relPos) {
                 Bundle bundle = new Bundle();
                 bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, set.getName());
                 bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, relPos);
@@ -235,13 +239,7 @@ public class NewWorkoutFragment extends Fragment {
                 if(getFragmentManager() != null){
                     setBottomSheetDialog.show(getFragmentManager(), DEBUG_TAG);
                 }
-                Log.d(DEBUG_TAG, "Right Adapter Long Clicked: Bottom Sheet");
-            }
-
-            @Override
-            public void onUserCreatedLongClicked(Set set, int section, int relPos) {
-                // Nothing
-            }
+                Log.d(DEBUG_TAG, "Right Adapter Long Clicked: Bottom Sheet");            }
         });
         mRightRecyclerView.setAdapter(mRightAdapter);
         mRightAdapter.setUserSets(mUsersSets);

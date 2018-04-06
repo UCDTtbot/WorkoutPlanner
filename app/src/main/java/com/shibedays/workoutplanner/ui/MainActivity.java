@@ -141,8 +141,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
         // Set the Layout Manager to Linear Layout
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //TODO: Add recycler animation/decorations
-        //mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
+
         // Setup the adapter with correct data
         mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
         mRecyclerView.setAdapter(mWorkoutAdapter);

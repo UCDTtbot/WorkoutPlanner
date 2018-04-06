@@ -9,12 +9,14 @@
         android:id="@+id/new_set_name"
         android:hint="@string/name_hint"
         style="@style/DialogEditText"/>
+
     <TextView
         android:id="@+id/display_set_name"
+        style="@style/DialogTextView"
         android:layout_alignBaseline="@+id/new_set_name"
         android:text="@string/default_set_name"
-        android:visibility="gone"
-        style="@style/DialogTextView" />
+        android:textAlignment="center"
+        android:visibility="gone" />
 
 
 
@@ -23,13 +25,15 @@
         android:layout_below="@+id/new_set_name"
         android:hint="@string/descrip_hint"
         style="@style/DialogEditText"/>
+
     <TextView
         android:id="@+id/display_set_descrip"
-        android:layout_below="@+id/display_set_name"
+        style="@style/DialogTextView"
         android:layout_alignBaseline="@+id/new_set_descrip"
+        android:layout_below="@+id/display_set_name"
         android:text="@string/descrip_hint"
-        android:visibility="gone"
-        style="@style/DialogTextView" />
+        android:textAlignment="center"
+        android:visibility="gone" />
 
     <include layout="@layout/number_spinners"
         android:id="@+id/spinners"
