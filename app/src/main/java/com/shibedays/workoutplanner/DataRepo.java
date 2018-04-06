@@ -4,7 +4,9 @@ import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
 
 import com.shibedays.workoutplanner.db.AppDatabase;
+import com.shibedays.workoutplanner.db.dao.SetDao;
 import com.shibedays.workoutplanner.db.dao.WorkoutDao;
+import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
@@ -20,10 +22,12 @@ public class DataRepo {
 
     private final AppDatabase mDatabase;
     private LiveData<List<Workout>> mWorkouts;
+    private LiveData<List<Set>> mSets;
 
     private DataRepo(final AppDatabase db){
         mDatabase = db;
         mWorkouts = mDatabase.workoutDao().getAll();
+        mSets = mDatabase.setDao().getll();
     }
 
 
@@ -42,53 +46,107 @@ public class DataRepo {
         return mWorkouts;
     }
 
+    public LiveData<List<Set>> getAllSets(){
+        return mSets;
+    }
+
     public LiveData<Workout> getWorkout(final int id){
         return mDatabase.workoutDao().getWorkout(id);
     }
 
-    public void insert(Workout workout){
+    public void insertWorkout(Workout workout){
         new insertAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
 
-    public void remove(final Workout workout){
+    public void insertSet(Set set){
+        new insertAsyncSet(mDatabase.setDao()).execute(set);
+    }
+
+    public void removeWorkout(final Workout workout){
         new removeAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
 
-    public void update(Workout workout){
+    public void removeSet(final Set set){
+        new removeAsyncSet(mDatabase.setDao()).execute(set);
+    }
+
+    public void updateWorkout(Workout workout){
         new updateAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
 
+    public void updateSet(Set set){
+        new updateAsyncSet(mDatabase.setDao()).execute(set);
+    }
+
     private static class insertAsyncWorkout extends AsyncTask<Workout, Void, Void>{
-        private WorkoutDao aSyncTaskDao;
+        private WorkoutDao aSyncDao;
         insertAsyncWorkout(WorkoutDao dao){
-            aSyncTaskDao = dao;
+            aSyncDao = dao;
         }
         @Override
         protected Void doInBackground(final Workout... params){
-            aSyncTaskDao.insert(params[0]);
+            aSyncDao.insert(params[0]);
+            return null;
+        }
+    }
+
+    private static class insertAsyncSet extends AsyncTask<Set, Void, Void>{
+        private SetDao aSyncDao;
+
+        insertAsyncSet(SetDao dao) { aSyncDao = dao; }
+
+        @Override
+        protected Void doInBackground(Set... sets) {
+            aSyncDao.insert(sets[0]);
             return null;
         }
     }
 
     private static class removeAsyncWorkout extends AsyncTask<Workout, Void, Void>{
-        private WorkoutDao aSyncTaskDao;
+        private WorkoutDao aSyncDao;
         removeAsyncWorkout(WorkoutDao dao){
-            aSyncTaskDao = dao;
+            aSyncDao = dao;
         }
         @Override
         protected Void doInBackground(Workout... workouts) {
-            aSyncTaskDao.delete(workouts[0]);
+            aSyncDao.delete(workouts[0]);
+            return null;
+        }
+    }
+
+    private static class removeAsyncSet extends AsyncTask<Set, Void, Void>{
+        private SetDao aSyncDao;
+
+        removeAsyncSet(SetDao dao) { aSyncDao = dao; };
+
+        @Override
+        protected Void doInBackground(Set... sets) {
+            aSyncDao.delete(sets[0]);
             return null;
         }
     }
 
     private static class updateAsyncWorkout extends AsyncTask<Workout, Void, Void>{
-        private WorkoutDao dao;
-        updateAsyncWorkout(WorkoutDao dao){ this.dao = dao; }
+        private WorkoutDao aSyncDao;
+        updateAsyncWorkout(WorkoutDao dao){ aSyncDao = dao; }
         @Override
         protected Void doInBackground(Workout... workouts) {
-            dao.update(workouts[0]);
+            aSyncDao.update(workouts[0]);
             return null;
         }
     }
+
+    private static class updateAsyncSet extends AsyncTask<Set, Void, Void> {
+        private SetDao aSyncDao;
+        updateAsyncSet(SetDao dao) { aSyncDao = dao; }
+        @Override
+        protected Void doInBackground(Set... sets) {
+            aSyncDao.update(sets[0]);
+            return null;
+        }
+    }
+
+
+
+
 }

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import com.shibedays.workoutplanner.db.dao.SetDao;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.db.dao.WorkoutDao;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 
-@Database(entities = {Workout.class}, version = 3)
+@Database(entities = {Workout.class, Set.class}, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -27,6 +28,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public static final String DATABASE_NAME = "workout-database";
 
     public abstract WorkoutDao workoutDao();
+    public abstract SetDao setDao();
 
     public static AppDatabase getDatabaseInstance(final Context context){
         if(INSTANCE == null){
@@ -35,6 +37,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, DATABASE_NAME)
                             .addMigrations(MIGRATION_2_3)
+                            .addMigrations(MIGRATION_3_4)
                             .addCallback(sAppDatabaseCallback)
                             .build();
                 }
@@ -55,10 +58,12 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private static class PopulateDBAsync extends AsyncTask<Void, Void, Void>{
 
-        private final WorkoutDao mDao;
+        private final WorkoutDao mWorkoutDao;
+        private final SetDao mSetDao;
 
         PopulateDBAsync(AppDatabase db){
-            mDao = db.workoutDao();
+            mWorkoutDao = db.workoutDao();
+            mSetDao = db.setDao();
         }
 
         @Override
@@ -68,7 +73,7 @@ public abstract class AppDatabase extends RoomDatabase {
             Set set_2 = new Set("Example Set", "Swipe to delete", 60000);
             defaultWorkout.addSet(set_1);
             defaultWorkout.addSet(set_2);
-            mDao.insert(defaultWorkout);
+            mWorkoutDao.insert(defaultWorkout);
 
             Workout running = new Workout(1, "Run and Walk");
             running.setNoRestFlag(true);
@@ -77,16 +82,25 @@ public abstract class AppDatabase extends RoomDatabase {
             Set walk = new Set("Walk", "Walk at a brisk pace", 30000);
             running.addSet(run);
             running.addSet(walk);
-            mDao.insert(running);
+            mWorkoutDao.insert(running);
+
+            Set user = new Set("User Created", "Custom Set", 60000);
+            mSetDao.insert(user);
             return null;
         }
     }
 
     private static final Migration MIGRATION_2_3 = new Migration(2,3){
-
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE workouts ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `sets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `descrip` TEXT, `time` INTEGER NOT NULL)");
         }
     };
 

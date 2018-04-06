@@ -21,7 +21,6 @@ import javax.crypto.spec.DESedeKeySpec;
 @Entity(tableName = "workouts")
 public class Workout{
     @PrimaryKey
-    @NonNull
     @ColumnInfo(name = "id")
     private int workoutID;
     private int numOfRounds;

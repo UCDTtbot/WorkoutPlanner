@@ -43,14 +43,14 @@ public class WorkoutViewModel extends AndroidViewModel {
     }
 
     public void update(Workout workout){
-        mRepo.update(workout);
+        mRepo.updateWorkout(workout);
     }
 
     public void insert(Workout workout){
-        mRepo.insert(workout);
+        mRepo.insertWorkout(workout);
     }
 
     public void remove(Workout workout){
-        mRepo.remove(workout);
+        mRepo.removeWorkout(workout);
     }
 }

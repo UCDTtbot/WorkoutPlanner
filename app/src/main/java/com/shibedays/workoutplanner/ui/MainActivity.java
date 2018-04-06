@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
             Workout newWorkout = new Workout(NEXT_WORKOUT_ID++, name);
             newWorkout.addSet(new Set("My Workout Set", "Description of my Workout Set", 60000));
             mPrivateSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
-            mWorkoutViewModel.insert(newWorkout);
+            mWorkoutViewModel.insertWorkout(newWorkout);
         } else {
             // TODO: Display an error message saying that name must not be null
             Toast.makeText(this, "Name must not be empty", Toast.LENGTH_LONG).show();
@@ -406,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     public void onEditWorkoutDialogPositiveClick(String name, int index) {
         if(!TextUtils.isEmpty(name)){
             mWorkoutData.get(index).setName(name);
-            mWorkoutViewModel.update(mWorkoutData.get(index));
+            mWorkoutViewModel.updateWorkout(mWorkoutData.get(index));
         } else {
             Toast.makeText(this, "Name must not be empty", Toast.LENGTH_SHORT).show();
         }
@@ -503,6 +503,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
                 mNewWorkoutFragment.deleteUserSet(index);
             } else if (section == NewWorkoutFragment.LEFT_SIDE){
                 mNewWorkoutFragment.deleteUserCreatedSet(index);
+                //TODO: Delete user created set from DB
             } else {
                 throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetBottomRowClicked");
             }
