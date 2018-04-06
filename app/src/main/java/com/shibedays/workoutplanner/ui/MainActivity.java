@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
@@ -34,6 +33,7 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
+import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.reflect.Method;
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     // Data
     private List<Workout> mWorkoutData;
+    private List<Set> mUserCreatedSets;
 
     // Adapters
     private WorkoutAdapter mWorkoutAdapter;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     // View Model
     private WorkoutViewModel mWorkoutViewModel;
+    private SetViewModel mSetViewModel;
 
     // Fragment(s)
     NewWorkoutFragment mNewWorkoutFragment;
@@ -182,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addWorkout();
+                openNewWorkoutFragment();
             }
         });
         //endregion
@@ -196,39 +198,16 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
                 mWorkoutAdapter.setData(workouts);
             }
         });
+
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+                mUserCreatedSets = sets;
+            }
+        });
         //endregion
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MAIN_ACTVITIY);
-            startActivity(intent);
-            return true;
-        } else if (id == android.R.id.home){
-            if(mFragmentManager.getBackStackEntryCount() > 0){
-                mFragmentManager.popBackStack();
-                toggleUpArrow(false);
-            }
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -270,6 +249,45 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     //endregion
 
+    //region TOOLBAR
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MAIN_ACTVITIY);
+            startActivity(intent);
+            return true;
+        } else if (id == android.R.id.home){
+            if(mFragmentManager.getBackStackEntryCount() > 0){
+                mFragmentManager.popBackStack();
+                toggleUpArrow(false);
+            }
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Action Bar Function
+    public void toggleUpArrow(boolean flag){
+        mActionBar.setDisplayHomeAsUpEnabled(flag);
+    }
+    //endregion
+
     //region UTILITY
     public static int convertToMillis(int[] time){
         return ((time[0] * 60) + time[1]) * 1000;
@@ -300,13 +318,11 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
     //endregion
 
-    //region INTERFACE_IMPLEMENTATIONS
+    //region NEW_WORKOUT
 
-        //region NEW_WORKOUT
-
-    private void addWorkout(){
+    private void openNewWorkoutFragment(){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mNewWorkoutFragment = NewWorkoutFragment.newInstance();
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mUserCreatedSets);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -314,11 +330,23 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         findViewById(R.id.fab).setVisibility(View.GONE);
         toggleUpArrow(true);
         Log.d(DEBUG_TAG, "New Workout Fragment Created");
+        //if(mUserCreatedSets != null)
+        //    mNewWorkoutFragment.setUserCreatedSets(mUserCreatedSets);
     }
 
-            //region OLD_ADD_WORKOUT_CODE
+    // For New Workouts
+    public int getNextWorkoutId(){
+        return NEXT_WORKOUT_ID;
+    }
+
+    @Override
+    public void addNewWorkout() {
+        NEXT_WORKOUT_ID++;
+    }
+
+    //region OLD_ADD_WORKOUT_CODE
     /*
-    public void addWorkout(){
+    public void openNewWorkoutFragment(){
         AddEditWorkoutDialog addWorkoutDialog = new AddEditWorkoutDialog();
         Bundle args = new Bundle();
         args.putInt(AddEditWorkoutDialog.EXTRA_DIALOG_TYPE, AddEditWorkoutDialog.NEW_WORKOUT);
@@ -347,9 +375,9 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     */
     //endregion
 
-        //endregion
+    //endregion
 
-        //region OPEN_WORKOUT
+    //region OPEN_WORKOUT
     @Override
     public void onWorkoutClicked(int workoutID) {
         openWorkout(workoutID);
@@ -361,9 +389,9 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
         startActivity(intent);
     }
-        //endregion
+    //endregion
 
-        //region BOTTOM_SHEET
+    //region BOTTOM_SHEET_WORKOUTS
 
     @Override
     public void onWorkoutLongClick(int workoutIndex, int workoutID) {
@@ -379,25 +407,24 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
     }
 
-            //region DELETE_WORKOUT
     @Override
-    public void deleteItem(int index) {
+    public void onClickDuplicateWorkout(int index) {
+
+    }
+
+    // Deleting workout
+    @Override
+    public void onClickDeleteWorkout(int index) {
         //WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
         //adapter.pendingRemoval(index);
         // Snackbar is creating in pendingRemoval
     }
 
-            // Deleting workout
     @Override
-    public void deleteWorkout(Workout workout) {
+    public void deleteWorkoutFromDB(Workout workout) {
         mWorkoutViewModel.remove(workout);
     }
-            //endregion
 
-    @Override
-    public void duplicateWorkout(int index) {
-
-    }
 
 
     //region OLD_EDIT_WORKOUT_CODE
@@ -417,22 +444,35 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     //endregion
 
-    //endregion
-
-    // Action Bar Function
-    public void toggleUpArrow(boolean flag){
-        mActionBar.setDisplayHomeAsUpEnabled(flag);
-    }
-
-    // For New Workouts
-    public int getNextWorkoutId(){
-        return NEXT_WORKOUT_ID;
+    //region BOTTOM_SHEET_SET_CALLBACKS
+    @Override
+    public void bottomSheetTopRowClicked(int index, int section) {
+        if(mNewWorkoutFragment != null){
+            if(section == NewWorkoutFragment.RIGHT_SIDE) {
+                mNewWorkoutFragment.editUserSet(index, section);
+            } else if (section == NewWorkoutFragment.LEFT_SIDE){
+                mNewWorkoutFragment.editUserCreatedSet(index, section);
+            } else {
+                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetTopRowClicked");
+            }
+        }
     }
 
     @Override
-    public void addNewWorkout() {
-        NEXT_WORKOUT_ID++;
+    public void bottomSheetBottomRowClicked(int index, int section) {
+        if(mNewWorkoutFragment != null){
+            if(section == NewWorkoutFragment.RIGHT_SIDE) {
+                mNewWorkoutFragment.deleteUserSet(index);
+            } else if (section == NewWorkoutFragment.LEFT_SIDE){
+                Set set = mUserCreatedSets.get(index);
+                mNewWorkoutFragment.deleteUserCreatedSet(index);
+                mSetViewModel.remove(set);
+            } else {
+                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetBottomRowClicked");
+            }
+        }
     }
+    //endregion
 
     //region MY_WORKOUT_SET_FUNCTIONS
     @Override
@@ -455,13 +495,13 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
     //endregion
 
-
-    //region USER_CREATED_SETS
+    //region USER_CREATED_SET_FUNCTIONS
     @Override
     public void addUserCreatedSet(String name, String descrip, int min, int sec) {
         if(mNewWorkoutFragment != null){
             mNewWorkoutFragment.addUserCreatedSet(new Set(name, descrip, MainActivity.convertToMillis(min, sec)));
-            // TODO: Add the above set the database
+            Set set = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
+            mSetViewModel.insert(set);
         }
     }
 
@@ -469,6 +509,8 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
         if(mNewWorkoutFragment != null){
             mNewWorkoutFragment.updateUserCreatedSet(index, name, descrip, min, sec);
+            Set set = mUserCreatedSets.get(index);
+            mSetViewModel.update(set);
         }
     }
     //endregion
@@ -482,32 +524,11 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
     //endregion
 
-    //region BOTTOM_SHEET_FOR_SETS
-    @Override
-    public void bottomSheetTopRowClicked(int index, int section) {
-        if(mNewWorkoutFragment != null){
-            if(section == NewWorkoutFragment.RIGHT_SIDE) {
-                mNewWorkoutFragment.editUserSet(index, section);
-            } else if (section == NewWorkoutFragment.LEFT_SIDE){
-                mNewWorkoutFragment.editUserCreatedSet(index, section);
-            } else {
-                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetTopRowClicked");
-            }
-        }
-    }
 
-    @Override
-    public void bottomSheetBottomRowClicked(int index, int section) {
-        if(mNewWorkoutFragment != null){
-            if(section == NewWorkoutFragment.RIGHT_SIDE) {
-                mNewWorkoutFragment.deleteUserSet(index);
-            } else if (section == NewWorkoutFragment.LEFT_SIDE){
-                mNewWorkoutFragment.deleteUserCreatedSet(index);
-                //TODO: Delete user created set from DB
-            } else {
-                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetBottomRowClicked");
-            }
-        }
-    }
-    //endregion
+
+
+
+
+
+
 }

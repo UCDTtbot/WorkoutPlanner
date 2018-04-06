@@ -57,8 +57,8 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
 
     //region INTERFACES
     public interface WorkoutBottomSheetDialogListener {
-        void duplicateWorkout(int index);
-        void deleteItem(int index);
+        void onClickDuplicateWorkout(int index);
+        void onClickDeleteWorkout(int index);
     }
     WorkoutBottomSheetDialogListener mListener;
     //endregion
@@ -125,7 +125,7 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
         mTopLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.duplicateWorkout(mWorkoutIndex);
+                mListener.onClickDuplicateWorkout(mWorkoutIndex);
                 dismiss();
             }
         });
@@ -135,7 +135,7 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
         mBottomLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.deleteItem(mWorkoutIndex);
+                mListener.onClickDeleteWorkout(mWorkoutIndex);
                 dismiss();
             }
         });

@@ -1,12 +1,10 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,7 +106,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     public interface WorkoutAdapterListener{
         void onWorkoutClicked(int workoutIndex);
         void onWorkoutLongClick(int workoutIndex, int workoutID);
-        void deleteWorkout(Workout workout);
+        void deleteWorkoutFromDB(Workout workout);
     }
     private WorkoutAdapterListener mListener;
     //endregion
@@ -205,7 +203,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     public void deletePending(int pendingIndex, int origWorkoutPos){
         mWorkoutsPendingRemoval.remove(pendingIndex);
 
-        mListener.deleteWorkout(mWorkoutData.get(origWorkoutPos));
+        mListener.deleteWorkoutFromDB(mWorkoutData.get(origWorkoutPos));
         // Update the file that we have removed a curWorkout
     }
 

@@ -291,8 +291,8 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         notifyItemInserted(mUserSetData.size());
     }
     public void removeFromUserSets(int pos){
-        mUserSetData.remove((pos)); // account for the header as pos is absolute
-        notifyItemRemoved(pos);
+        mUserSetData.remove((pos));
+        notifyItemRemoved(pos + 1); // account for the header as pos is absolute
     }
 
     public void addToUserCreated(Set set){

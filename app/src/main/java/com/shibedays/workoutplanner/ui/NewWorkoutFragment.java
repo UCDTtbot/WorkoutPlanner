@@ -90,10 +90,11 @@ public class NewWorkoutFragment extends Fragment {
     }
 
 
-    public static NewWorkoutFragment newInstance() {
+    public static NewWorkoutFragment newInstance(List<Set> sets) {
         NewWorkoutFragment newFragment = new NewWorkoutFragment();
         Bundle args = new Bundle();
         newFragment.setArguments(args);
+        newFragment.setUserCreatedSets(sets);
 
         return newFragment;
     }
@@ -123,11 +124,12 @@ public class NewWorkoutFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDefaultSets = new ArrayList<>();
-        mUserCreatedSets = new ArrayList<>();
+        //mUserCreatedSets = new ArrayList<>();
         mUsersSets = new ArrayList<>();
-        mDefaultSets.add(new Set("Set 1", "Descrip 1", 10000));
-        mDefaultSets.add(new Set("Set 2", "Descrip 1", 10000));
-        mUserCreatedSets.add(new Set("User Created", "Made by Tyler", 50000));
+        mDefaultSets.add(new Set("Jogging", "Light Jog", 90000));
+        mDefaultSets.add(new Set("Walk", "Brisk walk", 30000));
+        mDefaultSets.add(new Set("Pushups", "As many pushups as possible in the time limit", 45000));
+        mDefaultSets.add(new Set("Situps", "Arms across chest", 45000));
         mUsersSets.add(new Set("My First Set", "First Set", 60000));
     }
 
@@ -246,6 +248,8 @@ public class NewWorkoutFragment extends Fragment {
         mRightAdapter.shouldShowHeadersForEmptySections(true);
         mRightAdapter.shouldShowFooters(false);
 
+        //region ITEM_TOUCH_HELPER
+        /*
         SectionedListItemTouchHelper rightItemHelper = new SectionedListItemTouchHelper(getContext(), false, true, 0, mRightRecyclerView, false){
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
@@ -259,7 +263,8 @@ public class NewWorkoutFragment extends Fragment {
                 }));
             }
         };
-
+        */
+        //endregion
         //region old_code
         /*
         mLeftAdapter = new SetAdapter(getContext(), mCoordLayout, false);
@@ -384,6 +389,10 @@ public class NewWorkoutFragment extends Fragment {
     public void deleteUserCreatedSet(int pos){
         mUserCreatedSets.remove(pos);
         mLeftAdapter.notifyDataSetChanged();
+    }
+
+    public void setUserCreatedSets(List<Set> sets){
+        mUserCreatedSets = sets;
     }
     //endregion
 
