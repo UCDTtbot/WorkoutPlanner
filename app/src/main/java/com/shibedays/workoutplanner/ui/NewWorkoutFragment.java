@@ -12,6 +12,8 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -60,8 +63,15 @@ public class NewWorkoutFragment extends Fragment {
     // UI Components
     private RecyclerView mLeftRecyclerView;
     private RecyclerView mRightRecyclerView;
-    private CoordinatorLayout mCoordLayout;
+
+    private CoordinatorLayout mCoordLayout; // Displaying Toasts / Undo bar
+
+    private EditText mRoundEntry;
+    private EditText mRestEntry;
+    private EditText mBreakEntry;
+
     private Button mSaveButton;
+
     // Parent
     private MainActivity mParentActivity;
     //endregion
@@ -124,13 +134,13 @@ public class NewWorkoutFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDefaultSets = new ArrayList<>();
-        //mUserCreatedSets = new ArrayList<>();
         mUsersSets = new ArrayList<>();
+
+        // Hardcoded default sets
         mDefaultSets.add(new Set("Jogging", "Light Jog", 90000));
         mDefaultSets.add(new Set("Walk", "Brisk walk", 30000));
         mDefaultSets.add(new Set("Pushups", "As many pushups as possible in the time limit", 45000));
         mDefaultSets.add(new Set("Situps", "Arms across chest", 45000));
-        mUsersSets.add(new Set("My First Set", "First Set", 60000));
     }
 
     @Nullable
@@ -138,19 +148,73 @@ public class NewWorkoutFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
         //region UI
+
         View view = inflater.inflate(R.layout.fragment_add_workout, container, false);
         mSaveButton = view.findViewById(R.id.button_save);
         mCoordLayout = mParentActivity.findViewById(R.id.main_coord_layout);
+
+        mRoundEntry = view.findViewById(R.id.round_entry_num);
+        mRestEntry = view.findViewById(R.id.rest_entry_time);
+        mRestEntry.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String string = s.toString();
+                boolean f = string.contains(":");
+                if(string.contains(":")){
+                    int i = string.indexOf(":");
+                    Log.d(DEBUG_TAG, Integer.toString(i));
+                }
+                if(string.length() == 2){
+                    string = string.concat(":");
+                    int length = string.length();
+                    mRestEntry.setText(string);
+                    mRestEntry.setSelection( (start + 1) <= length ? start + 1 : length);
+                } else if(string.length() >= 5){
+                    String working = string.substring(0, 4);
+                    int length = working.length();
+                    mRestEntry.setText(working);
+                    mRestEntry.setSelection( (start + 1) <= length ? start + 1 : length);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        mBreakEntry = view.findViewById(R.id.break_entry_time);
+        mBreakEntry.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
         //endregion
 
         //region RECYCLER_VIEWS
+
             //region LEFT_RV
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mLeftAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.LEFT_VIEW, new SectionedSetAdapter.SectionedSetListener() {
             @Override
-            public void onClick(Set setToAdd) {
+            public void onClick(Set setToAdd, int relPos) {
                 mRightAdapter.addToUserSets(setToAdd);
                 Log.d(DEBUG_TAG, Integer.toString(mUsersSets.size()));
             }
@@ -214,8 +278,17 @@ public class NewWorkoutFragment extends Fragment {
 
         mRightAdapter = new SectionedSetAdapter(getContext(), SectionedSetAdapter.RIGHT_VIEW, new SectionedSetAdapter.SectionedSetListener() {
             @Override
-            public void onClick(Set set) {
-                // Nothing
+            public void onClick(Set set, int relPos) {
+                Bundle bundle = new Bundle();
+                bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, set.getName());
+                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, relPos);
+                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_SECTION, RIGHT_SIDE);
+                SetBottomSheetDialog setBottomSheetDialog = new SetBottomSheetDialog();
+                setBottomSheetDialog.setArguments(bundle);
+                if(getFragmentManager() != null){
+                    setBottomSheetDialog.show(getFragmentManager(), DEBUG_TAG);
+                }
+                Log.d(DEBUG_TAG, "Right Adapter Clicked: Bottom Sheet");
             }
 
             @Override
@@ -239,7 +312,8 @@ public class NewWorkoutFragment extends Fragment {
                 if(getFragmentManager() != null){
                     setBottomSheetDialog.show(getFragmentManager(), DEBUG_TAG);
                 }
-                Log.d(DEBUG_TAG, "Right Adapter Long Clicked: Bottom Sheet");            }
+                Log.d(DEBUG_TAG, "Right Adapter Long Clicked: Bottom Sheet");
+            }
         });
         mRightRecyclerView.setAdapter(mRightAdapter);
         mRightAdapter.setUserSets(mUsersSets);
@@ -277,6 +351,7 @@ public class NewWorkoutFragment extends Fragment {
         */
         //endregion
             //endregion
+
         //endregion
         return view;
     }
@@ -353,8 +428,6 @@ public class NewWorkoutFragment extends Fragment {
 
     //endregion
 
-    //region UTILITY
-
     //region USER_CREATED_SETS
     public void editUserCreatedSet(int pos, int section){
         Set set = mUserCreatedSets.get(pos);
@@ -379,16 +452,14 @@ public class NewWorkoutFragment extends Fragment {
         set.setTime(MainActivity.convertToMillis(min, sec));
         mLeftAdapter.notifyDataSetChanged();
     }
-
-    public void addUserCreatedSet(Set set){
-        mLeftAdapter.addToUserCreated(set);
-    }
-
     public void deleteUserCreatedSet(int pos){
         mUserCreatedSets.remove(pos);
         mLeftAdapter.notifyDataSetChanged();
     }
 
+    public void addUserCreatedSet(Set set){
+        mLeftAdapter.addToUserCreated(set);
+    }
     public void setUserCreatedSets(List<Set> sets){
         mUserCreatedSets = sets;
     }
@@ -418,15 +489,10 @@ public class NewWorkoutFragment extends Fragment {
         set.setTime(MainActivity.convertToMillis(min, sec));
         mRightAdapter.notifyDataSetChanged();
     }
-
     public void deleteUserSet(int pos){
         mRightAdapter.removeFromUserSets(pos);
     }
     //endregion
 
-
-
-
-    //endregion
 
 }

@@ -130,7 +130,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             } else if (isFooter()){
                 mListener.createUserSet();
             } else {
-                mListener.onClick(curSet);
+                mListener.onClick(curSet, relativePos);
             }
         }
 
@@ -168,7 +168,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
     //region INTERFACES
     public interface SectionedSetListener{
-        void onClick(Set set);
+        void onClick(Set set, int relativePos);
         void createUserSet();
         void onDefaultLongClick(Set set, int section, int relativePos);
         void onUserLongClicked(Set set, int section, int relativePos);

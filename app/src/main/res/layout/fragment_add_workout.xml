@@ -35,6 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="270dp"
                 android:orientation="horizontal"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:weightSum="100">
 
                 <android.support.v7.widget.RecyclerView
@@ -54,35 +56,55 @@
                 </android.support.v7.widget.RecyclerView>
             </android.support.v7.widget.LinearLayoutCompat>
 
+            <LinearLayout
+                style="@style/LinearEntryField">
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_shallow_vertical_margin">
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Placeholder"
-                    android:inputType="text"/>
-            </android.support.design.widget.TextInputLayout>
-
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_shallow_vertical_margin">
+                <TextView
+                    android:id="@+id/round_entry_title"
+                    android:text="@string/round_title_text"
+                    style="@style/EntryTextTitle" />
 
                 <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Placeholder"
-                    android:inputType="text"/>
-            </android.support.design.widget.TextInputLayout>
+                    android:id="@+id/round_entry_num"
+                    android:hint="@string/default_num"
+                    android:inputType="number"
+                    style="@style/EditTextEntryField"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LinearEntryField">
+
+                <TextView
+                    android:id="@+id/rest_entry_title"
+                    android:text="@string/rest_title_text"
+                    style="@style/EntryTextTitle"/>
+
+                <EditText
+                    android:id="@+id/rest_entry_time"
+                    android:hint="@string/default_time"
+                    android:inputType="datetime"
+                    style="@style/EditTextEntryField"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LinearEntryField">
+
+                <TextView
+                    android:id="@+id/break_entry_title"
+                    android:text="@string/break_title_text"
+                    style="@style/EntryTextTitle"/>
+
+                <EditText
+                    android:id="@+id/break_entry_time"
+                    android:hint="@string/default_time"
+                    android:inputType="datetime"
+                    style="@style/EditTextEntryField"/>
+
+            </LinearLayout>
+
+
 
         </android.support.v7.widget.LinearLayoutCompat>
     </ScrollView>
