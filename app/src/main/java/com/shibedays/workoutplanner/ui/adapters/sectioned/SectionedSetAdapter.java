@@ -62,8 +62,8 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             title = itemView.findViewById(R.id.header_title);
             caret = itemView.findViewById(R.id.caret);
             // List Item Views
-            setNameTextView = itemView.findViewById(R.id.set_name);
-            timeTextView = itemView.findViewById(R.id.set_time);
+            setNameTextView = itemView.findViewById(R.id.set_name_narrow);
+            timeTextView = itemView.findViewById(R.id.set_time_narrow);
             // Header Item Views
             footerCard = itemView.findViewById(R.id.add_set_card_view);
             this.adapter = adapter;
@@ -202,14 +202,14 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
                 mHeaderSetup = true;
                 break;
             case VIEW_TYPE_ITEM:
-                layout = R.layout.list_set_items;
+                layout = R.layout.lis_set_items_narrow;
                 mItemSetup = true;
                 break;
             case VIEW_TYPE_FOOTER:
                 layout = R.layout.list_set_footer;
                 break;
             default:
-                layout = R.layout.list_set_items;
+                layout = R.layout.lis_set_items_narrow;
                 break;
         }
         View v = LayoutInflater.from(mContext).inflate(layout, parent, false);

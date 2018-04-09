@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
@@ -43,8 +42,8 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         public SetViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
-            setNameTextView = itemView.findViewById(R.id.set_name);
-            timeTextView = itemView.findViewById(R.id.set_time);
+            setNameTextView = itemView.findViewById(R.id.set_name_narrow);
+            timeTextView = itemView.findViewById(R.id.set_time_narrow);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -131,7 +130,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     @Override
     public SetViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new SetViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.list_set_items, parent, false));
+                .inflate(R.layout.lis_set_items_narrow, parent, false));
     }
 
     @Override
