@@ -1,8 +1,8 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -22,58 +22,41 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
+public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> {
 
-    // Constants
+    //region CONSTANTS
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
     private static final String DEBUG_TAG = SetAdapter.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.SetAdapter.";
-
-    //region PRIVATE_VARS
-    // Data
-    private List<Set> mSetData;
-    private List<Set> mSetsPendingRemoval;
-    // UI Components
-    private CoordinatorLayout mCoordLayout;
-    private Context mContext;
-    // Threading Components
-    private Handler handler = new Handler();
-    private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
-    //endregion
-
-    //region INTERFACES
-    public interface SetAdapaterListener{
-        void onSetClick(int setIndex);
-        void deleteSet(Set set);
-    }
-    private SetAdapaterListener mListener;
     //endregion
 
     //region VIEW_HOLDER
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    class SetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        private TextView setNameTextView;
-        private TextView descripTextView;
-        private TextView timeTextView;
+        // Data
         private Set curSet;
+        // Foreground
+        private TextView setNameTextView;
+        private TextView timeTextView;
 
-        public ViewHolder(View itemView) {
+        public SetViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
+            setNameTextView = itemView.findViewById(R.id.set_name_narrow);
+            timeTextView = itemView.findViewById(R.id.set_time_narrow);
 
-            setNameTextView = itemView.findViewById(R.id.set_name);
-            descripTextView = itemView.findViewById(R.id.set_descrip);
-            timeTextView = itemView.findViewById(R.id.set_time);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
 
-        void bindTo(Set curSet){
+        void bindTo(final Set curSet){
             //Populate data when they bind the workouts to the view holder
+            this.curSet = curSet;
+
             setNameTextView.setText(curSet.getName());
-            descripTextView.setText(curSet.getDescrip());
             int[] time = MainActivity.convertFromMillis(curSet.getTime());
             int minutes = time[0], seconds = time[1];
+
             if(seconds == 0){
                 timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, seconds, 0));
             } else if( seconds < 10){
@@ -83,8 +66,11 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
                 timeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
             }
 
+            if(mCanSwipe) {
 
-            this.curSet = curSet;
+            } else {
+
+            }
         }
 
         @Override
@@ -99,44 +85,63 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
     }
     //endregion
 
+    //region PRIVATE_VARS
+    // Data
+    private List<Set> mSetData;
+    private List<Set> mSetsPendingRemoval;
+    // UI Components
+    private CoordinatorLayout mCoordLayout;
+    private Context mContext;
+    // Threading Components
+    private Handler handler = new Handler();
+    private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
+    // Swiping
+    private Boolean mCanSwipe;
+
+    //endregion
+
+    //region INTERFACES
+    public interface SetAdapaterListener{
+        void onSetClick(int setIndex);
+        void deleteSet(Set set);
+    }
+    private SetAdapaterListener mListener;
+    //endregion
+
     //region LIFECYCLE
-    public SetAdapter(Context context, View coordLayout){
+    public SetAdapter(Context context, View coordLayout, boolean swipeable){
         mSetsPendingRemoval = new ArrayList<>();
         mContext = context;
+        mCanSwipe = swipeable;
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout)coordLayout;
         } else {
-            Log.e(DEBUG_TAG, "THE VIEW PASSED WAS NOT A COORDINATOR LAYOUT");
+            throw new RuntimeException(SetAdapter.class.getSimpleName() + " was passed a non-coordinate layout view");
         }
-        Activity activity = null;
-        if(context instanceof Activity){
-            activity = (Activity) context;
-            try{
-                mListener = (SetAdapter.SetAdapaterListener) activity;
-            } catch (ClassCastException e){
-                Log.e(DEBUG_TAG, "ERROR IN SET ADAPTER LISTENER: " + e.getMessage());
-            }
+
+        if(context instanceof SetAdapaterListener){
+            mListener = (SetAdapaterListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement SetAdapterListener");
         }
     }
 
+    @NonNull
     @Override
-    public SetAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.list_set_items, parent, false));
+    public SetViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new SetViewHolder(LayoutInflater.from(mContext)
+                .inflate(R.layout.lis_set_items_narrow, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(SetAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(SetViewHolder viewHolder, int position) {
         // Get the current data
         Set currentSet = mSetData.get(position);
-        // Bind to the data for the views
-        holder.bindTo(currentSet);
+        viewHolder.bindTo(currentSet);
         // Populate anymore data
     }
 
-
     //endregion
-    // TODO: setup the timeTextView to display correctly
 
     //region UTILITY
 
@@ -166,6 +171,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
     //region PENDING_DELETE
     public void pendingRemoval(final int swipedPos){
         final Set set = mSetData.get(swipedPos);
+        final int origPos = swipedPos;
         if(!mSetsPendingRemoval.contains(set)){
             mSetsPendingRemoval.add(set);
             final int pendingPos = mSetsPendingRemoval.indexOf(set);
@@ -175,7 +181,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    deletePending(mSetsPendingRemoval.indexOf(set), set);
+                    deletePending(mSetsPendingRemoval.indexOf(set), origPos);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
@@ -185,25 +191,29 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
             undoBar.setAction("Undo", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    undoItem(swipedPos, pendingPos);
+                    undo(swipedPos, pendingPos);
                 }
             });
             undoBar.show();
         }
     }
 
-    private void deletePending(int pendingIndex, Set originalSet){
+    @Override
+    public void deletePending(int pendingIndex, int origPos) {
         mSetsPendingRemoval.remove(pendingIndex);
 
-        mListener.deleteSet(originalSet);
+        mListener.deleteSet(mSetData.get(origPos));
         Log.d(DEBUG_TAG, "Removed pending set");
     }
+
 
     public boolean isPendingRemoval(int pos){
         Set set = mSetData.get(pos);
         return mSetsPendingRemoval.contains(set);
     }
-    private void undoItem(int itemPos, int pendingPos){
+
+    @Override
+    public void undo(int itemPos, int pendingPos) {
         if(mSetsPendingRemoval.get(pendingPos) != null){
             Set set = mSetsPendingRemoval.get(pendingPos);
             Runnable pendingRunnable = pendingRunnables.get(set);
@@ -217,6 +227,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
         }
     }
     //endregion
+
 
 
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/num_spinners"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,17 +11,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <NumberPicker
+        <com.shawnlin.numberpicker.NumberPicker
             android:id="@+id/MinutePicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:descendantFocusability="blocksDescendants">
-        </NumberPicker>
+            app:np_width="@dimen/number_picker_width"
+            app:np_height="@dimen/number_picker_height"
+            app:np_dividerColor="@color/colorPrimary"
+            app:np_selectedTextColor="@color/colorPrimary"
+            app:np_textColor="@color/colorPrimary"
+            app:np_selectedTextSize="16sp"
+            app:np_textSize="12sp"
+            android:descendantFocusability="blocksDescendants" />
+
         <TextView
             android:id="@+id/MinutesLabel"
-            android:text="@string/minute_label"
+            style="@style/NumberPickerLabel"
             android:layout_below="@+id/MinutePicker"
-            style="@style/NumberPickerLabel"/>
+            android:text="@string/minute_label"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <TextView
@@ -31,17 +40,25 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <NumberPicker
+        <com.shawnlin.numberpicker.NumberPicker
             android:id="@+id/SecondsPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:descendantFocusability="blocksDescendants"/>
+            app:np_width="@dimen/number_picker_width"
+            app:np_height="@dimen/number_picker_height"
+            app:np_dividerColor="@color/colorPrimary"
+            app:np_selectedTextColor="@color/colorPrimary"
+            app:np_textColor="@color/colorPrimary"
+            app:np_selectedTextSize="16sp"
+            app:np_textSize="12sp"
+            android:descendantFocusability="blocksDescendants" />
 
         <TextView
             android:id="@+id/SecondsLabel"
-            android:text="@string/second_label"
+            style="@style/NumberPickerLabel"
             android:layout_below="@id/SecondsPicker"
-            style="@style/NumberPickerLabel"/>
+            android:text="@string/second_label"
+            android:visibility="gone" />
     </RelativeLayout>
 
 

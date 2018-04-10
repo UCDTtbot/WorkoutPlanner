@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
 
 
@@ -61,15 +62,11 @@ public class AddEditWorkoutDialog extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        // Make sure our context is an activity and set the Listener to it
-        Activity activity = null;
-        if(context instanceof Activity)
-            activity = (Activity) context;
-        try{
-            mListener = (WorkoutDialogListener) activity;
-        } catch (ClassCastException e){
-            Log.e(DEBUG_TAG, "ERROR IN WORKOUT DIALOG LISTENER: " + e.getMessage());
+        if(context instanceof WorkoutDialogListener){
+            mListener = (WorkoutDialogListener) context;
+        } else {
+            throw new RuntimeException( context.toString()
+                    + " must implement WorkoutDialogListener");
         }
     }
 
@@ -82,9 +79,9 @@ public class AddEditWorkoutDialog extends DialogFragment {
         mParentActivity = (MainActivity) getActivity();
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.dialog_new_edit_workout, null);
+        final View view = inflater.inflate(R.layout.dialog_workout_name, null);
 
-        mEditText = view.findViewById(R.id.new_workout_name);
+        mEditText = view.findViewById(R.id.workout_name);
         //endregion
 
         //region BUILDER_SETUP (INTENT)
@@ -130,7 +127,7 @@ public class AddEditWorkoutDialog extends DialogFragment {
                         });
 
             } else {
-                Log.e(DEBUG_TAG, "NO NEW/EDIT TYPE GIVEN");
+                throw new RuntimeException(AddEditWorkoutDialog.class.getSimpleName() + " no new/edit type was given");
             }
         }
 
@@ -147,5 +144,12 @@ public class AddEditWorkoutDialog extends DialogFragment {
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     //endregion
 }

@@ -1,11 +1,9 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,22 +28,26 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
     //region INTENT_KEYS
     public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
     public static final String EXTRA_SET_INDEX = PACKAGE + "SET_INDEX";
+    public static final String EXTRA_SET_SECTION = PACKAGE + "SET_SECTION";
     //endregion
 
     //region PRIVATE_KEYS
     // Data
     private int mSetIndex;
     private String mSetName;
+    private int mSection;
     // UI Components
     private TextView mTitleTextView;
-    private LinearLayout mEdit;
-    private LinearLayout mDelete;
+
+    private LinearLayout mTopLine;
+
+    private LinearLayout mBottomLine;
     //endregion
 
     //region INTERFACES
     public interface SetBottomSheetDialogListener {
-        void editItem(int index);
-        void deleteItem(int index);
+        void bottomSheetTopRowClicked(int index, int section);
+        void bottomSheetBottomRowClicked(int index, int section);
     }
     SetBottomSheetDialogListener mListener;
     //endregion
@@ -58,15 +60,10 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        // Make sure our context is an activity and set the Listener to it
-        Activity activity = null;
-        if(context instanceof Activity)
-            activity = (Activity) context;
-        try{
-            mListener = (SetBottomSheetDialogListener) activity;
-        } catch (ClassCastException e){
-            Log.e(DEBUG_TAG, "ERROR IN SET BOTTOM DIALOG LISTENER: " + e.getMessage());
+        if(context instanceof SetBottomSheetDialogListener) {
+            mListener = (SetBottomSheetDialogListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement SetBottomSheetDialogListener");
         }
     }
 
@@ -78,37 +75,47 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
         if(args != null){
             mSetName = args.getString(EXTRA_SET_NAME);
             mSetIndex = args.getInt(EXTRA_SET_INDEX);
+            mSection = args.getInt(EXTRA_SET_SECTION);
+        } else {
+            throw new RuntimeException(DEBUG_TAG + "Arguments for the Set Bottom Sheet Dialog were null");
         }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.edit_delete_bottom_sheet, container, false);
+        View view = inflater.inflate(R.layout.bottom_sheet, container, false);
 
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
         mTitleTextView.setText(mSetName);
 
-        mEdit = view.findViewById(R.id.bottom_sheet_edit);
-        mEdit.setOnClickListener(new View.OnClickListener() {
+        mTopLine = view.findViewById(R.id.bottom_sheet_top);
+        mTopLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.editItem(mSetIndex);
+                mListener.bottomSheetTopRowClicked(mSetIndex, mSection);
                 dismiss();
             }
         });
 
-        mDelete = view.findViewById(R.id.bottom_sheet_delete);
-        mDelete.setOnClickListener(new View.OnClickListener() {
+        mBottomLine = view.findViewById(R.id.bottom_sheet_bottom);
+        mBottomLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.deleteItem(mSetIndex);
+                mListener.bottomSheetBottomRowClicked(mSetIndex, mSection);
                 dismiss();
             }
         });
 
         return view;
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     //endregion
 
     //region UTILITY

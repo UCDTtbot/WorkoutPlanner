@@ -2,66 +2,100 @@
 
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/view_foreground"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_standard_size"
+    android:layout_height="@dimen/list_standard_vertical_size"
     android:foreground="?attr/selectableItemBackground"
-    android:layout_marginStart="@dimen/standard_padding"
-    android:layout_marginTop="@dimen/standard_padding"
-    android:layout_marginEnd="@dimen/standard_padding">
+    android:layout_marginStart="@dimen/activity_shallow_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
+    android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin">
 
+    <!--
+    <LinearLayout
+        android:id="@+id/workout_list_background"
+        android:layout_width="@dimen/background_icon_size"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:background="#FF5534"
+        android:gravity="center"
+        android:weightSum="100">
+        <ImageView
+            android:id="@+id/workout_trash"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/standard_icon_size"
+            android:layout_weight="100"
+            android:src="@drawable/ic_delete_white_24dp" />
+
+    </LinearLayout>
+    -->
+    <!-- Foreground View -->
     <RelativeLayout
+        android:id="@+id/workout_list_foreground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:padding="@dimen/standard_padding"
-        android:layout_gravity="center">
+        android:elevation="5dp">
 
         <TextView
             android:id="@+id/item_name"
+            style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:text="@string/default_title"
-            style="@style/TextAppearance.AppCompat.Title"
-            android:padding="@dimen/quarter_padding"/>
+            android:padding="@dimen/quarter_padding"
+            android:text="@string/default_title" />
 
         <TextView
             android:id="@+id/item_sets"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/item_name"
-            android:text="@string/default_set"
-            style="@style/TextAppearance.AppCompat.Body1"
+            android:paddingEnd="@dimen/half_padding"
             android:paddingStart="@dimen/half_padding"
-            android:paddingEnd="@dimen/half_padding"/>
+            android:text="@string/default_set" />
+
         <TextView
             android:id="@+id/TEST_POS_ID"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/item_name"
             android:layout_toEndOf="@+id/item_sets"
-            android:text="PosID: 1"
-            style="@style/TextAppearance.AppCompat.Body1"
+            android:paddingEnd="@dimen/half_padding"
             android:paddingStart="@dimen/half_padding"
-            android:paddingEnd="@dimen/half_padding"/>
+            android:text="PosID: 1" />
+
         <TextView
             android:id="@+id/TEST_WRK_ID"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/item_name"
             android:layout_toEndOf="@+id/TEST_POS_ID"
-            android:text="Wrkout ID: 1"
-            style="@style/TextAppearance.AppCompat.Body1"
+            android:paddingEnd="@dimen/half_padding"
             android:paddingStart="@dimen/half_padding"
-            android:paddingEnd="@dimen/half_padding"/>
+            android:text="Wrkout ID: 1" />
 
         <ImageView
             android:id="@+id/right_arrow"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_right_arrow_24dp"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"/>
-
+            android:layout_centerVertical="true"
+            app:srcCompat="@drawable/ic_right_arrow_24dp" />
+        <!--
+        <ToggleButton
+            android:id="@+id/workout_favorite"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:checked="false"
+            android:scaleX="0.5"
+            android:scaleY="0.5" />
+        -->
     </RelativeLayout>
+
+
 </android.support.v7.widget.CardView>

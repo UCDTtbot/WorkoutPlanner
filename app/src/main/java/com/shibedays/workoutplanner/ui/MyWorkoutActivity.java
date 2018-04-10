@@ -7,10 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,7 +18,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -31,12 +26,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;
@@ -53,10 +46,12 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import java.util.List;
 import java.util.Locale;
 
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
+
 
 public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener,
                                                                     NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener,
-                                                                    NumberRoundsDialog.NumberRoundsListener{
+                                                                    NumberRoundsDialog.NumberRoundsListener, SectionedListItemTouchHelper.SwapItems{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -117,6 +112,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
+
     //endregion
 
     //region PUBLIC_VARS
@@ -155,7 +151,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                     if(mTimerFragment != null){
                         mTimerFragment.updateTime(msg.arg1);
                     } else {
-                        Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
+                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
                     break;
                 case MSG_NEXT_REP_UI:
@@ -163,7 +159,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                         if(mTimerFragment != null) {
                             mTimerFragment.updateRep(msg.arg1);
                         } else {
-                            Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_NEXT_REP_UI");
+                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_REP_UI");
                         }
                     }
                     break;
@@ -172,7 +168,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                         if(mTimerFragment != null) {
                             mTimerFragment.updateRound(msg.arg1);
                         } else {
-                            Log.e(DEBUG_TAG, "mTimerFragment is NULL in MSG_NEXT_ROUND_UI");
+                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_ROUND_UI");
                         }
                     }
                     break;
@@ -182,7 +178,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                         Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, nextSet.getTime(), 0);
                         sendTimerMessage(message);
                     } else {
-                        Log.e(DEBUG_TAG, "There is no next set");
+                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "No next set exists. Something went wrong with curRep counter");
                     }
                     break;
                 case MSG_GET_FIRST_SET:
@@ -220,7 +216,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         //region INSTANCE_STATE
         if(savedInstanceState != null){
-            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
+            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.timer_fragment_container);
         }
         //endregion
 
@@ -259,9 +255,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                             mSetList = mWorkoutData.getSetList();
                             mSetAdapter.setData(mSetList);
                             dataUpdate();
-
                         } else {
-                            Log.e(DEBUG_TAG, "Workout not found");
+                            throw new RuntimeException(DEBUG_TAG + " workout not found for LiveData");
                         }
 
                         }
@@ -269,10 +264,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             } else if (mIntentType == NOTIF_INTENT_TYPE){
                 // This is what happens if we're opening this activity from the notification
             } else {
-                Log.e(DEBUG_TAG, "EXTRA_INTENT_TYPE was not set");
+                throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
             }
         } else {
-            Log.e(DEBUG_TAG, "Intent was empty. onCreate MyWorkoutActivity");
+            throw new RuntimeException(DEBUG_TAG + " Intent was empty in onCreate");
         }
         //endregion
 
@@ -307,129 +302,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mSetAdapter = new SetAdapter(this, findViewById(R.id.set_coord_layout));
+        mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
+
+        mSetAdapter = new SetAdapter(this, findViewById(R.id.set_coord_layout), true);
         mRecyclerView.setAdapter(mSetAdapter);
         mSetAdapter.notifyDataSetChanged();
 
-        //RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        //mRecyclerView.addItemDecoration(itemDecoration);
-
-        //region TOUCH_SWIPE_SETUP
         int dragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        final int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
-                dragDirs, swipeDirs) {
-            // Swipe to delete help from:
-            // https://github.com/nemanja-kovacevic/recycler-view-swipe-to-delete/blob/master/app/src/main/java/net/nemanjakovacevic/recyclerviewswipetodelete/
-
-            // Cache the vars needed for onChildDraw
-            Drawable background;
-            Drawable deleteIC;
-            int deleteICMargin;
-            boolean initiated;
-
-            // Initiate the above needed data
-            private void init(){
-                background = new ColorDrawable(Color.RED);
-                deleteIC = getDrawable(R.drawable.ic_delete_white_24dp);
-                deleteICMargin = (int) getResources().getDimension(R.dimen.standard_icon_touchable_padding);
-                initiated = true;
-            }
-
-            // This is for dragging, we don't need (for now)
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                int from = viewHolder.getAdapterPosition();
-                int to = target.getAdapterPosition();
-                swapSets(from, to);
-                mSetAdapter.notifyItemMoved(from, to);
-
-                return false;
-            }
-
-            // For getting the swiped direction. If we somehow swipe an item that's already pendingRemoval, return 0
-            @Override
-            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder){
-                int itemPos = viewHolder.getAdapterPosition();
-                SetAdapter adapter = (SetAdapter) recyclerView.getAdapter();
-                if(adapter.isPendingRemoval(itemPos)){
-                    return 0;
-                } else {
-                    return super.getSwipeDirs(recyclerView, viewHolder);
-                }
-            }
-
-            // When an item is swiped, put it up for removal
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int swipedPos = viewHolder.getAdapterPosition();
-                SetAdapter adapter = (SetAdapter) mRecyclerView.getAdapter();
-                adapter.pendingRemoval(swipedPos);
-                // Snackbar is creating in pendingRemoval
-            }
-
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
-
-                View itemView = viewHolder.itemView;
-
-                // This also gets called for viewholders that are already swiped away, so handle for that
-                if(viewHolder.getAdapterPosition() < 0){
-                    return;
-                }
-
-                if(!initiated){
-                    init();
-                }
-                //if dX > 0, swiping right
-                //if dX < 0 swiping left
-                if(dX < 0) {
-                    // draw the background for the child view
-                    // The background bounds will be from the edge of the view to the edge of the device
-                    background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                    background.draw(c);
-
-                    // Draw the relevent icon
-                    int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
-                    int intristicHeight = deleteIC.getIntrinsicHeight();
-                    int intristicWidth = deleteIC.getIntrinsicWidth();
-
-                    int deleteICLeft = itemView.getRight() - deleteICMargin - intristicWidth;
-                    int deleteICRight = itemView.getRight() - deleteICMargin;
-                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
-                    int deleteICBottom = deleteICTop + intristicHeight;
-                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
-
-                    deleteIC.draw(c);
-                } else if (dX > 0) {
-                    // draw the background for the child view
-                    // The background bounds will be from the edge of the view to the edge of the device
-                    //background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(),itemView.getRight(), itemView.getBottom());
-                    background.setBounds(itemView.getLeft(), itemView.getTop(),
-                            itemView.getLeft() + (int) dX, itemView.getBottom());
-                    background.draw(c);
-
-                    // Draw the relevent icon
-                    int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
-                    int intristicHeight = deleteIC.getIntrinsicHeight();
-                    int intristicWidth = deleteIC.getIntrinsicWidth();
-
-                    int deleteICLeft = itemView.getLeft() + deleteICMargin;
-                    int deleteICRight = itemView.getLeft() + deleteICMargin + intristicWidth;
-                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
-                    int deleteICBottom = deleteICTop + intristicHeight;
-                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
-
-                    deleteIC.draw(c);
-                }
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        });
-        itemTouchHelper.attachToRecyclerView(mRecyclerView);
-        //endregion
+        int swipeDirs = 0;
 
         //endregion
 
@@ -542,26 +422,26 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     //region UI_UPDATES
     private void updateRestTimeUI(int min, int sec, boolean flag){
         if(flag){
-            mRestTime.setText("None");
+            mRestTime.setText(R.string.none_text);
         }else if((sec % 10) == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ){
-            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else if (min == 0 && sec == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else {
+        } else if ( sec < 10 ){
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        }  else {
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
     }
 
     private void updateBreakTimeUI(int min, int sec, boolean flag){
         if(flag){
-            mBreakTime.setText("None");
-        } else if((sec % 10) == 0){
+            mBreakTime.setText(R.string.none_text);
+        } else if((sec % 10) == 0) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ){
+        }else if (min == 0 && sec == 0) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else if (min == 0 && sec == 0){
+        }else if ( sec < 10 ) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
             mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -587,8 +467,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     }
 
     @Override
-    public void onAddSetDialogPositiveClick(String name, String descrip, int min, int sec) {
-        Log.d(DEBUG_TAG, "Name: " + name + " Descrip: " + descrip + " Time: " + min + ":" + sec);
+    public void addUserCreatedSet(String name, String descrip, int min, int sec) {
         // TODO: add description to the add new set
         Set newSet = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
         mWorkoutData.addSet(newSet);
@@ -692,43 +571,29 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         setBottomSheetDialog.show(mFragmentManager, setBottomSheetDialog.getTag());
     }
 
-            //region EDIT
+
+    //TODO : FIX THIS SHIT
     @Override
-    public void editItem(int index) {
-        editSet(index);
+    public void bottomSheetTopRowClicked(int index, int section) {
+
     }
 
     private void editSet(int setIndex){
-        AddEditSetDialog editSetDialog = new AddEditSetDialog();
-        Bundle args = new Bundle();
-        Set curSet = mSetList.get(setIndex);
-        args.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.EDIT_SET);
-        args.putInt(AddEditSetDialog.EXTRA_SET_INDEX, setIndex);
-        args.putString(AddEditSetDialog.EXTRA_SET_NAME, curSet.getName());
-        args.putString(AddEditSetDialog.EXTRA_SET_DESCIP, curSet.getDescrip());
-        int[] time = MainActivity.convertFromMillis(curSet.getTime());
-        args.putInt(AddEditSetDialog.EXTRA_SET_MIN, time[0]);
-        args.putInt(AddEditSetDialog.EXTRA_SET_SEC, time[1]);
-        editSetDialog.setArguments(args);
-        editSetDialog.show(mFragmentManager, DEBUG_TAG);
+
     }
 
     @Override
-    public void onEditSetDialogPositiveClick(int index, String name, String descrip, int min, int sec) {
-        Set editSet = mSetList.get(index);
-        editSet.setName(name);
-        editSet.setDescrip(descrip);
-        editSet.setTime(MainActivity.convertToMillis(min, sec));
-        mWorkoutData.updateSet(editSet, index);
-        mViewModel.update(mWorkoutData);
-    }
-            //endregion
+    public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
 
-            //region DELETE
+    }
     @Override
-    public void deleteItem(int index) {
-        SetAdapter adapter = (SetAdapter) mRecyclerView.getAdapter();
-        adapter.pendingRemoval(index);
+    public void editUserSet(int index, String name, String descrip, int min, int sec) {
+
+    }
+
+    @Override
+    public void bottomSheetBottomRowClicked(int index, int section) {
+
     }
 
     @Override
@@ -738,6 +603,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
             //endregion
 
+        //region SWAP_SETS
+        @Override
+    public void swap(int from, int to) {
+        swapSets(from, to);
+    }
         //endregion
 
     //endregion
@@ -747,10 +617,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     public void startTimer(View view){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
-        fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+        fragmentTransaction.replace(R.id.timer_fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.timer_fragment_container).setVisibility(View.VISIBLE);
         Log.d(DEBUG_TAG, "Timer Fragment Created");
         bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
 
@@ -796,7 +666,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                 Log.e(DEBUG_TAG, "Invalid String ID in sendTTSMessage");
             }
         } else {
-            Log.e(DEBUG_TAG, "TTS is not bound but trying to send a message");
+            throw new RuntimeException(DEBUG_TAG + " TTS was not bound. Unable to send message");
         }
     }
     //endregion
@@ -812,7 +682,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
                 }
             }
         } else {
-            Log.e(DEBUG_TAG, "Timer is not bound");
+            throw new RuntimeException(DEBUG_TAG + " Timer is unbound. Unable to send message");
         }
     }
     //endregion

@@ -24,6 +24,7 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
         <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_vertical_margin</item>
         <item name="android:background">@color/material_grey_500</item>
     </style>
 
@@ -43,7 +44,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerInParent">true</item>
-        <item name="android:layout_marginTop">@dimen/activity_shallow_vertical_margin</item>
+        <item name="android:layout_marginTop">@dimen/quarter_padding</item>
     </style>
 
     <style name="Colon">
@@ -65,6 +66,16 @@
         <item name="android:inputType">textCapSentences</item>
     </style>
 
+    <style name="DialogTextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="android:textSize">@dimen/text_size_xnormal</item>
+        <item name="android:padding">@dimen/half_padding</item>
+
+    </style>
+
     <!-- Lists -->
     <style name="ListTitle" parent="TextAppearance.AppCompat.Title">
         <item name="android:layout_width">match_parent</item>
@@ -74,10 +85,48 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <style name="LinearEntryField">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginTop">@dimen/activity_shallow_vertical_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_shallow_vertical_margin</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:weightSum">100</item>
+    </style>
+
+    <style name="EntryTextTitle" parent="Base.TextAppearance.AppCompat.Subhead">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:layout_weight">80</item>
+    </style>
+
+    <style name="EditTextEntryField" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_xnormal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_weight">15</item>
+        <item name="android:digits">0123456789</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:imeOptions">actionDone</item>
+    </style>
+
+    <style name="TextEntryField" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_xnormal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/editTextBackground</item>
+        <item name="android:layout_weight">20</item>
+    </style>
+
     <!-- Bottom Sheet Styles -->
     <style name="BottomSheetLinearRow">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">@dimen/list_three_quarters_vertical_size</item>
         <item name="android:clickable">true</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="android:focusable">true</item>

@@ -1,5 +1,7 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_quarter_margin">4dp</dimen>
+    <dimen name="activity_shallow_margin">8dp</dimen>
     <dimen name="activity_shallow_horizontal_margin">8dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_deep_horizontal_margin">32dp</dimen>
@@ -13,10 +15,13 @@
     <dimen name="standard_padding">8dp</dimen>
     <dimen name="deep_padding">16dp</dimen>
 
+    <dimen name="standard_icon_size">24dp</dimen>
     <dimen name="standard_icon_touchable_size">48dp</dimen>
     <dimen name="standard_icon_touchable_padding">12dp</dimen>
     <dimen name="standard_icon_margin_start">16dp</dimen>
     <dimen name="standard_icon_margin_end">16dp</dimen>
+
+    <dimen name="background_icon_size">72dp</dimen>
 
     <dimen name="icon_list_padding_start">72dp</dimen>
     <dimen name="icon_list_margin_start">72dp</dimen>
@@ -25,7 +30,11 @@
 
     <dimen name="list_title_size">54dp</dimen>
 
-    <dimen name="list_standard_size">72dp</dimen>
+    <dimen name="list_half_vertical_size">36dp</dimen>
+    <dimen name="list_three_quarters_vertical_size">54dp</dimen>
+    <dimen name="list_45_vert_size">45dp</dimen>
+    <dimen name="list_standard_vertical_size">72dp</dimen>
+    <dimen name="list_standard_horizontal_size">180dp</dimen>
     <dimen name="list_subtitle_size">48dp</dimen>
 
 
@@ -35,9 +44,12 @@
     <dimen name="text_size_xsmall">12sp</dimen>
     <dimen name="text_size_small">14sp</dimen>
     <dimen name="text_size_normal">16sp</dimen>
+    <dimen name="text_size_xnormal">18sp</dimen>
     <dimen name="text_size_large">20sp</dimen>
     <dimen name="text_size_xlarge">24sp</dimen>
     <dimen name="text_size_xxlarge">34sp</dimen>
+    <dimen name="number_picker_height">180dp</dimen>
+    <dimen name="number_picker_width">64dp</dimen>
 
 
 </resources>

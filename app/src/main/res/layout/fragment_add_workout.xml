@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/material_blue_grey_50">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button_save">
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_shallow_vertical_margin">
+
+                <EditText
+                    android:id="@+id/name_entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/name_hint"
+                    android:maxLines="1"
+                    android:maxLength="23"
+                    android:imeOptions="actionDone"
+                    android:inputType="textCapSentences"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.v7.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="270dp"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:weightSum="100">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/left_recyclerview"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="50">
+
+                </android.support.v7.widget.RecyclerView>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/right_recyclerview"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="50">
+
+                </android.support.v7.widget.RecyclerView>
+            </android.support.v7.widget.LinearLayoutCompat>
+
+            <LinearLayout
+                style="@style/LinearEntryField">
+
+                <TextView
+                    android:id="@+id/round_entry_title"
+                    android:text="@string/round_title_text"
+                    style="@style/EntryTextTitle" />
+
+                <EditText
+                    android:id="@+id/round_entry_num"
+                    android:text="@string/default_num"
+                    android:inputType="number"
+                    style="@style/EditTextEntryField"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LinearEntryField">
+
+                <TextView
+                    android:id="@+id/rest_entry_title"
+                    android:text="@string/rest_title_text"
+                    style="@style/EntryTextTitle"/>
+
+                <TextView
+                    android:id="@+id/rest_entry_time"
+                    style="@style/TextEntryField"
+                    android:text="@string/default_time" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LinearEntryField">
+
+                <TextView
+                    android:id="@+id/break_entry_title"
+                    android:text="@string/break_title_text"
+                    style="@style/EntryTextTitle"/>
+
+                <TextView
+                    android:id="@+id/break_entry_time"
+                    android:text="@string/default_time"
+                    style="@style/TextEntryField"/>
+
+            </LinearLayout>
+
+
+
+        </android.support.v7.widget.LinearLayoutCompat>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/button_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/activity_shallow_margin"
+        android:text="@string/button_save" />
+
+</RelativeLayout>

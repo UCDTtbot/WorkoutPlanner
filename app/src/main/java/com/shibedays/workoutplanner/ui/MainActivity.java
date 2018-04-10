@@ -5,43 +5,46 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
+import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
+import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
+import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
+import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditWorkoutDialog;
+import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
+import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements AddEditWorkoutDialog.WorkoutDialogListener, WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener {
+public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
+                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItemsListener,
+                                                                AddEditSetDialog.AddSetDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener, NumberPickerDialog.NumberPickerDialogListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
 
     // Data
     private List<Workout> mWorkoutData;
+    private List<Set> mUserCreatedSets;
 
     // Adapters
     private WorkoutAdapter mWorkoutAdapter;
@@ -74,12 +78,17 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
     private SharedPreferences mPrivateSharedPrefs;
     private SharedPreferences mDefaultSharedPrefs;
     private FragmentManager mFragmentManager;
+    private ActionBar mActionBar;
 
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
 
     // View Model
     private WorkoutViewModel mWorkoutViewModel;
+    private SetViewModel mSetViewModel;
+
+    // Fragment(s)
+    NewWorkoutFragment mNewWorkoutFragment;
 
     //endregion
 
@@ -92,10 +101,7 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         mFragmentManager = getSupportFragmentManager();
-
         //region SHARED_PREFS
         // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
@@ -109,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
                 NEXT_WORKOUT_ID = mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, -DATA_DOESNT_EXIST);
                 if(NEXT_WORKOUT_ID == DATA_DOESNT_EXIST){
                     Log.e(DEBUG_TAG, "NEXT WORKOUT NUM DATA DOESN'T EXIST");
+                    NEXT_WORKOUT_ID = mWorkoutData.size() + 1;
                 }
             }else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
@@ -124,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
                 editor.apply();
             }else{
                 // Fatal error
-                Log.e(DEBUG_TAG, "Unknown Error in SharedPrefs");
+                throw new RuntimeException(MainActivity.class.getSimpleName() + " Unknown error in Shared Prefs. savedVersionCode may not exist or is incorrect");
             }
         }
 
@@ -142,126 +149,24 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
 
-
-        // Add the horizontal bar lines as an item decoration
-        //RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        //mRecyclerView.addItemDecoration(itemDecoration);
-        //TODO: Add recycler animation?
-
-            //region TOUCH_SWIPE_SETUP
+            //region item_touch_helper
+        /*
         int dragDirs = 0;
-        final int swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
-                dragDirs, swipeDirs) {
-
-            // Swipe to delete help from:
-            // https://github.com/nemanja-kovacevic/recycler-view-swipe-to-delete/blob/master/app/src/main/java/net/nemanjakovacevic/recyclerviewswipetodelete/
-            // Cache the vars needed for onChildDraw
-            Drawable background;
-            Drawable deleteIC;
-            int deleteICMargin;
-            boolean initiated;
-
-            // Initiate the above needed data
-            private void init(){
-                background = new ColorDrawable(Color.RED);
-                deleteIC = getDrawable(R.drawable.ic_delete_white_24dp);
-                deleteICMargin = (int) getResources().getDimension(R.dimen.standard_icon_touchable_padding);
-                initiated = true;
-            }
-
-            // This is for dragging, we don't need (for now)
+        ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, false, false, dragDirs ,mRecyclerView) {
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
+            public void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
+                underlayButtons.add(new ListItemTouchHelper.UnderlayButton(R.drawable.ic_delete_white_24dp,
+                        ResourcesCompat.getColor(getResources(),R.color.material_red_500, null), context, new UnderlayButtonClickListener() {
+                    @Override
+                    public void onDeleteButtonClick(int pos) {
+                        WorkoutAdapter.WorkoutViewHolder vh = (WorkoutAdapter.WorkoutViewHolder) viewHolder;
+                        mWorkoutAdapter.pendingRemoval(pos);
+                        Log.d(DEBUG_TAG, "Deleting" + vh.getWorkout().getName());
+                    }
+                }));
             }
-
-            // For getting the swiped direction. If we somehow swipe an item that's already pendingRemoval, return 0
-            @Override
-            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder){
-                int itemPos = viewHolder.getAdapterPosition();
-                WorkoutAdapter adapter = (WorkoutAdapter)recyclerView.getAdapter();
-                if(adapter.isPendingRemoval(itemPos)){
-                    return 0;
-                } else {
-                    return super.getSwipeDirs(recyclerView, viewHolder);
-                }
-            }
-
-            // When an item is swiped, put it up for removal
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int swipedPos = viewHolder.getAdapterPosition();
-                WorkoutAdapter adapter = (WorkoutAdapter)mRecyclerView.getAdapter();
-                adapter.pendingRemoval(swipedPos);
-                // Snackbar is creating in pendingRemoval
-            }
-
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
-
-                View itemView = viewHolder.itemView;
-
-                // This also gets called for viewholders that are already swiped away, so handle for that
-                if(viewHolder.getAdapterPosition() < 0){
-                    return;
-                }
-
-                if(!initiated){
-                    init();
-                }
-
-                Log.d(DEBUG_TAG, "dX: " + Float.toString(dX));
-
-                 //if dX > 0, swiping right
-                    //if dX < 0 swiping left
-                if(dX < 0) {
-                    Log.d(DEBUG_TAG, "Swiping Left");
-                    // draw the background for the child view
-                    // The background bounds will be from the edge of the view to the edge of the device
-                    background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                    background.draw(c);
-
-                    // Draw the relevent icon
-                    int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
-                    int intristicHeight = deleteIC.getIntrinsicHeight();
-                    int intristicWidth = deleteIC.getIntrinsicWidth();
-
-                    int deleteICLeft = itemView.getRight() - deleteICMargin - intristicWidth;
-                    int deleteICRight = itemView.getRight() - deleteICMargin;
-                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
-                    int deleteICBottom = deleteICTop + intristicHeight;
-                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
-
-                    deleteIC.draw(c);
-                } else if (dX > 0) {
-                    Log.d(DEBUG_TAG, "Swiping Right");
-                    // draw the background for the child view
-                    // The background bounds will be from the edge of the view to the edge of the device
-                    //background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(),itemView.getRight(), itemView.getBottom());
-                    background.setBounds(itemView.getLeft(), itemView.getTop(),
-                            itemView.getLeft() + (int) dX, itemView.getBottom());
-                    background.draw(c);
-
-                    // Draw the relevent icon
-                    int itemHeight = itemView.getBottom() - itemView.getTop();
-                    //TODO: What's intristic mean
-                    int intristicHeight = deleteIC.getIntrinsicHeight();
-                    int intristicWidth = deleteIC.getIntrinsicWidth();
-
-                    int deleteICLeft = itemView.getLeft() + deleteICMargin;
-                    int deleteICRight = itemView.getLeft() + deleteICMargin + intristicWidth;
-                    int deleteICTop = itemView.getTop() + (itemHeight - intristicHeight) / 2; // divide by 2 to get the center
-                    int deleteICBottom = deleteICTop + intristicHeight;
-                    deleteIC.setBounds(deleteICLeft, deleteICTop, deleteICRight, deleteICBottom);
-
-                    deleteIC.draw(c);
-                }
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        });
-        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+        };
+        */
             //endregion
 
         //endregion
@@ -280,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addWorkout();
+                openNewWorkoutFragment();
             }
         });
         //endregion
@@ -290,8 +195,16 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
         mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
-                mWorkoutAdapter.setData(workouts);
                 mWorkoutData = workouts;
+                mWorkoutAdapter.setData(workouts);
+            }
+        });
+
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+                mUserCreatedSets = sets;
             }
         });
         //endregion
@@ -299,28 +212,10 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    protected void onStart() {
+        super.onStart();
+        mActionBar = getSupportActionBar();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MAIN_ACTVITIY);
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -355,6 +250,45 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
 
     //endregion
 
+    //region TOOLBAR
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MAIN_ACTVITIY);
+            startActivity(intent);
+            return true;
+        } else if (id == android.R.id.home){
+            if(mFragmentManager.getBackStackEntryCount() > 0){
+                mFragmentManager.popBackStack();
+                toggleUpArrow(false);
+            }
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Action Bar Function
+    public void toggleUpArrow(boolean flag){
+        mActionBar.setDisplayHomeAsUpEnabled(flag);
+    }
+    //endregion
+
     //region UTILITY
     public static int convertToMillis(int[] time){
         return ((time[0] * 60) + time[1]) * 1000;
@@ -385,10 +319,44 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
     }
     //endregion
 
-    //region INTERFACE_IMPLEMENTATIONS
+    //region NEW_WORKOUT
 
-        //region NEW_WORKOUT
-    public void addWorkout(){
+    private void openNewWorkoutFragment(){
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mUserCreatedSets);
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.fab).setVisibility(View.GONE);
+        toggleUpArrow(true);
+        Log.d(DEBUG_TAG, "New Workout Fragment Created");
+        //if(mUserCreatedSets != null)
+        //    mNewWorkoutFragment.setUserCreatedSets(mUserCreatedSets);
+    }
+
+    // For New Workouts
+    public int getNextWorkoutId(){
+        return NEXT_WORKOUT_ID;
+    }
+
+    @Override
+    public void addNewWorkout(Workout workout) {
+        NEXT_WORKOUT_ID++;
+        mWorkoutViewModel.insert(workout);
+        View view = this.getCurrentFocus();
+        if(view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if(imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+        mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    }
+
+    //region OLD_ADD_WORKOUT_CODE
+    /*
+    public void openNewWorkoutFragment(){
         AddEditWorkoutDialog addWorkoutDialog = new AddEditWorkoutDialog();
         Bundle args = new Bundle();
         args.putInt(AddEditWorkoutDialog.EXTRA_DIALOG_TYPE, AddEditWorkoutDialog.NEW_WORKOUT);
@@ -402,16 +370,40 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
             Workout newWorkout = new Workout(NEXT_WORKOUT_ID++, name);
             newWorkout.addSet(new Set("My Workout Set", "Description of my Workout Set", 60000));
             mPrivateSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
-            mWorkoutViewModel.insert(newWorkout);
+            mWorkoutViewModel.insertWorkout(newWorkout);
         } else {
             // TODO: Display an error message saying that name must not be null
             Toast.makeText(this, "Name must not be empty", Toast.LENGTH_LONG).show();
         }
 
     }
-        //endregion
 
-        //region OPEN_WORKOUT
+    @Override
+    public void onEditWorkoutDialogPositiveClick(String name, int index) {
+
+    }
+    */
+    //endregion
+
+    //endregion
+
+    //region NUMBER_PICKER_LISTENERS
+    @Override
+    public void setRestTime(int min, int sec, boolean noFlag) {
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.setRestTime(min, sec, noFlag);
+        }
+    }
+
+    @Override
+    public void setBreakTime(int min, int sec, boolean noFlag) {
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.setBreakTime(min, sec, noFlag);
+        }
+    }
+    //endregion
+
+    //region OPEN_WORKOUT
     @Override
     public void onWorkoutClicked(int workoutID) {
         openWorkout(workoutID);
@@ -423,9 +415,10 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
         intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
         startActivity(intent);
     }
-        //endregion
+    //endregion
 
-        //region BOTTOM_SHEET
+    //region BOTTOM_SHEET_WORKOUTS
+
     @Override
     public void onWorkoutLongClick(int workoutIndex, int workoutID) {
         openBottomDialog(workoutIndex, workoutID);
@@ -440,54 +433,122 @@ public class MainActivity extends AppCompatActivity implements AddEditWorkoutDia
         workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
     }
 
-            //region EDIT_WORKOUT
     @Override
-    public void editItem(int index) {
-        editWorkout(index);
+    public void onClickDuplicateWorkout(int index) {
+
     }
 
-    public void editWorkout(int workoutIndex){
-        AddEditWorkoutDialog editWorkoutDialog = new AddEditWorkoutDialog();
-        Bundle args = new Bundle();
-        args.putInt(AddEditWorkoutDialog.EXTRA_DIALOG_TYPE, AddEditWorkoutDialog.EDIT_WORKOUT);
-        args.putString(AddEditWorkoutDialog.EXTRA_WORKOUT_NAME, mWorkoutData.get(workoutIndex).getName());
-        args.putInt(AddEditWorkoutDialog.EXTRA_WORKOUT_INDEX, workoutIndex);
-        editWorkoutDialog.setArguments(args);
-        editWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
+    // Deleting workout
+    @Override
+    public void onClickDeleteWorkout(int index) {
+        //WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
+        //adapter.pendingRemoval(index);
+        // Snackbar is creating in pendingRemoval
     }
 
+    @Override
+    public void deleteWorkoutFromDB(Workout workout) {
+        mWorkoutViewModel.remove(workout);
+    }
+
+
+
+    //region OLD_EDIT_WORKOUT_CODE
+    /*
     @Override
     public void onEditWorkoutDialogPositiveClick(String name, int index) {
         if(!TextUtils.isEmpty(name)){
             mWorkoutData.get(index).setName(name);
-            mWorkoutViewModel.update(mWorkoutData.get(index));
+            mWorkoutViewModel.updateWorkout(mWorkoutData.get(index));
         } else {
             Toast.makeText(this, "Name must not be empty", Toast.LENGTH_SHORT).show();
         }
     }
-            //endregion
-
-            //region DELETE_WORKOUT
-    @Override
-    public void deleteItem(int index) {
-        WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
-        adapter.pendingRemoval(index);
-        // Snackbar is creating in pendingRemoval
-    }
-
-
-            // Deleting workout
-    @Override
-    public void deleteWorkout(Workout workout) {
-        mWorkoutViewModel.remove(workout);
-    }
-            //endregion
-
-        //endregion
-
+    */
     //endregion
 
 
+    //endregion
 
+    //region BOTTOM_SHEET_SET_CALLBACKS
+    @Override
+    public void bottomSheetTopRowClicked(int index, int section) {
+        if(mNewWorkoutFragment != null){
+            if(section == NewWorkoutFragment.RIGHT_SIDE) {
+                mNewWorkoutFragment.editUserSet(index, section);
+            } else if (section == NewWorkoutFragment.LEFT_SIDE){
+                mNewWorkoutFragment.editUserCreatedSet(index, section);
+            } else {
+                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetTopRowClicked");
+            }
+        }
+    }
+
+    @Override
+    public void bottomSheetBottomRowClicked(int index, int section) {
+        if(mNewWorkoutFragment != null){
+            if(section == NewWorkoutFragment.RIGHT_SIDE) {
+                mNewWorkoutFragment.deleteUserSet(index);
+            } else if (section == NewWorkoutFragment.LEFT_SIDE){
+                Set set = mUserCreatedSets.get(index);
+                mNewWorkoutFragment.deleteUserCreatedSet(index);
+                mSetViewModel.remove(set);
+            } else {
+                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetBottomRowClicked");
+            }
+        }
+    }
+    //endregion
+
+    //region MY_WORKOUT_SET_FUNCTIONS
+    @Override
+    public void onSetClick(int setIndex) {
+
+    }
+
+    @Override
+    public void deleteSet(Set set) {
+
+    }
+
+    @Override
+    public void swap(int from, int to) {
+        // TODO : SWAP WORKOUTS YA
+        Workout wrkFrom = mWorkoutData.get(from);
+        Workout wrkTo = mWorkoutData.get(to);
+        mWorkoutData.set(from, wrkTo);
+        mWorkoutData.set(to, wrkFrom);
+    }
+    //endregion
+
+    //region USER_CREATED_SET_FUNCTIONS
+    @Override
+    public void addUserCreatedSet(String name, String descrip, int min, int sec) {
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.addUserCreatedSet(new Set(name, descrip, MainActivity.convertToMillis(min, sec)));
+            Set set = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
+            mSetViewModel.insert(set);
+        }
+    }
+
+    @Override
+    public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.updateUserCreatedSet(index, name, descrip, min, sec);
+            Set set = mUserCreatedSets.get(index);
+            mSetViewModel.update(set);
+        }
+    }
+    //endregion
+
+    //region USER_SETS
+    @Override
+    public void editUserSet(int index, String name, String descrip, int min, int sec){
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.updateUserSet(index, name, descrip, min, sec);
+        }
+    }
+
+    //endregion
 
 }

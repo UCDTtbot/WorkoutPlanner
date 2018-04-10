@@ -1,18 +1,8 @@
 package com.shibedays.workoutplanner.ui;
 
-import android.app.Service;
-import android.content.ComponentName;
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.net.ConnectivityManager;
-import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,21 +11,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.services.TimerService;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 
 /**
@@ -72,6 +56,8 @@ public class TimerFragment extends Fragment {
     private TextView mCurRepTextView;
     private TextView mCurRoundTextView;
     private TextView mServiceTextView;
+    // Activity
+    private MyWorkoutActivity mParentActivity;
     //endregion
 
     //region PUBLIC_VARS
@@ -98,13 +84,6 @@ public class TimerFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Factory method to instantiate a new instance of a TimerFragment
-     *
-     * @param workoutJSON String
-     * @return TimerFragment
-     */
-    // TODO: Rename and change types and number of parameters
     public static TimerFragment newInstance(String workoutJSON) {
         if(mTimerFragmentInstance == null) {
             mTimerFragmentInstance = new TimerFragment();
@@ -128,6 +107,12 @@ public class TimerFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        Activity act = getActivity();
+        if(act instanceof MyWorkoutActivity){
+            mParentActivity = (MyWorkoutActivity) act;
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " wasn't created from MyWorkoutActivity");
+        }
     }
 
     @Override
@@ -143,7 +128,7 @@ public class TimerFragment extends Fragment {
             mCurRep = 0;
             mCurRound = 0;
         } else {
-            Log.e(DEBUG_TAG, "get args was null");
+            throw new RuntimeException(TimerFragment.class.getSimpleName() + " getArguments returned null. Fragment started incorrectly");
         }
         setHasOptionsMenu(true);
 
@@ -169,35 +154,35 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_START");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_START");
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_RESUME");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_RESUME");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_PAUSE");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_PAUSE");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(DEBUG_TAG, "FRAGMENT ON_STOP");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_STOP");
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-        getActivity().findViewById(R.id.fragment_container).setVisibility(View.GONE);
+        mParentActivity.findViewById(R.id.timer_fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mTimerFragmentInstance = null;
-        Log.d(DEBUG_TAG, "FRAGMENT ON_DESTROY");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");
     }
 
     @Override
@@ -209,7 +194,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(DEBUG_TAG, "FRAGMENT SAVING INSTANCE STATE");
+        Log.d(DEBUG_TAG, "TIMER_FRAGMENT SAVING INSTANCE STATE");
 
     }
 

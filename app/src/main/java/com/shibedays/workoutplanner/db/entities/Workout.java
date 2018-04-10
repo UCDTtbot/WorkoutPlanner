@@ -1,10 +1,12 @@
 package com.shibedays.workoutplanner.db.entities;
 
 
+import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.migration.Migration;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -19,7 +21,6 @@ import javax.crypto.spec.DESedeKeySpec;
 @Entity(tableName = "workouts")
 public class Workout{
     @PrimaryKey
-    @NonNull
     @ColumnInfo(name = "id")
     private int workoutID;
     private int numOfRounds;
@@ -28,6 +29,8 @@ public class Workout{
     private int timeBetweenRounds;
     private boolean noRestFlag;
     private boolean noBreakFlag;
+    @ColumnInfo(name = "favorite")
+    private boolean isFavorite;
 
     private String name;
 
@@ -47,6 +50,7 @@ public class Workout{
         timeBetweenRounds = 30000;
         noRestFlag = false;
         noBreakFlag = false;
+        isFavorite = false;
     }
     public Workout(Workout workout){
         workoutID = workout.getWorkoutID();
@@ -57,6 +61,7 @@ public class Workout{
         timeBetweenRounds = workout.getTimeBetweenSets();
         noRestFlag = false;
         noBreakFlag = false;
+        isFavorite = false;
     }
 
     public int getWorkoutID(){
@@ -114,6 +119,9 @@ public class Workout{
         noBreakFlag = flag;
     }
 
+    public boolean getIsFavorite(){ return isFavorite; }
+    public void setIsFavorite(boolean favorite) { isFavorite = favorite; }
+
     public String getSetListJSON(){
         Gson gson = new Gson();
         return gson.toJson(setList);
@@ -131,6 +139,9 @@ public class Workout{
 
     public void addSet(Set set){
         setList.add(set);
+    }
+    public void addSets(List<Set> sets){
+        setList.addAll(sets);
     }
     public void swapSets(int from, int to){
         //Log.d("WORKOUT", "Swapping");
