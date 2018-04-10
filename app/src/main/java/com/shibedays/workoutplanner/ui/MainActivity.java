@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
@@ -42,7 +43,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
                                                                 NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItemsListener,
-                                                                AddEditSetDialog.AddSetDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener{
+                                                                AddEditSetDialog.AddSetDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener, NumberPickerDialog.NumberPickerDialogListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -339,8 +340,10 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
 
     @Override
-    public void addNewWorkout() {
+    public void addNewWorkout(Workout workout) {
         NEXT_WORKOUT_ID++;
+        mWorkoutViewModel.insert(workout);
+        mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     //region OLD_ADD_WORKOUT_CODE
@@ -374,6 +377,22 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     */
     //endregion
 
+    //endregion
+
+    //region NUMBER_PICKER_LISTENERS
+    @Override
+    public void setRestTime(int min, int sec, boolean noFlag) {
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.setRestTime(min, sec, noFlag);
+        }
+    }
+
+    @Override
+    public void setBreakTime(int min, int sec, boolean noFlag) {
+        if(mNewWorkoutFragment != null){
+            mNewWorkoutFragment.setBreakTime(min, sec, noFlag);
+        }
+    }
     //endregion
 
     //region OPEN_WORKOUT
@@ -521,13 +540,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
             mNewWorkoutFragment.updateUserSet(index, name, descrip, min, sec);
         }
     }
+
     //endregion
-
-
-
-
-
-
-
 
 }

@@ -107,10 +107,20 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/text_size_xnormal</item>
-        <item name="android:gravity">end</item>
-        <item name="android:paddingStart">@dimen/quarter_padding</item>
-        <item name="android:paddingEnd">@dimen/standard_padding</item>
-        <item name="android:layout_weight">20</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_weight">15</item>
+        <item name="android:digits">0123456789</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:imeOptions">actionDone</item>
+    </style>
+
+    <style name="TextEntryField" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_xnormal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/editTextBackground</item>
+        <item name="android:layout_weight">15</item>
     </style>
 
     <!-- Bottom Sheet Styles -->

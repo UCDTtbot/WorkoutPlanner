@@ -422,26 +422,26 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     //region UI_UPDATES
     private void updateRestTimeUI(int min, int sec, boolean flag){
         if(flag){
-            mRestTime.setText("None");
+            mRestTime.setText(R.string.none_text);
         }else if((sec % 10) == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ){
-            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else if (min == 0 && sec == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else {
+        } else if ( sec < 10 ){
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        }  else {
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
     }
 
     private void updateBreakTimeUI(int min, int sec, boolean flag){
         if(flag){
-            mBreakTime.setText("None");
-        } else if((sec % 10) == 0){
+            mBreakTime.setText(R.string.none_text);
+        } else if((sec % 10) == 0) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ){
+        }else if (min == 0 && sec == 0) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else if (min == 0 && sec == 0){
+        }else if ( sec < 10 ) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
             mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -602,8 +602,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     }
 
             //endregion
-
-        //endregion
 
         //region SWAP_SETS
         @Override

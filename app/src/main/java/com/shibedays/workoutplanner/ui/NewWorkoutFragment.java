@@ -1,6 +1,7 @@
 package com.shibedays.workoutplanner.ui;
 
 import android.app.Activity;
+import android.arch.persistence.room.util.StringUtil;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,12 +25,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.amitshekhar.utils.Utils;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
@@ -36,10 +42,11 @@ import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.crypto.spec.DESedeKeySpec;
 
-public class NewWorkoutFragment extends Fragment {
+public class NewWorkoutFragment extends Fragment{
     //region CONSTANTS
     // Factory Constant
     private static final String ARG_WORKOUT = "WORKOUT";
@@ -55,6 +62,12 @@ public class NewWorkoutFragment extends Fragment {
     private List<Set> mDefaultSets;
     private List<Set> mUserCreatedSets;
     private List<Set> mUsersSets;
+
+    private int mRounds;
+    private int mRestTime;
+    private int mBreakTime;
+    private boolean mRestFlag;
+    private boolean mBreakFlag;
     // Adapters
     //private SetAdapter mLeftAdapter;
     //private SetAdapter mRightAdapter;
@@ -66,14 +79,17 @@ public class NewWorkoutFragment extends Fragment {
 
     private CoordinatorLayout mCoordLayout; // Displaying Toasts / Undo bar
 
+    private EditText mNameEntry;
     private EditText mRoundEntry;
-    private EditText mRestEntry;
-    private EditText mBreakEntry;
+    private TextView mRestEntry;
+    private TextView mBreakEntry;
 
     private Button mSaveButton;
 
     // Parent
     private MainActivity mParentActivity;
+
+
     //endregion
 
     //region PUBLIC_VARS
@@ -88,7 +104,7 @@ public class NewWorkoutFragment extends Fragment {
      * activity.
      */
     public interface OnFragmentInteractionListener {
-        void addNewWorkout();
+        void addNewWorkout(Workout workout);
     }
     private OnFragmentInteractionListener mListener;
     //endregion
@@ -141,6 +157,10 @@ public class NewWorkoutFragment extends Fragment {
         mDefaultSets.add(new Set("Walk", "Brisk walk", 30000));
         mDefaultSets.add(new Set("Pushups", "As many pushups as possible in the time limit", 45000));
         mDefaultSets.add(new Set("Situps", "Arms across chest", 45000));
+
+        mRounds = 1;
+        mRestTime = 60000;
+        mBreakTime = 60000;
     }
 
     @Nullable
@@ -150,65 +170,13 @@ public class NewWorkoutFragment extends Fragment {
         //region UI
 
         View view = inflater.inflate(R.layout.fragment_add_workout, container, false);
-        mSaveButton = view.findViewById(R.id.button_save);
         mCoordLayout = mParentActivity.findViewById(R.id.main_coord_layout);
 
-        mRoundEntry = view.findViewById(R.id.round_entry_num);
-        mRestEntry = view.findViewById(R.id.rest_entry_time);
-        mRestEntry.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String string = s.toString();
-                boolean f = string.contains(":");
-                if(string.contains(":")){
-                    int i = string.indexOf(":");
-                    Log.d(DEBUG_TAG, Integer.toString(i));
-                }
-                if(string.length() == 2){
-                    string = string.concat(":");
-                    int length = string.length();
-                    mRestEntry.setText(string);
-                    mRestEntry.setSelection( (start + 1) <= length ? start + 1 : length);
-                } else if(string.length() >= 5){
-                    String working = string.substring(0, 4);
-                    int length = working.length();
-                    mRestEntry.setText(working);
-                    mRestEntry.setSelection( (start + 1) <= length ? start + 1 : length);
-                }
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        mBreakEntry = view.findViewById(R.id.break_entry_time);
-        mBreakEntry.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-
-        //endregion
+        mNameEntry = view.findViewById(R.id.name_entry);
 
         //region RECYCLER_VIEWS
 
-            //region LEFT_RV
+        //region LEFT_RV
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -270,9 +238,9 @@ public class NewWorkoutFragment extends Fragment {
         mLeftAdapter.shouldShowHeadersForEmptySections(true);
         mLeftAdapter.shouldShowFooters(true);
 
-            //endregion
+        //endregion
 
-            //region RIGHT_RV
+        //region RIGHT_RV
         mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
         mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -350,9 +318,60 @@ public class NewWorkoutFragment extends Fragment {
         mRightAdapter.notifyDataSetChanged();
         */
         //endregion
-            //endregion
+        //endregion
 
         //endregion
+
+        mRoundEntry = view.findViewById(R.id.round_entry_num);
+        mRoundEntry.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //TODO: Round input validation
+                if(s.length() > 2){
+                    String working = s.subSequence(0, 2).toString();
+                    mRoundEntry.setText(working);
+                    mRoundEntry.setSelection( (start + 1) <= working.length() ? start + 1 : working.length());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        mRestEntry = view.findViewById(R.id.rest_entry_time);
+        mRestEntry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openNumberPicker(NumberPickerDialog.REST_TYPE, mRestTime);
+            }
+        });
+
+        mBreakEntry = view.findViewById(R.id.break_entry_time);
+        mBreakEntry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openNumberPicker(NumberPickerDialog.BREAK_TYPE, mBreakTime);
+            }
+        });
+
+        mSaveButton = view.findViewById(R.id.button_save);
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: New workout
+                Log.d(DEBUG_TAG, "Adding working: " + mNameEntry.getText().toString());
+                saveWorkout();
+            }
+        });
+
+        //endregion
+
         return view;
     }
 
@@ -494,5 +513,96 @@ public class NewWorkoutFragment extends Fragment {
     }
     //endregion
 
+    //region NUMBER_PICKER
+    public void setRestTime(int min, int sec, boolean flag) {
+        if(flag){
+            mRestEntry.setText(R.string.none_text);
+        }else if( sec == 0 ){
+            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if ( (sec % 10) == 0 ) {
+            mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        } else if ( sec < 10 ) {
+            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        }else {
+            mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
 
+        mRestTime = MainActivity.convertToMillis(min, sec);
+    }
+
+    public void setBreakTime(int min, int sec, boolean flag) {
+        if(flag){
+            mBreakEntry.setText(R.string.none_text);
+        }else if((sec % 10) == 0){
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        } else if (min == 0 && sec == 0) {
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else if ( sec < 10 ) {
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        }else {
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
+
+        mBreakTime = MainActivity.convertToMillis(min, sec);
+    }
+
+    private void openNumberPicker(int type, int time){
+        NumberPickerDialog dialog = new NumberPickerDialog();
+        Bundle bundle = new Bundle();
+        bundle.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, type);
+        bundle.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, time); // default to 1 minute
+        bundle.putBoolean(NumberPickerDialog.EXTRA_NO_FLAG, false);
+        dialog.setArguments(bundle);
+        if(getFragmentManager() != null) {
+            dialog.show(getFragmentManager(), DEBUG_TAG);
+        }
+    }
+    //endregion
+
+    public void saveWorkout(){
+        boolean isOk = true;
+
+        String name = mNameEntry.getText().toString();
+        int restTime[] = MainActivity.convertFromMillis(mRestTime);
+        int breakTime[] = MainActivity.convertFromMillis(mBreakTime);
+        int rounds = 0;
+        List<Set> setList = mUsersSets;
+        if(TextUtils.isEmpty(name)){
+            mNameEntry.setError("Name can not be empty.");
+            isOk = false;
+        }
+
+        if(!TextUtils.isEmpty(mRoundEntry.getText())){
+            rounds = Integer.parseInt(mRoundEntry.getText().toString());
+        } else {
+            mRoundEntry.setError("Must choose number of rounds.");
+            isOk = false;
+        }
+
+        if(restTime[0] == 0 && restTime[1] == 0){
+            mRestEntry.setError("Time cannot be 0:00!");
+            isOk = false;
+        }
+
+        if(breakTime[0] == 0 && breakTime[1] == 0){
+            mBreakEntry.setError("Time cannot be 0:00!");
+            isOk = false;
+        }
+
+        if(setList.isEmpty()){
+            Toast.makeText(mParentActivity, "Choose at least 1 set.", Toast.LENGTH_SHORT).show();
+            isOk = false;
+        }
+
+        if(isOk) {
+            Workout workout = new Workout(MainActivity.NEXT_WORKOUT_ID, name);
+            workout.setNumOfRounds(rounds);
+            workout.setNoRestFlag(mRestFlag);
+            workout.setNoBreakFlag(mBreakFlag);
+            workout.setTimeBetweenSets(MainActivity.convertToMillis(restTime));
+            workout.setTimeBetweenRounds(MainActivity.convertToMillis(breakTime));
+            workout.addSets(setList);
+            mListener.addNewWorkout(workout);
+        }
+    }
 }

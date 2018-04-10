@@ -24,9 +24,13 @@
                 android:layout_marginTop="@dimen/activity_shallow_vertical_margin">
 
                 <EditText
+                    android:id="@+id/name_entry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Name"
+                    android:hint="@string/name_hint"
+                    android:maxLines="1"
+                    android:maxLength="23"
+                    android:imeOptions="actionDone"
                     android:inputType="text"/>
             </android.support.design.widget.TextInputLayout>
 
@@ -80,11 +84,10 @@
                     android:text="@string/rest_title_text"
                     style="@style/EntryTextTitle"/>
 
-                <EditText
+                <TextView
                     android:id="@+id/rest_entry_time"
-                    android:hint="@string/default_time"
-                    android:inputType="datetime"
-                    style="@style/EditTextEntryField"/>
+                    style="@style/TextEntryField"
+                    android:text="@string/default_time" />
 
             </LinearLayout>
 
@@ -96,11 +99,10 @@
                     android:text="@string/break_title_text"
                     style="@style/EntryTextTitle"/>
 
-                <EditText
+                <TextView
                     android:id="@+id/break_entry_time"
-                    android:hint="@string/default_time"
-                    android:inputType="datetime"
-                    style="@style/EditTextEntryField"/>
+                    android:text="@string/default_time"
+                    style="@style/TextEntryField"/>
 
             </LinearLayout>
 

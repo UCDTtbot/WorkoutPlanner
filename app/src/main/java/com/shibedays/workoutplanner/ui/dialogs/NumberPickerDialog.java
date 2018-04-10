@@ -1,7 +1,9 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AliasActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,11 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
@@ -49,7 +53,7 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
     private NumberPicker mSecondPicker;
     private CheckBox mNoCheck;
     // Utility
-    private MyWorkoutActivity mParentActivity;
+    private Activity mParentActivity;
 
     private int mWhichTime;
     private int mGivenTime;
@@ -75,6 +79,15 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         } else {
             throw new RuntimeException(context.toString() + " must implement NumberPickerDialogListener");
         }
+
+        Activity act = getActivity();
+        if(act instanceof MyWorkoutActivity){
+            mParentActivity = (MyWorkoutActivity) act;
+        } else if (act instanceof MainActivity){
+            mParentActivity = (MainActivity) act;
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " must be cast to either MyWorkoutActivity or MainActivity");
+        }
     }
 
     @NonNull
@@ -90,7 +103,6 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         int[] time = MainActivity.convertFromMillis(mGivenTime);
         int min = time[0], sec = time[1];
 
-        mParentActivity = (MyWorkoutActivity) getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
@@ -114,7 +126,7 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         mMinutePicker.setWrapSelectorWheel(true);
         mMinutePicker.setOnValueChangedListener(this);
 
-        mSecondPicker.setMinValue(1);
+        mSecondPicker.setMinValue(0);
         mSecondPicker.setMaxValue(59);
         mSecondPicker.setValue(sec);
         mSecondPicker.setFormatter(new NumberPicker.Formatter() {
@@ -139,25 +151,46 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
 
         builder.setView(view)
                 .setTitle("Set Time")
-                .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Set", null)
+                .setNegativeButton("Cancel", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                Button pos = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                pos.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(mWhichTime == REST_TYPE) {
-                            mListener.setRestTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
-                        } else if(mWhichTime == BREAK_TYPE) {
-                            mListener.setBreakTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                    public void onClick(View v) {
+                        if(mMinutePicker.getValue() == 0 && mSecondPicker.getValue() == 0){
+                            Toast.makeText(mParentActivity, "Time cannot be 0", Toast.LENGTH_SHORT).show();
                         } else {
-                            Log.e(DEBUG_TAG, "WHICH TYPE WAS NOT SET CORRECTLY");
+                            if(mWhichTime == REST_TYPE) {
+                                mListener.setRestTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                            } else if(mWhichTime == BREAK_TYPE) {
+                                mListener.setBreakTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                            } else {
+                                Log.e(DEBUG_TAG, "WHICH TYPE WAS NOT SET CORRECTLY");
+                            }
+                            //IF OK
+                            dialog.dismiss();
                         }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
 
                     }
                 });
-        return builder.create();
+
+                Button neg = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                neg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
+
+        return dialog;
     }
 
     @Nullable
