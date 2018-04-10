@@ -52,8 +52,8 @@ public class Workout{
         noBreakFlag = false;
         isFavorite = false;
     }
-    public Workout(Workout workout){
-        workoutID = workout.getWorkoutID();
+    public Workout(int ID, Workout workout){
+        workoutID = ID;
         name = workout.getName();
         numOfRounds = workout.getNumOfRounds();
         setList = workout.getSetList();

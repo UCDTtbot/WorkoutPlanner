@@ -435,14 +435,15 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     @Override
     public void onClickDuplicateWorkout(int index) {
-
+        Workout workout = new Workout(NEXT_WORKOUT_ID++, mWorkoutData.get(index));
+        mWorkoutViewModel.insert(workout);
     }
 
     // Deleting workout
     @Override
     public void onClickDeleteWorkout(int index) {
-        //WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
-        //adapter.pendingRemoval(index);
+        WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
+        adapter.pendingRemoval(index);
         // Snackbar is creating in pendingRemoval
     }
 

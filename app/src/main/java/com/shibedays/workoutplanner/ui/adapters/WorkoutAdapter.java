@@ -201,9 +201,8 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
     @Override
     public void deletePending(int pendingIndex, int origWorkoutPos){
+        mListener.deleteWorkoutFromDB(mWorkoutsPendingRemoval.get(pendingIndex));
         mWorkoutsPendingRemoval.remove(pendingIndex);
-
-        mListener.deleteWorkoutFromDB(mWorkoutData.get(origWorkoutPos));
         // Update the file that we have removed a curWorkout
     }
 
