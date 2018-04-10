@@ -120,7 +120,7 @@
         <item name="android:textSize">@dimen/text_size_xnormal</item>
         <item name="android:gravity">center</item>
         <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:layout_weight">15</item>
+        <item name="android:layout_weight">20</item>
     </style>
 
     <!-- Bottom Sheet Styles -->

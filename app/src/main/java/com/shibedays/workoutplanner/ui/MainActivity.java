@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
@@ -343,6 +344,13 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     public void addNewWorkout(Workout workout) {
         NEXT_WORKOUT_ID++;
         mWorkoutViewModel.insert(workout);
+        View view = this.getCurrentFocus();
+        if(view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if(imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
         mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 

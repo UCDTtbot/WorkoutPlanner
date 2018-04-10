@@ -533,10 +533,10 @@ public class NewWorkoutFragment extends Fragment{
     public void setBreakTime(int min, int sec, boolean flag) {
         if(flag){
             mBreakEntry.setText(R.string.none_text);
-        }else if((sec % 10) == 0){
+        }else if( sec == 0 ){
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if ( (sec % 10) == 0 ) {
             mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if (min == 0 && sec == 0) {
-            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else if ( sec < 10 ) {
             mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         }else {
@@ -574,6 +574,13 @@ public class NewWorkoutFragment extends Fragment{
 
         if(!TextUtils.isEmpty(mRoundEntry.getText())){
             rounds = Integer.parseInt(mRoundEntry.getText().toString());
+            if(rounds <= 0){
+                mRoundEntry.setError("Must be greater than 0!");
+                isOk = false;
+            } else if( rounds >= 100){
+                mRoundEntry.setError("Must be less than 100!");
+                isOk = false;
+            }
         } else {
             mRoundEntry.setError("Must choose number of rounds.");
             isOk = false;
