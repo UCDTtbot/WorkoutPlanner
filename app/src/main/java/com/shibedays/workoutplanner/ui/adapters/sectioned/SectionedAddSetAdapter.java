@@ -15,26 +15,27 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedSetAdapter.SectionedSetViewHolder> {
+import javax.crypto.spec.DESedeKeySpec;
+
+public class SectionedAddSetAdapter extends SectionedRecyclerViewAdapter<SectionedAddSetAdapter.SectionedAddSetViewHolder> {
 
     //region CONSTANTS
-    private static final String DEBUG_TAG = SectionedSetAdapter.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter.";
+    private static final String DEBUG_TAG = SectionedAddSetAdapter.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedAddSetAdapter.";
 
-    // Sections
-    public static final int USER_AND_USER_CREATED_SETS = 0;
-    public static final int DEFAULT_SECTION = 1;
     // Recycler View Constant
     public static final int LEFT_VIEW = 0;
     public static final int RIGHT_VIEW = 1;
+
     //endregion
 
     //region VIEW_HOLDER
-    public class SectionedSetViewHolder extends SectionedViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class SectionedAddSetViewHolder extends SectionedViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         // Data
         private Set curSet;
@@ -49,13 +50,12 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         // Is Binding
         private boolean onBind;
         // Adapter
-        private SectionedSetAdapter adapter;
+        private SectionedAddSetAdapter adapter;
         // Section and Pos
         private int section;
         private int relativePos;
 
-
-        SectionedSetViewHolder(View itemView, SectionedSetAdapter adapter) {
+         SectionedAddSetViewHolder(View itemView, SectionedAddSetAdapter adapter) {
             super(itemView);
             // Header Item Views
             title = itemView.findViewById(R.id.header_title);
@@ -64,7 +64,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             setNameTextView = itemView.findViewById(R.id.set_name_narrow);
             timeTextView = itemView.findViewById(R.id.set_time_narrow);
             // Footer Item Views
-            footerCard = itemView.findViewById(R.id.add_set_card_view);
+             footerCard = itemView.findViewById(R.id.add_set_card_view);
             this.adapter = adapter;
 
             itemView.setOnClickListener(this);
@@ -72,16 +72,11 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         }
 
         void bindToHeader(int section, boolean expanded){
-            if(section == USER_AND_USER_CREATED_SETS) {
-                if (mAdapterType == LEFT_VIEW){
-                    title.setText(R.string.header_title_user_created);
-                    caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
-                } else if(mAdapterType == RIGHT_VIEW){
-                    title.setText(R.string.header_title_my_sets);
-                    caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
-                }
-            } else if (section == DEFAULT_SECTION){
+            if(mAdapterType == LEFT_VIEW) {
                 title.setText(R.string.header_title_default);
+                caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
+            } else if (mAdapterType == RIGHT_VIEW){
+                title.setText(R.string.header_title_user_created);
                 caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
             } else {
                 title.setText("");
@@ -112,7 +107,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         }
 
         void bindFooter(int section){
-            if(section != USER_AND_USER_CREATED_SETS){
+            if(mAdapterType != RIGHT_VIEW){
                 footerCard.setVisibility(View.GONE);
                 int width = footerCard.getWidth();
                 int height = 0;
@@ -140,11 +135,8 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             } else if (isFooter()){
                 // Nothing
             } else {
-                if(section == USER_AND_USER_CREATED_SETS){
-                    mListener.onUserLongClicked(curSet, section, relativePos);
-                } else if(section == DEFAULT_SECTION) {
-                    mListener.onDefaultLongClick(curSet, section, relativePos);
-                }
+                mListener.onLongClick(curSet, section, relativePos);
+
             }
             return true;
         }
@@ -153,7 +145,6 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
     //region PRIVATE_VARS
     // Data
-    private List<Set> mUserSetData;
     private List<Set> mDefaultSetData;
     private List<Set> mUserCreatedSetData;
     // UI Components
@@ -166,20 +157,18 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
     //endregion
 
     //region INTERFACES
-    public interface SectionedSetListener{
+    public interface SectionedAddSetListener{
         void onClick(Set set, int relativePos);
+        void onLongClick(Set set, int section, int relativePos);
         void createUserSet();
-        void onDefaultLongClick(Set set, int section, int relativePos);
-        void onUserLongClicked(Set set, int section, int relativePos);
     }
-    private SectionedSetListener mListener;
-    //endregion
+    private SectionedAddSetListener mListener;
 
     //region LIFECYCLE
-    public SectionedSetAdapter(Context context, int adapterType, SectionedSetListener listener){
+
+    public SectionedAddSetAdapter(Context context, int adapterType, SectionedAddSetListener listener){
         mContext = context;
 
-        mUserSetData = new ArrayList<>();
         mDefaultSetData = new ArrayList<>();
         mUserCreatedSetData = new ArrayList<>();
 
@@ -193,7 +182,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
     @NonNull
     @Override
-    public SectionedSetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SectionedAddSetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layout = 0;
         switch (viewType){
             case VIEW_TYPE_HEADER:
@@ -212,26 +201,26 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
                 break;
         }
         View v = LayoutInflater.from(mContext).inflate(layout, parent, false);
-        return new SectionedSetViewHolder(v, this);
+        return new SectionedAddSetViewHolder(v, this);
     }
+    //endregion
+
+
 
     @Override
-    public void onBindHeaderViewHolder(SectionedSetViewHolder holder, int section, boolean expanded) {
+    public void onBindHeaderViewHolder(SectionedAddSetViewHolder holder, int section, boolean expanded) {
         holder.bindToHeader(section, expanded);
     }
 
     @Override
-    public void onBindViewHolder(SectionedSetViewHolder holder, int section, int relativePosition, int absolutePosition) {
+    public void onBindViewHolder(SectionedAddSetViewHolder holder, int section, int relativePosition, int absolutePosition) {
         Set curSet = null;
-        switch (section){
-            case USER_AND_USER_CREATED_SETS:
-                if(mAdapterType == LEFT_VIEW)
-                    curSet = mUserCreatedSetData.get(relativePosition);
-                else if (mAdapterType == RIGHT_VIEW)
-                    curSet = mUserSetData.get(relativePosition);
-                break;
-            case DEFAULT_SECTION:
+        switch (mAdapterType){
+            case LEFT_VIEW:
                 curSet = mDefaultSetData.get(relativePosition);
+                break;
+            case RIGHT_VIEW:
+                curSet = mUserCreatedSetData.get(relativePosition);
                 break;
             default:
                 throw new RuntimeException(DEBUG_TAG + " set doesn't exist in any lists");
@@ -240,32 +229,26 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
     }
 
     @Override
-    public void onBindFooterViewHolder(SectionedSetViewHolder holder, int section) {
+    public void onBindFooterViewHolder(SectionedAddSetViewHolder holder, int section) {
         holder.bindFooter(section);
     }
+
+
+
     //endregion
 
     //region GETTERS
     @Override
     public int getSectionCount() {
-        if(mAdapterType == LEFT_VIEW){
-            return 2;
-        } else if (mAdapterType == RIGHT_VIEW) {
-            return 1;
-        } else {
-            return 1;
-        }
+        return 1;
     }
 
     @Override
     public int getItemCount(int section) {
-        if(section == USER_AND_USER_CREATED_SETS){
-            if(mAdapterType == LEFT_VIEW)
-                return mUserCreatedSetData == null ? 0 : mUserCreatedSetData.size();
-            else if(mAdapterType == RIGHT_VIEW)
-                return mUserSetData == null ? 0 : mUserSetData.size();
-        } if (section == DEFAULT_SECTION){
+        if(mAdapterType == LEFT_VIEW){
             return mDefaultSetData == null ? 0 : mDefaultSetData.size();
+        } else if(mAdapterType == RIGHT_VIEW){
+            return mUserCreatedSetData == null ? 0 : mUserCreatedSetData.size();
         } else
             return 0;
     }
@@ -280,23 +263,13 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         mUserCreatedSetData = sets;
         notifyDataSetChanged();
     }
-    public void setUserSets(List<Set> sets){
-        mUserSetData = sets;
-        notifyDataSetChanged();
-    }
-
-    public void addToUserSets(Set set){
-        mUserSetData.add(set);
-        notifyItemInserted(mUserSetData.size());
-    }
-    public void removeFromUserSets(int pos){
-        mUserSetData.remove((pos));
-        notifyDataSetChanged();
-    }
-
     public void addToUserCreated(Set set){
         mUserCreatedSetData.add(set);
-        notifySectionChanged(DEFAULT_SECTION);
+        notifyDataSetChanged();
+    }
+    public void removeUserCreated(Set set){
+        mUserCreatedSetData.remove(set);
+        notifyDataSetChanged();
     }
     //endregion
 }

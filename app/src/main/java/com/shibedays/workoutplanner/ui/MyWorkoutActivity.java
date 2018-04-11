@@ -29,6 +29,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
+import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -36,22 +39,24 @@ import com.shibedays.workoutplanner.services.TTSService;
 import com.shibedays.workoutplanner.services.TimerService;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberRoundsDialog;
 import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
+import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
-public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, AddEditSetDialog.AddSetDialogListener, TimerFragment.OnFragmentInteractionListener,
+public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, TimerFragment.OnFragmentInteractionListener,
                                                                     NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener,
-                                                                    NumberRoundsDialog.NumberRoundsListener, SectionedListItemTouchHelper.SwapItems{
+                                                                    NumberRoundsDialog.NumberRoundsListener, SectionedListItemTouchHelper.SwapItems,
+                                                                    AddEditSetDialog.AddSetDialogListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -63,6 +68,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
     // Message Constants
+
+    // Bottom Sheet Constants
+    public static int WORKOUT_SCREEN = 0;
+    public static int NEW_SET_SCREEN = 1;
     //endregion
 
     //region MESSAGES
@@ -101,14 +110,19 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     private Workout mWorkoutData;
     private List<Set> mSetList;
     private LiveData<Workout> mWorkoutLiveData;
+
+    private List<Set> mUserCreatedSets;
+    private List<Set> mDefaultSets;
     // Instances
     private FragmentManager mFragmentManager;
     private TimerFragment mTimerFragment;
+    private AddNewSetFragment mAddNewSetFragment;
 
     private Messenger mTimerService;
     private Messenger mTTSService;
     // View Model
-    private WorkoutViewModel mViewModel;
+    private WorkoutViewModel mWorkoutViewModel;
+    private SetViewModel mSetViewModel;
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
@@ -216,7 +230,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         //region INSTANCE_STATE
         if(savedInstanceState != null){
-            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.timer_fragment_container);
+            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
         }
         //endregion
 
@@ -236,7 +250,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         //endregion
 
         //region VIEW_MODEL
-        mViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         //endregion
 
         //region INTENT
@@ -246,7 +261,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             if(mIntentType == NORMAL_INTENT_TYPE) {
                 // Normal running circumstances
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
-                mWorkoutLiveData = mViewModel.getWorkout(id);
+                mWorkoutLiveData = mWorkoutViewModel.getWorkout(id);
                 mWorkoutLiveData.observe(this, new Observer<Workout>() {
                     @Override
                     public void onChanged(@Nullable Workout workout) {
@@ -261,6 +276,18 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
                         }
                 });
+                mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Set> sets) {
+                        mUserCreatedSets = sets;
+                    }
+                });
+
+                mDefaultSets = new ArrayList<>();
+                mDefaultSets.add(new Set("Jogging", "Light Jog", 90000));
+                mDefaultSets.add(new Set("Walk", "Brisk walk", 30000));
+                mDefaultSets.add(new Set("Pushups", "As many pushups as possible in the time limit", 45000));
+                mDefaultSets.add(new Set("Situps", "Arms across chest", 45000));
             } else if (mIntentType == NOTIF_INTENT_TYPE){
                 // This is what happens if we're opening this activity from the notification
             } else {
@@ -384,7 +411,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             startActivity(intent);
             return true;
         } else if(id == R.id.add_set) {
-            openAddNewSetDialog();
+            openAddNewSetFragment();
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
@@ -394,29 +421,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         return super.onOptionsItemSelected(item);
     }
-    //endregion
-
-    //region UTILITY
-    private void dataUpdate(){
-        if(!getTitle().equals(mWorkoutData.getName())){
-            setTitle(mWorkoutData.getName());
-        }
-        int numRounds = mWorkoutData.getNumOfRounds();
-        updateRoundNumUI(numRounds);
-
-        int[] restTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenSets() );
-        int restMin = restTime[0], restSec = restTime[1];
-        updateRestTimeUI(restMin, restSec, mWorkoutData.getNoRestFlag());
-
-        int[] breakTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenRounds() );
-        int breakMin = breakTime[0], breakSec = breakTime[1];
-        updateBreakTimeUI(breakMin, breakSec, mWorkoutData.getNoBreakFlag());
-    }
-
-    private void swapSets(int from, int to){
-        mWorkoutData.swapSets(from, to);
-    }
-
     //endregion
 
     //region UI_UPDATES
@@ -454,29 +458,102 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
     //endregion
 
-    //region INTERFACE_IMPLEMENTATIONS
+    //region UTILITY
+    private void dataUpdate(){
+        if(!getTitle().equals(mWorkoutData.getName())){
+            setTitle(mWorkoutData.getName());
+        }
+        int numRounds = mWorkoutData.getNumOfRounds();
+        updateRoundNumUI(numRounds);
 
-        //region ADD_SET
+        int[] restTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenSets() );
+        int restMin = restTime[0], restSec = restTime[1];
+        updateRestTimeUI(restMin, restSec, mWorkoutData.getNoRestFlag());
 
-    private void openAddNewSetDialog(){
-        AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
-        Bundle args = new Bundle();
-        args.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.NEW_SET);
-        addEditSetDialog.setArguments(args);
-        addEditSetDialog.show(mFragmentManager, DEBUG_TAG);
+        int[] breakTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenRounds() );
+        int breakMin = breakTime[0], breakSec = breakTime[1];
+        updateBreakTimeUI(breakMin, breakSec, mWorkoutData.getNoBreakFlag());
+    }
+
+    //endregion
+
+
+    //region ADD_SET
+
+    private void openAddNewSetFragment(){
+        final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        mAddNewSetFragment = AddNewSetFragment.newInstance(mUserCreatedSets, mDefaultSets, new AddNewSetFragment.NewSetListener() {
+            @Override
+            public void addSet(Set set) {
+                mWorkoutData.addSet(set);
+                mWorkoutViewModel.update(mWorkoutData);
+                mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+        });
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+        fragmentTransaction.replace(R.id.fragment_container, mAddNewSetFragment);
+        fragmentTransaction.addToBackStack(null);
+        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
+        fragmentTransaction.commit();
     }
 
     @Override
     public void addUserCreatedSet(String name, String descrip, int min, int sec) {
-        // TODO: add description to the add new set
-        Set newSet = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
-        mWorkoutData.addSet(newSet);
-        mViewModel.update(mWorkoutData);
+        if(mAddNewSetFragment != null){
+            Set set = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
+            mAddNewSetFragment.addUserSet(set);
+            mSetViewModel.insert(set);
+        }
     }
 
-        //endregion
+    @Override
+    public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
+        Log.d(DEBUG_TAG, "Edited set: " + name);
+        Set set = mUserCreatedSets.get(index);
+        set.setName(name);
+        set.setDescrip(descrip);
+        set.setTime(MainActivity.convertToMillis(min, sec));
+        mSetViewModel.update(set);
+        if(mAddNewSetFragment != null){
+            mAddNewSetFragment.setUserCreatedSets(mUserCreatedSets);
+            mAddNewSetFragment.updateRightAdapter();
+        }
+    }
 
-        //region FRAGMENT_CLOSING
+    @Override
+    public void editUserSet(int index, String name, String descrip, int min, int sec) {
+
+    }
+
+    @Override
+    public void bottomSheetTopRowClicked(int index, int section) {
+        if(section == NEW_SET_SCREEN){
+            Log.d(DEBUG_TAG, "Editing Set " + mUserCreatedSets.get(index).getName());
+            if(mAddNewSetFragment != null){
+                mAddNewSetFragment.editUserSet(index, section);
+            }
+        }
+    }
+
+    @Override
+    public void bottomSheetBottomRowClicked(int index, int section) {
+        if(section == NEW_SET_SCREEN){
+            Log.d(DEBUG_TAG, "Deleting Set " + mUserCreatedSets.get(index).getName());
+            if(mAddNewSetFragment != null){
+                Set set = mUserCreatedSets.get(index);
+                mAddNewSetFragment.deleteUserSet(index);
+                mSetViewModel.remove(set);
+                mAddNewSetFragment.updateRightAdapter();
+            }
+        }
+    }
+
+    //endregion
+
+
+
+
+    //region FRAGMENT_CLOSING
     @Override
     public void closeFragmentAndService() {
         if(mTimerIsBound){
@@ -499,9 +576,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
             }
         }
     }
-        //endregion
+    //endregion
 
-        //region NUMBER_PICKERS
+    //region NUMBER_PICKERS
     private void openRestNumberPickerDialog(){
         NumberPickerDialog numberPickerDialog = new NumberPickerDialog();
         Bundle args = new Bundle();
@@ -518,7 +595,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         updateRestTimeUI(min, sec, noFlag);
         mWorkoutData.setTimeBetweenSets(time);
         mWorkoutData.setNoRestFlag(noFlag);
-        mViewModel.update(mWorkoutData);
+        mWorkoutViewModel.update(mWorkoutData);
     }
 
     private void openBreakNumberPickerDialog(){
@@ -536,12 +613,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         updateBreakTimeUI(min, sec, noFlag);
         mWorkoutData.setTimeBetweenRounds(time);
         mWorkoutData.setNoBreakFlag(noFlag);
-        mViewModel.update(mWorkoutData);
+        mWorkoutViewModel.update(mWorkoutData);
     }
 
-        //endregion
+    //endregion
 
-        //region NUMBER_ROUND_DIALOG
+    //region NUMBER_ROUND_DIALOG
     private void openNumberRoundsDialog(){
         NumberRoundsDialog numberRoundsDialog = new NumberRoundsDialog();
         Bundle args = new Bundle();
@@ -553,15 +630,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     @Override
     public void setNumberRounds(int num) {
         mWorkoutData.setNumOfRounds(num);
-        mViewModel.update(mWorkoutData);
+        mWorkoutViewModel.update(mWorkoutData);
     }
-        //endregion
+    //endregion
 
-        //region BOTTOM_SHEET
+    //region BOTTOM_SHEET
     @Override
     public void onSetClick(int setIndex) {
         openBottomDialog(setIndex);
     }
+
     public void openBottomDialog(int setIndex){
         Bundle bundle = new Bundle();
         bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, setIndex);
@@ -571,56 +649,34 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         setBottomSheetDialog.show(mFragmentManager, setBottomSheetDialog.getTag());
     }
 
-
-    //TODO : FIX THIS SHIT
-    @Override
-    public void bottomSheetTopRowClicked(int index, int section) {
-
-    }
-
-    private void editSet(int setIndex){
-
-    }
-
-    @Override
-    public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
-
-    }
-    @Override
-    public void editUserSet(int index, String name, String descrip, int min, int sec) {
-
-    }
-
-    @Override
-    public void bottomSheetBottomRowClicked(int index, int section) {
-
-    }
-
     @Override
     public void deleteSet(Set set) {
-        mViewModel.update(mWorkoutData);
+        mWorkoutViewModel.update(mWorkoutData);
     }
 
-            //endregion
+        //endregion
 
-        //region SWAP_SETS
+    //region SWAP_SETS
         @Override
     public void swap(int from, int to) {
         swapSets(from, to);
     }
-        //endregion
 
+    private void swapSets(int from, int to){
+        mWorkoutData.swapSets(from, to);
+    }
     //endregion
 
-    //region TIMER_INTERACTIONS
+
+    //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation
     public void startTimer(View view){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
-        fragmentTransaction.replace(R.id.timer_fragment_container, mTimerFragment);
+        fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-        findViewById(R.id.timer_fragment_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
         Log.d(DEBUG_TAG, "Timer Fragment Created");
         bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
 

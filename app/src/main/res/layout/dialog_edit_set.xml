@@ -8,6 +8,7 @@
     <EditText
         android:id="@+id/new_set_name"
         android:hint="@string/name_hint"
+        android:imeOptions="actionDone"
         style="@style/DialogEditText"/>
 
     <TextView
@@ -24,6 +25,7 @@
         android:id="@+id/new_set_descrip"
         android:layout_below="@+id/new_set_name"
         android:hint="@string/descrip_hint"
+        android:imeOptions="actionDone"
         style="@style/DialogEditText"/>
 
     <TextView

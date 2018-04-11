@@ -27,6 +27,7 @@ import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
+import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -39,6 +40,7 @@ import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     // Data
     private List<Workout> mWorkoutData;
     private List<Set> mUserCreatedSets;
+    private List<Set> mDefaultSets;
 
     // Adapters
     private WorkoutAdapter mWorkoutAdapter;
@@ -148,27 +151,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
-
-            //region item_touch_helper
-        /*
-        int dragDirs = 0;
-        ListItemTouchHelper touchHelper = new ListItemTouchHelper(this, false, false, dragDirs ,mRecyclerView) {
-            @Override
-            public void instantiateUnderlayButton(final RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
-                underlayButtons.add(new ListItemTouchHelper.UnderlayButton(R.drawable.ic_delete_white_24dp,
-                        ResourcesCompat.getColor(getResources(),R.color.material_red_500, null), context, new UnderlayButtonClickListener() {
-                    @Override
-                    public void onDeleteButtonClick(int pos) {
-                        WorkoutAdapter.WorkoutViewHolder vh = (WorkoutAdapter.WorkoutViewHolder) viewHolder;
-                        mWorkoutAdapter.pendingRemoval(pos);
-                        Log.d(DEBUG_TAG, "Deleting" + vh.getWorkout().getName());
-                    }
-                }));
-            }
-        };
-        */
-            //endregion
-
         //endregion
 
         //region TOOLBAR
@@ -207,6 +189,12 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
                 mUserCreatedSets = sets;
             }
         });
+
+        mDefaultSets = new ArrayList<>();
+        mDefaultSets.add(new Set("Jogging", "Light Jog", 90000));
+        mDefaultSets.add(new Set("Walk", "Brisk walk", 30000));
+        mDefaultSets.add(new Set("Pushups", "As many pushups as possible in the time limit", 45000));
+        mDefaultSets.add(new Set("Situps", "Arms across chest", 45000));
         //endregion
 
     }
@@ -323,12 +311,13 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     private void openNewWorkoutFragment(){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mUserCreatedSets);
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mUserCreatedSets, mDefaultSets);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
         fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
         findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
         findViewById(R.id.fab).setVisibility(View.GONE);
+        fragmentTransaction.commit();
         toggleUpArrow(true);
         Log.d(DEBUG_TAG, "New Workout Fragment Created");
         //if(mUserCreatedSets != null)
@@ -526,8 +515,8 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     @Override
     public void addUserCreatedSet(String name, String descrip, int min, int sec) {
         if(mNewWorkoutFragment != null){
-            mNewWorkoutFragment.addUserCreatedSet(new Set(name, descrip, MainActivity.convertToMillis(min, sec)));
             Set set = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
+            mNewWorkoutFragment.addUserCreatedSet(set);
             mSetViewModel.insert(set);
         }
     }

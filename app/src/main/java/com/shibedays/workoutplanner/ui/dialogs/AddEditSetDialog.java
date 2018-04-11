@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -17,12 +18,9 @@ import android.widget.TextView;
 import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
-import com.shibedays.workoutplanner.ui.NewWorkoutFragment;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
+import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 
 import java.util.Locale;
-
-import javax.crypto.spec.DESedeKeySpec;
 
 
 public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnValueChangeListener{
@@ -56,7 +54,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     private NumberPicker mMinutePicker;
     private NumberPicker mSecondPicker;
     // Utility
-    private MainActivity mParentActivity;
+    private Activity mParentActivity;
     //endregion
 
     //region INTERFACES
@@ -85,11 +83,11 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mParentActivity = (MainActivity) getActivity();
+        mParentActivity = getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.dialog_add_edit_set, null);
+        final View view = inflater.inflate(R.layout.dialog_edit_set, null);
 
         mEditTextName = view.findViewById(R.id.new_set_name);
         mTextViewName = view.findViewById(R.id.display_set_name);
@@ -144,7 +142,9 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
             } else if(type == EDIT_SET){
                 final int index = args.getInt(EXTRA_SET_INDEX);
                 mEditTextName.setText(args.getString(EXTRA_SET_NAME));
+                mEditTextName.setSelection(mEditTextName.getText().length());
                 mEditTextDescrip.setText(args.getString(EXTRA_SET_DESCIP));
+                mEditTextDescrip.setSelection(mEditTextDescrip.getText().length());
                 mMinutePicker.setValue(args.getInt(EXTRA_SET_MIN));
                 mSecondPicker.setValue(args.getInt(EXTRA_SET_SEC));
                 final int section = args.getInt(EXTRA_SET_SECTION);

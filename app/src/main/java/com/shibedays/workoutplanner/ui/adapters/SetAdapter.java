@@ -40,11 +40,11 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         private TextView timeTextView;
         private TextView descripTextView;
 
-        public SetViewHolder(View itemView) {
+        SetViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
             setNameTextView = itemView.findViewById(R.id.set_name_wide);
-            timeTextView = itemView.findViewById(R.id.set_name_wide);
+            timeTextView = itemView.findViewById(R.id.set_time_wide);
             descripTextView = itemView.findViewById(R.id.set_descrip_wide);
 
             itemView.setOnClickListener(this);
@@ -83,6 +83,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
         @Override
         public boolean onLongClick(View v) {
+            mListener.onSetClick(mSetData.indexOf(curSet));
             return false;
         }
     }
@@ -131,13 +132,13 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
     @NonNull
     @Override
-    public SetViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new SetViewHolder(LayoutInflater.from(mContext)
                 .inflate(R.layout.list_wide_set_items, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(SetViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull SetViewHolder viewHolder, int position) {
         // Get the current data
         Set currentSet = mSetData.get(position);
         viewHolder.bindTo(currentSet);
@@ -174,7 +175,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     //region PENDING_DELETE
     public void pendingRemoval(final int swipedPos){
         final Set set = mSetData.get(swipedPos);
-        final int origPos = swipedPos;
         if(!mSetsPendingRemoval.contains(set)){
             mSetsPendingRemoval.add(set);
             final int pendingPos = mSetsPendingRemoval.indexOf(set);
@@ -184,7 +184,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    deletePending(mSetsPendingRemoval.indexOf(set), origPos);
+                    deletePending(mSetsPendingRemoval.indexOf(set), swipedPos);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
