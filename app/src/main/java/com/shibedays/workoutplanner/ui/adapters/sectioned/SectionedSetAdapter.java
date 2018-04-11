@@ -202,14 +202,14 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
                 mHeaderSetup = true;
                 break;
             case VIEW_TYPE_ITEM:
-                layout = R.layout.lis_set_items_narrow;
+                layout = R.layout.list_set_items_narrow;
                 mItemSetup = true;
                 break;
             case VIEW_TYPE_FOOTER:
                 layout = R.layout.list_set_footer;
                 break;
             default:
-                layout = R.layout.lis_set_items_narrow;
+                layout = R.layout.list_set_items_narrow;
                 break;
         }
         View v = LayoutInflater.from(mContext).inflate(layout, parent, false);

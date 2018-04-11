@@ -38,12 +38,14 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         // Foreground
         private TextView setNameTextView;
         private TextView timeTextView;
+        private TextView descripTextView;
 
         public SetViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
-            setNameTextView = itemView.findViewById(R.id.set_name_narrow);
-            timeTextView = itemView.findViewById(R.id.set_time_narrow);
+            setNameTextView = itemView.findViewById(R.id.set_name_wide);
+            timeTextView = itemView.findViewById(R.id.set_name_wide);
+            descripTextView = itemView.findViewById(R.id.set_descrip_wide);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -54,6 +56,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             this.curSet = curSet;
 
             setNameTextView.setText(curSet.getName());
+            descripTextView.setText(curSet.getDescrip());
             int[] time = MainActivity.convertFromMillis(curSet.getTime());
             int minutes = time[0], seconds = time[1];
 
@@ -130,7 +133,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     @Override
     public SetViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new SetViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.lis_set_items_narrow, parent, false));
+                .inflate(R.layout.list_wide_set_items, parent, false));
     }
 
     @Override

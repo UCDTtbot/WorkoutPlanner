@@ -6,6 +6,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_deep_horizontal_margin">32dp</dimen>
 
+    <dimen name="activity_quarter_vertical_margin">4dp</dimen>
     <dimen name="activity_shallow_vertical_margin">8dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_deep_vertical_margin">32dp</dimen>

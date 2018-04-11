@@ -7,9 +7,8 @@
     android:layout_height="@dimen/list_standard_vertical_size"
     android:foreground="?attr/selectableItemBackground"
     android:layout_marginStart="@dimen/activity_shallow_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_quarter_margin"
-    android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin"
-    android:layout_marginBottom="@dimen/activity_quarter_margin">
+    android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
+    android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin">
 
 
     <RelativeLayout

@@ -90,8 +90,8 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
         <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
-        <item name="android:layout_marginTop">@dimen/activity_shallow_vertical_margin</item>
-        <item name="android:layout_marginBottom">@dimen/activity_shallow_vertical_margin</item>
+        <item name="android:layout_marginTop">@dimen/activity_quarter_vertical_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_quarter_vertical_margin</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:weightSum">100</item>
     </style>
@@ -120,7 +120,7 @@
         <item name="android:textSize">@dimen/text_size_xnormal</item>
         <item name="android:gravity">center</item>
         <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:layout_weight">20</item>
+        <item name="android:layout_weight">15</item>
     </style>
 
     <!-- Bottom Sheet Styles -->
