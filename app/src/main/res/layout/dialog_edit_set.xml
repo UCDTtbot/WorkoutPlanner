@@ -15,7 +15,7 @@
         android:id="@+id/display_set_name"
         style="@style/DialogTextView"
         android:layout_alignBaseline="@+id/new_set_name"
-        android:text="@string/default_set_name"
+        android:text="@string/default_name"
         android:textAlignment="center"
         android:visibility="gone" />
 

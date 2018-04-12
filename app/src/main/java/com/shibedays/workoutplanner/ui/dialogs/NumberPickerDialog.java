@@ -1,9 +1,7 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AliasActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -33,7 +31,7 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = AddEditWorkoutDialog.class.getSimpleName();
+    private static final String DEBUG_TAG = RenameWorkoutDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog.";
 
 

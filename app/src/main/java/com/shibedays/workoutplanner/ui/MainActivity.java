@@ -24,17 +24,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
-import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
-import com.shibedays.workoutplanner.ui.helpers.ListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog;
+import com.shibedays.workoutplanner._deprecated.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
@@ -44,15 +40,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, WorkoutBottomSheetDialog.WorkoutBottomSheetDialogListener,
-                                                                NewWorkoutFragment.OnFragmentInteractionListener, SetAdapter.SetAdapaterListener, ListItemTouchHelper.SwapItemsListener,
-                                                                AddEditSetDialog.AddSetDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener, NumberPickerDialog.NumberPickerDialogListener{
+public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, NewWorkoutFragment.OnFragmentInteractionListener, NumberPickerDialog.NumberPickerDialogListener{
 
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MainActivity.";
     private static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
+    private static int NEXT_WORKOUT_ID;
     //endregion
 
     //region INTENT_KEYS
@@ -96,8 +91,8 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     //endregion
 
     //region PUBLIC_VARS
-    public static int NEXT_WORKOUT_ID;
     //endregion
+
 
     //region LIFECYCLE
     @Override
@@ -115,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
             int savedVersionCode = mPrivateSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
             if(savedVersionCode == currentVersionCode){
                 // Normal Run
-                NEXT_WORKOUT_ID = mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, -DATA_DOESNT_EXIST);
+                NEXT_WORKOUT_ID = mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, DATA_DOESNT_EXIST);
                 if(NEXT_WORKOUT_ID == DATA_DOESNT_EXIST){
                     Log.e(DEBUG_TAG, "NEXT WORKOUT NUM DATA DOESN'T EXIST");
                     NEXT_WORKOUT_ID = mWorkoutData.size() + 1;
@@ -293,6 +288,10 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         return newTime;
     }
 
+    public int getNextWorkoutId(){
+        return NEXT_WORKOUT_ID;
+    }
+
     public static void showDebugDBAddressLogToast(Context context) {
         if (BuildConfig.DEBUG) {
             try {
@@ -306,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         }
     }
     //endregion
+
 
     //region NEW_WORKOUT
 
@@ -324,14 +324,10 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         //    mNewWorkoutFragment.setUserCreatedSets(mUserCreatedSets);
     }
 
-    // For New Workouts
-    public int getNextWorkoutId(){
-        return NEXT_WORKOUT_ID;
-    }
-
     @Override
     public void addNewWorkout(Workout workout) {
         NEXT_WORKOUT_ID++;
+        mPrivateSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
         mWorkoutViewModel.insert(workout);
         View view = this.getCurrentFocus();
         if(view != null) {
@@ -343,38 +339,22 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
-    //region OLD_ADD_WORKOUT_CODE
-    /*
-    public void openNewWorkoutFragment(){
-        AddEditWorkoutDialog addWorkoutDialog = new AddEditWorkoutDialog();
-        Bundle args = new Bundle();
-        args.putInt(AddEditWorkoutDialog.EXTRA_DIALOG_TYPE, AddEditWorkoutDialog.NEW_WORKOUT);
-        addWorkoutDialog.setArguments(args);
-        addWorkoutDialog.show(mFragmentManager, DEBUG_TAG);
-    }
-
-    @Override
-    public void onNewWorkoutDialogPositiveClick(String name){
-        if(!TextUtils.isEmpty(name)){
-            Workout newWorkout = new Workout(NEXT_WORKOUT_ID++, name);
-            newWorkout.addSet(new Set("My Workout Set", "Description of my Workout Set", 60000));
-            mPrivateSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
-            mWorkoutViewModel.insertWorkout(newWorkout);
-        } else {
-            // TODO: Display an error message saying that name must not be null
-            Toast.makeText(this, "Name must not be empty", Toast.LENGTH_LONG).show();
-        }
-
-    }
-
-    @Override
-    public void onEditWorkoutDialogPositiveClick(String name, int index) {
-
-    }
-    */
     //endregion
 
+    //region OPEN_WORKOUT
+    @Override
+    public void onWorkoutClicked(int workoutID) {
+        openWorkout(workoutID);
+    }
+
+    public void openWorkout(int workoutID){
+        Intent intent = new Intent(this, MyWorkoutActivity.class);
+        intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+        intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
+        startActivity(intent);
+    }
     //endregion
+
 
     //region NUMBER_PICKER_LISTENERS
     @Override
@@ -392,19 +372,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
     //endregion
 
-    //region OPEN_WORKOUT
-    @Override
-    public void onWorkoutClicked(int workoutID) {
-        openWorkout(workoutID);
-    }
-
-    public void openWorkout(int workoutID){
-        Intent intent = new Intent(this, MyWorkoutActivity.class);
-        intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
-        intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
-        startActivity(intent);
-    }
-    //endregion
 
     //region BOTTOM_SHEET_WORKOUTS
 
@@ -423,122 +390,13 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
 
     @Override
-    public void onClickDuplicateWorkout(int index) {
-        Workout workout = new Workout(NEXT_WORKOUT_ID++, mWorkoutData.get(index));
-        mWorkoutViewModel.insert(workout);
-    }
-
-    // Deleting workout
-    @Override
-    public void onClickDeleteWorkout(int index) {
-        WorkoutAdapter adapter = (WorkoutAdapter) mRecyclerView.getAdapter();
-        adapter.pendingRemoval(index);
-        // Snackbar is creating in pendingRemoval
-    }
-
-    @Override
     public void deleteWorkoutFromDB(Workout workout) {
         mWorkoutViewModel.remove(workout);
     }
 
 
-
-    //region OLD_EDIT_WORKOUT_CODE
-    /*
-    @Override
-    public void onEditWorkoutDialogPositiveClick(String name, int index) {
-        if(!TextUtils.isEmpty(name)){
-            mWorkoutData.get(index).setName(name);
-            mWorkoutViewModel.updateWorkout(mWorkoutData.get(index));
-        } else {
-            Toast.makeText(this, "Name must not be empty", Toast.LENGTH_SHORT).show();
-        }
-    }
-    */
     //endregion
 
 
-    //endregion
-
-    //region BOTTOM_SHEET_SET_CALLBACKS
-    @Override
-    public void bottomSheetTopRowClicked(int index, int section) {
-        if(mNewWorkoutFragment != null){
-            if(section == NewWorkoutFragment.RIGHT_SIDE) {
-                mNewWorkoutFragment.editUserSet(index, section);
-            } else if (section == NewWorkoutFragment.LEFT_SIDE){
-                mNewWorkoutFragment.editUserCreatedSet(index, section);
-            } else {
-                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetTopRowClicked");
-            }
-        }
-    }
-
-    @Override
-    public void bottomSheetBottomRowClicked(int index, int section) {
-        if(mNewWorkoutFragment != null){
-            if(section == NewWorkoutFragment.RIGHT_SIDE) {
-                mNewWorkoutFragment.deleteUserSet(index);
-            } else if (section == NewWorkoutFragment.LEFT_SIDE){
-                Set set = mUserCreatedSets.get(index);
-                mNewWorkoutFragment.deleteUserCreatedSet(index);
-                mSetViewModel.remove(set);
-            } else {
-                throw new RuntimeException(DEBUG_TAG + " no section info was passed to bottomSheetBottomRowClicked");
-            }
-        }
-    }
-    //endregion
-
-    //region MY_WORKOUT_SET_FUNCTIONS
-    @Override
-    public void onSetClick(int setIndex) {
-
-    }
-
-    @Override
-    public void deleteSet(Set set) {
-
-    }
-
-    @Override
-    public void swap(int from, int to) {
-        // TODO : SWAP WORKOUTS YA
-        Workout wrkFrom = mWorkoutData.get(from);
-        Workout wrkTo = mWorkoutData.get(to);
-        mWorkoutData.set(from, wrkTo);
-        mWorkoutData.set(to, wrkFrom);
-    }
-    //endregion
-
-    //region USER_CREATED_SET_FUNCTIONS
-    @Override
-    public void addUserCreatedSet(String name, String descrip, int min, int sec) {
-        if(mNewWorkoutFragment != null){
-            Set set = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
-            mNewWorkoutFragment.addUserCreatedSet(set);
-            mSetViewModel.insert(set);
-        }
-    }
-
-    @Override
-    public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
-        if(mNewWorkoutFragment != null){
-            mNewWorkoutFragment.updateUserCreatedSet(index, name, descrip, min, sec);
-            Set set = mUserCreatedSets.get(index);
-            mSetViewModel.update(set);
-        }
-    }
-    //endregion
-
-    //region USER_SETS
-    @Override
-    public void editUserSet(int index, String name, String descrip, int min, int sec){
-        if(mNewWorkoutFragment != null){
-            mNewWorkoutFragment.updateUserSet(index, name, descrip, min, sec);
-        }
-    }
-
-    //endregion
 
 }

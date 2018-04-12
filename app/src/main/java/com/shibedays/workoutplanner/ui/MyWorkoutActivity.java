@@ -29,7 +29,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
@@ -40,8 +39,8 @@ import com.shibedays.workoutplanner.services.TimerService;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
-import com.shibedays.workoutplanner.ui.dialogs.NumberRoundsDialog;
-import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
+import com.shibedays.workoutplanner._deprecated.NumberRoundsDialog;
+import com.shibedays.workoutplanner._deprecated.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
@@ -55,8 +54,7 @@ import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, TimerFragment.OnFragmentInteractionListener,
                                                                     NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener,
-                                                                    NumberRoundsDialog.NumberRoundsListener, SectionedListItemTouchHelper.SwapItems,
-                                                                    AddEditSetDialog.AddSetDialogListener{
+                                                                    NumberRoundsDialog.NumberRoundsListener, SectionedListItemTouchHelper.SwapItems{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -497,33 +495,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         fragmentTransaction.commit();
     }
 
-    @Override
-    public void addUserCreatedSet(String name, String descrip, int min, int sec) {
-        if(mAddNewSetFragment != null){
-            Set set = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
-            mAddNewSetFragment.addUserSet(set);
-            mSetViewModel.insert(set);
-        }
-    }
-
-    @Override
-    public void editUserCreatedSet(int index, String name, String descrip, int min, int sec) {
-        Log.d(DEBUG_TAG, "Edited set: " + name);
-        Set set = mUserCreatedSets.get(index);
-        set.setName(name);
-        set.setDescrip(descrip);
-        set.setTime(MainActivity.convertToMillis(min, sec));
-        mSetViewModel.update(set);
-        if(mAddNewSetFragment != null){
-            mAddNewSetFragment.setUserCreatedSets(mUserCreatedSets);
-            mAddNewSetFragment.updateRightAdapter();
-        }
-    }
-
-    @Override
-    public void editUserSet(int index, String name, String descrip, int min, int sec) {
-
-    }
 
     @Override
     public void bottomSheetTopRowClicked(int index, int section) {

@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui.dialogs;
+package com.shibedays.workoutplanner._deprecated;
 
 import android.app.Dialog;
 import android.arch.lifecycle.LiveData;
@@ -27,7 +27,7 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = WorkoutBottomSheetDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.WorkoutBottomSheetDialog.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner._deprecated.WorkoutBottomSheetDialog.";
     //endregion
 
     //region INTENT_KEYS
@@ -117,9 +117,9 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.bottom_sheet, container, false);
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
 
-        mTopIc   = view.findViewById(R.id.bottom_sheet_top_ic);
-        mTopText = view.findViewById(R.id.bottom_sheet_top_text);
-        mTopLine = view.findViewById(R.id.bottom_sheet_top);
+        //mTopIc   = view.findViewById(R.id.bottom_sheet_top_ic);
+        //mTopText = view.findViewById(R.id.bottom_sheet_top_text);
+        //mTopLine = view.findViewById(R.id.bottom_sheet_top);
 
         mTopText.setText(R.string.bottom_sheet_dup);
         mTopLine.setOnClickListener(new View.OnClickListener() {
@@ -130,8 +130,8 @@ public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
             }
         });
 
-        mBottomText = view.findViewById(R.id.bottom_sheet_bottom_text);
-        mBottomLine = view.findViewById(R.id.bottom_sheet_bottom);
+        //mBottomText = view.findViewById(R.id.bottom_sheet_bottom_text);
+        //mBottomLine = view.findViewById(R.id.bottom_sheet_bottom);
         mBottomLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

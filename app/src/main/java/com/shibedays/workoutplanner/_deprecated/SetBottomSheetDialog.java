@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui.dialogs;
+package com.shibedays.workoutplanner._deprecated;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -22,7 +22,7 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = SetBottomSheetDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner._deprecated.SetBottomSheetDialog.";
     //endregion
 
     //region INTENT_KEYS
@@ -89,7 +89,7 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
         mTitleTextView.setText(mSetName);
 
-        mTopLine = view.findViewById(R.id.bottom_sheet_top);
+        //mTopLine = view.findViewById(R.id.bottom_sheet_top);
         mTopLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +98,7 @@ public class SetBottomSheetDialog extends BottomSheetDialogFragment {
             }
         });
 
-        mBottomLine = view.findViewById(R.id.bottom_sheet_bottom);
+        //mBottomLine = view.findViewById(R.id.bottom_sheet_bottom);
         mBottomLine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

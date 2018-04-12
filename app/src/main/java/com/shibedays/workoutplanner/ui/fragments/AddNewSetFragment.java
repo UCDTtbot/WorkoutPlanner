@@ -19,10 +19,9 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedAddSetAdapter;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
+import com.shibedays.workoutplanner._deprecated.SectionedAddSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
-import com.shibedays.workoutplanner.ui.dialogs.SetBottomSheetDialog;
+import com.shibedays.workoutplanner._deprecated.SetBottomSheetDialog;
 
 import java.util.List;
 

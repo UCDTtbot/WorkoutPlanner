@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="50"
-                android:text="@string/default_set_name"
+                android:text="@string/default_name"
                 android:fontFamily="sans-serif"/>
 
             <TextView

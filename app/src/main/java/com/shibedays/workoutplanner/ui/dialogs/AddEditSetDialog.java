@@ -18,12 +18,11 @@ import android.widget.TextView;
 import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
-import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 
 import java.util.Locale;
 
 
-public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnValueChangeListener{
+public class AddEditSetDialog extends DialogFragment {
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -37,34 +36,23 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
 
     //region INTENT_KEYS
     public static final String EXTRA_DIALOG_TYPE = PACKAGE + "DIALOG_TYPE";
-    public static final String EXTRA_SET_INDEX = PACKAGE + "SET_INDEX";
     public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
     public static final String EXTRA_SET_DESCIP = PACKAGE + "SET_DESCRIP";
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
+    public static final String EXTRA_SET_INDEX = PACKAGE + "SET_INDEX";
     public static final String EXTRA_SET_SECTION = PACKAGE + "SET_SECTION";
     //endregion
 
     //region PRIVATE_VARS
-    // UI Comoponents
-    private EditText mEditTextName;
-    private TextView mTextViewName;
-    private EditText mEditTextDescrip;
-    private TextView mTextViewDescrip;
-    private NumberPicker mMinutePicker;
-    private NumberPicker mSecondPicker;
-    // Utility
-    private Activity mParentActivity;
+
     //endregion
 
     //region INTERFACES
-    public interface AddSetDialogListener {
-        void addUserCreatedSet(String name, String descrip, int min, int sec);
-        void editUserCreatedSet(int index, String name, String descrip, int min, int sec);
-
-        void editUserSet(int index, String name, String descrip, int min, int sec);
+    public interface AddEditSetDialogListener {
+        void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index);
     }
-    AddSetDialogListener mListener;
+    AddEditSetDialogListener mListener;
     //endregion
 
     //region LIFECYCLE
@@ -72,40 +60,37 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if(context instanceof AddSetDialogListener) {
-            mListener = (AddSetDialogListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement AddSetDialogListener");
-        }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mParentActivity = getActivity();
-        AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
-        LayoutInflater inflater = mParentActivity.getLayoutInflater();
-
+        final Activity mParentActivity = getActivity();
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
+        LayoutInflater inflater = null;
+        if(mParentActivity != null) {
+            inflater = mParentActivity.getLayoutInflater();
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " Parent Activity doesn't exist");
+        }
         final View view = inflater.inflate(R.layout.dialog_edit_set, null);
 
-        mEditTextName = view.findViewById(R.id.new_set_name);
-        mTextViewName = view.findViewById(R.id.display_set_name);
-        mEditTextDescrip = view.findViewById(R.id.new_set_descrip);
-        mTextViewDescrip = view.findViewById(R.id.display_set_descrip);
+        // UI Comoponents
+        final EditText mEditTextName = view.findViewById(R.id.new_set_name);
+        final TextView mTextViewName = view.findViewById(R.id.display_set_name);
+        final EditText mEditTextDescrip = view.findViewById(R.id.new_set_descrip);
+        final TextView mTextViewDescrip = view.findViewById(R.id.display_set_descrip);
+        final View number_spinners = view.findViewById(R.id.spinners);
+        final NumberPicker mMinutePicker = number_spinners.findViewById(R.id.MinutePicker);
+        final NumberPicker mSecondPicker = number_spinners.findViewById(R.id.SecondsPicker);
 
-        View number_spinners = view.findViewById(R.id.spinners);
-        mMinutePicker = number_spinners.findViewById(R.id.MinutePicker);
         mMinutePicker.setMinValue(0);
         mMinutePicker.setMaxValue(30);
         mMinutePicker.setWrapSelectorWheel(true);
-        mMinutePicker.setOnValueChangedListener(this);
         mMinutePicker.setFadingEdgeEnabled(true);
 
-        mSecondPicker = number_spinners.findViewById(R.id.SecondsPicker);
         mSecondPicker.setMinValue(0);
         mSecondPicker.setMaxValue(59);
-
         mSecondPicker.setFormatter(new NumberPicker.Formatter() {
             @Override
             public String format(int value) {
@@ -113,12 +98,14 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
             }
         });
         mSecondPicker.setWrapSelectorWheel(true);
-        mSecondPicker.setOnValueChangedListener(this);
         mSecondPicker.setFadingEdgeEnabled(true);
+
 
         Bundle args = getArguments();
         if(args!= null){
-            int type = args.getInt(EXTRA_DIALOG_TYPE);
+            final int type = args.getInt(EXTRA_DIALOG_TYPE);
+            final int section = args.getInt(EXTRA_SET_SECTION);
+            final int index = args.getInt(EXTRA_SET_INDEX);
             if(type == NEW_SET){
                 mMinutePicker.setValue(0);
                 mSecondPicker.setValue(10);
@@ -128,9 +115,11 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
                         .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mListener.addUserCreatedSet(mEditTextName.getText().toString(),
-                                                                        mEditTextDescrip.getText().toString(),
-                                                                        mMinutePicker.getValue(), mSecondPicker.getValue());
+                                String name = mEditTextName.getText().toString();
+                                String descrip = mEditTextDescrip.getText().toString();
+                                int min = mMinutePicker.getValue();
+                                int sec = mSecondPicker.getValue();
+                                mListener.dialogResult(type, name, descrip, min, sec, section, index);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -140,30 +129,22 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
                             }
                         });
             } else if(type == EDIT_SET){
-                final int index = args.getInt(EXTRA_SET_INDEX);
                 mEditTextName.setText(args.getString(EXTRA_SET_NAME));
                 mEditTextName.setSelection(mEditTextName.getText().length());
                 mEditTextDescrip.setText(args.getString(EXTRA_SET_DESCIP));
                 mEditTextDescrip.setSelection(mEditTextDescrip.getText().length());
                 mMinutePicker.setValue(args.getInt(EXTRA_SET_MIN));
                 mSecondPicker.setValue(args.getInt(EXTRA_SET_SEC));
-                final int section = args.getInt(EXTRA_SET_SECTION);
                 builder.setView(view)
                         .setTitle("Edit Set")
                         .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                if(section == NewWorkoutFragment.RIGHT_SIDE) {
-                                    mListener.editUserSet(index, mEditTextName.getText().toString(),
-                                            mEditTextDescrip.getText().toString(),
-                                            mMinutePicker.getValue(), mSecondPicker.getValue());
-                                } else if (section == NewWorkoutFragment.LEFT_SIDE){
-                                    mListener.editUserCreatedSet(index, mEditTextName.getText().toString(),
-                                            mEditTextDescrip.getText().toString(),
-                                            mMinutePicker.getValue(), mSecondPicker.getValue());
-                                } else {
-                                    throw new RuntimeException(DEBUG_TAG + " No section value was passed to AddEditSetDialog for " + mEditTextName.getText().toString() );
-                                }
+                                String name = mEditTextName.getText().toString();
+                                String descrip = mEditTextDescrip.getText().toString();
+                                int min = mMinutePicker.getValue();
+                                int sec = mSecondPicker.getValue();
+                                mListener.dialogResult(type, name, descrip, min, sec, section, index);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -195,7 +176,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
                         });
             }
             else {
-                throw new RuntimeException(AddEditWorkoutDialog.class.getSimpleName() + " Set Bottom Dialog Type was never set");
+                throw new RuntimeException(RenameWorkoutDialog.class.getSimpleName() + " Set Bottom Dialog Type was never set");
             }
         }
 
@@ -205,7 +186,7 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //mEditTextName.requestFocus();
         //getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         getDialog().setCanceledOnTouchOutside(true);
@@ -220,10 +201,25 @@ public class AddEditSetDialog extends DialogFragment implements NumberPicker.OnV
 
     //endregion
 
-    //region OVERRIDE_IMPLEMENTATIONS
-    @Override
-    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+    //region UTILITY
+    public static Bundle getDialogBundle(int dialogType, String setName, String setDescrip, int timeInMil, int setIndex, int setSection){
+        Bundle bundle = new Bundle();
 
+        int[] time = MainActivity.convertFromMillis(timeInMil);
+
+        bundle.putInt(EXTRA_DIALOG_TYPE, dialogType);
+        bundle.putString(EXTRA_SET_NAME, setName);
+        bundle.putString(EXTRA_SET_DESCIP, setDescrip);
+        bundle.putInt(EXTRA_SET_MIN, time[0]);
+        bundle.putInt(EXTRA_SET_SEC, time[1]);
+        bundle.putInt(EXTRA_SET_INDEX, setIndex);
+        bundle.putInt(EXTRA_SET_SECTION, setSection);
+
+        return bundle;
+    }
+
+    public void setListener(AddEditSetDialogListener listener){
+        mListener = listener;
     }
     //endregion
 }

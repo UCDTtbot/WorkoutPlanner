@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui.adapters.sectioned;
+package com.shibedays.workoutplanner._deprecated;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -15,18 +15,15 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
 
-import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import javax.crypto.spec.DESedeKeySpec;
 
 public class SectionedAddSetAdapter extends SectionedRecyclerViewAdapter<SectionedAddSetAdapter.SectionedAddSetViewHolder> {
 
     //region CONSTANTS
     private static final String DEBUG_TAG = SectionedAddSetAdapter.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedAddSetAdapter.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner._deprecated.SectionedAddSetAdapter.";
 
     // Recycler View Constant
     public static final int LEFT_VIEW = 0;
@@ -163,6 +160,7 @@ public class SectionedAddSetAdapter extends SectionedRecyclerViewAdapter<Section
         void createUserSet();
     }
     private SectionedAddSetListener mListener;
+    //endregion
 
     //region LIFECYCLE
 
