@@ -46,7 +46,8 @@
                     android:id="@+id/left_recyclerview"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="50">
+                    android:layout_weight="50"
+                    android:overScrollMode="never">
 
                 </android.support.v7.widget.RecyclerView>
 
@@ -54,7 +55,8 @@
                     android:id="@+id/right_recyclerview"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="50">
+                    android:layout_weight="50"
+                    android:overScrollMode="never">
 
                 </android.support.v7.widget.RecyclerView>
             </android.support.v7.widget.LinearLayoutCompat>

@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
@@ -32,7 +33,6 @@ import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
-import com.shibedays.workoutplanner._deprecated.SetBottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,11 +74,7 @@ public class NewWorkoutFragment extends Fragment{
 
     private Button mSaveButton;
 
-    // Bottom Sheet Components
-    private int mNumBottomSheetRows;
-    private ArrayList<String> mBottomSheetRowNames;
-    private int[] mBottomSheetICs;
-    private int[] mResultTypes;
+
     // Parent
     private MainActivity mParentActivity;
     private NewWorkoutFragment mThis;
@@ -145,17 +141,6 @@ public class NewWorkoutFragment extends Fragment{
         super.onCreate(savedInstanceState);
         mUsersSets = new ArrayList<>();
 
-        mNumBottomSheetRows = 2;
-        mBottomSheetRowNames = new ArrayList<>();
-        mBottomSheetICs = new int[mNumBottomSheetRows];
-        mResultTypes = new int[mNumBottomSheetRows];
-        mBottomSheetRowNames.add(getString(R.string.bottom_sheet_edit));
-        mBottomSheetICs[0] = R.drawable.ic_edit_black_24dp;
-        mResultTypes[0] = BottomSheetDialog.EDIT;
-        mBottomSheetRowNames.add(getString(R.string.bottom_sheet_delete));
-        mBottomSheetICs[1] = R.drawable.ic_delete_black_24dp;
-        mResultTypes[1] = BottomSheetDialog.DELETE;
-
         mRounds = 1;
         mRestTime = 60000;
         mBreakTime = 60000;
@@ -177,13 +162,13 @@ public class NewWorkoutFragment extends Fragment{
                 //region LEFT_RV
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<String> headerList = new ArrayList<>();
-        List<List<Set>> dataList = new ArrayList<>();
-        headerList.add(getString(R.string.header_title_user_created));
-        dataList.add(mUserCreatedSets);
-        headerList.add(getString(R.string.header_title_default));
-        dataList.add(mDefaultSets);
-        mLeftAdapter = new SectionedSetAdapter(getContext(), headerList, 0, new SectionedSetAdapter.SectionedAddSetListener() {
+        List<String> leftHeaderList = new ArrayList<>();
+        List<List<Set>> leftDataList = new ArrayList<>();
+        leftHeaderList.add(getString(R.string.header_title_user_created));
+        leftDataList.add(mUserCreatedSets);
+        leftHeaderList.add(getString(R.string.header_title_default));
+        leftDataList.add(mDefaultSets);
+        mLeftAdapter = new SectionedSetAdapter(getContext(), leftHeaderList, 0, new SectionedSetAdapter.SectionedAddSetListener() {
             @Override
             public void onClick(Set set, int section, int relativePos) {
                 mRightAdapter.addSet(0, set); // Section is the recipient section, not sending section
@@ -193,20 +178,21 @@ public class NewWorkoutFragment extends Fragment{
             @Override
             public void onLongClick(Set set, int section, final int relativePos) {
                 if(section == DEFAULT_SECTION){
+                    Log.d(DEBUG_TAG, "Left Adapter Default Long Click: Display Info");
                     openDialog(AddEditSetDialog.DISPLAY_SET, set, relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
                         @Override
                         public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                             // Nothing
                         }
                     });
-                    Log.d(DEBUG_TAG, "Left Adapter Default Long Click: Display Info");
                 } else {
+                    Log.d(DEBUG_TAG, "Left Adapter User Created Long Click: Bottom Sheet");
                     openBottomSheet(set, relativePos, section, new BottomSheetDialog.BottomSheetDialogListener() {
                         @Override
                         public void bottomSheetResult(int resultCode, int index, int section) {
                             Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
                             switch (resultCode){
-                                case BottomSheetDialog.EDIT:
+                                case BaseApp.EDIT:
                                     openDialog(AddEditSetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
                                         @Override
                                         public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
@@ -214,17 +200,16 @@ public class NewWorkoutFragment extends Fragment{
                                         }
                                     });
                                     break;
-                                case BottomSheetDialog.DELETE:
+                                case BaseApp.DELETE:
                                     deleteUserCreatedSet(section, index);
                                     break;
-                                case BottomSheetDialog.DUPLCIATE:
+                                case BaseApp.DUPLCIATE:
                                     break;
                                 default:
                                     break;
                             }
                         }
                     });
-                    Log.d(DEBUG_TAG, "Left Adapter User Created Long Click: Bottom Sheet");
                 }
             }
 
@@ -233,8 +218,9 @@ public class NewWorkoutFragment extends Fragment{
                 openDialog(AddEditSetDialog.NEW_SET, null, -1, section, new AddEditSetDialog.AddEditSetDialogListener() {
                     @Override
                     public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                        Set set = new Set(name, descrip, MainActivity.convertToMillis(min, sec));
+                        Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
                         addUserCreatedSet(section, set);
+                        mParentActivity.addSetToDB(set);
                     }
                 });
                 Log.d(DEBUG_TAG, "Left Adapter Add New User Created Set");
@@ -242,7 +228,7 @@ public class NewWorkoutFragment extends Fragment{
         });
 
         mLeftRecyclerView.setAdapter(mLeftAdapter);
-        mLeftAdapter.setDataList(dataList);
+        mLeftAdapter.setDataList(leftDataList);
         mLeftAdapter.shouldShowHeadersForEmptySections(true);
         mLeftAdapter.shouldShowFooters(true);
 
@@ -262,7 +248,7 @@ public class NewWorkoutFragment extends Fragment{
                     public void bottomSheetResult(int resultCode, int index, int section) {
                         Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
                         switch (resultCode){
-                            case BottomSheetDialog.EDIT:
+                            case BaseApp.EDIT:
                                 openDialog(AddEditSetDialog.EDIT_SET, mUsersSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
                                     @Override
                                     public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
@@ -270,10 +256,10 @@ public class NewWorkoutFragment extends Fragment{
                                     }
                                 });
                                 break;
-                            case BottomSheetDialog.DELETE:
+                            case BaseApp.DELETE:
                                 deleteUserSet(section, index);
                                 break;
-                            case BottomSheetDialog.DUPLCIATE:
+                            case BaseApp.DUPLCIATE:
                                 break;
                             default:
                                 break;
@@ -290,7 +276,7 @@ public class NewWorkoutFragment extends Fragment{
                     public void bottomSheetResult(int resultCode, int index, int section) {
                         Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
                         switch (resultCode){
-                            case BottomSheetDialog.EDIT:
+                            case BaseApp.EDIT:
                                 openDialog(AddEditSetDialog.EDIT_SET, mUsersSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
                                     @Override
                                     public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
@@ -298,10 +284,10 @@ public class NewWorkoutFragment extends Fragment{
                                     }
                                 });
                                 break;
-                            case BottomSheetDialog.DELETE:
+                            case BaseApp.DELETE:
                                 deleteUserSet(section, index);
                                 break;
-                            case BottomSheetDialog.DUPLCIATE:
+                            case BaseApp.DUPLCIATE:
                                 break;
                             default:
                                 break;
@@ -322,36 +308,7 @@ public class NewWorkoutFragment extends Fragment{
         mRightAdapter.shouldShowHeadersForEmptySections(true);
         mRightAdapter.shouldShowFooters(false);
 
-        //region ITEM_TOUCH_HELPER
-        /*
-        SectionedListItemTouchHelper rightItemHelper = new SectionedListItemTouchHelper(getContext(), false, true, 0, mRightRecyclerView, false){
-            @Override
-            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, Context context, List<UnderlayButton> underlayButtons) {
-                underlayButtons.add(new UnderlayButton(R.drawable.ic_delete_white_24dp,
-                        ResourcesCompat.getColor(getResources(), R.color.material_red_500, null), getContext(), new UnderlayButtonClickListener() {
-                    @Override
-                    public void onDeleteButtonClick(int pos) {
-                        mRightAdapter.removeFromUserSets(pos - 1); // pos in this case is absolute, so ( - 1) to account for the header
-                        Log.d(DEBUG_TAG, Integer.toString(mUsersSets.size()));
-                    }
-                }));
-            }
-        };
-        */
-        //endregion
-        //region old_code
-        /*
-        mLeftAdapter = new SetAdapter(getContext(), mCoordLayout, false);
-        mLeftRecyclerView.setAdapter(mLeftAdapter);
-        mLeftAdapter.setData(mDefaultSets);
-        mLeftAdapter.notifyDataSetChanged();
 
-        mRightAdapter = new SetAdapter(getContext(), mCoordLayout, true);
-        mRightRecyclerView.setAdapter(mRightAdapter);
-        mRightAdapter.setData(mUserCreatedSets);
-        mRightAdapter.notifyDataSetChanged();
-        */
-        //endregion
                 //endregion
 
             //endregion
@@ -494,7 +451,7 @@ public class NewWorkoutFragment extends Fragment{
             mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
 
-        mRestTime = MainActivity.convertToMillis(min, sec);
+        mRestTime = BaseApp.convertToMillis(min, sec);
     }
 
     public void setBreakTime(int min, int sec, boolean flag) {
@@ -510,7 +467,7 @@ public class NewWorkoutFragment extends Fragment{
             mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
 
-        mBreakTime = MainActivity.convertToMillis(min, sec);
+        mBreakTime = BaseApp.convertToMillis(min, sec);
     }
 
 
@@ -518,11 +475,10 @@ public class NewWorkoutFragment extends Fragment{
 
     //region UTILITY
     private void openBottomSheet(Set set, int relativePos, int section, BottomSheetDialog.BottomSheetDialogListener listener){
-        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(), relativePos, section, mNumBottomSheetRows, mBottomSheetRowNames, mBottomSheetICs, mResultTypes);
-        BottomSheetDialog dialog = new BottomSheetDialog();
+        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(), relativePos, section,
+                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity), BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
+        BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, listener);
         dialog.setTargetFragment(mThis, 0);
-        dialog.setArguments(bundle);
-        dialog.setListener(listener);
         if(getFragmentManager() != null){
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
@@ -535,10 +491,8 @@ public class NewWorkoutFragment extends Fragment{
         } else {
             bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
         }
-        AddEditSetDialog dialog = new AddEditSetDialog();
-        dialog.setArguments(bundle);
+        AddEditSetDialog dialog = AddEditSetDialog.newInstance(listener, bundle);
         dialog.setTargetFragment(mThis, 0);
-        dialog.setListener(listener);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
@@ -561,8 +515,8 @@ public class NewWorkoutFragment extends Fragment{
         boolean isOk = true;
 
         String name = mNameEntry.getText().toString();
-        int restTime[] = MainActivity.convertFromMillis(mRestTime);
-        int breakTime[] = MainActivity.convertFromMillis(mBreakTime);
+        int restTime[] = BaseApp.convertFromMillis(mRestTime);
+        int breakTime[] = BaseApp.convertFromMillis(mBreakTime);
         int rounds = 0;
         List<Set> setList = mUsersSets;
         if(TextUtils.isEmpty(name)){
@@ -604,15 +558,15 @@ public class NewWorkoutFragment extends Fragment{
             workout.setNumOfRounds(rounds);
             workout.setNoRestFlag(mRestFlag);
             workout.setNoBreakFlag(mBreakFlag);
-            workout.setTimeBetweenSets(MainActivity.convertToMillis(restTime));
-            workout.setTimeBetweenRounds(MainActivity.convertToMillis(breakTime));
+            workout.setTimeBetweenSets(BaseApp.convertToMillis(restTime));
+            workout.setTimeBetweenRounds(BaseApp.convertToMillis(breakTime));
             workout.addSets(setList);
             mListener.addNewWorkout(workout);
         }
     }
     //endregion
 
-    //region SET_FUNCTIONS
+    //region SETTERS
     public void setDefaultSets(List<Set> sets){
         mDefaultSets = sets;
     }
@@ -628,18 +582,20 @@ public class NewWorkoutFragment extends Fragment{
         Set set = mUserCreatedSets.get(index);
         set.setName(name);
         set.setDescrip(descrip);
-        set.setTime(MainActivity.convertToMillis(min, sec));
+        set.setTime(BaseApp.convertToMillis(min, sec));
         mLeftAdapter.updateSetList(USER_CREATED_SECTION, mUserCreatedSets);
     }
     public void deleteUserCreatedSet(int section, int pos){
+        mParentActivity.deleteSetFromDB(mUserCreatedSets.get(pos));
         mLeftAdapter.removeSet(section, pos);
     }
+
 
     public void updateUserSet(int index, String name, String descrip, int min, int sec){
         Set set = mUsersSets.get(index);
         set.setName(name);
         set.setDescrip(descrip);
-        set.setTime(MainActivity.convertToMillis(min, sec));
+        set.setTime(BaseApp.convertToMillis(min, sec));
         mRightAdapter.updateSetList(0, mUsersSets);
     }
     public void deleteUserSet(int section, int pos){

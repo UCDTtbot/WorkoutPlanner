@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.shawnlin.numberpicker.NumberPicker;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
 
@@ -56,6 +57,13 @@ public class AddEditSetDialog extends DialogFragment {
     //endregion
 
     //region LIFECYCLE
+
+    public static AddEditSetDialog newInstance(AddEditSetDialogListener listener, Bundle args){
+        AddEditSetDialog dialog = new AddEditSetDialog();
+        dialog.setListener(listener);
+        dialog.setArguments(args);
+        return dialog;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -205,7 +213,7 @@ public class AddEditSetDialog extends DialogFragment {
     public static Bundle getDialogBundle(int dialogType, String setName, String setDescrip, int timeInMil, int setIndex, int setSection){
         Bundle bundle = new Bundle();
 
-        int[] time = MainActivity.convertFromMillis(timeInMil);
+        int[] time = BaseApp.convertFromMillis(timeInMil);
 
         bundle.putInt(EXTRA_DIALOG_TYPE, dialogType);
         bundle.putString(EXTRA_SET_NAME, setName);
@@ -218,7 +226,7 @@ public class AddEditSetDialog extends DialogFragment {
         return bundle;
     }
 
-    public void setListener(AddEditSetDialogListener listener){
+    private void setListener(AddEditSetDialogListener listener){
         mListener = listener;
     }
     //endregion

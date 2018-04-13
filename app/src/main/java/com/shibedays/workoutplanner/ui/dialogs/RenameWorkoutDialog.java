@@ -55,6 +55,9 @@ public class RenameWorkoutDialog extends DialogFragment {
     //endregion
 
     //region LIFECYCLE
+
+
+
     // onAttach is called first, when it is attached to the activity
     @Override
     public void onAttach(Context context) {
@@ -147,6 +150,10 @@ public class RenameWorkoutDialog extends DialogFragment {
         super.onDetach();
         mListener = null;
     }
+
+    //endregion
+
+    //region UTILITY
 
     //endregion
 }

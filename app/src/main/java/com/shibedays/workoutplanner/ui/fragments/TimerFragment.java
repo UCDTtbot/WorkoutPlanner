@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
@@ -225,7 +226,7 @@ public class TimerFragment extends Fragment {
 
     //region UI_UPDATE_FUNCTIONS
     public void updateTime(int time){
-        int[] splitTime = MainActivity.convertFromMillis(time);
+        int[] splitTime = BaseApp.convertFromMillis(time);
         int min = splitTime[0], sec = splitTime[1];
         if((sec % 10) == 0){
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));

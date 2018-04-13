@@ -29,9 +29,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.shibedays.workoutplanner.BaseApp;
+import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
-import com.shibedays.workoutplanner.ui.helpers.SectionedListItemTouchHelper;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;
@@ -39,8 +41,6 @@ import com.shibedays.workoutplanner.services.TimerService;
 import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
-import com.shibedays.workoutplanner._deprecated.NumberRoundsDialog;
-import com.shibedays.workoutplanner._deprecated.SetBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
@@ -52,9 +52,7 @@ import java.util.Locale;
 import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
-public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.SetAdapaterListener, TimerFragment.OnFragmentInteractionListener,
-                                                                    NumberPickerDialog.NumberPickerDialogListener, SetBottomSheetDialog.SetBottomSheetDialogListener,
-                                                                    NumberRoundsDialog.NumberRoundsListener, SectionedListItemTouchHelper.SwapItems{
+public class MyWorkoutActivity extends AppCompatActivity implements TimerFragment.OnFragmentInteractionListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -301,7 +299,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         mRestTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openRestNumberPickerDialog();
+                openNumberPickerDialog(NumberPickerDialog.REST_TYPE);
             }
         });
 
@@ -309,7 +307,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         mBreakTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openBreakNumberPickerDialog();
+                openNumberPickerDialog(NumberPickerDialog.BREAK_TYPE);
             }
         });
 
@@ -317,7 +315,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         mNumRounds.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openNumberRoundsDialog();
             }
         });
         //endregion
@@ -329,7 +326,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
         mRecyclerView.setItemAnimator(new FadeInLeftAnimator());
 
-        mSetAdapter = new SetAdapter(this, findViewById(R.id.set_coord_layout), true);
+        mSetAdapter = new SetAdapter(this, findViewById(R.id.set_coord_layout), new SetAdapter.SetAdapterListener() {
+            @Override
+            public void onSetClick(int setIndex) {
+                openBottomSheet(setIndex);
+            }
+
+            @Override
+            public void deleteSet(Set set) {
+                deleteSetFromWorkout(set);
+            }
+        });
         mRecyclerView.setAdapter(mSetAdapter);
         mSetAdapter.notifyDataSetChanged();
 
@@ -464,11 +471,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         int numRounds = mWorkoutData.getNumOfRounds();
         updateRoundNumUI(numRounds);
 
-        int[] restTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenSets() );
+        int[] restTime = BaseApp.convertFromMillis( mWorkoutData.getTimeBetweenSets() );
         int restMin = restTime[0], restSec = restTime[1];
         updateRestTimeUI(restMin, restSec, mWorkoutData.getNoRestFlag());
 
-        int[] breakTime = MainActivity.convertFromMillis( mWorkoutData.getTimeBetweenRounds() );
+        int[] breakTime = BaseApp.convertFromMillis( mWorkoutData.getTimeBetweenRounds() );
         int breakMin = breakTime[0], breakSec = breakTime[1];
         updateBreakTimeUI(breakMin, breakSec, mWorkoutData.getNoBreakFlag());
     }
@@ -495,34 +502,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
         fragmentTransaction.commit();
     }
 
-
-    @Override
-    public void bottomSheetTopRowClicked(int index, int section) {
-        if(section == NEW_SET_SCREEN){
-            Log.d(DEBUG_TAG, "Editing Set " + mUserCreatedSets.get(index).getName());
-            if(mAddNewSetFragment != null){
-                mAddNewSetFragment.editUserSet(index, section);
-            }
-        }
-    }
-
-    @Override
-    public void bottomSheetBottomRowClicked(int index, int section) {
-        if(section == NEW_SET_SCREEN){
-            Log.d(DEBUG_TAG, "Deleting Set " + mUserCreatedSets.get(index).getName());
-            if(mAddNewSetFragment != null){
-                Set set = mUserCreatedSets.get(index);
-                mAddNewSetFragment.deleteUserSet(index);
-                mSetViewModel.remove(set);
-                mAddNewSetFragment.updateRightAdapter();
-            }
-        }
-    }
-
     //endregion
-
-
-
 
     //region FRAGMENT_CLOSING
     @Override
@@ -550,37 +530,40 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     //endregion
 
     //region NUMBER_PICKERS
-    private void openRestNumberPickerDialog(){
-        NumberPickerDialog numberPickerDialog = new NumberPickerDialog();
-        Bundle args = new Bundle();
-        args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.REST_TYPE);
-        args.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, mWorkoutData.getTimeBetweenSets());
-        args.putBoolean(NumberPickerDialog.EXTRA_NO_FLAG, mWorkoutData.getNoRestFlag());
-        numberPickerDialog.setArguments(args);
+    private void openNumberPickerDialog(int type){
+        Bundle args = null;
+        if(type == NumberPickerDialog.REST_TYPE) {
+            args = NumberPickerDialog.getDialogBundle(type, mWorkoutData.getTimeBetweenSets(), mWorkoutData.getNoRestFlag());
+        } else if (type == NumberPickerDialog.BREAK_TYPE) {
+            args = NumberPickerDialog.getDialogBundle(type, mWorkoutData.getTimeBetweenRounds(), mWorkoutData.getNoBreakFlag());
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " invalid type");
+        }
+        NumberPickerDialog numberPickerDialog = NumberPickerDialog.newInstance(args, new NumberPickerDialog.NumberPickerDialogListener() {
+            @Override
+            public void setTime(int type, int min, int sec, boolean noFlag) {
+                if(type == NumberPickerDialog.REST_TYPE){
+                    setRestTime(min, sec, noFlag);
+                } else if (type == NumberPickerDialog.BREAK_TYPE){
+                    setBreakTime(min, sec, noFlag);
+                } else {
+                    throw new RuntimeException(DEBUG_TAG + " invalid type in number dialog listener");
+                }
+            }
+        });
         numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
-    @Override
     public void setRestTime(int min, int sec, boolean noFlag) {
-        int time = MainActivity.convertToMillis(min, sec);
+        int time = BaseApp.convertToMillis(min, sec);
         updateRestTimeUI(min, sec, noFlag);
         mWorkoutData.setTimeBetweenSets(time);
         mWorkoutData.setNoRestFlag(noFlag);
         mWorkoutViewModel.update(mWorkoutData);
     }
 
-    private void openBreakNumberPickerDialog(){
-        NumberPickerDialog numberPickerDialog = new NumberPickerDialog();
-        Bundle args = new Bundle();
-        args.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, NumberPickerDialog.BREAK_TYPE);
-        args.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, mWorkoutData.getTimeBetweenRounds());
-        args.putBoolean(NumberPickerDialog.EXTRA_NO_FLAG, mWorkoutData.getNoBreakFlag());
-        numberPickerDialog.setArguments(args);
-        numberPickerDialog.show(mFragmentManager, DEBUG_TAG);
-    }
-    @Override
     public void setBreakTime(int min, int sec, boolean noFlag) {
-        int time = MainActivity.convertToMillis(min, sec);
+        int time = BaseApp.convertToMillis(min, sec);
         updateBreakTimeUI(min, sec, noFlag);
         mWorkoutData.setTimeBetweenRounds(time);
         mWorkoutData.setNoBreakFlag(noFlag);
@@ -589,46 +572,62 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
 
     //endregion
 
-    //region NUMBER_ROUND_DIALOG
-    private void openNumberRoundsDialog(){
-        NumberRoundsDialog numberRoundsDialog = new NumberRoundsDialog();
-        Bundle args = new Bundle();
-        args.putInt(NumberRoundsDialog.EXTRA_NUM_ROUNDS, mWorkoutData.getNumOfRounds());
-        numberRoundsDialog.setArguments(args);
-        numberRoundsDialog.show(mFragmentManager, DEBUG_TAG);
+    //region BOTTOM_SHEET
+    public void openBottomSheet(int setIndex){
+        Bundle args = BottomSheetDialog.getBottomSheetBundle(mSetList.get(setIndex).getName(), setIndex, 0,
+                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(this), BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
+        BottomSheetDialog bottomSheetDialog = BottomSheetDialog.newInstance(args, new BottomSheetDialog.BottomSheetDialogListener() {
+            @Override
+            public void bottomSheetResult(int resultCode, int index, int section) {
+                switch (resultCode){
+                    case BaseApp.EDIT:
+                        openDialog(AddEditSetDialog.EDIT_SET, mSetList.get(index), index, 0, new AddEditSetDialog.AddEditSetDialogListener() {
+                            @Override
+                            public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                                Set editSet = mSetList.get(index);
+                                editSet.setName(name);
+                                editSet.setTime(BaseApp.convertToMillis(min, sec));
+                                editSet.setDescrip(descrip);
+                                mWorkoutData.updateSet(editSet, index);
+                                mWorkoutViewModel.update(mWorkoutData);
+                                mSetAdapter.notifyDataSetChanged();
+                            }
+                        });
+                        break;
+                    case BaseApp.DELETE:
+                        mSetAdapter.pendingRemoval(index);
+                        break;
+                    case BaseApp.DUPLCIATE:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        bottomSheetDialog.show(mFragmentManager, DEBUG_TAG);
     }
 
-    @Override
-    public void setNumberRounds(int num) {
-        mWorkoutData.setNumOfRounds(num);
+    public void deleteSetFromWorkout(Set set) {
         mWorkoutViewModel.update(mWorkoutData);
+    }
+
+    private void openDialog(int type, Set set, int relativePos, int section, AddEditSetDialog.AddEditSetDialogListener listener){
+        Bundle bundle = null;
+        if(set != null){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getName(), set.getDescrip(), set.getTime(), relativePos, section);
+        } else {
+            bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
+        }
+        AddEditSetDialog dialog = AddEditSetDialog.newInstance(listener, bundle);
+        if (getFragmentManager() != null) {
+            dialog.show(mFragmentManager, DEBUG_TAG);
+        }
     }
     //endregion
 
-    //region BOTTOM_SHEET
-    @Override
-    public void onSetClick(int setIndex) {
-        openBottomDialog(setIndex);
-    }
-
-    public void openBottomDialog(int setIndex){
-        Bundle bundle = new Bundle();
-        bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, setIndex);
-        bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, mSetList.get(setIndex).getName());
-        SetBottomSheetDialog setBottomSheetDialog = new SetBottomSheetDialog();
-        setBottomSheetDialog.setArguments(bundle);
-        setBottomSheetDialog.show(mFragmentManager, setBottomSheetDialog.getTag());
-    }
-
-    @Override
-    public void deleteSet(Set set) {
-        mWorkoutViewModel.update(mWorkoutData);
-    }
-
-        //endregion
-
     //region SWAP_SETS
-        @Override
+
+    /*
     public void swap(int from, int to) {
         swapSets(from, to);
     }
@@ -636,8 +635,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements SetAdapter.S
     private void swapSets(int from, int to){
         mWorkoutData.swapSets(from, to);
     }
+    */
     //endregion
-
 
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation

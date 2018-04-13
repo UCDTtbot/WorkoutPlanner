@@ -21,10 +21,7 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
     // Package and Debug Constants
     private static final String DEBUG_TAG = BottomSheetDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog.";
-    // Result Types
-    public static final int EDIT = 0;
-    public static final int DELETE = 1;
-    public static final int DUPLCIATE = 2;
+
     //endregion
 
     //region INTENT_KEYS
@@ -60,6 +57,13 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
     //endregion
 
     //region LIFECYCLE
+
+    public static BottomSheetDialog newInstance(Bundle args, BottomSheetDialogListener listener){
+        BottomSheetDialog dialog = new BottomSheetDialog();
+        dialog.setListener(listener);
+        dialog.setArguments(args);
+        return dialog;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -133,7 +137,8 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
 
         return bundle;
     }
-    public void setListener(BottomSheetDialogListener listener){
+
+    private void setListener(BottomSheetDialogListener listener){
         mListener = listener;
     }
     //endregion

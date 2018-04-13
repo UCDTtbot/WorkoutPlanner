@@ -6,11 +6,13 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
 import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -39,6 +41,8 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         private TextView title;
         // Footer
         private CardView footerCard;
+        private int footerHeight;
+        private int footerWidth;
         // Is Binding
         private boolean onBind;
         // Adapter
@@ -57,6 +61,16 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             timeTextView = itemView.findViewById(R.id.set_time_narrow);
             // Footer Item Views
             footerCard = itemView.findViewById(R.id.add_set_card_view);
+            if(footerCard != null) {
+                ViewTreeObserver observer = footerCard.getViewTreeObserver();
+                observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        footerHeight = footerCard.getHeight();
+                        footerWidth = footerCard.getWidth();
+                    }
+                });
+            }
             this.adapter = adapter;
 
             itemView.setOnClickListener(this);
@@ -81,7 +95,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             relativePos = relPos;
 
             setNameTextView.setText(curSet.getName());
-            int[] time = MainActivity.convertFromMillis(curSet.getTime());
+            int[] time = BaseApp.convertFromMillis(curSet.getTime());
             int minutes = time[0], seconds = time[1];
 
             if(seconds == 0){
@@ -98,11 +112,11 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         void bindFooter(int section){
             if(section != mNewSetFooterSection){
                 footerCard.setVisibility(View.GONE);
-                int width = footerCard.getWidth();
-                int height = 0;
-                footerCard.setLayoutParams(new CardView.LayoutParams(width, height));
+                //footerCard.setLayoutParams(new CardView.LayoutParams(footerWidth, 0));
             } else {
                 footerCard.setVisibility(View.VISIBLE);
+                //footerCard.setLayoutParams(new CardView.LayoutParams(footerWidth, footerHeight));
+
             }
         }
 

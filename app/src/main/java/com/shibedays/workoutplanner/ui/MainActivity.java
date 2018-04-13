@@ -21,26 +21,24 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
+import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
-import com.shibedays.workoutplanner._deprecated.WorkoutBottomSheetDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements WorkoutAdapter.WorkoutAdapterListener, NewWorkoutFragment.OnFragmentInteractionListener, NumberPickerDialog.NumberPickerDialogListener{
+public class MainActivity extends AppCompatActivity implements NewWorkoutFragment.OnFragmentInteractionListener{
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
 
     // View Model
     private WorkoutViewModel mWorkoutViewModel;
-    private SetViewModel mSetViewModel;
+    private SetViewModel mUserSetViewModel;
 
     // Fragment(s)
     NewWorkoutFragment mNewWorkoutFragment;
@@ -143,7 +141,22 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Setup the adapter with correct data
-        mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout));
+        mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout), new WorkoutAdapter.WorkoutAdapterListener() {
+            @Override
+            public void onWorkoutClicked(int workoutIndex) {
+                openWorkout(workoutIndex);
+            }
+
+            @Override
+            public void onWorkoutLongClick(int workoutIndex, int workoutID) {
+                openBottomDialog(workoutIndex);
+            }
+
+            @Override
+            public void deleteFromDB(Workout workout) {
+                deleteWorkoutFromDB(workout);
+            }
+        });
         mRecyclerView.setAdapter(mWorkoutAdapter);
         mWorkoutAdapter.notifyDataSetChanged();
         //endregion
@@ -177,8 +190,8 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
             }
         });
 
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+        mUserSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mUserSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
             @Override
             public void onChanged(@Nullable List<Set> sets) {
                 mUserCreatedSets = sets;
@@ -273,37 +286,10 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     //endregion
 
     //region UTILITY
-    public static int convertToMillis(int[] time){
-        return ((time[0] * 60) + time[1]) * 1000;
-    }
-
-    public static int convertToMillis(int min, int sec){
-        return((min * 60) + sec) * 1000;
-    }
-
-    public static int[] convertFromMillis(int time){
-        int[] newTime = {0, 0};
-        newTime[0] = (int)(Math.floor(time/1000)/60);
-        newTime[1] = ((time/1000) % 60);
-        return newTime;
-    }
-
     public int getNextWorkoutId(){
         return NEXT_WORKOUT_ID;
     }
 
-    public static void showDebugDBAddressLogToast(Context context) {
-        if (BuildConfig.DEBUG) {
-            try {
-                Class<?> debugDB = Class.forName("com.amitshekhar.DebugDB");
-                Method getAddressLog = debugDB.getMethod("getAddressLog");
-                Object value = getAddressLog.invoke(null);
-                Toast.makeText(context, (String) value, Toast.LENGTH_LONG).show();
-            } catch (Exception ignore) {
-
-            }
-        }
-    }
     //endregion
 
 
@@ -320,8 +306,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
         fragmentTransaction.commit();
         toggleUpArrow(true);
         Log.d(DEBUG_TAG, "New Workout Fragment Created");
-        //if(mUserCreatedSets != null)
-        //    mNewWorkoutFragment.setUserCreatedSets(mUserCreatedSets);
     }
 
     @Override
@@ -342,11 +326,6 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     //endregion
 
     //region OPEN_WORKOUT
-    @Override
-    public void onWorkoutClicked(int workoutID) {
-        openWorkout(workoutID);
-    }
-
     public void openWorkout(int workoutID){
         Intent intent = new Intent(this, MyWorkoutActivity.class);
         intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
@@ -355,43 +334,46 @@ public class MainActivity extends AppCompatActivity implements WorkoutAdapter.Wo
     }
     //endregion
 
-
-    //region NUMBER_PICKER_LISTENERS
-    @Override
-    public void setRestTime(int min, int sec, boolean noFlag) {
-        if(mNewWorkoutFragment != null){
-            mNewWorkoutFragment.setRestTime(min, sec, noFlag);
-        }
-    }
-
-    @Override
-    public void setBreakTime(int min, int sec, boolean noFlag) {
-        if(mNewWorkoutFragment != null){
-            mNewWorkoutFragment.setBreakTime(min, sec, noFlag);
-        }
-    }
-    //endregion
-
-
     //region BOTTOM_SHEET_WORKOUTS
 
-    @Override
-    public void onWorkoutLongClick(int workoutIndex, int workoutID) {
-        openBottomDialog(workoutIndex, workoutID);
+
+    public void openBottomDialog(int workoutIndex){
+        Workout workout = mWorkoutData.get(workoutIndex);
+        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), workoutIndex, -1,
+                BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
+        BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, new BottomSheetDialog.BottomSheetDialogListener() {
+            @Override
+            public void bottomSheetResult(int resultCode, int index, int section) {
+                switch (resultCode){
+                    case BaseApp.EDIT:
+                        throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
+                    case BaseApp.DELETE:
+                        mWorkoutAdapter.pendingRemoval(index);
+                        break;
+                    case BaseApp.DUPLCIATE:
+                        Workout newWorkout = new Workout(NEXT_WORKOUT_ID, mWorkoutData.get(index));
+                        addNewWorkout(newWorkout);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        if(mFragmentManager != null){
+            dialog.show(mFragmentManager, DEBUG_TAG);
+        }
     }
 
-    public void openBottomDialog(int workoutIndex, int workoutID){
-        Bundle bundle = new Bundle();
-        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_ID, workoutID);
-        bundle.putInt(WorkoutBottomSheetDialog.EXTRA_WORKOUT_INDEX, workoutIndex);
-        WorkoutBottomSheetDialog workoutBottomSheetDialog = new WorkoutBottomSheetDialog();
-        workoutBottomSheetDialog.setArguments(bundle);
-        workoutBottomSheetDialog.show(mFragmentManager, workoutBottomSheetDialog.getTag());
-    }
 
-    @Override
     public void deleteWorkoutFromDB(Workout workout) {
         mWorkoutViewModel.remove(workout);
+    }
+
+    public void addSetToDB(Set set){
+        mUserSetViewModel.insert(set);
+    }
+    public void deleteSetFromDB(Set set){
+        mUserSetViewModel.remove(set);
     }
 
 

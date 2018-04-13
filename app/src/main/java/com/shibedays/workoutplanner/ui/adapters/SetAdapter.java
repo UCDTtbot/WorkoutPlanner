@@ -12,9 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +57,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
             setNameTextView.setText(curSet.getName());
             descripTextView.setText(curSet.getDescrip());
-            int[] time = MainActivity.convertFromMillis(curSet.getTime());
+            int[] time = BaseApp.convertFromMillis(curSet.getTime());
             int minutes = time[0], seconds = time[1];
 
             if(seconds == 0){
@@ -67,12 +67,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             }
             else {
                 timeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
-            }
-
-            if(mCanSwipe) {
-
-            } else {
-
             }
         }
 
@@ -99,35 +93,28 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     // Threading Components
     private Handler handler = new Handler();
     private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
-    // Swiping
-    private Boolean mCanSwipe;
 
     //endregion
 
     //region INTERFACES
-    public interface SetAdapaterListener{
+    public interface SetAdapterListener {
         void onSetClick(int setIndex);
         void deleteSet(Set set);
     }
-    private SetAdapaterListener mListener;
+    private SetAdapterListener mListener;
     //endregion
 
     //region LIFECYCLE
-    public SetAdapter(Context context, View coordLayout, boolean swipeable){
+    public SetAdapter(Context context, View coordLayout, SetAdapterListener listener){
         mSetsPendingRemoval = new ArrayList<>();
         mContext = context;
-        mCanSwipe = swipeable;
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout)coordLayout;
         } else {
             throw new RuntimeException(SetAdapter.class.getSimpleName() + " was passed a non-coordinate layout view");
         }
 
-        if(context instanceof SetAdapaterListener){
-            mListener = (SetAdapaterListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement SetAdapterListener");
-        }
+        mListener = listener;
     }
 
     @NonNull

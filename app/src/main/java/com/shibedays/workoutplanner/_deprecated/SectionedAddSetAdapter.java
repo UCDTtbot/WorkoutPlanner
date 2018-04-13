@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
 import com.afollestad.sectionedrecyclerview.SectionedViewHolder;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -89,7 +90,7 @@ public class SectionedAddSetAdapter extends SectionedRecyclerViewAdapter<Section
             relativePos = relPos;
 
             setNameTextView.setText(curSet.getName());
-            int[] time = MainActivity.convertFromMillis(curSet.getTime());
+            int[] time = BaseApp.convertFromMillis(curSet.getTime());
             int minutes = time[0], seconds = time[1];
 
             if(seconds == 0){

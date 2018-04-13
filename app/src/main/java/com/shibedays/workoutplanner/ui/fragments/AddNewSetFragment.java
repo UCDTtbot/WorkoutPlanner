@@ -15,14 +15,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
-import com.shibedays.workoutplanner._deprecated.SectionedAddSetAdapter;
+import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
-import com.shibedays.workoutplanner._deprecated.SetBottomSheetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AddNewSetFragment extends Fragment {
@@ -40,8 +42,8 @@ public class AddNewSetFragment extends Fragment {
     private List<Set> mUserCreatedSets;
 
     // Adapters
-    private SectionedAddSetAdapter mLeftAdapter;
-    private SectionedAddSetAdapter mRightAdapter;
+    private SectionedSetAdapter mLeftAdapter;
+    private SectionedSetAdapter mRightAdapter;
     // UI Components
     private RecyclerView mLeftRecyclerView;
     private RecyclerView mRightRecyclerView;
@@ -50,6 +52,7 @@ public class AddNewSetFragment extends Fragment {
 
     // Parent
     private MyWorkoutActivity mParentActivity;
+    private AddNewSetFragment mThis;
 
 
     //endregion
@@ -92,6 +95,7 @@ public class AddNewSetFragment extends Fragment {
         } else {
             throw new RuntimeException(DEBUG_TAG + " wasn't called from MyWorkoutActivity");
         }
+        mThis = this;
     }
 
     @Override
@@ -115,9 +119,14 @@ public class AddNewSetFragment extends Fragment {
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
         mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mLeftAdapter = new SectionedAddSetAdapter(getContext(), SectionedAddSetAdapter.LEFT_VIEW, new SectionedAddSetAdapter.SectionedAddSetListener() {
+        List<String> headerList = new ArrayList<>();
+        List<List<Set>> leftDataList = new ArrayList<>();
+        headerList.add(getString(R.string.header_title_default));
+
+        //        mLeftAdapter = new SectionedSetAdapter(getContext(), headerList, 0, new SectionedSetAdapter.SectionedAddSetListener() {
+        mLeftAdapter = new SectionedSetAdapter(getContext(), headerList, -1, new SectionedSetAdapter.SectionedAddSetListener() {
             @Override
-            public void onClick(Set set, int relativePos) {
+            public void onClick(Set set, int section, int relativePos) {
                 Log.d(DEBUG_TAG, "Left Adapter Default Clicked Add Set");
                 addSetConfirmation(set);
             }
@@ -125,27 +134,21 @@ public class AddNewSetFragment extends Fragment {
             @Override
             public void onLongClick(Set set, int section, int relativePos) {
                 Log.d(DEBUG_TAG, "Left Adapter Default LongClicked Open Info");
-                Bundle bundle = new Bundle();
-                bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.DISPLAY_SET);
-                bundle.putString(AddEditSetDialog.EXTRA_SET_NAME, set.getName());
-                bundle.putString(AddEditSetDialog.EXTRA_SET_DESCIP, set.getDescrip());
-                int[] time = MainActivity.convertFromMillis(set.getTime());
-                bundle.putInt(AddEditSetDialog.EXTRA_SET_MIN, time[0]);
-                bundle.putInt(AddEditSetDialog.EXTRA_SET_SEC, time[1]);
-                AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
-                addEditSetDialog.setArguments(bundle);
-                if(getFragmentManager() != null){
-                    addEditSetDialog.show(getFragmentManager(), DEBUG_TAG);
-                }
+                openDialog(AddEditSetDialog.DISPLAY_SET, set, relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                    @Override
+                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                        // Nothing
+                    }
+                });
             }
 
             @Override
-            public void createUserSet() {
+            public void createUserSet(int section) {
                 // Nothing
             }
         });
         mLeftRecyclerView.setAdapter(mLeftAdapter);
-        mLeftAdapter.setDefaultSets(mDefaultSets);
+        mLeftAdapter.addToDataList(mDefaultSets);
         mLeftAdapter.shouldShowHeadersForEmptySections(true);
         mLeftAdapter.shouldShowFooters(false);
                 //endregion
@@ -154,42 +157,57 @@ public class AddNewSetFragment extends Fragment {
         mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
         mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mRightAdapter = new SectionedAddSetAdapter(getContext(), SectionedAddSetAdapter.RIGHT_VIEW, new SectionedAddSetAdapter.SectionedAddSetListener() {
+        List<String> rightHeaderList = new ArrayList<>();
+        rightHeaderList.add(getString(R.string.header_title_user_created));
+        mRightAdapter = new SectionedSetAdapter(getContext(), headerList, 0, new SectionedSetAdapter.SectionedAddSetListener(){
             @Override
-            public void onClick(Set set, int relativePos) {
+            public void onClick(Set set, int section, final int relativePos) {
                 Log.d(DEBUG_TAG, "Right Adapter User Created Clicked Add Set");
                 addSetConfirmation(set);
             }
 
             @Override
-            public void onLongClick(Set set, int section, int relativePos) {
+            public void onLongClick(Set set, int section, final int relativePos) {
                 Log.d(DEBUG_TAG, "Right Adapter User Created Long Clicked Open Bottom Sheet");
-                Bundle bundle = new Bundle();
-                bundle.putString(SetBottomSheetDialog.EXTRA_SET_NAME, set.getName());
-                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_INDEX, relativePos);
-                bundle.putInt(SetBottomSheetDialog.EXTRA_SET_SECTION, MyWorkoutActivity.NEW_SET_SCREEN);
-                SetBottomSheetDialog setBottomSheetDialog = new SetBottomSheetDialog();
-                setBottomSheetDialog.setArguments(bundle);
-                if(getFragmentManager() != null){
-                    setBottomSheetDialog.show(getFragmentManager(), DEBUG_TAG);
-                }
+                openBottomSheet(set, relativePos, section, new BottomSheetDialog.BottomSheetDialogListener() {
+                    @Override
+                    public void bottomSheetResult(int resultCode, int index, int section) {
+                        Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
+                        switch (resultCode){
+                            case BaseApp.EDIT:
+                                openDialog(AddEditSetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                                    @Override
+                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                                        updateUserCreatedSet(index, name, descrip, min, sec);
+                                    }
+                                });
+                                break;
+                            case BaseApp.DELETE:
+                                deleteUserCreatedSet(section, index);
+                                break;
+                            case BaseApp.DUPLCIATE:
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
             }
 
             @Override
-            public void createUserSet() {
-                // TODO: Create user set
+            public void createUserSet(int section) {
                 Log.d(DEBUG_TAG, "Right Adapter Create New User Set");
-                Bundle bundle = new Bundle();
-                bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.NEW_SET);
-                AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
-                addEditSetDialog.setArguments(bundle);
-                if (getFragmentManager() != null) {
-                    addEditSetDialog.show(getFragmentManager(), DEBUG_TAG);
-                }
+                openDialog(AddEditSetDialog.NEW_SET, null, -1, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                    @Override
+                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                        Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
+                        addUserCreatedSet(section, set);
+                    }
+                });
             }
         });
         mRightRecyclerView.setAdapter(mRightAdapter);
-        mRightAdapter.setUserCreated(mUserCreatedSets);
+        mRightAdapter.addToDataList(mUserCreatedSets);
         mRightAdapter.shouldShowHeadersForEmptySections(true);
         mRightAdapter.shouldShowFooters(true);
                 //endregion
@@ -253,21 +271,38 @@ public class AddNewSetFragment extends Fragment {
     //endregion
 
     //region SETTERS
-    public void setListener(NewSetListener listener){
+    private void setListener(NewSetListener listener){
         mListener = listener;
     }
 
-    public void setUserCreatedSets(List<Set> sets) {
-        mUserCreatedSets = sets;
-    }
 
     public void setDefaultSets(List<Set> sets){
         mDefaultSets = sets;
     }
+
+
+    public void setUserCreatedSets(List<Set> sets) {
+        mUserCreatedSets = sets;
+    }
+    public void addUserCreatedSet(int section, Set set){
+        mRightAdapter.addSet(section, set);
+    }
+    public void updateUserCreatedSet(int index, String name, String descrip, int min, int sec){
+        Set set = mUserCreatedSets.get(index);
+        set.setName(name);
+        set.setDescrip(descrip);
+        set.setTime(BaseApp.convertToMillis(min, sec));
+        mRightAdapter.updateSetList(0, mUserCreatedSets);
+    }
+    public void deleteUserCreatedSet(int section, int pos){
+        mRightAdapter.removeSet(section, pos);
+    }
+
+
     //endregion
 
     //region UTILITY
-    public void addSetConfirmation(final Set set){
+    private void addSetConfirmation(final Set set){
         if(getContext() != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
             builder.setTitle("Add Set")
@@ -289,36 +324,32 @@ public class AddNewSetFragment extends Fragment {
         }
     }
 
-    public void addUserSet(Set set){
-        mRightAdapter.addToUserCreated(set);
-    }
-
-    public void editUserSet(int pos, int section){
-        Set set = mUserCreatedSets.get(pos);
-        Bundle bundle = new Bundle();
-        bundle.putInt(AddEditSetDialog.EXTRA_DIALOG_TYPE, AddEditSetDialog.EDIT_SET);
-        bundle.putString(AddEditSetDialog.EXTRA_SET_NAME, set.getName());
-        bundle.putString(AddEditSetDialog.EXTRA_SET_DESCIP, set.getDescrip());
-        bundle.putInt(AddEditSetDialog.EXTRA_SET_INDEX, pos);
-        int[] time = MainActivity.convertFromMillis(set.getTime());
-        bundle.putInt(AddEditSetDialog.EXTRA_SET_MIN, time[0]);
-        bundle.putInt(AddEditSetDialog.EXTRA_SET_SEC, time[1]);
-        bundle.putInt(AddEditSetDialog.EXTRA_SET_SECTION, 0);
-        AddEditSetDialog addEditSetDialog = new AddEditSetDialog();
-        addEditSetDialog.setArguments(bundle);
-        if(getFragmentManager() != null){
-            addEditSetDialog.show(getFragmentManager(), DEBUG_TAG);
+    private void openDialog(int type, Set set, int relativePos, int section, AddEditSetDialog.AddEditSetDialogListener listener) {
+        Bundle bundle = null;
+        if(set != null){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getName(), set.getDescrip(), set.getTime(), relativePos, section);
+        } else {
+            bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
+        }
+        AddEditSetDialog dialog = AddEditSetDialog.newInstance(listener, bundle);
+        dialog.setTargetFragment(mThis, 0);
+        if (getFragmentManager() != null) {
+            dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
-    public void deleteUserSet(int index){
-        mUserCreatedSets.remove(index);
-        mRightAdapter.notifyDataSetChanged();
+
+    private void openBottomSheet(Set set, int relativePos, int section, BottomSheetDialog.BottomSheetDialogListener listener){
+        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(), relativePos, section,
+                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity), BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
+        BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, listener);
+        dialog.setTargetFragment(mThis, 0);
+        if(getFragmentManager() != null){
+            dialog.show(getFragmentManager(), DEBUG_TAG);
+        }
     }
 
-    public void updateRightAdapter() {
-        mLeftAdapter.notifyDataSetChanged();
-        mRightAdapter.notifyDataSetChanged();
-    }
+
+
     //endregion
 
 

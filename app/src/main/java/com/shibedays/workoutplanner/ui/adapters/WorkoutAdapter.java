@@ -2,6 +2,7 @@ package com.shibedays.workoutplanner.ui.adapters;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -45,7 +46,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         private TextView TEST_POS_ID;
         private TextView TEST_WRK_ID;
 
-        public WorkoutViewHolder(View itemView) {
+        private WorkoutViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
             itemName = itemView.findViewById(R.id.item_name);
@@ -106,13 +107,13 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
     public interface WorkoutAdapterListener{
         void onWorkoutClicked(int workoutIndex);
         void onWorkoutLongClick(int workoutIndex, int workoutID);
-        void deleteWorkoutFromDB(Workout workout);
+        void deleteFromDB(Workout workout);
     }
     private WorkoutAdapterListener mListener;
     //endregion
 
     //region LIFECYCLE
-    public WorkoutAdapter(Context context, View coordLayout){
+    public WorkoutAdapter(Context context, View coordLayout, WorkoutAdapterListener listener){
         mWorkoutsPendingRemoval = new ArrayList<>();
         mContext = context;
         if(coordLayout instanceof CoordinatorLayout){
@@ -121,22 +122,18 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
             throw new RuntimeException(WorkoutAdapter.class.getSimpleName() + " was passed a non-coord layout view");
         }        // Make sure our context is an activity and set the Listener to it
 
-        if(context instanceof WorkoutAdapterListener) {
-            mListener = (WorkoutAdapterListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement WorkoutAdapterListener");
-        }
-
+        mListener = listener;
     }
 
+    @NonNull
     @Override
-    public WorkoutViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public WorkoutViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new WorkoutViewHolder(LayoutInflater.from(mContext)
                 .inflate(R.layout.list_workout_items, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(WorkoutViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull WorkoutViewHolder viewHolder, int position) {
         // Get the current data
         Workout currentWorkout = mWorkoutData.get(position);
         // Bind to the correct data
@@ -201,7 +198,7 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
     @Override
     public void deletePending(int pendingIndex, int origWorkoutPos){
-        mListener.deleteWorkoutFromDB(mWorkoutsPendingRemoval.get(pendingIndex));
+        mListener.deleteFromDB(mWorkoutsPendingRemoval.get(pendingIndex));
         mWorkoutsPendingRemoval.remove(pendingIndex);
         // Update the file that we have removed a curWorkout
     }
