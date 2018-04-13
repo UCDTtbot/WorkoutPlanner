@@ -11,7 +11,7 @@
     android:weightSum="100">
 
     <FrameLayout
-        android:id="@+id/timer_fragment_container"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="60"
-        android:background="@color/material_blue_grey_50">
+        android:overScrollMode="never">
 
     </android.support.v7.widget.RecyclerView>
 
@@ -31,8 +31,7 @@
         android:id="@+id/rel_view_titles"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="40"
-        android:background="@color/material_blue_grey_50">
+        android:layout_weight="40">
 
         <TextView
             android:id="@+id/rest_title_text"

@@ -1,10 +1,9 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AliasActivity;
 import android.app.Dialog;
+import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -22,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.shawnlin.numberpicker.NumberPicker;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
@@ -29,11 +29,11 @@ import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import java.util.Locale;
 
 
-public class NumberPickerDialog extends DialogFragment implements NumberPicker.OnValueChangeListener {
+public class NumberPickerDialog extends DialogFragment {
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = AddEditWorkoutDialog.class.getSimpleName();
+    private static final String DEBUG_TAG = RenameWorkoutDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog.";
 
 
@@ -63,22 +63,23 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
     //region INTERFACES
     // Interface for dialog button listeners for MainActivity
     public interface NumberPickerDialogListener {
-        void setRestTime(int min, int sec, boolean noFlag);
-        void setBreakTime(int min, int sec, boolean noFlag);
+        void setTime(int type, int min, int sec, boolean noFlag);
     }
     NumberPickerDialogListener mListener;
     //endregion
 
     //region LIFECYCLE
 
+    public static NumberPickerDialog newInstance(Bundle args, NumberPickerDialogListener listener){
+        NumberPickerDialog dialog = new NumberPickerDialog();
+        dialog.setListener(listener);
+        dialog.setArguments(args);
+        return dialog;
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if(context instanceof NumberPickerDialogListener){
-            mListener = (NumberPickerDialogListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement NumberPickerDialogListener");
-        }
 
         Activity act = getActivity();
         if(act instanceof MyWorkoutActivity){
@@ -100,8 +101,8 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
             mNoFlag = args.getBoolean(EXTRA_NO_FLAG);
         }
 
-        int[] time = MainActivity.convertFromMillis(mGivenTime);
-        int min = time[0], sec = time[1];
+        int[] time = BaseApp.convertFromMillis(mGivenTime);
+        final int min = time[0], sec = time[1];
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
@@ -124,7 +125,6 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
         mMinutePicker.setMaxValue(30);
         mMinutePicker.setValue(min);
         mMinutePicker.setWrapSelectorWheel(true);
-        mMinutePicker.setOnValueChangedListener(this);
 
         mSecondPicker.setMinValue(0);
         mSecondPicker.setMaxValue(59);
@@ -136,7 +136,6 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
             }
         });
         mSecondPicker.setWrapSelectorWheel(true);
-        mSecondPicker.setOnValueChangedListener(this);
 
         mNoCheck = (CheckBox) view.findViewById(R.id.no_flag_checkbox);
         mNoCheck.setChecked(mNoFlag);
@@ -166,9 +165,9 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
                             Toast.makeText(mParentActivity, "Time cannot be 0", Toast.LENGTH_SHORT).show();
                         } else {
                             if(mWhichTime == REST_TYPE) {
-                                mListener.setRestTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                                mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
                             } else if(mWhichTime == BREAK_TYPE) {
-                                mListener.setBreakTime(mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                                mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
                             } else {
                                 Log.e(DEBUG_TAG, "WHICH TYPE WAS NOT SET CORRECTLY");
                             }
@@ -207,18 +206,31 @@ public class NumberPickerDialog extends DialogFragment implements NumberPicker.O
 
     //endregion
 
-    @Override
-    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+    //region UTILITY
 
+    public static Bundle getDialogBundle(int dialogType, int time, boolean flag) {
+        Bundle bundle = new Bundle();
+
+        bundle.putInt(EXTRA_DIALOG_TYPE, dialogType);
+        bundle.putInt(EXTRA_GIVEN_TIME, time);
+        bundle.putBoolean(EXTRA_NO_FLAG, flag);
+
+        return bundle;
     }
+
+    private void setListener(NumberPickerDialogListener listener){
+        mListener = listener;
+    }
+
 
     private void ifCheckedDisableUI(boolean check){
-        if(check){
-            mMinutePicker.setEnabled(false);
-            mSecondPicker.setEnabled(false);
-        } else {
-            mMinutePicker.setEnabled(true);
-            mSecondPicker.setEnabled(true);
-        }
+    if(check){
+        mMinutePicker.setEnabled(false);
+        mSecondPicker.setEnabled(false);
+    } else {
+        mMinutePicker.setEnabled(true);
+        mSecondPicker.setEnabled(true);
     }
+    }
+    //endregion
 }

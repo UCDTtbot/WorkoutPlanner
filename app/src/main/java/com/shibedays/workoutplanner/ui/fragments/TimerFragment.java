@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui;
+package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,9 +14,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.ui.MainActivity;
+import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.List;
 import java.util.Locale;
@@ -36,7 +39,7 @@ public class TimerFragment extends Fragment {
     // Factory Constant
     private static final String ARG_WORKOUT = "WORKOUT";
     // Package and Debug Constants
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.TimerFragment.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.TimerFragment.";
     private static final String DEBUG_TAG = TimerFragment.class.getSimpleName();
     // Fragment Instance
     private static TimerFragment mTimerFragmentInstance;
@@ -178,7 +181,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        mParentActivity.findViewById(R.id.timer_fragment_container).setVisibility(View.GONE);
+        mParentActivity.findViewById(R.id.fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mTimerFragmentInstance = null;
@@ -223,7 +226,7 @@ public class TimerFragment extends Fragment {
 
     //region UI_UPDATE_FUNCTIONS
     public void updateTime(int time){
-        int[] splitTime = MainActivity.convertFromMillis(time);
+        int[] splitTime = BaseApp.convertFromMillis(time);
         int min = splitTime[0], sec = splitTime[1];
         if((sec % 10) == 0){
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));

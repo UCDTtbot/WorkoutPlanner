@@ -12,9 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,12 +38,14 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         // Foreground
         private TextView setNameTextView;
         private TextView timeTextView;
+        private TextView descripTextView;
 
-        public SetViewHolder(View itemView) {
+        SetViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
-            setNameTextView = itemView.findViewById(R.id.set_name_narrow);
-            timeTextView = itemView.findViewById(R.id.set_time_narrow);
+            setNameTextView = itemView.findViewById(R.id.set_name_wide);
+            timeTextView = itemView.findViewById(R.id.set_time_wide);
+            descripTextView = itemView.findViewById(R.id.set_descrip_wide);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -54,7 +56,8 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             this.curSet = curSet;
 
             setNameTextView.setText(curSet.getName());
-            int[] time = MainActivity.convertFromMillis(curSet.getTime());
+            descripTextView.setText(curSet.getDescrip());
+            int[] time = BaseApp.convertFromMillis(curSet.getTime());
             int minutes = time[0], seconds = time[1];
 
             if(seconds == 0){
@@ -65,12 +68,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             else {
                 timeTextView.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
             }
-
-            if(mCanSwipe) {
-
-            } else {
-
-            }
         }
 
         @Override
@@ -80,6 +77,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
         @Override
         public boolean onLongClick(View v) {
+            mListener.onSetClick(mSetData.indexOf(curSet));
             return false;
         }
     }
@@ -95,46 +93,39 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     // Threading Components
     private Handler handler = new Handler();
     private HashMap<Set, Runnable> pendingRunnables = new HashMap<>();
-    // Swiping
-    private Boolean mCanSwipe;
 
     //endregion
 
     //region INTERFACES
-    public interface SetAdapaterListener{
+    public interface SetAdapterListener {
         void onSetClick(int setIndex);
         void deleteSet(Set set);
     }
-    private SetAdapaterListener mListener;
+    private SetAdapterListener mListener;
     //endregion
 
     //region LIFECYCLE
-    public SetAdapter(Context context, View coordLayout, boolean swipeable){
+    public SetAdapter(Context context, View coordLayout, SetAdapterListener listener){
         mSetsPendingRemoval = new ArrayList<>();
         mContext = context;
-        mCanSwipe = swipeable;
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout)coordLayout;
         } else {
             throw new RuntimeException(SetAdapter.class.getSimpleName() + " was passed a non-coordinate layout view");
         }
 
-        if(context instanceof SetAdapaterListener){
-            mListener = (SetAdapaterListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement SetAdapterListener");
-        }
+        mListener = listener;
     }
 
     @NonNull
     @Override
-    public SetViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new SetViewHolder(LayoutInflater.from(mContext)
-                .inflate(R.layout.lis_set_items_narrow, parent, false));
+                .inflate(R.layout.list_wide_set_items, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(SetViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull SetViewHolder viewHolder, int position) {
         // Get the current data
         Set currentSet = mSetData.get(position);
         viewHolder.bindTo(currentSet);
@@ -171,7 +162,6 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
     //region PENDING_DELETE
     public void pendingRemoval(final int swipedPos){
         final Set set = mSetData.get(swipedPos);
-        final int origPos = swipedPos;
         if(!mSetsPendingRemoval.contains(set)){
             mSetsPendingRemoval.add(set);
             final int pendingPos = mSetsPendingRemoval.indexOf(set);
@@ -181,7 +171,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    deletePending(mSetsPendingRemoval.indexOf(set), origPos);
+                    deletePending(mSetsPendingRemoval.indexOf(set), swipedPos);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);

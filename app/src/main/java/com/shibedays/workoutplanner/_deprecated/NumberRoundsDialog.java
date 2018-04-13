@@ -1,7 +1,5 @@
-package com.shibedays.workoutplanner.ui.dialogs;
+package com.shibedays.workoutplanner._deprecated;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,13 +7,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
@@ -27,7 +23,7 @@ public class NumberRoundsDialog extends DialogFragment {
     //region CONSTANTS
     // Package and Debug Constants
     private static final String DEBUG_TAG = NumberRoundsDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.NumberRoundsDialog.";
+    private static final String PACKAGE = "com.shibedays.workoutplanner._deprecated.NumberRoundsDialog.";
     //endregion
 
     //region INTENT_KEYS
@@ -75,7 +71,7 @@ public class NumberRoundsDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
-        final View view = inflater.inflate(R.layout.dialog_number_rounds, null);
+        final View view = inflater.inflate(R.layout._unsed_dialog_number_rounds, null);
 
         mNumRoundsEditText = view.findViewById(R.id.number_of_rounds);
         mNumRoundsEditText.setText(String.format(Locale.US, "%d", mNumRounds));

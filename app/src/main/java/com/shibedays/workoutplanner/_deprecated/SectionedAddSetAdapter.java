@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.ui.adapters.sectioned;
+package com.shibedays.workoutplanner._deprecated;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,7 +6,6 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,15 +20,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedSetAdapter.SectionedSetViewHolder> {
+public class SectionedAddSetAdapter extends SectionedRecyclerViewAdapter<SectionedAddSetAdapter.SectionedAddSetViewHolder> {
 
     //region CONSTANTS
-    private static final String DEBUG_TAG = SectionedSetAdapter.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter.";
+    private static final String DEBUG_TAG = SectionedAddSetAdapter.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner._deprecated.SectionedAddSetAdapter.";
+
+    // Recycler View Constant
+    public static final int LEFT_VIEW = 0;
+    public static final int RIGHT_VIEW = 1;
+
     //endregion
 
     //region VIEW_HOLDER
-    public class SectionedSetViewHolder extends SectionedViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class SectionedAddSetViewHolder extends SectionedViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         // Data
         private Set curSet;
@@ -41,17 +45,15 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         private TextView title;
         // Footer
         private CardView footerCard;
-        private int footerHeight;
-        private int footerWidth;
         // Is Binding
         private boolean onBind;
         // Adapter
-        private SectionedSetAdapter adapter;
+        private SectionedAddSetAdapter adapter;
         // Section and Pos
         private int section;
         private int relativePos;
 
-        SectionedSetViewHolder(View itemView, SectionedSetAdapter adapter) {
+         SectionedAddSetViewHolder(View itemView, SectionedAddSetAdapter adapter) {
             super(itemView);
             // Header Item Views
             title = itemView.findViewById(R.id.header_title);
@@ -60,17 +62,7 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             setNameTextView = itemView.findViewById(R.id.set_name_narrow);
             timeTextView = itemView.findViewById(R.id.set_time_narrow);
             // Footer Item Views
-            footerCard = itemView.findViewById(R.id.add_set_card_view);
-            if(footerCard != null) {
-                ViewTreeObserver observer = footerCard.getViewTreeObserver();
-                observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        footerHeight = footerCard.getHeight();
-                        footerWidth = footerCard.getWidth();
-                    }
-                });
-            }
+             footerCard = itemView.findViewById(R.id.add_set_card_view);
             this.adapter = adapter;
 
             itemView.setOnClickListener(this);
@@ -78,8 +70,11 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         }
 
         void bindToHeader(int section, boolean expanded){
-            if(mSectionList != null){
-                title.setText(mSectionList.get(section));
+            if(mAdapterType == LEFT_VIEW) {
+                title.setText(R.string.header_title_default);
+                caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
+            } else if (mAdapterType == RIGHT_VIEW){
+                title.setText(R.string.header_title_user_created);
                 caret.setImageResource(expanded ? R.drawable.ic_down_arrow_black_24dp : R.drawable.ic_right_arrow_24dp);
             } else {
                 title.setText("");
@@ -110,13 +105,13 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
         }
 
         void bindFooter(int section){
-            if(section != mNewSetFooterSection){
+            if(mAdapterType != RIGHT_VIEW){
                 footerCard.setVisibility(View.GONE);
-                //footerCard.setLayoutParams(new CardView.LayoutParams(footerWidth, 0));
+                int width = footerCard.getWidth();
+                int height = 0;
+                footerCard.setLayoutParams(new CardView.LayoutParams(width, height));
             } else {
                 footerCard.setVisibility(View.VISIBLE);
-                //footerCard.setLayoutParams(new CardView.LayoutParams(footerWidth, footerHeight));
-
             }
         }
 
@@ -125,9 +120,9 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
             if(isHeader()){
                 adapter.toggleSectionExpanded(getRelativePosition().section());
             } else if (isFooter()){
-                mListener.createUserSet(section);
+                mListener.createUserSet();
             } else {
-                mListener.onClick(curSet, section,  relativePos);
+                mListener.onClick(curSet, relativePos);
             }
         }
 
@@ -148,15 +143,12 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
     //region PRIVATE_VARS
     // Data
-    private List<List<Set>> mDataLists; // Section 0 should correspond to DataList 0
-
+    private List<Set> mDefaultSetData;
+    private List<Set> mUserCreatedSetData;
     // UI Components
     private Context mContext;
     // Adapter Type
-    private int mViewType;
-    // Sections
-    private List<String> mSectionList; // Section List and Data List should use same indexing/mapping
-    private int mNewSetFooterSection;
+    private int mAdapterType;
     // Flags
     private boolean mHeaderSetup;
     private boolean mItemSetup;
@@ -164,30 +156,32 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
 
     //region INTERFACES
     public interface SectionedAddSetListener{
-        void onClick(Set set, int section, int relativePos);
+        void onClick(Set set, int relativePos);
         void onLongClick(Set set, int section, int relativePos);
-        void createUserSet(int section);
+        void createUserSet();
     }
     private SectionedAddSetListener mListener;
     //endregion
 
     //region LIFECYCLE
 
-    public SectionedSetAdapter(Context context, List<String> sectionList, int footerSection, SectionedAddSetListener listener){
+    public SectionedAddSetAdapter(Context context, int adapterType, SectionedAddSetListener listener){
         mContext = context;
+
+        mDefaultSetData = new ArrayList<>();
+        mUserCreatedSetData = new ArrayList<>();
 
         mHeaderSetup = false;
         mItemSetup = false;
 
-        mSectionList = sectionList;
-        mNewSetFooterSection = footerSection;
+        mAdapterType = adapterType;
 
         mListener = listener;
     }
 
     @NonNull
     @Override
-    public SectionedSetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SectionedAddSetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layout = 0;
         switch (viewType){
             case VIEW_TYPE_HEADER:
@@ -206,71 +200,75 @@ public class SectionedSetAdapter extends SectionedRecyclerViewAdapter<SectionedS
                 break;
         }
         View v = LayoutInflater.from(mContext).inflate(layout, parent, false);
-        return new SectionedSetViewHolder(v, this);
+        return new SectionedAddSetViewHolder(v, this);
     }
+    //endregion
+
+
 
     @Override
-    public void onBindHeaderViewHolder(SectionedSetViewHolder holder, int section, boolean expanded) {
+    public void onBindHeaderViewHolder(SectionedAddSetViewHolder holder, int section, boolean expanded) {
         holder.bindToHeader(section, expanded);
     }
 
     @Override
-    public void onBindViewHolder(SectionedSetViewHolder holder, int section, int relativePosition, int absolutePosition) {
+    public void onBindViewHolder(SectionedAddSetViewHolder holder, int section, int relativePosition, int absolutePosition) {
         Set curSet = null;
-        curSet = mDataLists.get(section).get(relativePosition);
+        switch (mAdapterType){
+            case LEFT_VIEW:
+                curSet = mDefaultSetData.get(relativePosition);
+                break;
+            case RIGHT_VIEW:
+                curSet = mUserCreatedSetData.get(relativePosition);
+                break;
+            default:
+                throw new RuntimeException(DEBUG_TAG + " set doesn't exist in any lists");
+        }
         holder.bindToItem(curSet, section, relativePosition);
     }
 
     @Override
-    public void onBindFooterViewHolder(SectionedSetViewHolder holder, int section) {
+    public void onBindFooterViewHolder(SectionedAddSetViewHolder holder, int section) {
         holder.bindFooter(section);
     }
+
+
 
     //endregion
 
     //region GETTERS
     @Override
     public int getSectionCount() {
-        return mSectionList.size();
+        return 1;
     }
 
     @Override
     public int getItemCount(int section) {
-        if(mDataLists != null){
-            return mDataLists.get(section) == null ? 0 : mDataLists.get(section).size();
-        } else {
+        if(mAdapterType == LEFT_VIEW){
+            return mDefaultSetData == null ? 0 : mDefaultSetData.size();
+        } else if(mAdapterType == RIGHT_VIEW){
+            return mUserCreatedSetData == null ? 0 : mUserCreatedSetData.size();
+        } else
             return 0;
-        }
     }
     //endregion
 
     //region UTILITY
-    public void addToDataList(List<Set> sets){
-        if(mDataLists == null){
-            mDataLists = new ArrayList<>();
-        }
-        mDataLists.add(sets);
+    public void setDefaultSets(List<Set> sets){
+        mDefaultSetData = sets;
         notifyDataSetChanged();
     }
-
-    public void setDataList(List<List<Set>> setList){
-        mDataLists = setList;
-    }
-
-    public void updateSetList(int section, List<Set> sets){
-        mDataLists.set(section, sets);
+    public void setUserCreated(List<Set> sets){
+        mUserCreatedSetData = sets;
         notifyDataSetChanged();
     }
-
-    public void addSet(int section, Set set){
-        mDataLists.get(section).add(set);
+    public void addToUserCreated(Set set){
+        mUserCreatedSetData.add(set);
         notifyDataSetChanged();
     }
-
-    public void removeSet(int section, int pos){
-        mDataLists.get(section).remove(pos);
+    public void removeUserCreated(Set set){
+        mUserCreatedSetData.remove(set);
         notifyDataSetChanged();
     }
     //endregion
-
 }

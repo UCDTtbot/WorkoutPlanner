@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,16 +15,15 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
 
 
-public class AddEditWorkoutDialog extends DialogFragment {
+public class RenameWorkoutDialog extends DialogFragment {
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = AddEditWorkoutDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.AddEditWorkoutDialog.";
+    private static final String DEBUG_TAG = RenameWorkoutDialog.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog.";
 
     public static final int NEW_WORKOUT = 0;
     public static final int EDIT_WORKOUT = 1;
@@ -58,6 +55,9 @@ public class AddEditWorkoutDialog extends DialogFragment {
     //endregion
 
     //region LIFECYCLE
+
+
+
     // onAttach is called first, when it is attached to the activity
     @Override
     public void onAttach(Context context) {
@@ -127,7 +127,7 @@ public class AddEditWorkoutDialog extends DialogFragment {
                         });
 
             } else {
-                throw new RuntimeException(AddEditWorkoutDialog.class.getSimpleName() + " no new/edit type was given");
+                throw new RuntimeException(RenameWorkoutDialog.class.getSimpleName() + " no new/edit type was given");
             }
         }
 
@@ -150,6 +150,10 @@ public class AddEditWorkoutDialog extends DialogFragment {
         super.onDetach();
         mListener = null;
     }
+
+    //endregion
+
+    //region UTILITY
 
     //endregion
 }

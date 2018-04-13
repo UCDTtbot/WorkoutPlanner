@@ -12,7 +12,7 @@
     <string name="name_hint">Name</string>
     <string name="text_delete">Delete</string>
     <string name="title_activity_my_workout">MyWorkoutActivity</string>
-    <string name="default_set_name">Name</string>
+    <string name="default_name">Name</string>
     <string name="default_descrip">Description for the above set</string>
     <string name="bottom_sheet_delete">Delete</string>
     <string name="bottom_sheet_edit">Edit</string>
@@ -66,5 +66,6 @@
     <string name="add_new_set">Add New Set</string>
     <string name="ellipsis">...</string>
     <string name="none_text">None</string>
+    <string name="ic_descrip">Icon</string>
 
 </resources>
