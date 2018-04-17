@@ -190,9 +190,8 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
     @Override
     public void deletePending(int pendingIndex, int origPos) {
-        mSetsPendingRemoval.remove(pendingIndex);
-
         mListener.deleteSet(mSetData.get(origPos));
+        mSetsPendingRemoval.remove(pendingIndex);
         Log.d(DEBUG_TAG, "Removed pending set");
     }
 
