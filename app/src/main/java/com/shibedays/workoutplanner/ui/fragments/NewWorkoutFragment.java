@@ -144,6 +144,8 @@ public class NewWorkoutFragment extends Fragment{
         mRounds = 1;
         mRestTime = 60000;
         mBreakTime = 60000;
+        mRestFlag = false;
+        mBreakFlag = false;
     }
 
     @Nullable
@@ -339,7 +341,7 @@ public class NewWorkoutFragment extends Fragment{
         mRestEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openNumberPicker(NumberPickerDialog.REST_TYPE, mRestTime);
+                openNumberPicker(NumberPickerDialog.REST_TYPE, mRestTime, mRestFlag);
             }
         });
 
@@ -347,7 +349,7 @@ public class NewWorkoutFragment extends Fragment{
         mBreakEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openNumberPicker(NumberPickerDialog.BREAK_TYPE, mBreakTime);
+                openNumberPicker(NumberPickerDialog.BREAK_TYPE, mBreakTime, mBreakFlag);
             }
         });
 
@@ -497,32 +499,84 @@ public class NewWorkoutFragment extends Fragment{
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
-    private void openNumberPicker(int type, int time){
-        // TODO: CHANGE DIALOG
-        NumberPickerDialog dialog = new NumberPickerDialog();
-        Bundle bundle = new Bundle();
-        bundle.putInt(NumberPickerDialog.EXTRA_DIALOG_TYPE, type);
-        bundle.putInt(NumberPickerDialog.EXTRA_GIVEN_TIME, time); // default to 1 minute
-        bundle.putBoolean(NumberPickerDialog.EXTRA_NO_FLAG, false);
-        dialog.setArguments(bundle);
+    private void openNumberPicker(int type, int time, boolean flag){
+        Bundle args = NumberPickerDialog.getDialogBundle(type, time, flag);
+        NumberPickerDialog dialog = NumberPickerDialog.newInstance(args, new NumberPickerDialog.NumberPickerDialogListener() {
+            @Override
+            public void setTime(int type, int min, int sec, boolean noFlag) {
+                if(type == NumberPickerDialog.REST_TYPE){
+                    mRestTime = BaseApp.convertToMillis(min, sec);
+                    mRestFlag = noFlag;
+                    updateRestTimeUI(min, sec, noFlag);
+                } else if( type == NumberPickerDialog.BREAK_TYPE){
+                    mBreakTime = BaseApp.convertToMillis(min, sec);
+                    mBreakFlag = noFlag;
+                    updateBreakTimeUI(min, sec, noFlag);
+                } else {
+                    throw new RuntimeException(DEBUG_TAG + " no time type given in set time return");
+                }
+            }
+        });
         if(getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
 
+    private void updateRestTimeUI(int min, int sec, boolean flag){
+        if(flag){
+            mRestEntry.setText(R.string.none_text);
+        }else if((sec % 10) == 0){
+            mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        } else if (min == 0 && sec == 0){
+            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else if ( sec < 10 ){
+            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        }  else {
+            mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
+    }
+
+    private void updateBreakTimeUI(int min, int sec, boolean flag){
+        if(flag){
+            mBreakEntry.setText(R.string.none_text);
+        } else if((sec % 10) == 0) {
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }else if (min == 0 && sec == 0) {
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        }else if ( sec < 10 ) {
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else {
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
+    }
 
     public void saveWorkout(){
         boolean isOk = true;
 
         String name = mNameEntry.getText().toString();
-        int restTime[] = BaseApp.convertFromMillis(mRestTime);
-        int breakTime[] = BaseApp.convertFromMillis(mBreakTime);
+        int restTime[] = {0, 0};
+        int breakTime[] = {0, 0};
         int rounds = 0;
         List<Set> setList = mUsersSets;
         if(TextUtils.isEmpty(name)){
             mNameEntry.setError("Name can not be empty.");
             isOk = false;
         }
+
+        if(restTime[0] == 0 && restTime[1] == 0){
+            restTime = BaseApp.convertFromMillis(0);
+            mRestFlag = true;
+        } else {
+            restTime = BaseApp.convertFromMillis(mRestTime);
+        }
+
+        if(breakTime[0] == 0 && breakTime[1] == 0){
+            breakTime = BaseApp.convertFromMillis(0);
+            mBreakFlag = true;
+        } else {
+            breakTime = BaseApp.convertFromMillis(mBreakTime);
+        }
+
 
         if(!TextUtils.isEmpty(mRoundEntry.getText())){
             rounds = Integer.parseInt(mRoundEntry.getText().toString());
@@ -538,15 +592,7 @@ public class NewWorkoutFragment extends Fragment{
             isOk = false;
         }
 
-        if(restTime[0] == 0 && restTime[1] == 0){
-            mRestEntry.setError("Time cannot be 0:00!");
-            isOk = false;
-        }
 
-        if(breakTime[0] == 0 && breakTime[1] == 0){
-            mBreakEntry.setError("Time cannot be 0:00!");
-            isOk = false;
-        }
 
         if(setList.isEmpty()){
             Toast.makeText(mParentActivity, "Choose at least 1 set.", Toast.LENGTH_SHORT).show();
