@@ -146,6 +146,7 @@ public class NewWorkoutFragment extends Fragment{
         mBreakTime = 60000;
         mRestFlag = false;
         mBreakFlag = false;
+
     }
 
     @Nullable
@@ -400,6 +401,8 @@ public class NewWorkoutFragment extends Fragment{
         super.onDestroy();
         mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
         mParentActivity.findViewById(R.id.fab).setVisibility(View.VISIBLE);
+        mParentActivity.renameTitle(R.string.app_name);
+        mParentActivity.showActionItems();
         mParentActivity.toggleUpArrow(false);
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
 
@@ -525,27 +528,27 @@ public class NewWorkoutFragment extends Fragment{
     private void updateRestTimeUI(int min, int sec, boolean flag){
         if(flag){
             mRestEntry.setText(R.string.none_text);
-        }else if((sec % 10) == 0){
-            mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if (min == 0 && sec == 0){
+        }else if(sec == 0){
+            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if( sec < 10){
             mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else if ( sec < 10 ){
-            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }  else {
+        }
+        else {
             mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
+
+
     }
 
     private void updateBreakTimeUI(int min, int sec, boolean flag){
         if(flag){
             mBreakEntry.setText(R.string.none_text);
-        } else if((sec % 10) == 0) {
-            mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }else if (min == 0 && sec == 0) {
+        } else if(sec == 0){
+            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if( sec < 10){
             mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }else if ( sec < 10 ) {
-            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else {
+        }
+        else {
             mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
     }

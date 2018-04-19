@@ -653,6 +653,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void beginTimerService(){
+        // TODO: Create a function that unifies notification vs start bundle
         Intent timerIntent = new Intent(this, TimerService.class);
         Bundle notifBundle = new Bundle();
         // TODO: Put items that are needed to rebuild the activity and fragment into this bundle

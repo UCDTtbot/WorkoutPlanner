@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     private List<Set> mUserCreatedSets;
     private List<Set> mDefaultSets;
 
+    // Flags
+    private boolean HIDE_ITEMS;
+
     // Adapters
     private WorkoutAdapter mWorkoutAdapter;
 
@@ -98,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mFragmentManager = getSupportFragmentManager();
+        HIDE_ITEMS = false;
+
         //region SHARED_PREFS
         // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
@@ -252,6 +257,11 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        if(HIDE_ITEMS){
+            for(int i = 0; i < menu.size(); i++){
+                menu.getItem(i).setVisible(false);
+            }
+        }
         return true;
     }
 
@@ -304,9 +314,18 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
         findViewById(R.id.fab).setVisibility(View.GONE);
         fragmentTransaction.commit();
+        renameTitle(R.string.new_workout);
+        hideActionItems();
         toggleUpArrow(true);
         Log.d(DEBUG_TAG, "New Workout Fragment Created");
     }
+
+    public void renameTitle(int stringId){
+        mActionBar.setTitle(stringId);
+
+    }
+
+
 
     @Override
     public void addNewWorkout(Workout workout) {
@@ -324,6 +343,17 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     }
 
     //endregion
+
+    public void hideActionItems(){
+        HIDE_ITEMS = true;
+        invalidateOptionsMenu();
+    }
+
+    public void showActionItems(){
+        HIDE_ITEMS = false;
+        invalidateOptionsMenu();
+    }
+
 
     //region OPEN_WORKOUT
     public void openWorkout(int workoutID){
