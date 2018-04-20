@@ -100,6 +100,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private TextView mRestTime;
     private TextView mBreakTime;
     private TextView mNumRounds;
+    private ActionBar mActionBar;
     // Adapters
     private SetAdapter mSetAdapter;
     // Data
@@ -122,6 +123,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
+    private boolean HIDE_ITEMS;
 
     //endregion
 
@@ -211,7 +213,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     protected void onStart(){
         super.onStart();
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_START");
-
+        HIDE_ITEMS = false;
     }
 
     @Override
@@ -233,9 +235,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ActionBar ab = getSupportActionBar();
-        if(ab != null){
-            ab.setDisplayHomeAsUpEnabled(true);
+        mActionBar = getSupportActionBar();
+        if(mActionBar != null){
+            mActionBar.setDisplayHomeAsUpEnabled(true);
         }
         //endregion
 
@@ -391,8 +393,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //region ACTION_BAR_MENU
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.add_set).setVisible(true);
-        menu.findItem(R.id.action_settings).setVisible(true);
+        if(HIDE_ITEMS){
+            for(int i = 0; i < menu.size(); i++){
+                menu.getItem(i).setVisible(false);
+            }
+        } else {
+            menu.findItem(R.id.add_set).setVisible(true);
+            menu.findItem(R.id.action_settings).setVisible(true);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -480,6 +488,24 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         updateBreakTimeUI(breakMin, breakSec, mWorkoutData.getNoBreakFlag());
     }
 
+    public void hideActionItems(){
+        HIDE_ITEMS = true;
+        invalidateOptionsMenu();
+    }
+
+    public void showActionItems(){
+        HIDE_ITEMS = false;
+        invalidateOptionsMenu();
+    }
+
+    public void renameTitle(int stringId){
+        if(stringId < 0){
+            setTitle(mWorkoutData.getName());
+        } else {
+            setTitle(stringId);
+        }
+    }
+
     //endregion
 
 
@@ -499,6 +525,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         fragmentTransaction.replace(R.id.fragment_container, mAddNewSetFragment);
         fragmentTransaction.addToBackStack(null);
         findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
+        renameTitle(R.string.add_set);
+        hideActionItems();
         fragmentTransaction.commit();
     }
 
@@ -763,5 +791,4 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
     };
     //endregion
-
 }

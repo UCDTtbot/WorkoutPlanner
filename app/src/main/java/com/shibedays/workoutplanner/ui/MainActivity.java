@@ -300,11 +300,24 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         return NEXT_WORKOUT_ID;
     }
 
+    public void renameTitle(int stringId){
+        setTitle(stringId);
+    }
+
+    public void hideActionItems(){
+        HIDE_ITEMS = true;
+        invalidateOptionsMenu();
+    }
+
+    public void showActionItems(){
+        HIDE_ITEMS = false;
+        invalidateOptionsMenu();
+    }
+
     //endregion
 
 
     //region NEW_WORKOUT
-
     private void openNewWorkoutFragment(){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mNewWorkoutFragment = NewWorkoutFragment.newInstance(mUserCreatedSets, mDefaultSets);
@@ -320,13 +333,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         Log.d(DEBUG_TAG, "New Workout Fragment Created");
     }
 
-    public void renameTitle(int stringId){
-        mActionBar.setTitle(stringId);
-
-    }
-
-
-
     @Override
     public void addNewWorkout(Workout workout) {
         NEXT_WORKOUT_ID++;
@@ -341,18 +347,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         }
         mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
-
     //endregion
-
-    public void hideActionItems(){
-        HIDE_ITEMS = true;
-        invalidateOptionsMenu();
-    }
-
-    public void showActionItems(){
-        HIDE_ITEMS = false;
-        invalidateOptionsMenu();
-    }
 
 
     //region OPEN_WORKOUT
@@ -365,8 +360,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     //endregion
 
     //region BOTTOM_SHEET_WORKOUTS
-
-
     public void openBottomDialog(int workoutIndex){
         Workout workout = mWorkoutData.get(workoutIndex);
         Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), workoutIndex, -1,
@@ -394,7 +387,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         }
     }
 
-
     public void deleteWorkoutFromDB(Workout workout) {
         mWorkoutViewModel.remove(workout);
     }
@@ -405,8 +397,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     public void deleteSetFromDB(Set set){
         mUserSetViewModel.remove(set);
     }
-
-
     //endregion
 
 

@@ -252,6 +252,8 @@ public class AddNewSetFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         mParentActivity.findViewById(R.id.fragment_container).setVisibility(View.GONE);
+        mParentActivity.showActionItems();
+        mParentActivity.renameTitle(-1);
         Log.d(DEBUG_TAG, "NEW_SET_FRAGMENT ON_DESTROY");
 
     }
@@ -275,11 +277,9 @@ public class AddNewSetFragment extends Fragment {
         mListener = listener;
     }
 
-
     public void setDefaultSets(List<Set> sets){
         mDefaultSets = sets;
     }
-
 
     public void setUserCreatedSets(List<Set> sets) {
         mUserCreatedSets = sets;
@@ -297,7 +297,6 @@ public class AddNewSetFragment extends Fragment {
     public void deleteUserCreatedSet(int section, int pos){
         mRightAdapter.removeSet(section, pos);
     }
-
 
     //endregion
 
