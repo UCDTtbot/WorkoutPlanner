@@ -22,6 +22,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ import android.widget.Toast;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
 import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 import com.shibedays.workoutplanner.R;
@@ -425,6 +427,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             return true;
         } else if(id == R.id.add_set) {
             openAddNewSetFragment();
+        } else if( id == R.id.rename_workout){
+            renameWorkout();
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
@@ -508,6 +512,26 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //endregion
 
+
+    //region RENAME_WORKOUT
+    private void renameWorkout(){
+        Bundle args = RenameWorkoutDialog.getBundle(mWorkoutData.getName());
+        RenameWorkoutDialog dialog = RenameWorkoutDialog.newInstance(args, new RenameWorkoutDialog.RenameListener() {
+            @Override
+            public void RenameWorkout(String name) {
+                if(!TextUtils.isEmpty(name)){
+                    mWorkoutData.setName(name);
+                    mWorkoutViewModel.update(mWorkoutData);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Name can't be empty", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        dialog.show(mFragmentManager, DEBUG_TAG);
+    }
+
+
+    //endregion
 
     //region ADD_SET
 
@@ -665,6 +689,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
     */
     //endregion
+
 
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation

@@ -161,6 +161,7 @@ public class NumberPickerDialog extends DialogFragment {
                 pos.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         if(mMinutePicker.getValue() == 0 && mSecondPicker.getValue() == 0){
                             mNoFlag = true;
                         }
@@ -181,7 +182,6 @@ public class NumberPickerDialog extends DialogFragment {
                 neg.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                         dialog.dismiss();
                     }
                 });

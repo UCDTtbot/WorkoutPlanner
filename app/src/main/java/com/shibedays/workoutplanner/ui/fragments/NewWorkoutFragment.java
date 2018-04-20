@@ -474,8 +474,6 @@ public class NewWorkoutFragment extends Fragment{
 
         mBreakTime = BaseApp.convertToMillis(min, sec);
     }
-
-
     //endregion
 
     //region UTILITY
