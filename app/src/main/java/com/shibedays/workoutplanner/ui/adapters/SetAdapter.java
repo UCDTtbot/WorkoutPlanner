@@ -35,7 +35,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
         // Data
         private Set curSet;
-        // Foreground
+        // UI
         private TextView setNameTextView;
         private TextView timeTextView;
         private TextView descripTextView;
@@ -138,11 +138,7 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
 
     @Override
     public int getItemCount() {
-        if(mSetData != null) {
-            return mSetData.size();
-        } else {
-            return 0;
-        }
+        return mSetData != null ? mSetData.size() : 0;
     }
 
     public void setData(List<Set> data){
@@ -216,7 +212,5 @@ public class SetAdapter extends PendingRemovalAdapter<SetAdapter.SetViewHolder> 
         }
     }
     //endregion
-
-
 
 }
