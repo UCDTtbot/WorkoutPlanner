@@ -3,6 +3,7 @@ package com.shibedays.workoutplanner.ui.fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,26 +11,39 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.db.entities.Set;
+
+import java.util.List;
 
 public class SetListFragment extends Fragment {
 
+    //region CONSTANTS
+
+    //endregion
+
+    //region PRIVATE_VARS
+    // Data
+    private List<Set> mSetList;
+
+    //endregion
 
 
-    public interface OnFragmentInteractionListener {
+
+    public interface SetListListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-    private OnFragmentInteractionListener mListener;
+    private SetListListener mListener;
 
     //region FACTORY CONSTRUCTORS
     public SetListFragment() {
         // Required empty public constructor
     }
 
-    public static SetListFragment newInstance() {
+    public static SetListFragment newInstance(List<Set> setList, SetListListener listener) {
         SetListFragment fragment = new SetListFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
+        //fragment.setArguments(args);
+        fragment.setListener(listener);
         return fragment;
     }
     //endregion
@@ -47,7 +61,7 @@ public class SetListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         TextView textView = new TextView(getActivity());
         textView.setText(R.string.hello_blank_fragment);
@@ -63,5 +77,19 @@ public class SetListFragment extends Fragment {
     }
 
     //endregion
+
+    private void setListener(SetListListener listener){
+        mListener = listener;
+    }
+
+    public static Bundle getBundle(){
+        Bundle args = new Bundle();
+
+        return args;
+    }
+
+    public void setSetList(List<Set> list){
+        mSetList = list;
+    }
 
 }

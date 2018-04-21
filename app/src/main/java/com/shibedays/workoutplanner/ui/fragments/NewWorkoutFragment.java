@@ -2,11 +2,14 @@ package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -26,6 +29,7 @@ import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.ViewPagerAdapter;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -160,6 +164,36 @@ public class NewWorkoutFragment extends Fragment{
 
         mNameEntry = view.findViewById(R.id.name_entry);
 
+        //region PAGER
+
+        ViewPager viewPager = view.findViewById(R.id.pager);
+
+        SetListFragment defaultFrag = SetListFragment.newInstance(mDefaultSets, new SetListFragment.SetListListener() {
+            @Override
+            public void onFragmentInteraction(Uri uri) {
+
+            }
+        });
+
+        SetListFragment userCreated = SetListFragment.newInstance(mUserCreatedSets, new SetListFragment.SetListListener() {
+            @Override
+            public void onFragmentInteraction(Uri uri) {
+
+            }
+        });
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
+        adapter.addFragment(defaultFrag, "Default");
+        adapter.addFragment(userCreated, "User Created");
+
+        viewPager.setAdapter(adapter);
+
+        TabLayout mTabLayout = view.findViewById(R.id.pager_header);
+        mTabLayout.setupWithViewPager(viewPager);
+        //endregion
+
+
+        /*
             //region RECYCLER_VIEWS
 
                 //region LEFT_RV
@@ -315,7 +349,7 @@ public class NewWorkoutFragment extends Fragment{
                 //endregion
 
             //endregion
-
+        */
         mRoundEntry = view.findViewById(R.id.round_entry_num);
         mRoundEntry.addTextChangedListener(new TextWatcher() {
             @Override
