@@ -6,6 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.TextView;
+
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -19,6 +22,12 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.ChooseSetAdapter.";
     //endregion
 
+    //region UI
+    private CheckBox mCheckBox;
+    private TextView mTextViewName;
+    private TextView mTextViewTime;
+    //endregion
+
     //region VIEW_HOLDER
     class ChooseSetHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
@@ -26,13 +35,15 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
         private Set curSet;
         // UI
 
-        public ChooseSetHolder(View itemView) {
+        ChooseSetHolder(View itemView) {
             super(itemView);
         }
 
         void bindTo(final Set curSet){
             this.curSet = curSet;
-
+            choose_set_check
+            choose_set_name
+            choose_set_time
             /*
             if(seconds == 0){
                 timeTextView.setText(String.format(Locale.US, "%d:%d%d", minutes, seconds, 0));

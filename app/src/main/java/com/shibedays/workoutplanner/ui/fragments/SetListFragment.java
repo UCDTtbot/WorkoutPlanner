@@ -42,7 +42,7 @@ public class SetListFragment extends Fragment {
 
     public static SetListFragment newInstance(List<Set> setList, SetListListener listener) {
         SetListFragment fragment = new SetListFragment();
-        //fragment.setArguments(args);
+        fragment.setSetList(setList);
         fragment.setListener(listener);
         return fragment;
     }
@@ -78,18 +78,20 @@ public class SetListFragment extends Fragment {
 
     //endregion
 
-    private void setListener(SetListListener listener){
-        mListener = listener;
-    }
-
     public static Bundle getBundle(){
         Bundle args = new Bundle();
 
         return args;
     }
 
+    //region UTILITY
+    private void setListener(SetListListener listener){
+        mListener = listener;
+    }
+
     public void setSetList(List<Set> list){
         mSetList = list;
     }
+    //endregion
 
 }
