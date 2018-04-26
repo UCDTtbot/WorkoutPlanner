@@ -49,6 +49,8 @@ public class NewWorkoutFragment extends Fragment{
     private static final String DEBUG_TAG = NewWorkoutFragment.class.getSimpleName();
     public static int USER_CREATED_SECTION = 0;
     public static int DEFAULT_SECTION = 1;
+
+    private static int NUM_PAGES = 5;
     //endregion
 
     //region PRIVATE_VARS
@@ -167,15 +169,16 @@ public class NewWorkoutFragment extends Fragment{
         //region PAGER
 
         ViewPager viewPager = view.findViewById(R.id.pager);
+        viewPager.setOffscreenPageLimit(NUM_PAGES);
 
-        SetListFragment defaultFrag = SetListFragment.newInstance(mDefaultSets, new SetListFragment.SetListListener() {
+        SetListFragment defaultFrag = SetListFragment.newInstance(mDefaultSets, false, new SetListFragment.SetListListener() {
             @Override
             public void onFragmentInteraction(Uri uri) {
 
             }
         });
 
-        SetListFragment userCreated = SetListFragment.newInstance(mUserCreatedSets, new SetListFragment.SetListListener() {
+        SetListFragment userCreated = SetListFragment.newInstance(mUserCreatedSets, true, new SetListFragment.SetListListener() {
             @Override
             public void onFragmentInteraction(Uri uri) {
 
