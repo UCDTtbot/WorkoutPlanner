@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     // Data
     private List<Workout> mWorkoutData;
+    private List<List<Set>> mTypedSets;
     private List<Set> mUserCreatedSets;
-    private List<Set> mDefaultSets;
 
     // Flags
     private boolean HIDE_ITEMS;
@@ -196,18 +196,17 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         });
 
         mUserSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-        mUserSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+        mUserSetViewModel.getUserCreated().observe(this, new Observer<List<Set>>() {
             @Override
             public void onChanged(@Nullable List<Set> sets) {
                 mUserCreatedSets = sets;
             }
         });
 
-        mDefaultSets = new ArrayList<>();
-        mDefaultSets.add(new Set("Jogging", "Light Jog", 90000));
-        mDefaultSets.add(new Set("Walk", "Brisk walk", 30000));
-        mDefaultSets.add(new Set("Pushups", "As many pushups as possible in the time limit", 45000));
-        mDefaultSets.add(new Set("Situps", "Arms across chest", 45000));
+        // TODO fix this. Should user created be from the typed list?
+
+        //TODO: get each typed set list using the dao function
+
         //endregion
 
     }

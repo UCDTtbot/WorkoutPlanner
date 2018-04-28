@@ -8,7 +8,6 @@ import com.shibedays.workoutplanner.db.dao.SetDao;
 import com.shibedays.workoutplanner.db.dao.WorkoutDao;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class DataRepo {
     private DataRepo(final AppDatabase db){
         mDatabase = db;
         mWorkouts = mDatabase.workoutDao().getAll();
-        mSets = mDatabase.setDao().getll();
+        mSets = mDatabase.setDao().getAll();
     }
 
 
@@ -49,6 +48,9 @@ public class DataRepo {
     public LiveData<List<Set>> getAllSets(){
         return mSets;
     }
+
+    public List<Set> getTypedSets(int type) { return mDatabase.setDao().getAllTyped(type); }
+    public LiveData<List<Set>> getAllUserCreated() { return mDatabase.setDao().getUserCreated(); }
 
     public LiveData<Workout> getWorkout(final int id){
         return mDatabase.workoutDao().getWorkout(id);

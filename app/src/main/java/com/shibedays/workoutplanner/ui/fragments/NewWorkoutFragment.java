@@ -47,17 +47,15 @@ public class NewWorkoutFragment extends Fragment{
     // Package and Debug Constants
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment.";
     private static final String DEBUG_TAG = NewWorkoutFragment.class.getSimpleName();
-    public static int USER_CREATED_SECTION = 0;
-    public static int DEFAULT_SECTION = 1;
 
-    private static int NUM_PAGES = 5;
+    private static int NUM_PAGES = Set.TYPES.length;
     //endregion
 
     //region PRIVATE_VARS
     // Data
-    private List<Set> mDefaultSets;
-    private List<Set> mUserCreatedSets;
     private List<Set> mUsersSets;
+    private List<List<Set>> mTypedSetList;
+    private List<Set> mUserCreatedSets;
 
     private int mRounds;
     private int mRestTime;
@@ -112,10 +110,10 @@ public class NewWorkoutFragment extends Fragment{
     }
 
 
-    public static NewWorkoutFragment newInstance(List<Set> userCreated, List<Set> defaultSets) {
+    public static NewWorkoutFragment newInstance(List<List<Set>> typedList, List<Set> userCreated) {
         NewWorkoutFragment newFragment = new NewWorkoutFragment();
-        newFragment.setUserCreatedSets(userCreated);
-        newFragment.setDefaultSets(defaultSets);
+        newFragment.setTypedList(typedList);
+        newFragment.setUserCreatedSets(userCreated);;
 
         return newFragment;
     }
@@ -170,24 +168,19 @@ public class NewWorkoutFragment extends Fragment{
 
         ViewPager viewPager = view.findViewById(R.id.pager);
         viewPager.setOffscreenPageLimit(NUM_PAGES);
-
-        SetListFragment defaultFrag = SetListFragment.newInstance(mDefaultSets, false, new SetListFragment.SetListListener() {
-            @Override
-            public void onFragmentInteraction(Uri uri) {
-
-            }
-        });
-
-        SetListFragment userCreated = SetListFragment.newInstance(mUserCreatedSets, true, new SetListFragment.SetListListener() {
-            @Override
-            public void onFragmentInteraction(Uri uri) {
-
-            }
-        });
-
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
-        adapter.addFragment(defaultFrag, "Default");
-        adapter.addFragment(userCreated, "User Created");
+
+        for(int i = 0; i < NUM_PAGES; i++){
+            boolean header = i == 0;
+            List<Set> sets = i == 0 ? mUserCreatedSets : mTypedSetList.get(i);
+            SetListFragment frag = SetListFragment.newInstance(sets, header, new SetListFragment.SetListListener() {
+                @Override
+                public void onFragmentInteraction(Uri uri) {
+
+                }
+            });
+            adapter.addFragment(frag, Set.TYPES[i]);
+        }
 
         viewPager.setAdapter(adapter);
 
@@ -195,164 +188,6 @@ public class NewWorkoutFragment extends Fragment{
         mTabLayout.setupWithViewPager(viewPager);
         //endregion
 
-
-        /*
-            //region RECYCLER_VIEWS
-
-                //region LEFT_RV
-        mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
-        mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<String> leftHeaderList = new ArrayList<>();
-        List<List<Set>> leftDataList = new ArrayList<>();
-        leftHeaderList.add(getString(R.string.header_title_user_created));
-        leftDataList.add(mUserCreatedSets);
-        leftHeaderList.add(getString(R.string.header_title_default));
-        leftDataList.add(mDefaultSets);
-        mLeftAdapter = new SectionedSetAdapter(getContext(), leftHeaderList, 0, new SectionedSetAdapter.SectionedAddSetListener() {
-            @Override
-            public void onClick(Set set, int section, int relativePos) {
-                mRightAdapter.addSet(0, set); // Section is the recipient section, not sending section
-                Log.d(DEBUG_TAG, "Left Adapter Add Set to 'My Sets'");
-            }
-
-            @Override
-            public void onLongClick(Set set, int section, final int relativePos) {
-                if(section == DEFAULT_SECTION){
-                    Log.d(DEBUG_TAG, "Left Adapter Default Long Click: Display Info");
-                    openDialog(AddEditSetDialog.DISPLAY_SET, set, relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
-                        @Override
-                        public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                            // Nothing
-                        }
-                    });
-                } else {
-                    Log.d(DEBUG_TAG, "Left Adapter User Created Long Click: Bottom Sheet");
-                    openBottomSheet(set, relativePos, section, new BottomSheetDialog.BottomSheetDialogListener() {
-                        @Override
-                        public void bottomSheetResult(int resultCode, int index, int section) {
-                            Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
-                            switch (resultCode){
-                                case BaseApp.EDIT:
-                                    openDialog(AddEditSetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
-                                        @Override
-                                        public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                                            updateUserCreatedSet(index, name, descrip, min, sec);
-                                        }
-                                    });
-                                    break;
-                                case BaseApp.DELETE:
-                                    deleteUserCreatedSet(section, index);
-                                    break;
-                                case BaseApp.DUPLCIATE:
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void createUserSet(int section) {
-                openDialog(AddEditSetDialog.NEW_SET, null, -1, section, new AddEditSetDialog.AddEditSetDialogListener() {
-                    @Override
-                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                        Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
-                        addUserCreatedSet(section, set);
-                        mParentActivity.addSetToDB(set);
-                    }
-                });
-                Log.d(DEBUG_TAG, "Left Adapter Add New User Created Set");
-            }
-        });
-
-        mLeftRecyclerView.setAdapter(mLeftAdapter);
-        mLeftAdapter.setDataList(leftDataList);
-        mLeftAdapter.shouldShowHeadersForEmptySections(true);
-        mLeftAdapter.shouldShowFooters(true);
-
-                //endregion
-
-                //region RIGHT_RV
-        mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
-        mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        List<String> rightHeaderList = new ArrayList<>();
-        rightHeaderList.add(getString(R.string.header_title_my_sets));
-        mRightAdapter = new SectionedSetAdapter(getContext(), rightHeaderList, -1, new SectionedSetAdapter.SectionedAddSetListener() {
-            @Override
-            public void onClick(Set set, int section, final int relativePos) {
-                openBottomSheet(set, relativePos, section, new BottomSheetDialog.BottomSheetDialogListener() {
-                    @Override
-                    public void bottomSheetResult(int resultCode, int index, int section) {
-                        Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
-                        switch (resultCode){
-                            case BaseApp.EDIT:
-                                openDialog(AddEditSetDialog.EDIT_SET, mUsersSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
-                                    @Override
-                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                                        updateUserSet(index, name, descrip, min, sec);
-                                    }
-                                });
-                                break;
-                            case BaseApp.DELETE:
-                                deleteUserSet(section, index);
-                                break;
-                            case BaseApp.DUPLCIATE:
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-                Log.d(DEBUG_TAG, "Right Adapter Clicked: Bottom Sheet");
-            }
-
-            @Override
-            public void onLongClick(Set set, int section, final int relativePos) {
-                openBottomSheet(set, relativePos, section, new BottomSheetDialog.BottomSheetDialogListener() {
-                    @Override
-                    public void bottomSheetResult(int resultCode, int index, int section) {
-                        Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
-                        switch (resultCode){
-                            case BaseApp.EDIT:
-                                openDialog(AddEditSetDialog.EDIT_SET, mUsersSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
-                                    @Override
-                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                                        updateUserSet(index, name, descrip, min, sec);
-                                    }
-                                });
-                                break;
-                            case BaseApp.DELETE:
-                                deleteUserSet(section, index);
-                                break;
-                            case BaseApp.DUPLCIATE:
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-                Log.d(DEBUG_TAG, "Right Adapter Long Clicked: Bottom Sheet");
-            }
-
-            @Override
-            public void createUserSet(int section) {
-                throw new RuntimeException(DEBUG_TAG + " createUserSet called within mRightAdapter. Footer shouldn't exist");
-            }
-        });
-
-        mRightRecyclerView.setAdapter(mRightAdapter);
-        mRightAdapter.addToDataList(mUsersSets);
-        mRightAdapter.shouldShowHeadersForEmptySections(true);
-        mRightAdapter.shouldShowFooters(false);
-
-
-                //endregion
-
-            //endregion
-        */
         mRoundEntry = view.findViewById(R.id.round_entry_num);
         mRoundEntry.addTextChangedListener(new TextWatcher() {
             @Override
@@ -651,39 +486,12 @@ public class NewWorkoutFragment extends Fragment{
     //endregion
 
     //region SETTERS
-    public void setDefaultSets(List<Set> sets){
-        mDefaultSets = sets;
+    public void setTypedList(List<List<Set>> sets){
+        mTypedSetList = sets;
     }
-
 
     public void setUserCreatedSets(List<Set> sets){
         mUserCreatedSets = sets;
-    }
-    public void addUserCreatedSet(int section, Set set){
-        mLeftAdapter.addSet(section, set);
-    }
-    public void updateUserCreatedSet(int index, String name, String descrip, int min, int sec){
-        Set set = mUserCreatedSets.get(index);
-        set.setName(name);
-        set.setDescrip(descrip);
-        set.setTime(BaseApp.convertToMillis(min, sec));
-        mLeftAdapter.updateSetList(USER_CREATED_SECTION, mUserCreatedSets);
-    }
-    public void deleteUserCreatedSet(int section, int pos){
-        mParentActivity.deleteSetFromDB(mUserCreatedSets.get(pos));
-        mLeftAdapter.removeSet(section, pos);
-    }
-
-
-    public void updateUserSet(int index, String name, String descrip, int min, int sec){
-        Set set = mUsersSets.get(index);
-        set.setName(name);
-        set.setDescrip(descrip);
-        set.setTime(BaseApp.convertToMillis(min, sec));
-        mRightAdapter.updateSetList(0, mUsersSets);
-    }
-    public void deleteUserSet(int section, int pos){
-        mRightAdapter.removeSet(section, pos);
     }
     //endregion
 

@@ -5,16 +5,29 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import java.util.List;
+
 /**
  * Created by ttbot on 2/11/2018.
  */
-
 @Entity(tableName = "sets")
 public class Set {
+
+    // TYPE CONSTANTS
+    public static final int USER_CREATED = 0;
+    public static final int ENDURANCE = 1;
+    public static final int STRENGTH = 2;
+    public static final int BALANCE = 3;
+    public static final int FLEXIBILITY = 4;
+    public static final int OTHER = 5;
+    public static final String[] TYPES = {"User Created", "Endurance", "Strength", "Balance", "Flexibility", "Other"};
+    //workout info coming from go4life.nia.nih.gov
+    //make sure to source more info
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     private int setId;
+    private int setType;
     private String name;
     private String descrip;
     private int time;
@@ -25,8 +38,9 @@ public class Set {
         time = 1000;
     }
 
-    public Set(String name, String descrip, int time){
+    public Set(String name, String descrip, int type, int time){
         this.name = name;
+        this.setType = type;
         this.descrip = descrip;
         this.time = time;
     }
@@ -34,6 +48,8 @@ public class Set {
     public int getSetId(){ return setId; }
     public void setSetId(int id){ setId = id; }
 
+    public int getSetType(){ return setType; }
+    public void setSetType(int type){ setType = type; }
 
     public String getName(){
         return name;
