@@ -197,11 +197,12 @@ public class AddNewSetFragment extends Fragment {
             @Override
             public void createUserSet(int section) {
                 Log.d(DEBUG_TAG, "Right Adapter Create New User Set");
+                //TODO : Dialog must be updated
                 openDialog(AddEditSetDialog.NEW_SET, null, -1, section, new AddEditSetDialog.AddEditSetDialogListener() {
                     @Override
                     public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                        Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
-                        addUserCreatedSet(section, set);
+                        //Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
+                        //addUserCreatedSet(section, set);
                     }
                 });
             }

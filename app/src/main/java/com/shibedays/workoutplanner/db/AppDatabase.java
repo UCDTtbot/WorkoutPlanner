@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 
-@Database(entities = {Workout.class, Set.class}, version = 4)
+@Database(entities = {Workout.class, Set.class}, version = 5)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;

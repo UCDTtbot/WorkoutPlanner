@@ -55,7 +55,6 @@ public class NewWorkoutFragment extends Fragment{
     // Data
     private List<Set> mUsersSets;
     private List<List<Set>> mTypedSetList;
-    private List<Set> mUserCreatedSets;
 
     private int mRounds;
     private int mRestTime;
@@ -110,10 +109,9 @@ public class NewWorkoutFragment extends Fragment{
     }
 
 
-    public static NewWorkoutFragment newInstance(List<List<Set>> typedList, List<Set> userCreated) {
+    public static NewWorkoutFragment newInstance(List<List<Set>> typedList) {
         NewWorkoutFragment newFragment = new NewWorkoutFragment();
-        newFragment.setTypedList(typedList);
-        newFragment.setUserCreatedSets(userCreated);;
+        newFragment.setTypedList(typedList);;
 
         return newFragment;
     }
@@ -172,8 +170,7 @@ public class NewWorkoutFragment extends Fragment{
 
         for(int i = 0; i < NUM_PAGES; i++){
             boolean header = i == 0;
-            List<Set> sets = i == 0 ? mUserCreatedSets : mTypedSetList.get(i);
-            SetListFragment frag = SetListFragment.newInstance(sets, header, new SetListFragment.SetListListener() {
+            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
                 @Override
                 public void onFragmentInteraction(Uri uri) {
 
@@ -488,10 +485,6 @@ public class NewWorkoutFragment extends Fragment{
     //region SETTERS
     public void setTypedList(List<List<Set>> sets){
         mTypedSetList = sets;
-    }
-
-    public void setUserCreatedSets(List<Set> sets){
-        mUserCreatedSets = sets;
     }
     //endregion
 

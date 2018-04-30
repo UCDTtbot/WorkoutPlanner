@@ -284,10 +284,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 });
 
                 mDefaultSets = new ArrayList<>();
-                mDefaultSets.add(new Set("Jogging", "Light Jog", 90000));
-                mDefaultSets.add(new Set("Walk", "Brisk walk", 30000));
-                mDefaultSets.add(new Set("Pushups", "As many pushups as possible in the time limit", 45000));
-                mDefaultSets.add(new Set("Situps", "Arms across chest", 45000));
+                //TODO: set stuff needs to be updated here
             } else if (mIntentType == NOTIF_INTENT_TYPE){
                 // This is what happens if we're opening this activity from the notification
             } else {

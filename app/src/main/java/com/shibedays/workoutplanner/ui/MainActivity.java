@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     // Data
     private List<Workout> mWorkoutData;
     private List<List<Set>> mTypedSets;
-    private List<Set> mUserCreatedSets;
 
     // Flags
     private boolean HIDE_ITEMS;
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     // View Model
     private WorkoutViewModel mWorkoutViewModel;
-    private SetViewModel mUserSetViewModel;
+    private SetViewModel mSetViewModel;
 
     // Fragment(s)
     NewWorkoutFragment mNewWorkoutFragment;
@@ -195,17 +194,21 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             }
         });
 
-        mUserSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-        mUserSetViewModel.getUserCreated().observe(this, new Observer<List<Set>>() {
-            @Override
-            public void onChanged(@Nullable List<Set> sets) {
-                mUserCreatedSets = sets;
-            }
-        });
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mTypedSets = new ArrayList<>();
+        for(int i = 0; i < Set.TYPES.length; i++){
+            final int x = i;
 
-        // TODO fix this. Should user created be from the typed list?
+            mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
+                @Override
+                public void onChanged(@Nullable List<Set> sets) {
+                    if(!mTypedSets.contains(sets)) mTypedSets.add(sets);
+                    else mTypedSets.set(x, sets);
+                }
+            });
+        }
 
-        //TODO: get each typed set list using the dao function
+        Log.d(DEBUG_TAG, "Added data");
 
         //endregion
 
@@ -312,14 +315,13 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         HIDE_ITEMS = false;
         invalidateOptionsMenu();
     }
-
     //endregion
 
 
     //region NEW_WORKOUT
     private void openNewWorkoutFragment(){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mUserCreatedSets, mDefaultSets);
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mTypedSets);
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
         fragmentTransaction.addToBackStack(null);
@@ -391,10 +393,10 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     }
 
     public void addSetToDB(Set set){
-        mUserSetViewModel.insert(set);
+        mSetViewModel.insert(set);
     }
     public void deleteSetFromDB(Set set){
-        mUserSetViewModel.remove(set);
+        mSetViewModel.remove(set);
     }
     //endregion
 

@@ -49,8 +49,7 @@ public class DataRepo {
         return mSets;
     }
 
-    public List<Set> getTypedSets(int type) { return mDatabase.setDao().getAllTyped(type); }
-    public LiveData<List<Set>> getAllUserCreated() { return mDatabase.setDao().getUserCreated(); }
+    public LiveData<List<Set>> getTypedSets(int type) { return mDatabase.setDao().getTypedSets(type); }
 
     public LiveData<Workout> getWorkout(final int id){
         return mDatabase.workoutDao().getWorkout(id);
@@ -147,8 +146,4 @@ public class DataRepo {
             return null;
         }
     }
-
-
-
-
 }
