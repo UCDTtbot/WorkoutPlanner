@@ -202,8 +202,12 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
                 @Override
                 public void onChanged(@Nullable List<Set> sets) {
-                    if(!mTypedSets.contains(sets)) mTypedSets.add(sets);
-                    else mTypedSets.set(x, sets);
+                    if(sets != null){
+                        if(!sets.isEmpty()) {
+                            if (!mTypedSets.contains(sets)) mTypedSets.add(sets);
+                            else mTypedSets.set(x, sets);
+                        }
+                    }
                 }
             });
         }

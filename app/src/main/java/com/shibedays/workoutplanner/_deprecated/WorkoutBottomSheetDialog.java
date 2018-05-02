@@ -21,7 +21,7 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
-
+@Deprecated
 public class WorkoutBottomSheetDialog extends BottomSheetDialogFragment {
 
     //region CONSTANTS

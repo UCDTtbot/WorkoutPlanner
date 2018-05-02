@@ -19,7 +19,7 @@ import com.shibedays.workoutplanner.ui.MainActivity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+@Deprecated
 public class SectionedAddSetAdapter extends SectionedRecyclerViewAdapter<SectionedAddSetAdapter.SectionedAddSetViewHolder> {
 
     //region CONSTANTS

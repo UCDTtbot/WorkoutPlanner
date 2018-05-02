@@ -10,7 +10,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -29,10 +28,10 @@ import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.ViewPagerAdapter;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
+import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
@@ -43,12 +42,11 @@ import java.util.List;
 import java.util.Locale;
 
 public class NewWorkoutFragment extends Fragment{
+
     //region CONSTANTS
     // Package and Debug Constants
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment.";
     private static final String DEBUG_TAG = NewWorkoutFragment.class.getSimpleName();
-
-    private static int NUM_PAGES = Set.TYPES.length;
     //endregion
 
     //region PRIVATE_VARS
@@ -165,10 +163,10 @@ public class NewWorkoutFragment extends Fragment{
         //region PAGER
 
         ViewPager viewPager = view.findViewById(R.id.pager);
-        viewPager.setOffscreenPageLimit(NUM_PAGES);
+        viewPager.setOffscreenPageLimit(Set.TYPES.length);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
-        for(int i = 0; i < NUM_PAGES; i++){
+        for(int i = 0; i < Set.TYPES.length; i++){
             boolean header = i == 0;
             SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
                 @Override

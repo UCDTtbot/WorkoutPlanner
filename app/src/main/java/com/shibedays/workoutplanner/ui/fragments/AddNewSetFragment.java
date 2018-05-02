@@ -3,10 +3,13 @@ package com.shibedays.workoutplanner.ui.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +23,7 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
@@ -38,8 +42,7 @@ public class AddNewSetFragment extends Fragment {
 
     //region PRIVATE_VARS
     // Data
-    private List<Set> mDefaultSets;
-    private List<Set> mUserCreatedSets;
+    private List<List<Set>> mTypedSets;
 
     // Adapters
     private SectionedSetAdapter mLeftAdapter;
@@ -73,11 +76,10 @@ public class AddNewSetFragment extends Fragment {
 
     }
 
-    public static AddNewSetFragment newInstance(List<Set> userCreatedSets, List<Set> defaultSets, NewSetListener listener) {
+    public static AddNewSetFragment newInstance(List<List<Set>> sets, NewSetListener listener) {
         AddNewSetFragment newFragment = new AddNewSetFragment();
 
-        newFragment.setDefaultSets(defaultSets);
-        newFragment.setUserCreatedSets(userCreatedSets);
+        newFragment.setTypedSets(sets);
         newFragment.setListener(listener);
 
         return newFragment;
@@ -113,7 +115,9 @@ public class AddNewSetFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_add_set, container, false);
         mCoordLayout = mParentActivity.findViewById(R.id.set_coord_layout);
 
-            //region RECYCLER_VIEWS
+        //region RECYCLER_VIEWS
+
+        /*
 
                 //region LEFT_RV
         mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
@@ -217,6 +221,30 @@ public class AddNewSetFragment extends Fragment {
 
 
 
+        */
+        //endregion
+
+        //region PAGER
+
+        ViewPager viewPager = view.findViewById(R.id.pager);
+        viewPager.setOffscreenPageLimit(Set.TYPES.length);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
+
+        for(int i = 0; i < Set.TYPES.length; i++){
+            boolean header = i == 0;
+            SetListFragment frag = SetListFragment.newInstance(mTypedSets.get(i), header, new SetListFragment.SetListListener() {
+                @Override
+                public void onFragmentInteraction(Uri uri) {
+
+                }
+            });
+            adapter.addFragment(frag, Set.TYPES[i]);
+        }
+
+        viewPager.setAdapter(adapter);
+
+        TabLayout mTabLayout = view.findViewById(R.id.pager_header);
+        mTabLayout.setupWithViewPager(viewPager);
         //endregion
 
         return view;
@@ -278,13 +306,12 @@ public class AddNewSetFragment extends Fragment {
         mListener = listener;
     }
 
-    public void setDefaultSets(List<Set> sets){
-        mDefaultSets = sets;
+    public void setTypedSets(List<List<Set>> sets){
+        mTypedSets = sets;
     }
 
-    public void setUserCreatedSets(List<Set> sets) {
-        mUserCreatedSets = sets;
-    }
+
+    /*
     public void addUserCreatedSet(int section, Set set){
         mRightAdapter.addSet(section, set);
     }
@@ -298,6 +325,7 @@ public class AddNewSetFragment extends Fragment {
     public void deleteUserCreatedSet(int section, int pos){
         mRightAdapter.removeSet(section, pos);
     }
+    */
 
     //endregion
 
@@ -347,9 +375,6 @@ public class AddNewSetFragment extends Fragment {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
-
-
-
     //endregion
 
 

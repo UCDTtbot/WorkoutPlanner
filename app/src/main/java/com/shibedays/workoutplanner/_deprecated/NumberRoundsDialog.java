@@ -17,7 +17,7 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.Locale;
-
+@Deprecated
 public class NumberRoundsDialog extends DialogFragment {
 
     //region CONSTANTS

@@ -5,10 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_45_vert_size"
     android:foreground="?attr/selectableItemBackground"
-    android:layout_marginStart="@dimen/activity_shallow_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_quarter_margin"
-    android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin"
-    android:layout_marginBottom="@dimen/activity_quarter_margin">
+    android:layout_margin="2dp">
 
 
     <RelativeLayout
@@ -37,7 +34,7 @@
                 style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="50"
+                android:layout_weight="80"
                 android:text="@string/default_name" />
 
             <TextView
@@ -45,7 +42,7 @@
                 style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="50"
+                android:layout_weight="20"
                 android:gravity="end"
                 android:text="@string/default_time" />
 

@@ -14,6 +14,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -109,9 +110,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private Workout mWorkoutData;
     private List<Set> mSetList;
     private LiveData<Workout> mWorkoutLiveData;
+    private List<List<Set>> mTypedSets;
 
-    private List<Set> mUserCreatedSets;
-    private List<Set> mDefaultSets;
     // Instances
     private FragmentManager mFragmentManager;
     private TimerFragment mTimerFragment;
@@ -211,6 +211,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //endregion
 
     //region LIFECYCLE
+
     @Override
     protected void onStart(){
         super.onStart();
@@ -276,15 +277,25 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                         }
                 });
-                mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
-                    @Override
-                    public void onChanged(@Nullable List<Set> sets) {
-                        mUserCreatedSets = sets;
-                    }
-                });
 
-                mDefaultSets = new ArrayList<>();
-                //TODO: set stuff needs to be updated here
+                mTypedSets = new ArrayList<>();
+                for(int i = 0; i < Set.TYPES.length; i++) {
+                    final int x = i;
+
+                    mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
+                        @Override
+                        public void onChanged(@Nullable List<Set> sets) {
+                            if (sets != null) {
+                                if (!sets.isEmpty()) {
+                                    if (!mTypedSets.contains(sets)) mTypedSets.add(sets);
+                                    else mTypedSets.set(x, sets);
+                                }
+                            }
+                        }
+                    });
+
+                }
+
             } else if (mIntentType == NOTIF_INTENT_TYPE){
                 // This is what happens if we're opening this activity from the notification
             } else {
@@ -534,7 +545,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openAddNewSetFragment(){
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mAddNewSetFragment = AddNewSetFragment.newInstance(mUserCreatedSets, mDefaultSets, new AddNewSetFragment.NewSetListener() {
+        mAddNewSetFragment = AddNewSetFragment.newInstance(mTypedSets, new AddNewSetFragment.NewSetListener() {
             @Override
             public void addSet(Set set) {
                 mWorkoutData.addSet(set);

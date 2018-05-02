@@ -15,7 +15,7 @@ import com.shibedays.workoutplanner.R;
 /**
  * Created by ttbot on 3/26/2018.
  */
-
+@Deprecated
 public class SetBottomSheetDialog extends BottomSheetDialogFragment {
 
 

@@ -57,9 +57,13 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
             });
             mTextViewName = itemView.findViewById(R.id.choose_set_name);
             mTextViewTime = itemView.findViewById(R.id.choose_set_time);
+            mTextViewTime.setVisibility(View.GONE);
         }
 
         void bindTo(final Set curSet){
+            if(curSet == null){
+                Log.d(DEBUG_TAG, "shit");
+            }
             this.curSet = curSet;
 
             mCheckBox.setChecked(false);

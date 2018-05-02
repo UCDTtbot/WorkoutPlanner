@@ -85,17 +85,18 @@ public class SetListFragment extends Fragment {
 
         //region RECYCLER_VIEW
         mListView = view.findViewById(R.id.setlist_recycler);
-        mListView.setLayoutManager(new GridLayoutManager(getContext(), NUM_GRID_ROWS));
+        mListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        //mListView.setLayoutManager(new GridLayoutManager(getContext(), NUM_GRID_ROWS));
         mAdapter = new ChooseSetAdapter(getContext(), mIncludeHeader, new ChooseSetAdapter.ChooseSetListener() {
             @Override
             public void mapSet(Set set) {
                 if(mSetMap.contains(set)){
                     Toast.makeText(getContext(), "Set is already mapped", Toast.LENGTH_SHORT).show();
-                    Log.e(DEBUG_TAG, "Set " + set.getName() + " is already mapped ");
+                    //Log.e(DEBUG_TAG, "Set " + set.getName() + " is already mapped ");
                 } else {
                     mSetMap.add(set);
                     for(Set sets : mSetMap){
-                        Log.d(DEBUG_TAG, set.getName());
+                        //Log.d(DEBUG_TAG, set.getName());
                     }
                 }
             }
