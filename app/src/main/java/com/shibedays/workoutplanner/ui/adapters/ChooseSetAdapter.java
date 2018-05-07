@@ -2,6 +2,7 @@ package com.shibedays.workoutplanner.ui.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.shibedays.workoutplanner.BaseApp;
@@ -30,11 +30,13 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     //endregion
 
     //region VIEW_HOLDER
-    class ChooseSetHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    class ChooseSetHolder extends RecyclerView.ViewHolder {
 
         // Data
         private Set curSet;
+        // Boolean
         // UI
+        private CardView mCardView;
         private CheckBox mCheckBox;
         private TextView mTextViewName;
         private TextView mTextViewTime;
@@ -46,18 +48,15 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
             mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if(b) {
-                        mListener.mapSet(curSet);
-                        Log.d(DEBUG_TAG, "Adding " + curSet.getName() + " to set map");
-                    } else {
-                        mListener.unmapSet(curSet);
-                        Log.d(DEBUG_TAG, "Unmapping " + curSet.getName());
-                    }
+
                 }
             });
             mTextViewName = itemView.findViewById(R.id.choose_set_name);
             mTextViewTime = itemView.findViewById(R.id.choose_set_time);
             mTextViewTime.setVisibility(View.GONE);
+
+            mCardView = itemView.findViewById(R.id.set_narrow_card);
+
         }
 
         void bindTo(final Set curSet){
@@ -66,7 +65,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
             }
             this.curSet = curSet;
 
-            mCheckBox.setChecked(false);
+            mCheckBox.setChecked(mCheckedMap.get(curSet));
             mTextViewName.setText(curSet.getName());
 
             int[] time = BaseApp.convertFromMillis(curSet.getTime());
@@ -80,16 +79,38 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
                 mTextViewTime.setText(String.format(Locale.US, "%d:%d", minutes, seconds));
             }
 
+            mCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCheckBox.toggle();
+                }
+            });
+
+            mCardView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(curSet.getSetType() > 0){
+                        mListener.openDisplayInfo(curSet);
+                    } else {
+                        mListener.openBottomSheet(curSet);
+                    }
+                    return false;
+                }
+            });
         }
 
-        @Override
-        public void onClick(View v) {
+        void bindHeader(){
+            mCheckBox.setVisibility(View.GONE);
+            mTextViewName.setText("Add Custom Set");
 
-        }
+            mTextViewTime.setVisibility(View.GONE);
 
-        @Override
-        public boolean onLongClick(View v) {
-            return false;
+            mCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.createSet();
+                }
+            });
         }
     }
     //endregion
@@ -97,7 +118,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     //region PRIVATE_VARS
     // Data
     private List<Set> mSetData;
-    private List<Set> mSetMap;
+    private HashMap<Set, Boolean> mCheckedMap;
     // UI
     private Context mContext;
     // FLAGS
@@ -106,8 +127,9 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
 
     //region INTERFACES
     public interface ChooseSetListener{
-        void mapSet(Set set);
-        void unmapSet(Set set);
+        void createSet();
+        void openBottomSheet(Set set);
+        void openDisplayInfo(Set set);
     }
     private ChooseSetListener mListener;
     //endregion
@@ -116,11 +138,9 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     public ChooseSetAdapter(Context context, boolean header, ChooseSetListener listener){
         mContext = context;
         mListener = listener;
-        mSetMap = new ArrayList<>();
+        mCheckedMap = new HashMap<>();
         mHeader = header;
-        if(mHeader){
-            //TODO: Create the special "Add User Set" header
-        }
+
     }
 
     @NonNull
@@ -133,7 +153,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     @Override
     public void onBindViewHolder(@NonNull ChooseSetHolder holder, int position) {
         if(mHeader && position == 0){
-            //TODO: Setup the special header and assign on click listener
+            holder.bindHeader();
         } else {
             holder.bindTo(mSetData.get(position));
         }
@@ -148,6 +168,11 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
 
     public void setData(List<Set> data){
         mSetData = data;
+        for (Set set : mSetData){
+            if(!mCheckedMap.containsKey(set)){
+                mCheckedMap.put(set, false);
+            }
+        }
         notifyDataSetChanged();
     }
 

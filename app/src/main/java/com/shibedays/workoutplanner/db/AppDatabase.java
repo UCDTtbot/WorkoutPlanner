@@ -79,6 +79,7 @@ public abstract class AppDatabase extends RoomDatabase {
             mWorkoutDao.insert(running);
 
             // User Created
+            mSetDao.insert(new Set("Header Dummy", "This shouldn't be addable", Set.USER_CREATED, 0));
             mSetDao.insert(new Set("Custom Set", "Custom set created by the user.", Set.USER_CREATED, 60000));
             // Endurance
             mSetDao.insert(run);

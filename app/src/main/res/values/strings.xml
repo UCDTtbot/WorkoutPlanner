@@ -40,10 +40,10 @@
     <string name="start_workout_button">Start Workout</string>
     <string name="menu_pause">Pause</string>
     <string name="menu_add_set">Add Set</string>
-    <string name="rest_title_text">Rest Between Sets:</string>
+    <string name="rest_title_text">Rest Time</string>
+    <string name="break_title_text">Break Time</string>
+    <string name="round_title_text">Rounds</string>
     <string name="default_time">1:00</string>
-    <string name="break_title_text">Break between rounds:</string>
-    <string name="round_title_text">Rounds:</string>
     <string name="minute_label">M</string>
     <string name="colon">:</string>
     <string name="second_label">S</string>
@@ -70,5 +70,7 @@
     <string name="new_workout">New Workout</string>
     <string name="add_set">Add Set</string>
     <string name="rename_workout">Rename</string>
+    <string name="name_error">Name must not be empty!</string>
+    <string name="time_error">Time must not be 0.</string>
 
 </resources>

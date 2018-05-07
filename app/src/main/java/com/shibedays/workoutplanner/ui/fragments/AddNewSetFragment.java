@@ -3,7 +3,6 @@ package com.shibedays.workoutplanner.ui.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -11,17 +10,16 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
@@ -42,14 +40,15 @@ public class AddNewSetFragment extends Fragment {
 
     //region PRIVATE_VARS
     // Data
-    private List<List<Set>> mTypedSets;
+    private List<List<Set>> mTypedSetList;
+    private List<Set> mSetsToAdd;
 
+    private List<SetListFragment> mSetListFrags;
     // Adapters
     private SectionedSetAdapter mLeftAdapter;
     private SectionedSetAdapter mRightAdapter;
     // UI Components
-    private RecyclerView mLeftRecyclerView;
-    private RecyclerView mRightRecyclerView;
+    private Button mSaveButton;
 
     private CoordinatorLayout mCoordLayout; // Displaying Toasts / Undo bar
 
@@ -64,7 +63,9 @@ public class AddNewSetFragment extends Fragment {
 
     public interface NewSetListener {
         // TODO: Update argument type and name
-        void addSet(Set set);
+        void addSets(List<Set> sets);
+        void applyUserSet(Set set);
+        void removeUserSet(Set set);
     }
     private NewSetListener mListener;
 
@@ -114,6 +115,14 @@ public class AddNewSetFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_add_set, container, false);
         mCoordLayout = mParentActivity.findViewById(R.id.set_coord_layout);
+
+        mSaveButton = view.findViewById(R.id.button_add);
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.addSets(mSetsToAdd);
+            }
+        });
 
         //region RECYCLER_VIEWS
 
@@ -230,15 +239,67 @@ public class AddNewSetFragment extends Fragment {
         viewPager.setOffscreenPageLimit(Set.TYPES.length);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
+        mSetListFrags = new ArrayList<>();
+        mSetsToAdd = new ArrayList<>();
         for(int i = 0; i < Set.TYPES.length; i++){
             boolean header = i == 0;
-            SetListFragment frag = SetListFragment.newInstance(mTypedSets.get(i), header, new SetListFragment.SetListListener() {
+            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
                 @Override
-                public void onFragmentInteraction(Uri uri) {
+                public void mapSet(Set set) {
+                    if(mSetsToAdd.contains(set)){
+                        Toast.makeText(getContext(), "Set is already mapped", Toast.LENGTH_SHORT).show();
+                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is already mapped ");
+                    } else {
+                        mSetsToAdd.add(set);
+                        for(Set sets : mSetsToAdd){
+                            Log.d(DEBUG_TAG, set.getName());
+                        }
+                    }
+                }
 
+                @Override
+                public void unmapSet(Set set) {
+                    if(mSetsToAdd.contains(set)){
+                        mSetsToAdd.remove(set);
+                        for(Set sets : mSetsToAdd){
+                            Log.d(DEBUG_TAG, set.getName());
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Set isn't mapped", Toast.LENGTH_SHORT).show();
+                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is not mapped ");
+                    }
+                }
+
+                @Override
+                public void applyUserSet(Set set) {
+                    mListener.applyUserSet(set);
+                }
+
+                @Override
+                public void openBottomSheet(final Set set, int pos) {
+                    AddNewSetFragment.this.openBottomSheet(set, pos, 0, new BottomSheetDialog.BottomSheetDialogListener() {
+                        @Override
+                        public void bottomSheetResult(int resultCode, int index, int section) {
+                            Log.d(DEBUG_TAG, "Result: " + resultCode);
+                            if(resultCode == BaseApp.EDIT){
+                                openDialog(AddEditSetDialog.EDIT_SET, set, index, -1, new AddEditSetDialog.AddEditSetDialogListener() {
+                                    @Override
+                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                                        updateUserSet(index, name, descrip, min, sec);
+                                    }
+                                });
+
+                            } else if (resultCode == BaseApp.DELETE){
+                                //TODO: Confirmation
+                                deleteSetConfirmation(mTypedSetList.get(0).get(index), index);
+                            }
+                            //BaseApp Results
+                        }
+                    });
                 }
             });
             adapter.addFragment(frag, Set.TYPES[i]);
+            mSetListFrags.add(frag);
         }
 
         viewPager.setAdapter(adapter);
@@ -307,25 +368,24 @@ public class AddNewSetFragment extends Fragment {
     }
 
     public void setTypedSets(List<List<Set>> sets){
-        mTypedSets = sets;
+        mTypedSetList = sets;
     }
 
-
-    /*
-    public void addUserCreatedSet(int section, Set set){
-        mRightAdapter.addSet(section, set);
-    }
-    public void updateUserCreatedSet(int index, String name, String descrip, int min, int sec){
-        Set set = mUserCreatedSets.get(index);
+    private void updateUserSet(int index, String name, String descrip, int min, int sec){
+        Set set = mTypedSetList.get(0).get(index);
+        Log.d(DEBUG_TAG, "Old Name: " + set.getName() + " | New Name: " + name);
         set.setName(name);
         set.setDescrip(descrip);
         set.setTime(BaseApp.convertToMillis(min, sec));
-        mRightAdapter.updateSetList(0, mUserCreatedSets);
+        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
+        mListener.applyUserSet(set);
     }
-    public void deleteUserCreatedSet(int section, int pos){
-        mRightAdapter.removeSet(section, pos);
+
+    private void deleteUserSet(int index){
+        mListener.removeUserSet(mTypedSetList.get(0).get(index));
+        mTypedSetList.get(0).remove(index);
+        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
     }
-    */
 
     //endregion
 
@@ -338,17 +398,28 @@ public class AddNewSetFragment extends Fragment {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            mListener.addSet(set);
+                            mListener.addSets(mSetsToAdd);
                         }
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    })
+                    .setNegativeButton("No", null)
                     .show();
 
+        }
+    }
+
+    private void deleteSetConfirmation(final Set set, final int index){
+        if(getContext() != null){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+            builder.setTitle("Delete Set")
+                    .setMessage("Are you sure you want to delete " + set.getName() + " ?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteUserSet(index);
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         }
     }
 
@@ -359,7 +430,7 @@ public class AddNewSetFragment extends Fragment {
         } else {
             bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
         }
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(listener, bundle);
+        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
         dialog.setTargetFragment(mThis, 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
@@ -375,6 +446,7 @@ public class AddNewSetFragment extends Fragment {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
+
     //endregion
 
 

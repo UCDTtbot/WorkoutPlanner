@@ -2,6 +2,7 @@ package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -54,18 +56,15 @@ public class NewWorkoutFragment extends Fragment{
     private List<Set> mUsersSets;
     private List<List<Set>> mTypedSetList;
 
+    private List<SetListFragment> mSetListFrags;
+
     private int mRounds;
     private int mRestTime;
     private int mBreakTime;
     private boolean mRestFlag;
     private boolean mBreakFlag;
     // Adapters
-    private SectionedSetAdapter mLeftAdapter;
-    private SectionedSetAdapter mRightAdapter;
     // UI Components
-    private RecyclerView mLeftRecyclerView;
-    private RecyclerView mRightRecyclerView;
-
     private CoordinatorLayout mCoordLayout; // Displaying Toasts / Undo bar
 
     private EditText mNameEntry;
@@ -96,6 +95,8 @@ public class NewWorkoutFragment extends Fragment{
      */
     public interface OnFragmentInteractionListener {
         void addNewWorkout(Workout workout);
+        void applyUserSet(Set set);
+        void removeUserSet(Set set);
     }
     private OnFragmentInteractionListener mListener;
     //endregion
@@ -165,16 +166,63 @@ public class NewWorkoutFragment extends Fragment{
         ViewPager viewPager = view.findViewById(R.id.pager);
         viewPager.setOffscreenPageLimit(Set.TYPES.length);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
+        mSetListFrags = new ArrayList<>();
 
         for(int i = 0; i < Set.TYPES.length; i++){
             boolean header = i == 0;
             SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
                 @Override
-                public void onFragmentInteraction(Uri uri) {
+                public void mapSet(Set set) {
+                    if(mUsersSets.contains(set)){
+                        Toast.makeText(getContext(), "Set is already mapped", Toast.LENGTH_SHORT).show();
+                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is already mapped ");
+                    } else {
+                        mUsersSets.add(set);
+                        for(Set sets : mUsersSets){
+                            Log.d(DEBUG_TAG, set.getName());
+                        }
+                    }
+                }
 
+                @Override
+                public void unmapSet(Set set) {
+                    if(mUsersSets.contains(set)){
+                        mUsersSets.remove(set);
+                    } else {
+                        Toast.makeText(getContext(), "Set isn't mapped", Toast.LENGTH_SHORT).show();
+                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is not mapped ");
+                    }
+                }
+
+                @Override
+                public void applyUserSet(Set set) {
+                    mListener.applyUserSet(set);
+                }
+
+                @Override
+                public void openBottomSheet(final Set set, int pos) {
+                    NewWorkoutFragment.this.openBottomSheet(set, pos, 0, new BottomSheetDialog.BottomSheetDialogListener() {
+                        @Override
+                        public void bottomSheetResult(int resultCode, int index, int section) {
+                            Log.d(DEBUG_TAG, "Result: " + resultCode);
+                            if(resultCode == BaseApp.EDIT){
+                                openDialog(AddEditSetDialog.EDIT_SET, set, index, -1, new AddEditSetDialog.AddEditSetDialogListener() {
+                                    @Override
+                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                                        updateUserSet(index, name, descrip, min, sec);
+                                    }
+                                });
+
+                            } else if (resultCode == BaseApp.DELETE){
+                                deleteSetConfirmation(mTypedSetList.get(0).get(index), index);
+                            }
+                            //BaseApp Results
+                        }
+                    });
                 }
             });
             adapter.addFragment(frag, Set.TYPES[i]);
+            mSetListFrags.add(frag);
         }
 
         viewPager.setAdapter(adapter);
@@ -344,6 +392,42 @@ public class NewWorkoutFragment extends Fragment{
     //endregion
 
     //region UTILITY
+    private void updateUserSet(int index, String name, String descrip, int min, int sec){
+        Set set = mTypedSetList.get(0).get(index);
+        Log.d(DEBUG_TAG, "Old Name: " + set.getName() + " | New Name: " + name);
+        set.setName(name);
+        set.setDescrip(descrip);
+        set.setTime(BaseApp.convertToMillis(min, sec));
+        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
+        mListener.applyUserSet(set);
+    }
+
+    private void deleteSetConfirmation(final Set set, final int index){
+        if(getContext() != null){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+            builder.setTitle("Delete Set")
+                    .setMessage("Are you sure you want to delete " + set.getName() + " ?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteUserSet(index);
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        }
+    }
+
+    private void deleteUserSet(int index){
+        mListener.removeUserSet(mTypedSetList.get(0).get(index));
+        if(mUsersSets.contains(mTypedSetList.get(0).get(index))){
+            mUsersSets.remove(mTypedSetList.get(0).get(index));
+        }
+        mTypedSetList.get(0).remove(index);
+        // Unmap set if it exists
+        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
+    }
+
     private void openBottomSheet(Set set, int relativePos, int section, BottomSheetDialog.BottomSheetDialogListener listener){
         Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(), relativePos, section,
                 BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity), BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
@@ -361,12 +445,13 @@ public class NewWorkoutFragment extends Fragment{
         } else {
             bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
         }
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(listener, bundle);
+        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
         dialog.setTargetFragment(mThis, 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
+
     private void openNumberPicker(int type, int time, boolean flag){
         Bundle args = NumberPickerDialog.getDialogBundle(type, time, flag);
         NumberPickerDialog dialog = NumberPickerDialog.newInstance(args, new NumberPickerDialog.NumberPickerDialogListener() {

@@ -195,7 +195,11 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         });
 
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-        mTypedSets = new ArrayList<>();
+        mTypedSets = new ArrayList<List<Set>>() {{
+            for (String TYPE : Set.TYPES) {
+                add(new ArrayList<Set>());
+            }
+        }};
         for(int i = 0; i < Set.TYPES.length; i++){
             final int x = i;
 
@@ -204,8 +208,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                 public void onChanged(@Nullable List<Set> sets) {
                     if(sets != null){
                         if(!sets.isEmpty()) {
-                            if (!mTypedSets.contains(sets)) mTypedSets.add(sets);
-                            else mTypedSets.set(x, sets);
+                            mTypedSets.set(sets.get(0).getSetType(), sets);
                         }
                     }
                 }
@@ -352,6 +355,17 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         }
         mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
+
+    @Override
+    public void applyUserSet(Set set) {
+        mSetViewModel.insert(set);
+    }
+
+    @Override
+    public void removeUserSet(Set set) {
+        mSetViewModel.remove(set);
+    }
+
     //endregion
 
 

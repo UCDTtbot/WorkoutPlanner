@@ -547,10 +547,24 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mAddNewSetFragment = AddNewSetFragment.newInstance(mTypedSets, new AddNewSetFragment.NewSetListener() {
             @Override
-            public void addSet(Set set) {
-                mWorkoutData.addSet(set);
-                mWorkoutViewModel.update(mWorkoutData);
+            public void addSets(List<Set> sets) {
+                if(sets != null) {
+                    for (Set set : sets) {
+                        mWorkoutData.addSet(set);
+                    }
+                    mWorkoutViewModel.update(mWorkoutData);
+                }
                 mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+
+            @Override
+            public void applyUserSet(Set set) {
+                mSetViewModel.insert(set);
+            }
+
+            @Override
+            public void removeUserSet(Set set) {
+                mSetViewModel.remove(set);
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
@@ -678,7 +692,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         } else {
             bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
         }
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(listener, bundle);
+        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
         if (getFragmentManager() != null) {
             dialog.show(mFragmentManager, DEBUG_TAG);
         }

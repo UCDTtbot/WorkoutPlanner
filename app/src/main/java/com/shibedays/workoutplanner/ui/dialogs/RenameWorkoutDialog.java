@@ -113,7 +113,7 @@ public class RenameWorkoutDialog extends DialogFragment {
                     @Override
                     public void onClick(View v) {
                         if(TextUtils.isEmpty(mEditText.getText().toString())){
-                            mEditText.setError("Name must not be empty!");
+                            mEditText.setError(getString(R.string.name_error));
                         } else {
                             mListener.RenameWorkout(mEditText.getText().toString());
                             dialog.dismiss();
