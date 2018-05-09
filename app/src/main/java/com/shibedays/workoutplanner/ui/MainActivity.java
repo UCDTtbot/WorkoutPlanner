@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
             @Override
             public void onWorkoutLongClick(int workoutIndex, int workoutID) {
-                openBottomDialog(workoutIndex);
+                openBottomSheet(workoutIndex);
             }
 
             @Override
@@ -357,12 +357,12 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     }
 
     @Override
-    public void applyUserSet(Set set) {
+    public void applyUserSetToDB(Set set) {
         mSetViewModel.insert(set);
     }
 
     @Override
-    public void removeUserSet(Set set) {
+    public void removeUserSetFromDB(Set set) {
         mSetViewModel.remove(set);
     }
 
@@ -379,21 +379,20 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     //endregion
 
     //region BOTTOM_SHEET_WORKOUTS
-    public void openBottomDialog(int workoutIndex){
+    public void openBottomSheet(final int workoutIndex){
         Workout workout = mWorkoutData.get(workoutIndex);
-        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), workoutIndex, -1,
-                BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
+        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, new BottomSheetDialog.BottomSheetDialogListener() {
             @Override
-            public void bottomSheetResult(int resultCode, int index, int section) {
+            public void bottomSheetResult(int resultCode) {
                 switch (resultCode){
                     case BaseApp.EDIT:
                         throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
                     case BaseApp.DELETE:
-                        mWorkoutAdapter.pendingRemoval(index);
+                        mWorkoutAdapter.pendingRemoval(workoutIndex);
                         break;
                     case BaseApp.DUPLCIATE:
-                        Workout newWorkout = new Workout(NEXT_WORKOUT_ID, mWorkoutData.get(index));
+                        Workout newWorkout = new Workout(NEXT_WORKOUT_ID, mWorkoutData.get(workoutIndex));
                         addNewWorkout(newWorkout);
                         break;
                     default:

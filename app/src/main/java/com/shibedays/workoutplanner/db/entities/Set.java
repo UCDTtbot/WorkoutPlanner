@@ -6,6 +6,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by ttbot on 2/11/2018.
@@ -72,8 +73,17 @@ public class Set {
         this.time = time;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this) return true;
+        if(!(obj instanceof Set)) return false;
 
+        Set set = (Set) obj;
+        return set.setId == this.setId;
+    }
 
-
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.setId);
+    }
 }

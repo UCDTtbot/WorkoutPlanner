@@ -48,7 +48,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
             mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
+                    mCheckedMap.put(curSet, b);
                 }
             });
             mTextViewName = itemView.findViewById(R.id.choose_set_name);
@@ -176,6 +176,24 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
         notifyDataSetChanged();
     }
 
+    public void addMapping(Set set){
+        mCheckedMap.put(set, false);
+    }
+
+    public void removeMapping(Set set){
+        mCheckedMap.remove(set);
+    }
+
+    public List<Set> getMappedSets(){
+        List<Set> mapped = new ArrayList<>();
+        for(Set set : mCheckedMap.keySet()){
+            if(mCheckedMap.get(set)){
+                mapped.add(set);
+            }
+        }
+
+        return mapped;
+    }
     //endregion
 
 }

@@ -23,7 +23,6 @@ import android.widget.Toast;
 import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.ui.MainActivity;
 
 import java.util.Locale;
 
@@ -45,9 +44,8 @@ public class AddEditSetDialog extends DialogFragment {
     public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
     public static final String EXTRA_SET_DESCIP = PACKAGE + "SET_DESCRIP";
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
+    public static final String EXTRA_SET_ID = PACKAGE + "SET_ID";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
-    public static final String EXTRA_SET_INDEX = PACKAGE + "SET_INDEX";
-    public static final String EXTRA_SET_SECTION = PACKAGE + "SET_SECTION";
     //endregion
 
     //region PRIVATE_VARS
@@ -57,7 +55,8 @@ public class AddEditSetDialog extends DialogFragment {
 
     //region INTERFACES
     public interface AddEditSetDialogListener {
-        void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index);
+        void newSet(String name, String descrip, int min, int sec);
+        void editSet(int id, String name, String descrip, int min, int sec);
     }
     AddEditSetDialogListener mListener;
     //endregion
@@ -120,8 +119,7 @@ public class AddEditSetDialog extends DialogFragment {
 
         if(args!= null){
             final int type = args.getInt(EXTRA_DIALOG_TYPE);
-            final int section = args.getInt(EXTRA_SET_SECTION);
-            final int index = args.getInt(EXTRA_SET_INDEX);
+            final int setId = args.getInt(EXTRA_SET_ID);
             if(type == NEW_SET){
                 mMinutePicker.setValue(0);
                 mSecondPicker.setValue(10);
@@ -154,7 +152,7 @@ public class AddEditSetDialog extends DialogFragment {
                                     OK = false;
                                 }
                                 if(OK) {
-                                    mListener.dialogResult(type, name, descrip, min, sec, section, index);
+                                    mListener.newSet(name, descrip, min, sec);
                                     dialog.dismiss();
                                 } else {
                                     Log.d(DEBUG_TAG, "Input Validation Error");
@@ -206,7 +204,7 @@ public class AddEditSetDialog extends DialogFragment {
                                     OK = false;
                                 }
                                 if(OK){
-                                    mListener.dialogResult(type, name, descrip, min, sec, section, index);
+                                    mListener.editSet(setId, name, descrip, min, sec);
                                     dialog.dismiss();
                                 } else {
                                     Log.d(DEBUG_TAG, "Input Validation Error");
@@ -272,18 +270,17 @@ public class AddEditSetDialog extends DialogFragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getDialogBundle(int dialogType, String setName, String setDescrip, int timeInMil, int setIndex, int setSection){
+    public static Bundle getDialogBundle(int dialogType, int id, String setName, String setDescrip, int timeInMil){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
 
         bundle.putInt(EXTRA_DIALOG_TYPE, dialogType);
+        bundle.putInt(EXTRA_SET_ID, id);
         bundle.putString(EXTRA_SET_NAME, setName);
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
         bundle.putInt(EXTRA_SET_MIN, time[0]);
         bundle.putInt(EXTRA_SET_SEC, time[1]);
-        bundle.putInt(EXTRA_SET_INDEX, setIndex);
-        bundle.putInt(EXTRA_SET_SECTION, setSection);
 
         return bundle;
     }

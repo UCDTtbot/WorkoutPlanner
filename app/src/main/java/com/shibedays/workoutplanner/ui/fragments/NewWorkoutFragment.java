@@ -3,7 +3,6 @@ package com.shibedays.workoutplanner.ui.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,10 +11,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DebugUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
@@ -35,7 +33,6 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 
@@ -53,7 +50,6 @@ public class NewWorkoutFragment extends Fragment{
 
     //region PRIVATE_VARS
     // Data
-    private List<Set> mUsersSets;
     private List<List<Set>> mTypedSetList;
 
     private List<SetListFragment> mSetListFrags;
@@ -95,8 +91,8 @@ public class NewWorkoutFragment extends Fragment{
      */
     public interface OnFragmentInteractionListener {
         void addNewWorkout(Workout workout);
-        void applyUserSet(Set set);
-        void removeUserSet(Set set);
+        void applyUserSetToDB(Set set);
+        void removeUserSetFromDB(Set set);
     }
     private OnFragmentInteractionListener mListener;
     //endregion
@@ -140,7 +136,6 @@ public class NewWorkoutFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUsersSets = new ArrayList<>();
 
         mRounds = 1;
         mRestTime = 60000;
@@ -167,58 +162,72 @@ public class NewWorkoutFragment extends Fragment{
         viewPager.setOffscreenPageLimit(Set.TYPES.length);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         mSetListFrags = new ArrayList<>();
-
         for(int i = 0; i < Set.TYPES.length; i++){
             boolean header = i == 0;
             SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
-                @Override
-                public void mapSet(Set set) {
-                    if(mUsersSets.contains(set)){
-                        Toast.makeText(getContext(), "Set is already mapped", Toast.LENGTH_SHORT).show();
-                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is already mapped ");
-                    } else {
-                        mUsersSets.add(set);
-                        for(Set sets : mUsersSets){
-                            Log.d(DEBUG_TAG, set.getName());
-                        }
-                    }
-                }
 
                 @Override
-                public void unmapSet(Set set) {
-                    if(mUsersSets.contains(set)){
-                        mUsersSets.remove(set);
-                    } else {
-                        Toast.makeText(getContext(), "Set isn't mapped", Toast.LENGTH_SHORT).show();
-                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is not mapped ");
-                    }
-                }
+                public void openBottomSheet(final Set set) {
+                    NewWorkoutFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
 
-                @Override
-                public void applyUserSet(Set set) {
-                    mListener.applyUserSet(set);
-                }
-
-                @Override
-                public void openBottomSheet(final Set set, int pos) {
-                    NewWorkoutFragment.this.openBottomSheet(set, pos, 0, new BottomSheetDialog.BottomSheetDialogListener() {
                         @Override
-                        public void bottomSheetResult(int resultCode, int index, int section) {
-                            Log.d(DEBUG_TAG, "Result: " + resultCode);
+                        public void bottomSheetResult(int resultCode) {
                             if(resultCode == BaseApp.EDIT){
-                                openDialog(AddEditSetDialog.EDIT_SET, set, index, -1, new AddEditSetDialog.AddEditSetDialogListener() {
+                                openDialog(AddEditSetDialog.EDIT_SET, set, new AddEditSetDialog.AddEditSetDialogListener() {
                                     @Override
-                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                                        updateUserSet(index, name, descrip, min, sec);
+                                    public void newSet(String name, String descrip, int min, int sec) {
+                                        throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
+                                    }
+
+                                    @Override
+                                    public void editSet(int id, String name, String descrip, int min, int sec) {
+                                        if(id == set.getSetId()){
+                                            updateUserSet(set, name, descrip, min, sec);
+                                        }
                                     }
                                 });
-
-                            } else if (resultCode == BaseApp.DELETE){
-                                deleteSetConfirmation(mTypedSetList.get(0).get(index), index);
+                            } else if (resultCode == BaseApp.DELETE) {
+                                deleteSetConfirmation(set);
+                            } else {
+                                Log.e(DEBUG_TAG, "Invalid Result Code " + resultCode);
                             }
-                            //BaseApp Results
                         }
                     });
+                }
+
+                @Override
+                public void openSetDialog(int type, final Set set) {
+                    if(type == AddEditSetDialog.NEW_SET){
+                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
+                            @Override
+                            public void newSet(String name, String descrip, int min, int sec) {
+                                Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
+                                mSetListFrags.get(0).addSet(set);
+                                mListener.applyUserSetToDB(set);
+                            }
+
+                            @Override
+                            public void editSet(int id, String name, String descrip, int min, int sec) {
+                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
+                            }
+                        });
+                    } else if (type == AddEditSetDialog.EDIT_SET) {
+                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
+                            @Override
+                            public void newSet(String name, String descrip, int min, int sec) {
+                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
+                            }
+
+                            @Override
+                            public void editSet(int id, String name, String descrip, int min, int sec) {
+                                updateUserSet(set, name, descrip, min, sec);
+                            }
+                        });
+                    } else if (type == AddEditSetDialog.DISPLAY_SET) {
+                        openDialog(type, set, null);
+                    } else {
+                        throw new RuntimeException(DEBUG_TAG + " invalid AddEditSetDialog type");
+                    }
                 }
             });
             adapter.addFragment(frag, Set.TYPES[i]);
@@ -358,79 +367,40 @@ public class NewWorkoutFragment extends Fragment{
     //endregion
 
     //region UI_UPDATE_FUNCTIONS
-    public void setRestTime(int min, int sec, boolean flag) {
+    private void updateRestTimeUI(int min, int sec, boolean flag){
         if(flag){
             mRestEntry.setText(R.string.none_text);
-        }else if( sec == 0 ){
+        }else if(sec == 0){
             mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
-        } else if ( (sec % 10) == 0 ) {
-            mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ) {
+        } else if( sec < 10){
             mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }else {
+        }
+        else {
             mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
 
-        mRestTime = BaseApp.convertToMillis(min, sec);
+
     }
 
-    public void setBreakTime(int min, int sec, boolean flag) {
+    private void updateBreakTimeUI(int min, int sec, boolean flag){
         if(flag){
             mBreakEntry.setText(R.string.none_text);
-        }else if( sec == 0 ){
+        } else if(sec == 0){
             mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
-        } else if ( (sec % 10) == 0 ) {
-            mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ) {
+        } else if( sec < 10){
             mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }else {
+        }
+        else {
             mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
-
-        mBreakTime = BaseApp.convertToMillis(min, sec);
     }
     //endregion
 
-    //region UTILITY
-    private void updateUserSet(int index, String name, String descrip, int min, int sec){
-        Set set = mTypedSetList.get(0).get(index);
-        Log.d(DEBUG_TAG, "Old Name: " + set.getName() + " | New Name: " + name);
-        set.setName(name);
-        set.setDescrip(descrip);
-        set.setTime(BaseApp.convertToMillis(min, sec));
-        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
-        mListener.applyUserSet(set);
-    }
-
-    private void deleteSetConfirmation(final Set set, final int index){
-        if(getContext() != null){
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
-            builder.setTitle("Delete Set")
-                    .setMessage("Are you sure you want to delete " + set.getName() + " ?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            deleteUserSet(index);
-                        }
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
-        }
-    }
-
-    private void deleteUserSet(int index){
-        mListener.removeUserSet(mTypedSetList.get(0).get(index));
-        if(mUsersSets.contains(mTypedSetList.get(0).get(index))){
-            mUsersSets.remove(mTypedSetList.get(0).get(index));
-        }
-        mTypedSetList.get(0).remove(index);
-        // Unmap set if it exists
-        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
-    }
-
-    private void openBottomSheet(Set set, int relativePos, int section, BottomSheetDialog.BottomSheetDialogListener listener){
-        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(), relativePos, section,
-                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity), BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
+    //region OPEN_FUNCTIONS
+    private void openBottomSheet(Set set, BottomSheetDialog.BottomSheetDialogListener listener){
+        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(),
+                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity),
+                BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, listener);
         dialog.setTargetFragment(mThis, 0);
         if(getFragmentManager() != null){
@@ -438,12 +408,16 @@ public class NewWorkoutFragment extends Fragment{
         }
     }
 
-    private void openDialog(int type, Set set, int relativePos, int section, AddEditSetDialog.AddEditSetDialogListener listener){
+    private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener){
         Bundle bundle = null;
-        if(set != null){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getName(), set.getDescrip(), set.getTime(), relativePos, section);
+        if( (type == AddEditSetDialog.NEW_SET) && set != null){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        } else if(type == AddEditSetDialog.EDIT_SET){
+            bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
+        } else if (type == AddEditSetDialog.DISPLAY_SET){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
         } else {
-            bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
+            throw new RuntimeException(DEBUG_TAG + "dialog type was invalid" + type);
         }
         AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
         dialog.setTargetFragment(mThis, 0);
@@ -474,34 +448,52 @@ public class NewWorkoutFragment extends Fragment{
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
+    //endregion
 
-    private void updateRestTimeUI(int min, int sec, boolean flag){
-        if(flag){
-            mRestEntry.setText(R.string.none_text);
-        }else if(sec == 0){
-            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
-        } else if( sec < 10){
-            mRestEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }
-        else {
-            mRestEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }
-
-
-    }
-
-    private void updateBreakTimeUI(int min, int sec, boolean flag){
-        if(flag){
-            mBreakEntry.setText(R.string.none_text);
-        } else if(sec == 0){
-            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
-        } else if( sec < 10){
-            mBreakEntry.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }
-        else {
-            mBreakEntry.setText(String.format(Locale.US, "%d:%d", min, sec));
+    //region DATA_FUNCTIONS
+    private void updateUserSet(Set set, String name, String descrip, int min, int sec){
+        if(set != null) {
+            set.setName(name);
+            set.setDescrip(descrip);
+            set.setTime(BaseApp.convertToMillis(min, sec));
+            mSetListFrags.get(0).updateSet(set);
+            mListener.applyUserSetToDB(set);
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " trying to update set, was null");
         }
     }
+
+    private void deleteUserSet(Set set){
+        mListener.removeUserSetFromDB(set);
+        mSetListFrags.get(0).removeSet(set);
+        mTypedSetList.get(0).remove(set);
+    }
+    //endregion
+
+    //region UTILITY
+    private void deleteSetConfirmation(final Set set){
+        if(getContext() != null){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+            builder.setTitle("Delete Set")
+                    .setMessage("Are you sure you want to delete " + set.getName() + " ?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.d(DEBUG_TAG, set.getName());
+                            deleteUserSet(set);
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        }
+    }
+    //endregion
+
+    //region SETTERS
+    public void setTypedList(List<List<Set>> sets){
+        mTypedSetList = sets;
+    }
+    //endregion
 
     public void saveWorkout(){
         boolean isOk = true;
@@ -510,7 +502,7 @@ public class NewWorkoutFragment extends Fragment{
         int restTime[] = {0, 0};
         int breakTime[] = {0, 0};
         int rounds = 0;
-        List<Set> setList = mUsersSets;
+        //List<Set> setList = mUsersSets;
         if(TextUtils.isEmpty(name)){
             mNameEntry.setError("Name can not be empty.");
             isOk = false;
@@ -545,12 +537,10 @@ public class NewWorkoutFragment extends Fragment{
             isOk = false;
         }
 
-
-
-        if(setList.isEmpty()){
-            Toast.makeText(mParentActivity, "Choose at least 1 set.", Toast.LENGTH_SHORT).show();
-            isOk = false;
-        }
+        //    if(setList.isEmpty()){
+        //        Toast.makeText(mParentActivity, "Choose at least 1 set.", Toast.LENGTH_SHORT).show();
+        //         isOk = false;
+        //  }
 
         if(isOk) {
             Workout workout = new Workout(mParentActivity.getNextWorkoutId(), name);
@@ -559,18 +549,10 @@ public class NewWorkoutFragment extends Fragment{
             workout.setNoBreakFlag(mBreakFlag);
             workout.setTimeBetweenSets(BaseApp.convertToMillis(restTime));
             workout.setTimeBetweenRounds(BaseApp.convertToMillis(breakTime));
-            workout.addSets(setList);
+            //workout.addSetsToWorkout(setList);
             mListener.addNewWorkout(workout);
         }
     }
-    //endregion
-
-    //region SETTERS
-    public void setTypedList(List<List<Set>> sets){
-        mTypedSetList = sets;
-    }
-    //endregion
-
 
 
 }

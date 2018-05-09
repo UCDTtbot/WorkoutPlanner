@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
@@ -41,7 +40,6 @@ public class AddNewSetFragment extends Fragment {
     //region PRIVATE_VARS
     // Data
     private List<List<Set>> mTypedSetList;
-    private List<Set> mSetsToAdd;
 
     private List<SetListFragment> mSetListFrags;
     // Adapters
@@ -63,9 +61,9 @@ public class AddNewSetFragment extends Fragment {
 
     public interface NewSetListener {
         // TODO: Update argument type and name
-        void addSets(List<Set> sets);
-        void applyUserSet(Set set);
-        void removeUserSet(Set set);
+        void addSetsToWorkout(List<Set> sets);
+        void applyUserSetToDB(Set set);
+        void removeUserSetFromDB(Set set);
     }
     private NewSetListener mListener;
 
@@ -120,7 +118,7 @@ public class AddNewSetFragment extends Fragment {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.addSets(mSetsToAdd);
+                //TODO: Get sets
             }
         });
 
@@ -149,7 +147,7 @@ public class AddNewSetFragment extends Fragment {
                 Log.d(DEBUG_TAG, "Left Adapter Default LongClicked Open Info");
                 openDialog(AddEditSetDialog.DISPLAY_SET, set, relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
                     @Override
-                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                    public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                         // Nothing
                     }
                 });
@@ -190,7 +188,7 @@ public class AddNewSetFragment extends Fragment {
                             case BaseApp.EDIT:
                                 openDialog(AddEditSetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
                                     @Override
-                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                                    public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                                         updateUserCreatedSet(index, name, descrip, min, sec);
                                     }
                                 });
@@ -213,7 +211,7 @@ public class AddNewSetFragment extends Fragment {
                 //TODO : Dialog must be updated
                 openDialog(AddEditSetDialog.NEW_SET, null, -1, section, new AddEditSetDialog.AddEditSetDialogListener() {
                     @Override
-                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
+                    public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                         //Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
                         //addUserCreatedSet(section, set);
                     }
@@ -240,62 +238,71 @@ public class AddNewSetFragment extends Fragment {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
         mSetListFrags = new ArrayList<>();
-        mSetsToAdd = new ArrayList<>();
         for(int i = 0; i < Set.TYPES.length; i++){
             boolean header = i == 0;
             SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
-                @Override
-                public void mapSet(Set set) {
-                    if(mSetsToAdd.contains(set)){
-                        Toast.makeText(getContext(), "Set is already mapped", Toast.LENGTH_SHORT).show();
-                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is already mapped ");
-                    } else {
-                        mSetsToAdd.add(set);
-                        for(Set sets : mSetsToAdd){
-                            Log.d(DEBUG_TAG, set.getName());
-                        }
-                    }
-                }
 
                 @Override
-                public void unmapSet(Set set) {
-                    if(mSetsToAdd.contains(set)){
-                        mSetsToAdd.remove(set);
-                        for(Set sets : mSetsToAdd){
-                            Log.d(DEBUG_TAG, set.getName());
-                        }
-                    } else {
-                        Toast.makeText(getContext(), "Set isn't mapped", Toast.LENGTH_SHORT).show();
-                        Log.e(DEBUG_TAG, "Set " + set.getName() + " is not mapped ");
-                    }
-                }
-
-                @Override
-                public void applyUserSet(Set set) {
-                    mListener.applyUserSet(set);
-                }
-
-                @Override
-                public void openBottomSheet(final Set set, int pos) {
-                    AddNewSetFragment.this.openBottomSheet(set, pos, 0, new BottomSheetDialog.BottomSheetDialogListener() {
+                public void openBottomSheet(final Set set) {
+                    AddNewSetFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
                         @Override
-                        public void bottomSheetResult(int resultCode, int index, int section) {
-                            Log.d(DEBUG_TAG, "Result: " + resultCode);
+                        public void bottomSheetResult(int resultCode) {
                             if(resultCode == BaseApp.EDIT){
-                                openDialog(AddEditSetDialog.EDIT_SET, set, index, -1, new AddEditSetDialog.AddEditSetDialogListener() {
+                                openDialog(AddEditSetDialog.EDIT_SET, set, new AddEditSetDialog.AddEditSetDialogListener() {
                                     @Override
-                                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                                        updateUserSet(index, name, descrip, min, sec);
+                                    public void newSet(String name, String descrip, int min, int sec) {
+                                        throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
+                                    }
+
+                                    @Override
+                                    public void editSet(int id, String name, String descrip, int min, int sec) {
+                                        if(id == set.getSetId()){
+                                            updateUserSet(set, name, descrip, min, sec);
+                                        }
                                     }
                                 });
-
-                            } else if (resultCode == BaseApp.DELETE){
-                                //TODO: Confirmation
-                                deleteSetConfirmation(mTypedSetList.get(0).get(index), index);
+                            } else if (resultCode == BaseApp.DELETE) {
+                                deleteSetConfirmation(set);
+                            } else {
+                                Log.e(DEBUG_TAG, "Invalid Result Code " + resultCode);
                             }
-                            //BaseApp Results
                         }
                     });
+                }
+
+                @Override
+                public void openSetDialog(int type, final Set set) {
+                    if(type == AddEditSetDialog.NEW_SET){
+                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
+                            @Override
+                            public void newSet(String name, String descrip, int min, int sec) {
+                                Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
+                                mSetListFrags.get(0).addSet(set);
+                                mListener.applyUserSetToDB(set);
+                            }
+
+                            @Override
+                            public void editSet(int id, String name, String descrip, int min, int sec) {
+                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
+                            }
+                        });
+                    } else if (type == AddEditSetDialog.EDIT_SET) {
+                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
+                            @Override
+                            public void newSet(String name, String descrip, int min, int sec) {
+                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
+                            }
+
+                            @Override
+                            public void editSet(int id, String name, String descrip, int min, int sec) {
+                                updateUserSet(set, name, descrip, min, sec);
+                            }
+                        });
+                    } else if (type == AddEditSetDialog.DISPLAY_SET) {
+                        openDialog(type, set, null);
+                    } else {
+                        throw new RuntimeException(DEBUG_TAG + " invalid AddEditSetDialog type");
+                    }
                 }
             });
             adapter.addFragment(frag, Set.TYPES[i]);
@@ -362,73 +369,30 @@ public class AddNewSetFragment extends Fragment {
     }
     //endregion
 
-    //region SETTERS
-    private void setListener(NewSetListener listener){
-        mListener = listener;
-    }
 
-    public void setTypedSets(List<List<Set>> sets){
-        mTypedSetList = sets;
-    }
 
-    private void updateUserSet(int index, String name, String descrip, int min, int sec){
-        Set set = mTypedSetList.get(0).get(index);
-        Log.d(DEBUG_TAG, "Old Name: " + set.getName() + " | New Name: " + name);
-        set.setName(name);
-        set.setDescrip(descrip);
-        set.setTime(BaseApp.convertToMillis(min, sec));
-        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
-        mListener.applyUserSet(set);
-    }
-
-    private void deleteUserSet(int index){
-        mListener.removeUserSet(mTypedSetList.get(0).get(index));
-        mTypedSetList.get(0).remove(index);
-        mSetListFrags.get(0).setSetList(mTypedSetList.get(0));
-    }
-
-    //endregion
-
-    //region UTILITY
-    private void addSetConfirmation(final Set set){
-        if(getContext() != null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
-            builder.setTitle("Add Set")
-                    .setMessage("Are you sure you want to add " + set.getName() + "?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mListener.addSets(mSetsToAdd);
-                        }
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
-
+    //region OPEN_FUNCTIONS
+    private void openBottomSheet(Set set, BottomSheetDialog.BottomSheetDialogListener listener){
+        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(),
+                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity),
+                BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
+        BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, listener);
+        dialog.setTargetFragment(mThis, 0);
+        if(getFragmentManager() != null){
+            dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
 
-    private void deleteSetConfirmation(final Set set, final int index){
-        if(getContext() != null){
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
-            builder.setTitle("Delete Set")
-                    .setMessage("Are you sure you want to delete " + set.getName() + " ?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            deleteUserSet(index);
-                        }
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
-        }
-    }
-
-    private void openDialog(int type, Set set, int relativePos, int section, AddEditSetDialog.AddEditSetDialogListener listener) {
+    private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener) {
         Bundle bundle = null;
-        if(set != null){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getName(), set.getDescrip(), set.getTime(), relativePos, section);
+        if( (type == AddEditSetDialog.NEW_SET) && set != null){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        } else if(type == AddEditSetDialog.EDIT_SET){
+            bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
+        } else if (type == AddEditSetDialog.DISPLAY_SET){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
         } else {
-            bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
+            throw new RuntimeException(DEBUG_TAG + "dialog type was invalid" + type);
         }
         AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
         dialog.setTargetFragment(mThis, 0);
@@ -437,16 +401,55 @@ public class AddNewSetFragment extends Fragment {
         }
     }
 
-    private void openBottomSheet(Set set, int relativePos, int section, BottomSheetDialog.BottomSheetDialogListener listener){
-        Bundle bundle = BottomSheetDialog.getBottomSheetBundle(set.getName(), relativePos, section,
-                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity), BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
-        BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, listener);
-        dialog.setTargetFragment(mThis, 0);
-        if(getFragmentManager() != null){
-            dialog.show(getFragmentManager(), DEBUG_TAG);
+    //endregion
+
+    //region DATA_FUNCTIONS
+    private void updateUserSet(Set set, String name, String descrip, int min, int sec){
+        if(set != null) {
+            set.setName(name);
+            set.setDescrip(descrip);
+            set.setTime(BaseApp.convertToMillis(min, sec));
+            mSetListFrags.get(0).updateSet(set);
+            mListener.applyUserSetToDB(set);
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " trying to update set, was null");
         }
     }
 
+    private void deleteUserSet(Set set){
+        mListener.removeUserSetFromDB(set);
+        mSetListFrags.get(0).removeSet(set);
+        mTypedSetList.get(0).remove(set);
+    }
+
+    //endregion
+
+    //region UTILITY
+    private void deleteSetConfirmation(final Set set){
+        if(getContext() != null){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+            builder.setTitle("Delete Set")
+                    .setMessage("Are you sure you want to delete " + set.getName() + " ?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteUserSet(set);
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        }
+    }
+    //endregion
+
+    //region SETTERS
+    private void setListener(NewSetListener listener){
+        mListener = listener;
+    }
+
+    public void setTypedSets(List<List<Set>> sets){
+        mTypedSetList = sets;
+    }
     //endregion
 
 

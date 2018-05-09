@@ -547,7 +547,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mAddNewSetFragment = AddNewSetFragment.newInstance(mTypedSets, new AddNewSetFragment.NewSetListener() {
             @Override
-            public void addSets(List<Set> sets) {
+            public void addSetsToWorkout(List<Set> sets) {
                 if(sets != null) {
                     for (Set set : sets) {
                         mWorkoutData.addSet(set);
@@ -558,12 +558,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
 
             @Override
-            public void applyUserSet(Set set) {
+            public void applyUserSetToDB(Set set) {
                 mSetViewModel.insert(set);
             }
 
             @Override
-            public void removeUserSet(Set set) {
+            public void removeUserSetFromDB(Set set) {
                 mSetViewModel.remove(set);
             }
         });
@@ -647,29 +647,35 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //endregion
 
     //region BOTTOM_SHEET
-    public void openBottomSheet(int setIndex){
-        Bundle args = BottomSheetDialog.getBottomSheetBundle(mSetList.get(setIndex).getName(), setIndex, 0,
-                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(this), BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
+    public void openBottomSheet(final int setIndex){
+        Bundle args = BottomSheetDialog.getBottomSheetBundle(mSetList.get(setIndex).getName(),
+                BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(this),
+                BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
         BottomSheetDialog bottomSheetDialog = BottomSheetDialog.newInstance(args, new BottomSheetDialog.BottomSheetDialogListener() {
             @Override
-            public void bottomSheetResult(int resultCode, int index, int section) {
+            public void bottomSheetResult(int resultCode) {
                 switch (resultCode){
                     case BaseApp.EDIT:
-                        openDialog(AddEditSetDialog.EDIT_SET, mSetList.get(index), index, 0, new AddEditSetDialog.AddEditSetDialogListener() {
+                        openDialog(AddEditSetDialog.EDIT_SET, mSetList.get(setIndex),new AddEditSetDialog.AddEditSetDialogListener() {
                             @Override
-                            public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                                Set editSet = mSetList.get(index);
+                            public void newSet(String name, String descrip, int min, int sec) {
+
+                            }
+
+                            @Override
+                            public void editSet(int id, String name, String descrip, int min, int sec) {
+                                Set editSet = mSetList.get(setIndex);
                                 editSet.setName(name);
                                 editSet.setTime(BaseApp.convertToMillis(min, sec));
                                 editSet.setDescrip(descrip);
-                                mWorkoutData.updateSet(editSet, index);
+                                mWorkoutData.updateSet(editSet, setIndex);
                                 mWorkoutViewModel.update(mWorkoutData);
                                 mSetAdapter.notifyDataSetChanged();
                             }
                         });
                         break;
                     case BaseApp.DELETE:
-                        mSetAdapter.pendingRemoval(index);
+                        mSetAdapter.pendingRemoval(setIndex);
                         break;
                     case BaseApp.DUPLCIATE:
                         break;
@@ -685,12 +691,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mWorkoutViewModel.update(mWorkoutData);
     }
 
-    private void openDialog(int type, Set set, int relativePos, int section, AddEditSetDialog.AddEditSetDialogListener listener){
+    private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener){
         Bundle bundle = null;
-        if(set != null){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getName(), set.getDescrip(), set.getTime(), relativePos, section);
+        if( (type == AddEditSetDialog.NEW_SET) && set != null){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        } else if(type == AddEditSetDialog.EDIT_SET){
+            bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
+        } else if (type == AddEditSetDialog.DISPLAY_SET){
+            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
         } else {
-            bundle = AddEditSetDialog.getDialogBundle(type, "", "", -1, relativePos, section);
+            throw new RuntimeException(DEBUG_TAG + "dialog type was invalid" + type);
         }
         AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
         if (getFragmentManager() != null) {

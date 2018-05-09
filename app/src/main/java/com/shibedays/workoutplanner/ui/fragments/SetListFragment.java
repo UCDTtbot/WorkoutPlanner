@@ -42,10 +42,8 @@ public class SetListFragment extends Fragment {
 
 
     public interface SetListListener {
-        void mapSet(Set set);
-        void unmapSet(Set set);
-        void applyUserSet(Set set);
-        void openBottomSheet(Set set, int pos);
+        void openBottomSheet(Set set);
+        void openSetDialog(int type, Set set);
     }
     private SetListListener mListener;
 
@@ -86,45 +84,19 @@ public class SetListFragment extends Fragment {
         mListView.setLayoutManager(new LinearLayoutManager(getContext()));
         //mListView.setLayoutManager(new GridLayoutManager(getContext(), NUM_GRID_ROWS));
         mAdapter = new ChooseSetAdapter(getContext(), mIncludeHeader, new ChooseSetAdapter.ChooseSetListener() {
-
-
             @Override
             public void createSet() {
-                Bundle args = AddEditSetDialog.getDialogBundle(AddEditSetDialog.NEW_SET, "", "", 0, 0, 0);
-                AddEditSetDialog dialog = AddEditSetDialog.newInstance(args, new AddEditSetDialog.AddEditSetDialogListener() {
-                    @Override
-                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                        Log.d(DEBUG_TAG, dialogType + " " + name + " " + section + " " + index);
-                        Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
-                        mListener.applyUserSet(set);
-                        mSetList.add(set);
-                        mAdapter.notifyDataSetChanged();
-                    }
-                });
-                dialog.setTargetFragment(mThis, 0);
-                if (getFragmentManager() != null) {
-                    dialog.show(getFragmentManager(), DEBUG_TAG);
-                }
+                mListener.openSetDialog(AddEditSetDialog.NEW_SET, null);
             }
 
             @Override
             public void openBottomSheet(Set set) {
-                mListener.openBottomSheet(set, mSetList.indexOf(set));
+                mListener.openBottomSheet(set);
             }
 
             @Override
             public void openDisplayInfo(Set set) {
-                Bundle args = AddEditSetDialog.getDialogBundle(AddEditSetDialog.DISPLAY_SET, set.getName(), set.getDescrip(), set.getTime(), 0, 0);
-                AddEditSetDialog dialog = AddEditSetDialog.newInstance(args, new AddEditSetDialog.AddEditSetDialogListener() {
-                    @Override
-                    public void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                        Log.d(DEBUG_TAG, "Closing display");
-                    }
-                });
-                dialog.setTargetFragment(mThis, 0);
-                if (getFragmentManager() != null) {
-                    dialog.show(getFragmentManager(), DEBUG_TAG);
-                }
+                mListener.openSetDialog(AddEditSetDialog.DISPLAY_SET, set);
             }
         });
         mListView.setAdapter(mAdapter);
@@ -154,12 +126,34 @@ public class SetListFragment extends Fragment {
         mListener = listener;
     }
 
-    public void setSetList(List<Set> list){
+    private void setSetList(List<Set> list){
         mSetList = list;
         if(mAdapter != null) {
             mAdapter.setData(mSetList);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    public void addSet(Set set){
+        mSetList.add(set);
+        mAdapter.addMapping(set);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public void updateSet(Set set){
+        mSetList.set(mSetList.indexOf(set), set);
+    }
+
+    public void removeSet(Set set){
+        mAdapter.removeMapping(set);
+        int i = mSetList.indexOf(set);
+        mSetList.remove(set);
+        mAdapter.notifyItemRemoved(i);
+
+    }
+
+    public List<Set> getSelectedSets(){
+        return mAdapter.getMappedSets();
     }
 
     private void setHeader(boolean header){
