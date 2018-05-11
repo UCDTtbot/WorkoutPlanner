@@ -25,7 +25,7 @@ public class Set {
     //workout info coming from go4life.nia.nih.gov
     //make sure to source more info
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo(name = "id")
     private int setId;
     private int setType;
@@ -39,7 +39,8 @@ public class Set {
         time = 1000;
     }
 
-    public Set(String name, String descrip, int type, int time){
+    public Set(int id, String name, String descrip, int type, int time){
+        this.setId = id;
         this.name = name;
         this.setType = type;
         this.descrip = descrip;

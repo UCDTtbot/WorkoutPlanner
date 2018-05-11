@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 
-@Database(entities = {Workout.class, Set.class}, version = 5)
+@Database(entities = {Workout.class, Set.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -39,6 +39,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_2_3)
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
+                            .addMigrations(MIGRATION_5_6)
                             .addCallback(sAppDatabaseCallback)
                             .build();
                 }
@@ -72,33 +73,33 @@ public abstract class AppDatabase extends RoomDatabase {
             Workout running = new Workout(1, "Run and Walk");
             running.setNoRestFlag(true);
             running.setNoBreakFlag(true);
-            Set run = new Set("Light Jog", "Jog at a comfortable pace", Set.ENDURANCE, 90000);
-            Set walk = new Set("Brisk Walk", "Walk at a brisk pace to relax", Set.ENDURANCE, 30000);
+            Set run = new Set(0, "Light Jog", "Jog at a comfortable pace", Set.ENDURANCE, 90000);
+            Set walk = new Set(1, "Brisk Walk", "Walk at a brisk pace to relax", Set.ENDURANCE, 30000);
             running.addSet(run);
             running.addSet(walk);
             mWorkoutDao.insert(running);
 
             // User Created
-            mSetDao.insert(new Set("Header Dummy", "This shouldn't be addable", Set.USER_CREATED, 0));
-            mSetDao.insert(new Set("Custom Set", "Custom set created by the user.", Set.USER_CREATED, 60000));
+            mSetDao.insert(new Set(2, "Header Dummy", "This shouldn't be addable", Set.USER_CREATED, 0));
+            mSetDao.insert(new Set(3, "Custom Set", "Custom set created by the user.", Set.USER_CREATED, 60000));
             // Endurance
             mSetDao.insert(run);
             mSetDao.insert(walk);
 
             // Strength
-            mSetDao.insert(new Set("Pushups", "Back straight and arms in line with shouldars", Set.STRENGTH, 45000));
-            mSetDao.insert(new Set("Situps", "Arms across chest, use your core to rise to your knees", Set.STRENGTH, 45000));
-            mSetDao.insert(new Set("Plank", "Get in a pushup position. Rest your elbows on the floor and hold this position", Set.STRENGTH, 60000));
+            mSetDao.insert(new Set(4, "Pushups", "Back straight and arms in line with shouldars", Set.STRENGTH, 45000));
+            mSetDao.insert(new Set(5, "Situps", "Arms across chest, use your core to rise to your knees", Set.STRENGTH, 45000));
+            mSetDao.insert(new Set(6, "Plank", "Get in a pushup position. Rest your elbows on the floor and hold this position", Set.STRENGTH, 60000));
 
             // Balance
-            mSetDao.insert(new Set("One foot stand", "Stand on one foot, with other leg tucked in, resting your foot on your inner thigh", Set.BALANCE, 60000));
+            mSetDao.insert(new Set(7, "One foot stand", "Stand on one foot, with other leg tucked in, resting your foot on your inner thigh", Set.BALANCE, 60000));
 
             // Flexibility
-            mSetDao.insert(new Set("Yoda Dog Pose", "Do the yoga dog pose thing, UPDATE THIS", Set.FLEXIBILITY, 45000));
+            mSetDao.insert(new Set(8, "Yoda Dog Pose", "Do the yoga dog pose thing, UPDATE THIS", Set.FLEXIBILITY, 45000));
 
             // Other
-            mSetDao.insert(new Set("Study", "Focus on studying with no distractions", Set.OTHER, 900000));
-            mSetDao.insert(new Set("Study Break", "Take a break from studying. Take a walk, get a drink, use the restroom", Set.OTHER, 300000));
+            mSetDao.insert(new Set(9, "Study", "Focus on studying with no distractions", Set.OTHER, 900000));
+            mSetDao.insert(new Set(10, "Study Break", "Take a break from studying. Take a walk, get a drink, use the restroom", Set.OTHER, 300000));
 
             return null;
         }
@@ -122,6 +123,19 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE sets ADD COLUMN setType INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+
+            database.execSQL("CREATE TABLE sets_new (id INTEGER NOT NULL, setType INTEGER NOT NULL, " +
+                    "name TEXT, descrip TEXT, time INTEGER NOT NULL, PRIMARY KEY(id))");
+            database.execSQL("INSERT INTO sets_new (id, setType, name, descrip, time) SELECT id, setType, name, descrip, " +
+                    "time FROM sets");
+            database.execSQL("DROP TABLE sets");
+            database.execSQL("ALTER TABLE sets_new RENAME TO sets");
         }
     };
 

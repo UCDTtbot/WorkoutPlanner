@@ -6,12 +6,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.ChooseSetAdapter;
@@ -42,8 +40,8 @@ public class SetListFragment extends Fragment {
 
 
     public interface SetListListener {
-        void openBottomSheet(Set set);
-        void openSetDialog(int type, Set set);
+        void openBottomSheet(int setID);
+        void openSetDialog(int type, int setID);
     }
     private SetListListener mListener;
 
@@ -54,7 +52,7 @@ public class SetListFragment extends Fragment {
 
     public static SetListFragment newInstance(List<Set> setList, boolean header, SetListListener listener) {
         SetListFragment fragment = new SetListFragment();
-        fragment.setSetList(setList);
+        fragment.setData(setList);
         fragment.setListener(listener);
         fragment.setHeader(header);
         return fragment;
@@ -86,17 +84,17 @@ public class SetListFragment extends Fragment {
         mAdapter = new ChooseSetAdapter(getContext(), mIncludeHeader, new ChooseSetAdapter.ChooseSetListener() {
             @Override
             public void createSet() {
-                mListener.openSetDialog(AddEditSetDialog.NEW_SET, null);
+                mListener.openSetDialog(AddEditSetDialog.NEW_SET, -1);
             }
 
             @Override
-            public void openBottomSheet(Set set) {
-                mListener.openBottomSheet(set);
+            public void openBottomSheet(int setID) {
+                mListener.openBottomSheet(setID);
             }
 
             @Override
-            public void openDisplayInfo(Set set) {
-                mListener.openSetDialog(AddEditSetDialog.DISPLAY_SET, set);
+            public void openDisplayInfo(int setID) {
+                mListener.openSetDialog(AddEditSetDialog.DISPLAY_SET, setID);
             }
         });
         mListView.setAdapter(mAdapter);
@@ -126,17 +124,15 @@ public class SetListFragment extends Fragment {
         mListener = listener;
     }
 
-    private void setSetList(List<Set> list){
+    public void setData(List<Set> list){
         mSetList = list;
         if(mAdapter != null) {
             mAdapter.setData(mSetList);
-            mAdapter.notifyDataSetChanged();
         }
     }
 
     public void addSet(Set set){
         mSetList.add(set);
-        mAdapter.addMapping(set);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -145,11 +141,14 @@ public class SetListFragment extends Fragment {
     }
 
     public void removeSet(Set set){
-        mAdapter.removeMapping(set);
         int i = mSetList.indexOf(set);
         mSetList.remove(set);
         mAdapter.notifyItemRemoved(i);
 
+    }
+
+    public void notifyData(){
+        mAdapter.notifyDataSetChanged();
     }
 
     public List<Set> getSelectedSets(){

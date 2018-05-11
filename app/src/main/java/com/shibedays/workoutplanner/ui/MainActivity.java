@@ -44,8 +44,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     // Package and Debug Constants
     private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MainActivity.";
-    private static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
-    private static int NEXT_WORKOUT_ID;
+    public static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
     //endregion
 
     //region INTENT_KEYS
@@ -55,7 +54,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     //region PREF_KEYS
     //KEY_FOO
     private static final String KEY_VERSION_CODE = PACKAGE + "VersionCode";
-    private static final String KEY_NEXT_WORKOUT_NUM = PACKAGE + "NextWorkoutNum";
+    public static final String KEY_NEXT_WORKOUT_NUM = PACKAGE + "NextWorkoutNum";
+    public static final String KEY_NEXT_SET_NUM = PACKAGE + "NextSetNum";
     //endregion
 
     //region PRIVATE_VARS
@@ -112,17 +112,21 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             int savedVersionCode = mPrivateSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
             if(savedVersionCode == currentVersionCode){
                 // Normal Run
-                NEXT_WORKOUT_ID = mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, DATA_DOESNT_EXIST);
-                if(NEXT_WORKOUT_ID == DATA_DOESNT_EXIST){
+                BaseApp.setWorkoutID(mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, DATA_DOESNT_EXIST));
+                BaseApp.setSetID(mPrivateSharedPrefs.getInt(KEY_NEXT_SET_NUM, DATA_DOESNT_EXIST));
+                if(BaseApp.getNextWorkoutID() == DATA_DOESNT_EXIST){
                     Log.e(DEBUG_TAG, "NEXT WORKOUT NUM DATA DOESN'T EXIST");
-                    NEXT_WORKOUT_ID = mWorkoutData.size() + 1;
+                    BaseApp.setWorkoutID(mWorkoutData.size() + 1);
                 }
+
             }else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
-                NEXT_WORKOUT_ID = 2;
+                BaseApp.setWorkoutID(1);
+                BaseApp.setSetID(50);
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
-                editor.putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID);
+                editor.putInt(KEY_NEXT_WORKOUT_NUM, BaseApp.getNextWorkoutID());
+                editor.putInt(KEY_NEXT_SET_NUM, BaseApp.getNextSetID());
                 editor.apply();
             }else if (savedVersionCode < currentVersionCode){
                 // Updated run
@@ -215,6 +219,19 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             });
         }
 
+        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+                if(sets != null) {
+                    if(!sets.isEmpty()) {
+                        if(BaseApp.getNextSetID() == DATA_DOESNT_EXIST) {
+                            BaseApp.setSetID(sets.size() + 1);
+                        }
+                    }
+                }
+            }
+        });
+
         Log.d(DEBUG_TAG, "Added data");
 
         //endregion
@@ -305,10 +322,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     //endregion
 
     //region UTILITY
-    public int getNextWorkoutId(){
-        return NEXT_WORKOUT_ID;
-    }
-
     public void renameTitle(int stringId){
         setTitle(stringId);
     }
@@ -343,8 +356,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     @Override
     public void addNewWorkout(Workout workout) {
-        NEXT_WORKOUT_ID++;
-        mPrivateSharedPrefs.edit().putInt(KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
+        BaseApp.incrementWorkoutID(getApplicationContext());
         mWorkoutViewModel.insert(workout);
         View view = this.getCurrentFocus();
         if(view != null) {
@@ -392,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                         mWorkoutAdapter.pendingRemoval(workoutIndex);
                         break;
                     case BaseApp.DUPLCIATE:
-                        Workout newWorkout = new Workout(NEXT_WORKOUT_ID, mWorkoutData.get(workoutIndex));
+                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), mWorkoutData.get(workoutIndex));
                         addNewWorkout(newWorkout);
                         break;
                     default:

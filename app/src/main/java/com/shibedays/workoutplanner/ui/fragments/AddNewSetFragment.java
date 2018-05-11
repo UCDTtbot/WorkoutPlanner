@@ -243,7 +243,9 @@ public class AddNewSetFragment extends Fragment {
             SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
 
                 @Override
-                public void openBottomSheet(final Set set) {
+                public void openBottomSheet(int setID) {
+                    final Set set = getSetByID(setID);
+                    if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
                     AddNewSetFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
                         @Override
                         public void bottomSheetResult(int resultCode) {
@@ -271,14 +273,19 @@ public class AddNewSetFragment extends Fragment {
                 }
 
                 @Override
-                public void openSetDialog(int type, final Set set) {
+                public void openSetDialog(int type, int setID) {
+
+                    final Set set = getSetByID(setID);
+
                     if(type == AddEditSetDialog.NEW_SET){
                         openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
                             @Override
                             public void newSet(String name, String descrip, int min, int sec) {
-                                Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
-                                mSetListFrags.get(0).addSet(set);
-                                mListener.applyUserSetToDB(set);
+                                Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
+                                BaseApp.incrementSetID(getContext());
+                                mSetListFrags.get(0).addSet(newSet);
+                                mTypedSetList.get(0).add(newSet);
+                                mListener.applyUserSetToDB(newSet);
                             }
 
                             @Override
@@ -385,9 +392,9 @@ public class AddNewSetFragment extends Fragment {
 
     private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener) {
         Bundle bundle = null;
-        if( (type == AddEditSetDialog.NEW_SET) && set != null){
+        if( (type == AddEditSetDialog.EDIT_SET) && set != null){
             bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else if(type == AddEditSetDialog.EDIT_SET){
+        } else if(type == AddEditSetDialog.NEW_SET){
             bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
         } else if (type == AddEditSetDialog.DISPLAY_SET){
             bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
@@ -439,6 +446,14 @@ public class AddNewSetFragment extends Fragment {
                     .setNegativeButton("No", null)
                     .show();
         }
+    }
+
+    private Set getSetByID(int setID){
+        for(Set s : mTypedSetList.get(0)){
+            if (s.getSetId() == setID) return s;
+        }
+
+        return null;
     }
     //endregion
 
