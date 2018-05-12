@@ -17,6 +17,8 @@ import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,6 +48,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
             mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    mCheckedMap.put(currentSet, b);
                 }
             });
             mTextViewName = itemView.findViewById(R.id.choose_set_name);
@@ -62,7 +65,11 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
             }
             currentSet = curSet;
 
-            //mCheckBox.setChecked(mCheckedMap.get(currentSet));
+            if(mCheckedMap.containsKey(currentSet)){
+                mCheckBox.setChecked(mCheckedMap.get(currentSet));
+            } else {
+                mCheckBox.setChecked(false);
+            }
             mTextViewName.setText(currentSet.getName());
 
             int[] time = BaseApp.convertFromMillis(currentSet.getTime());
@@ -119,6 +126,8 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     private Context mContext;
     // FLAGS
     private boolean mHeader;
+    // Map
+    private HashMap<Set, Boolean> mCheckedMap;
     //endregion
 
     //region INTERFACES
@@ -135,6 +144,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
         mContext = context;
         mListener = listener;
         mHeader = header;
+        mCheckedMap = new HashMap<>();
     }
 
     @NonNull
@@ -162,11 +172,25 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
 
     public void setData(List<Set> data){
         mSetData = data;
+        for(Set s : mSetData){
+            if(!mCheckedMap.containsKey(s)){
+                mCheckedMap.put(s, false);
+            }
+        }
         notifyDataSetChanged();
     }
 
+    public void removeMapping(Set set){
+        mCheckedMap.remove(set);
+    }
+
     public List<Set> getMappedSets(){
-        return null;
+        List<Set> selectedSets = new ArrayList<>();
+        for(Set s : mCheckedMap.keySet()){
+            if(mCheckedMap.get(s))
+                selectedSets.add(s);
+        }
+        return selectedSets;
     }
     //endregion
 

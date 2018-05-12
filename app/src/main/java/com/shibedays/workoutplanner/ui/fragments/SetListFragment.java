@@ -142,6 +142,7 @@ public class SetListFragment extends Fragment {
 
     public void removeSet(Set set){
         int i = mSetList.indexOf(set);
+        mAdapter.removeMapping(set);
         mSetList.remove(set);
         mAdapter.notifyItemRemoved(i);
 

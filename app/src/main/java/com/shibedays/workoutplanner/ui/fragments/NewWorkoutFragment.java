@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
@@ -274,6 +275,9 @@ public class NewWorkoutFragment extends Fragment{
         });
 
         mRestEntry = view.findViewById(R.id.rest_entry_time);
+        mRestTime = 15000;
+        int[] rtime = BaseApp.convertFromMillis(mRestTime);
+        updateRestTimeUI(rtime[0], rtime[1], false);
         mRestEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -282,6 +286,9 @@ public class NewWorkoutFragment extends Fragment{
         });
 
         mBreakEntry = view.findViewById(R.id.break_entry_time);
+        mBreakTime = 60000;
+        int[] btime = BaseApp.convertFromMillis(mBreakTime);
+        updateBreakTimeUI(btime[0], btime[1], false);
         mBreakEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -468,6 +475,7 @@ public class NewWorkoutFragment extends Fragment{
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
             mSetListFrags.get(0).updateSet(set);
+            mTypedSetList.get(0).set(mTypedSetList.get(0).indexOf(set), set);
             mListener.applyUserSetToDB(set);
         } else {
             throw new RuntimeException(DEBUG_TAG + " trying to update set, was null");
@@ -518,27 +526,21 @@ public class NewWorkoutFragment extends Fragment{
         boolean isOk = true;
 
         String name = mNameEntry.getText().toString();
-        int restTime[] = {0, 0};
-        int breakTime[] = {0, 0};
+        int restTime[] = BaseApp.convertFromMillis(mRestTime);
+        int breakTime[] = BaseApp.convertFromMillis(mBreakTime);
         int rounds = 0;
-        //List<Set> setList = mUsersSets;
+        List<Set> selectedSets = new ArrayList<>();
         if(TextUtils.isEmpty(name)){
             mNameEntry.setError("Name can not be empty.");
             isOk = false;
         }
 
         if(restTime[0] == 0 && restTime[1] == 0){
-            restTime = BaseApp.convertFromMillis(0);
             mRestFlag = true;
-        } else {
-            restTime = BaseApp.convertFromMillis(mRestTime);
         }
 
         if(breakTime[0] == 0 && breakTime[1] == 0){
-            breakTime = BaseApp.convertFromMillis(0);
             mBreakFlag = true;
-        } else {
-            breakTime = BaseApp.convertFromMillis(mBreakTime);
         }
 
 
@@ -556,10 +558,16 @@ public class NewWorkoutFragment extends Fragment{
             isOk = false;
         }
 
-        //    if(setList.isEmpty()){
-        //        Toast.makeText(mParentActivity, "Choose at least 1 set.", Toast.LENGTH_SHORT).show();
-        //         isOk = false;
-        //  }
+        for(SetListFragment frag : mSetListFrags){
+            List<Set> setList = frag.getSelectedSets();
+            if(setList != null){
+                selectedSets.addAll(setList);
+            }
+        }
+        if(selectedSets.isEmpty()){
+            Toast.makeText(mParentActivity, "Choose at least 1 set.", Toast.LENGTH_SHORT).show();
+            isOk = false;
+        }
 
         if(isOk) {
             Workout workout = new Workout(BaseApp.getNextWorkoutID(), name);
@@ -568,7 +576,7 @@ public class NewWorkoutFragment extends Fragment{
             workout.setNoBreakFlag(mBreakFlag);
             workout.setTimeBetweenSets(BaseApp.convertToMillis(restTime));
             workout.setTimeBetweenRounds(BaseApp.convertToMillis(breakTime));
-            //workout.addSetsToWorkout(setList);
+            workout.addSets(selectedSets);
             mListener.addNewWorkout(workout);
         }
     }
