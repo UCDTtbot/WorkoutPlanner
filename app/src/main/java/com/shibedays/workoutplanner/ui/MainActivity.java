@@ -225,7 +225,22 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         // Setup the adapter with correct data
-        mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout));
+        mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout), new WorkoutRowAdapter.WorkoutRowListener() {
+            @Override
+            public void onWorkoutClicked(int workoutIndex, int type) {
+                openWorkout(type, workoutIndex);
+            }
+
+            @Override
+            public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
+                openBottomSheet(type, workoutIndex);
+            }
+
+            @Override
+            public void deleteFromDB(Workout workout) {
+                deleteWorkoutFromDB(workout);
+            }
+        });
         mRecyclerView.setAdapter(mWorkoutRowAdapter);
         mWorkoutRowAdapter.notifyDataSetChanged();
 
@@ -415,7 +430,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
 
     //region OPEN_WORKOUT
-    public void openWorkout(int workoutID){
+    public void openWorkout(int type, int workoutID){
+        //TODO : UPDATE TYPE
         Intent intent = new Intent(this, MyWorkoutActivity.class);
         intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
         intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
@@ -434,8 +450,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                     case BaseApp.EDIT:
                         throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
                     case BaseApp.DELETE:
-                        //TODO redo deletion
-                        //mWorkoutRowAdapter.pendingRemoval(workoutIndex);
+                        mWorkoutRowAdapter.pendingRemoval(type, workoutIndex);
                         break;
                     case BaseApp.DUPLCIATE:
                         Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), mTypedWorkouts.get(type).get(workoutIndex));

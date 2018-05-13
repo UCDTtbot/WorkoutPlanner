@@ -17,10 +17,16 @@ import android.widget.Toast;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.WorkoutRowHolder> {
 
+    //region CONSTANTS
+    // Package and Debug Constants
+    private static final String DEBUG_TAG = WorkoutRowAdapter.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter.";
+    //endregion
 
     public class WorkoutRowHolder extends RecyclerView.ViewHolder{
 
@@ -41,11 +47,23 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
     private List<List<Workout>> mTypedWorkouts;
     private CoordinatorLayout mCoordLayout;
+    private List<WorkoutItemAdapter> mAdapters;
     private Context mContext;
 
-    public WorkoutRowAdapter(Context context, CoordinatorLayout coord){
+    //region INTERFACES
+    public interface WorkoutRowListener{
+        void onWorkoutClicked(int workoutIndex, int type);
+        void onWorkoutLongClick(int workoutIndex, int workoutID, int type);
+        void deleteFromDB(Workout workout);
+    }
+    private WorkoutRowListener mListener;
+    //endregion
+
+    public WorkoutRowAdapter(Context context, CoordinatorLayout coord, WorkoutRowListener listener){
         mContext = context;
         mCoordLayout = coord;
+        mAdapters = new ArrayList<>();
+        mListener = listener;
     }
 
     @NonNull
@@ -64,22 +82,23 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         WorkoutItemAdapter workoutItemAdapter = new WorkoutItemAdapter(mContext, mCoordLayout, mTypedWorkouts.get(position), new WorkoutItemAdapter.WorkoutAdapterListener() {
             @Override
             public void onWorkoutClicked(int workoutIndex, int type) {
-
+                mListener.onWorkoutClicked(workoutIndex, type);
             }
 
             @Override
             public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
-
+                mListener.onWorkoutLongClick(workoutIndex, workoutID, type);
             }
 
             @Override
             public void deleteFromDB(Workout workout) {
-
+                mListener.deleteFromDB(workout);
             }
         });
-
+        holder.workoutRecyclerView.setHasFixedSize(true);
         holder.workoutRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         holder.workoutRecyclerView.setAdapter(workoutItemAdapter);
+        mAdapters.add(workoutItemAdapter);
 
         holder.buttonMore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +115,19 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
     public void setData(List<List<Workout>> workouts){
         mTypedWorkouts = workouts;
+        notifyDataSetChanged();
+        if(mAdapters != null) {
+            int i = 0;
+            for (WorkoutItemAdapter a : mAdapters) {
+                if (a != null) {
+                    a.notifyDataSetChanged();
+                }
+            }
+        }
 
+    }
+
+    public void pendingRemoval(int type, int index){
+        mAdapters.get(type).pendingRemoval(index);
     }
 }

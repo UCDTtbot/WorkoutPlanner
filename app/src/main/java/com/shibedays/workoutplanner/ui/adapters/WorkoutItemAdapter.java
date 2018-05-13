@@ -35,7 +35,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
     public class WorkoutViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         // Data
-        private Workout curWorkout;
+        protected Workout curWorkout;
         // Foreground
         protected TextView itemName;
         protected ImageView itemImage;
@@ -49,13 +49,6 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             }
-
-        void bindTo(final Workout curWorkout, final int pos){
-            //Populate data when they bind the workouts to the view holder
-            this.curWorkout = curWorkout;
-
-            itemName.setText(curWorkout.getName());
-        }
 
         @Override
         public void onClick(View v) {
@@ -124,8 +117,9 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
     public void onBindViewHolder(@NonNull WorkoutViewHolder viewHolder, int position) {
         // Get the current data
         Workout currentWorkout = mWorkoutData.get(position);
+        viewHolder.curWorkout = mWorkoutData.get(position);
+        viewHolder.itemName.setText(mWorkoutData.get(position).getName());
         // Bind to the correct data
-        viewHolder.bindTo(currentWorkout, position);
     }
 
     //endregion
@@ -155,18 +149,18 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
 
     //region PENDING_DELETE
     @Override
-    public void pendingRemoval(final int swipedPos){
-        final Workout workout = mWorkoutData.get(swipedPos);
+    public void pendingRemoval(final int index){
+        final Workout workout = mWorkoutData.get(index);
         if(!mWorkoutsPendingRemoval.contains(workout)){
             mWorkoutsPendingRemoval.add(workout);
             final int pendingPos = mWorkoutsPendingRemoval.indexOf(workout);
-            mWorkoutData.remove(swipedPos);
-            notifyItemRemoved(swipedPos);
-            notifyItemRangeChanged(swipedPos, mWorkoutData.size());
+            mWorkoutData.remove(index);
+            notifyItemRemoved(index);
+            notifyItemRangeChanged(index, mWorkoutData.size());
             Runnable pendingRemovalRunnable = new Runnable(){
                 @Override
                 public void run() {
-                    deletePending(mWorkoutsPendingRemoval.indexOf(workout), swipedPos);
+                    deletePending(mWorkoutsPendingRemoval.indexOf(workout), index);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
@@ -176,7 +170,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
             undoBar.setAction("Undo", new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
-                    undo(swipedPos, pendingPos);
+                    undo(index, pendingPos);
                 }
             });
             undoBar.show();
