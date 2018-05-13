@@ -15,10 +15,16 @@ import java.util.List;
 @Dao
 public interface SetDao {
     @Query("SELECT * FROM sets")
-    LiveData<List<Set>> getll();
+    LiveData<List<Set>> getAll();
+
+    @Query("SELECT * FROM sets WHERE setType=:type")
+    LiveData<List<Set>> getTypedSets(int type);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Set set);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<Set> sets);
 
     @Update
     void update(Set set);

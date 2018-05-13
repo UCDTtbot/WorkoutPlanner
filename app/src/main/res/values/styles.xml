@@ -62,6 +62,8 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginTop">@dimen/activity_vertical_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_vertical_margin</item>
         <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
         <item name="android:inputType">textCapSentences</item>
     </style>
@@ -85,41 +87,40 @@
     </style>
 
     <style name="LinearEntryField">
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
         <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
         <item name="android:layout_marginTop">@dimen/activity_quarter_vertical_margin</item>
         <item name="android:layout_marginBottom">@dimen/activity_quarter_vertical_margin</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:weightSum">100</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="EntryTextTitle" parent="Base.TextAppearance.AppCompat.Subhead">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
         <item name="android:textSize">@dimen/text_size_normal</item>
-        <item name="android:layout_weight">80</item>
     </style>
 
     <style name="EditTextEntryField" parent="Base.TextAppearance.AppCompat.Body1">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/text_size_xnormal</item>
         <item name="android:gravity">center</item>
-        <item name="android:layout_weight">15</item>
         <item name="android:digits">0123456789</item>
         <item name="android:maxLines">1</item>
         <item name="android:imeOptions">actionDone</item>
     </style>
 
     <style name="TextEntryField" parent="Base.TextAppearance.AppCompat.Body1">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/text_size_xnormal</item>
         <item name="android:gravity">center</item>
         <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:layout_weight">15</item>
+        <item name="android:layout_weight">20</item>
     </style>
 
     <!-- Bottom Sheet Styles -->
@@ -147,6 +148,11 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="MyButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/material_teal_100</item>
+        <item name="colorButtonNormal">@color/material_teal_500</item>
     </style>
 
 </resources>

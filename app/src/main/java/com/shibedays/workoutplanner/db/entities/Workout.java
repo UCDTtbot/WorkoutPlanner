@@ -20,9 +20,22 @@ import javax.crypto.spec.DESedeKeySpec;
 
 @Entity(tableName = "workouts")
 public class Workout{
+
+    //region TYPE_CONSTANTS
+    public static final int STRENGTH = 0;
+    public static final int CARDIO = 1;
+    public static final int FLEXIBILITY = 2;
+    public static final int BALANCE = 3;
+    public static final int USER_CREATED = 4;
+    public static final int OTHER = 5;
+    public static final String[] TYPES = {"Strength Training", "Cardio Workouts", "Flexibility", "Balance", "Custom", "Other"};
+    //endregion
+
     @PrimaryKey
     @ColumnInfo(name = "id")
     private int workoutID;
+    private int workoutType;
+    private int workoutImageId;
     private int numOfRounds;
 
     private int timeBetweenSets;
@@ -41,11 +54,24 @@ public class Workout{
 
     public Workout(){
     }
-    public Workout(@NonNull int id, String name) {
+    public Workout(@NonNull int id, int type, String name) {
         workoutID = id;
         this.name = name;
+        this.workoutType = type;
         numOfRounds = 1;
         setList = new ArrayList<Set>();
+        timeBetweenSets = 10000;
+        timeBetweenRounds = 30000;
+        noRestFlag = false;
+        noBreakFlag = false;
+        isFavorite = false;
+    }
+    public Workout(@NonNull int id, int type, String name, List<Set> sets) {
+        workoutID = id;
+        this.name = name;
+        this.workoutType = type;
+        numOfRounds = 1;
+        setList = sets;
         timeBetweenSets = 10000;
         timeBetweenRounds = 30000;
         noRestFlag = false;
@@ -55,6 +81,7 @@ public class Workout{
     public Workout(int ID, Workout workout){
         workoutID = ID;
         name = workout.getName();
+        workoutType = workout.workoutType;
         numOfRounds = workout.getNumOfRounds();
         setList = workout.getSetList();
         timeBetweenSets = workout.getTimeBetweenSets();
@@ -68,6 +95,12 @@ public class Workout{
         return workoutID;
     }
     public void setWorkoutID(int id){workoutID = id;}
+
+    public int getWorkoutType(){ return workoutType; }
+    public void setWorkoutType(int type) { workoutType = type; }
+
+    public int getWorkoutImageId(){ return workoutImageId; }
+    public void setWorkoutImageId(int id) { workoutImageId = id;}
 
     public int getNumOfSets(){
         if(setList != null) {

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@Deprecated
 public class SectionedNewWorkoutAdapter extends SectionedRecyclerViewAdapter<SectionedNewWorkoutAdapter.SectionedSetViewHolder> {
 
     //region CONSTANTS

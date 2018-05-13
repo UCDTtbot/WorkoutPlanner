@@ -29,6 +29,8 @@ public class SetViewModel extends AndroidViewModel {
 
     public LiveData<List<Set>> getAllSets() { return mSets; }
 
+    public LiveData<List<Set>> getTypedSet(int type) { return mRepo.getTypedSets(type); }
+
     public void update(Set set){ mRepo.updateSet(set); }
 
     public void insert(Set set){ mRepo.insertSet(set); }

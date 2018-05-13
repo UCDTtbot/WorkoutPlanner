@@ -1,16 +1,28 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 4,
-    "identityHash": "a58212af6af70d4fe6ba11b4588b8d99",
+    "version": 7,
+    "identityHash": "98e466ccf57db9f064f29a9414c8cbd6",
     "entities": [
       {
         "tableName": "workouts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `numOfRounds` INTEGER NOT NULL, `timeBetweenSets` INTEGER NOT NULL, `timeBetweenRounds` INTEGER NOT NULL, `noRestFlag` INTEGER NOT NULL, `noBreakFlag` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `name` TEXT, `sets` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `workoutType` INTEGER NOT NULL, `workoutImageId` INTEGER NOT NULL, `numOfRounds` INTEGER NOT NULL, `timeBetweenSets` INTEGER NOT NULL, `timeBetweenRounds` INTEGER NOT NULL, `noRestFlag` INTEGER NOT NULL, `noBreakFlag` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `name` TEXT, `sets` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "workoutID",
             "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "workoutType",
+            "columnName": "workoutType",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "workoutImageId",
+            "columnName": "workoutImageId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -74,7 +86,7 @@
       },
       {
         "tableName": "sets",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `setType` INTEGER NOT NULL, `name` TEXT, `descrip` TEXT, `time` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `setType` INTEGER NOT NULL, `setImageId` INTEGER NOT NULL, `name` TEXT, `descrip` TEXT, `time` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "setId",
@@ -85,6 +97,12 @@
           {
             "fieldPath": "setType",
             "columnName": "setType",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "setImageId",
+            "columnName": "setImageId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -111,7 +129,7 @@
           "columnNames": [
             "id"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
@@ -119,7 +137,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"a58212af6af70d4fe6ba11b4588b8d99\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"98e466ccf57db9f064f29a9414c8cbd6\")"
     ]
   }
 }

@@ -161,19 +161,19 @@ public class NumberPickerDialog extends DialogFragment {
                 pos.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         if(mMinutePicker.getValue() == 0 && mSecondPicker.getValue() == 0){
-                            Toast.makeText(mParentActivity, "Time cannot be 0", Toast.LENGTH_SHORT).show();
-                        } else {
-                            if(mWhichTime == REST_TYPE) {
-                                mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
-                            } else if(mWhichTime == BREAK_TYPE) {
-                                mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
-                            } else {
-                                Log.e(DEBUG_TAG, "WHICH TYPE WAS NOT SET CORRECTLY");
-                            }
-                            //IF OK
-                            dialog.dismiss();
+                            mNoFlag = true;
                         }
+                        if(mWhichTime == REST_TYPE) {
+                            mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                        } else if(mWhichTime == BREAK_TYPE) {
+                            mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                        } else {
+                            Log.e(DEBUG_TAG, "WHICH TYPE WAS NOT SET CORRECTLY");
+                        }
+                        //IF OK
+                        dialog.dismiss();
 
                     }
                 });
@@ -182,7 +182,6 @@ public class NumberPickerDialog extends DialogFragment {
                 neg.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                         dialog.dismiss();
                     }
                 });

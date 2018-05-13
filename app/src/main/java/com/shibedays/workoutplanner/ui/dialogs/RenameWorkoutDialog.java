@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -8,14 +9,18 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
+import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 
 public class RenameWorkoutDialog extends DialogFragment {
@@ -24,22 +29,17 @@ public class RenameWorkoutDialog extends DialogFragment {
     // Package and Debug Constants
     private static final String DEBUG_TAG = RenameWorkoutDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog.";
-
-    public static final int NEW_WORKOUT = 0;
-    public static final int EDIT_WORKOUT = 1;
     //endregion
 
     //region INTENT_KEYS
-    public static final String EXTRA_DIALOG_TYPE = PACKAGE + "DIALOG_TYPE";
     public static final String EXTRA_WORKOUT_NAME = PACKAGE + "WORKOUT_NAME";
-    public static final String EXTRA_WORKOUT_INDEX = PACKAGE + "WORKOUT_INDEX";
     //endregion
 
     //region PRIVATE_VARS
     // UI Components
     private EditText mEditText;
     // Utility
-    private MainActivity mParentActivity;
+    private Activity mParentActivity;
     // Data
     private String name;
     private int index;
@@ -47,27 +47,34 @@ public class RenameWorkoutDialog extends DialogFragment {
 
     //region INTERFACES
     // Interface for dialog button listeners for MainActivity
-    public interface WorkoutDialogListener {
-        void onNewWorkoutDialogPositiveClick(String name);
-        void onEditWorkoutDialogPositiveClick(String name, int index);
+    public interface RenameListener {
+        void RenameWorkout(String name);
     }
-    WorkoutDialogListener mListener;
+    RenameListener mListener;
     //endregion
 
     //region LIFECYCLE
 
-
+    public static RenameWorkoutDialog newInstance(Bundle args, RenameListener listener){
+        RenameWorkoutDialog dialog = new RenameWorkoutDialog();
+        dialog.setListener(listener);
+        dialog.setArguments(args);
+        return dialog;
+    }
 
     // onAttach is called first, when it is attached to the activity
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if(context instanceof WorkoutDialogListener){
-            mListener = (WorkoutDialogListener) context;
+        Activity act = getActivity();
+        if(act instanceof MyWorkoutActivity){
+            mParentActivity = (MyWorkoutActivity) act;
+        } else if (act instanceof MainActivity){
+            mParentActivity = (MainActivity) act;
         } else {
-            throw new RuntimeException( context.toString()
-                    + " must implement WorkoutDialogListener");
+            throw new RuntimeException(DEBUG_TAG + " must be cast to either MyWorkoutActivity or MainActivity");
         }
+
     }
 
     // onCreateDialog is called after onAttach (onAttach -> onCreate -> onCreateDialog)
@@ -76,68 +83,61 @@ public class RenameWorkoutDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         //region UI
-        mParentActivity = (MainActivity) getActivity();
+        AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
         final View view = inflater.inflate(R.layout.dialog_workout_name, null);
-
         mEditText = view.findViewById(R.id.workout_name);
         //endregion
 
-        //region BUILDER_SETUP (INTENT)
-        AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
+        //region INTENT
 
         Bundle args = getArguments();
         if(args != null){
-            int type = args.getInt(EXTRA_DIALOG_TYPE);
-            if(type == NEW_WORKOUT){
-
-                builder.setView(view)
-                        .setTitle("New Workout")
-                        .setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mListener.onNewWorkoutDialogPositiveClick(mEditText.getText().toString());
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Do Nothing
-                            }
-                        });
-
-            } else if (type == EDIT_WORKOUT){
-                name = args.getString(EXTRA_WORKOUT_NAME);
-                index = args.getInt(EXTRA_WORKOUT_INDEX);
-                mEditText.setText(name);
-                builder.setView(view)
-                        .setTitle("Edit Workout")
-                        .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mListener.onEditWorkoutDialogPositiveClick(mEditText.getText().toString(), index);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Do Nothing
-                            }
-                        });
-
-            } else {
-                throw new RuntimeException(RenameWorkoutDialog.class.getSimpleName() + " no new/edit type was given");
-            }
+            name = args.getString(EXTRA_WORKOUT_NAME);
         }
 
+        mEditText.setText(name);
+
+        builder.setView(view)
+                .setTitle("Rename")
+                .setPositiveButton("Rename", null)
+                .setNegativeButton("Cancel", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                Button pos = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                pos.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(TextUtils.isEmpty(mEditText.getText().toString())){
+                            mEditText.setError(getString(R.string.name_error));
+                        } else {
+                            mListener.RenameWorkout(mEditText.getText().toString());
+                            dialog.dismiss();
+                        }
+                    }
+                });
+
+                Button neg = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                neg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
+
         //endregion
-        return builder.create();
+        return dialog;
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         mEditText.requestFocus();
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -154,6 +154,16 @@ public class RenameWorkoutDialog extends DialogFragment {
     //endregion
 
     //region UTILITY
+
+    public static Bundle getBundle(String name){
+        Bundle args = new Bundle();
+        args.putString(EXTRA_WORKOUT_NAME, name);
+        return args;
+    }
+
+    private void setListener(RenameListener listener){
+        mListener = listener;
+    }
 
     //endregion
 }

@@ -9,16 +9,20 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.ui.MainActivity;
 
 import java.util.Locale;
 
@@ -40,25 +44,26 @@ public class AddEditSetDialog extends DialogFragment {
     public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
     public static final String EXTRA_SET_DESCIP = PACKAGE + "SET_DESCRIP";
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
+    public static final String EXTRA_SET_ID = PACKAGE + "SET_ID";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
-    public static final String EXTRA_SET_INDEX = PACKAGE + "SET_INDEX";
-    public static final String EXTRA_SET_SECTION = PACKAGE + "SET_SECTION";
     //endregion
 
     //region PRIVATE_VARS
-
+    // UI
+    private EditText mEditTextName;
     //endregion
 
     //region INTERFACES
     public interface AddEditSetDialogListener {
-        void dialogResult(int dialogType, String name, String descrip, int min, int sec, int section, int index);
+        void newSet(String name, String descrip, int min, int sec);
+        void editSet(int id, String name, String descrip, int min, int sec);
     }
     AddEditSetDialogListener mListener;
     //endregion
 
     //region LIFECYCLE
 
-    public static AddEditSetDialog newInstance(AddEditSetDialogListener listener, Bundle args){
+    public static AddEditSetDialog newInstance(Bundle args, AddEditSetDialogListener listener){
         AddEditSetDialog dialog = new AddEditSetDialog();
         dialog.setListener(listener);
         dialog.setArguments(args);
@@ -84,7 +89,7 @@ public class AddEditSetDialog extends DialogFragment {
         final View view = inflater.inflate(R.layout.dialog_edit_set, null);
 
         // UI Comoponents
-        final EditText mEditTextName = view.findViewById(R.id.new_set_name);
+        mEditTextName = view.findViewById(R.id.new_set_name);
         final TextView mTextViewName = view.findViewById(R.id.display_set_name);
         final EditText mEditTextDescrip = view.findViewById(R.id.new_set_descrip);
         final TextView mTextViewDescrip = view.findViewById(R.id.display_set_descrip);
@@ -110,32 +115,61 @@ public class AddEditSetDialog extends DialogFragment {
 
 
         Bundle args = getArguments();
+        AlertDialog dialog = null;
+
         if(args!= null){
             final int type = args.getInt(EXTRA_DIALOG_TYPE);
-            final int section = args.getInt(EXTRA_SET_SECTION);
-            final int index = args.getInt(EXTRA_SET_INDEX);
+            final int setId = args.getInt(EXTRA_SET_ID);
             if(type == NEW_SET){
                 mMinutePicker.setValue(0);
                 mSecondPicker.setValue(10);
 
                 builder.setView(view)
                         .setTitle("New Set")
-                        .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Add", null)
+                        .setNegativeButton("Cancel", null);
+                dialog = builder.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(final DialogInterface dialog) {
+                        Button pos = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                        pos.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(View v) {
+                                // TODO: Input validation
+                                Boolean OK = true;
+
                                 String name = mEditTextName.getText().toString();
+                                if(TextUtils.isEmpty(name)){
+                                    mEditTextName.setError(getString(R.string.name_error));
+                                    OK = false;
+                                }
                                 String descrip = mEditTextDescrip.getText().toString();
                                 int min = mMinutePicker.getValue();
                                 int sec = mSecondPicker.getValue();
-                                mListener.dialogResult(type, name, descrip, min, sec, section, index);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // NOTHING
+                                if(min == 0 && sec == 0){
+                                    Toast.makeText(getContext(), R.string.time_error, Toast.LENGTH_SHORT).show();
+                                    OK = false;
+                                }
+                                if(OK) {
+                                    mListener.newSet(name, descrip, min, sec);
+                                    dialog.dismiss();
+                                } else {
+                                    Log.d(DEBUG_TAG, "Input Validation Error");
+                                }
                             }
                         });
+                        Button neg = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                        neg.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                    }
+                });
+
             } else if(type == EDIT_SET){
                 mEditTextName.setText(args.getString(EXTRA_SET_NAME));
                 mEditTextName.setSelection(mEditTextName.getText().length());
@@ -145,22 +179,48 @@ public class AddEditSetDialog extends DialogFragment {
                 mSecondPicker.setValue(args.getInt(EXTRA_SET_SEC));
                 builder.setView(view)
                         .setTitle("Edit Set")
-                        .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Edit", null)
+                        .setNegativeButton("Cancel", null);
+                dialog = builder.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(final DialogInterface dialog) {
+                        Button pos = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                        pos.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(View v) {
+                                boolean OK = true;
+
                                 String name = mEditTextName.getText().toString();
+                                if(TextUtils.isEmpty(name)){
+                                    mEditTextName.setError(getString(R.string.name_error));
+                                    OK = false;
+                                }
                                 String descrip = mEditTextDescrip.getText().toString();
                                 int min = mMinutePicker.getValue();
                                 int sec = mSecondPicker.getValue();
-                                mListener.dialogResult(type, name, descrip, min, sec, section, index);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // NOTHING
+                                if(min == 0 && sec == 0){
+                                    Toast.makeText(getContext(), R.string.time_error, Toast.LENGTH_SHORT).show();
+                                    OK = false;
+                                }
+                                if(OK){
+                                    mListener.editSet(setId, name, descrip, min, sec);
+                                    dialog.dismiss();
+                                } else {
+                                    Log.d(DEBUG_TAG, "Input Validation Error");
+                                }
                             }
                         });
+                        Button neg = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+                        neg.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                    }
+                });
             } else if (type == DISPLAY_SET) {
                 mTextViewName.setVisibility(View.VISIBLE);
                 mTextViewName.setText(args.getString(EXTRA_SET_NAME));
@@ -176,27 +236,27 @@ public class AddEditSetDialog extends DialogFragment {
 
                 builder.setView(view)
                         .setTitle("Set Info")
-                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Nothing
-                            }
-                        });
+                        .setPositiveButton("Ok", null);
             }
             else {
-                throw new RuntimeException(RenameWorkoutDialog.class.getSimpleName() + " Set Bottom Dialog Type was never set");
+                throw new RuntimeException(AddEditSetDialog.class.getSimpleName() + " Set Bottom Dialog Type was never set");
             }
+        } else {
+            throw new RuntimeException(AddEditSetDialog.class.getSimpleName() + " Args never set");
         }
 
-
-        return builder.create();
+        if(dialog != null)
+            return dialog;
+        else
+            return builder.create();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //mEditTextName.requestFocus();
-        //getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        mEditTextName.requestFocus();
+        if(getDialog().getWindow() != null)
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         getDialog().setCanceledOnTouchOutside(true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -210,18 +270,17 @@ public class AddEditSetDialog extends DialogFragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getDialogBundle(int dialogType, String setName, String setDescrip, int timeInMil, int setIndex, int setSection){
+    public static Bundle getDialogBundle(int dialogType, int id, String setName, String setDescrip, int timeInMil){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
 
         bundle.putInt(EXTRA_DIALOG_TYPE, dialogType);
+        bundle.putInt(EXTRA_SET_ID, id);
         bundle.putString(EXTRA_SET_NAME, setName);
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
         bundle.putInt(EXTRA_SET_MIN, time[0]);
         bundle.putInt(EXTRA_SET_SEC, time[1]);
-        bundle.putInt(EXTRA_SET_INDEX, setIndex);
-        bundle.putInt(EXTRA_SET_SECTION, setSection);
 
         return bundle;
     }

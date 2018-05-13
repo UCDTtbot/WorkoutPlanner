@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 4,
-    "identityHash": "a58212af6af70d4fe6ba11b4588b8d99",
+    "version": 5,
+    "identityHash": "1b74e708962def426fe282227aad2187",
     "entities": [
       {
         "tableName": "workouts",
@@ -74,7 +74,7 @@
       },
       {
         "tableName": "sets",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `setType` INTEGER NOT NULL, `name` TEXT, `descrip` TEXT, `time` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `setType` INTEGER NOT NULL, `name` TEXT, `descrip` TEXT, `time` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "setId",
@@ -111,7 +111,7 @@
           "columnNames": [
             "id"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
@@ -119,7 +119,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"a58212af6af70d4fe6ba11b4588b8d99\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"1b74e708962def426fe282227aad2187\")"
     ]
   }
 }

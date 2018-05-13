@@ -26,8 +26,6 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
 
     //region INTENT_KEYS
     public static final String EXTRA_ITEM_NAME = PACKAGE + "ITEM_NAME";
-    public static final String EXTRA_ITEM_INDEX = PACKAGE + "SET_INDEX";
-    public static final String EXTRA_ITEM_SECTION = PACKAGE + "SET_SECTION";
     public static final String EXTRA_NUM_ROWS = PACKAGE + "NUM_ROWS";
     public static final String EXTRA_ROW_TITLES = PACKAGE + "ROW_TITLES";
     public static final String EXTRA_ROW_IC_IDS = PACKAGE + "ROW_IC_IDS";
@@ -37,11 +35,10 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
 
     //region PRIVATE_VARS
     // Data
-    private int mItemIndex;
     private String mItemName;
-    private int mItemSection;
     // UI Components
     private int mNumRows;
+    private int mSetID;
     private TextView mTitleTextView;
     private ArrayList<String> mRowTitles;
     private int[] mRowICs;
@@ -51,7 +48,7 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
 
     //region INTERFACES
     public interface BottomSheetDialogListener{
-        void bottomSheetResult(int resultCode, int index, int section);
+        void bottomSheetResult(int resultCode);
     }
     private BottomSheetDialogListener mListener;
     //endregion
@@ -77,8 +74,6 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
         Bundle args = getArguments();
         if(args != null){
             mItemName = args.getString(EXTRA_ITEM_NAME);
-            mItemIndex = args.getInt(EXTRA_ITEM_INDEX);
-            mItemSection = args.getInt(EXTRA_ITEM_SECTION);
             mNumRows = args.getInt(EXTRA_NUM_ROWS);
             mRowTitles = args.getStringArrayList(EXTRA_ROW_TITLES);
             mRowICs = args.getIntArray(EXTRA_ROW_IC_IDS);
@@ -106,7 +101,7 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
             row.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.bottomSheetResult(resultType, mItemIndex, mItemSection);
+                    mListener.bottomSheetResult(resultType);
                     dismiss();
                 }
             });
@@ -124,12 +119,10 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getBottomSheetBundle(String itemName, int index, int section, int rows, ArrayList<String> rowTitles, int[] ics, int[] resultTypes){
+    public static Bundle getBottomSheetBundle(String itemName, int rows, ArrayList<String> rowTitles, int[] ics, int[] resultTypes){
         Bundle bundle = new Bundle();
 
         bundle.putString(EXTRA_ITEM_NAME, itemName);
-        bundle.putInt(EXTRA_ITEM_INDEX, index);
-        bundle.putInt(EXTRA_ITEM_SECTION, section);
         bundle.putInt(EXTRA_NUM_ROWS, rows);
         bundle.putStringArrayList(EXTRA_ROW_TITLES, rowTitles);
         bundle.putIntArray(EXTRA_ROW_IC_IDS, ics);
