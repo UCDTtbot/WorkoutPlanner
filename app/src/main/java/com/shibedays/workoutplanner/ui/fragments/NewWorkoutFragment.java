@@ -211,10 +211,9 @@ public class NewWorkoutFragment extends Fragment{
                             public void newSet(String name, String descrip, int min, int sec) {
                                 Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
                                 BaseApp.incrementSetID(getContext());
-                                //mSetListFrags.get(0).addSet(newSet);
-                                mTypedSetList.get(0).add(newSet);
-                                mSetListFrags.get(0).setData(mTypedSetList.get(0));
-                                mSetListFrags.get(0).notifyData();
+                                mTypedSetList.get(Set.USER_CREATED).add(newSet);
+                                mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
+                                mSetListFrags.get(Set.USER_CREATED).notifyData();
                                 mListener.applyUserSetToDB(newSet);
                             }
 
@@ -474,8 +473,8 @@ public class NewWorkoutFragment extends Fragment{
             set.setName(name);
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
-            mSetListFrags.get(0).updateSet(set);
-            mTypedSetList.get(0).set(mTypedSetList.get(0).indexOf(set), set);
+            mSetListFrags.get(Set.USER_CREATED).updateSet(set);
+            mTypedSetList.get(Set.USER_CREATED).set(mTypedSetList.get(Set.USER_CREATED).indexOf(set), set);
             mListener.applyUserSetToDB(set);
         } else {
             throw new RuntimeException(DEBUG_TAG + " trying to update set, was null");
@@ -484,8 +483,8 @@ public class NewWorkoutFragment extends Fragment{
 
     private void deleteUserSet(Set set){
         mListener.removeUserSetFromDB(set);
-        mSetListFrags.get(0).removeSet(set);
-        mTypedSetList.get(0).remove(set);
+        mSetListFrags.get(Set.USER_CREATED).removeSet(set);
+        mTypedSetList.get(Set.USER_CREATED).remove(set);
     }
     //endregion
 
@@ -498,7 +497,6 @@ public class NewWorkoutFragment extends Fragment{
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Log.d(DEBUG_TAG, set.getName());
                             deleteUserSet(set);
                         }
                     })
@@ -508,7 +506,7 @@ public class NewWorkoutFragment extends Fragment{
     }
 
     private Set getSetByID(int setID){
-        for(Set s : mTypedSetList.get(0)){
+        for(Set s : mTypedSetList.get(Set.USER_CREATED)){
             if (s.getSetId() == setID) return s;
         }
 
@@ -570,7 +568,7 @@ public class NewWorkoutFragment extends Fragment{
         }
 
         if(isOk) {
-            Workout workout = new Workout(BaseApp.getNextWorkoutID(), name);
+            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name);
             workout.setNumOfRounds(rounds);
             workout.setNoRestFlag(mRestFlag);
             workout.setNoBreakFlag(mBreakFlag);

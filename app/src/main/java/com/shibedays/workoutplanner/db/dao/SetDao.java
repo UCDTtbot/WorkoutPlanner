@@ -23,6 +23,9 @@ public interface SetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Set set);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<Set> sets);
+
     @Update
     void update(Set set);
 

@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.WorkoutViewHolder> {
+public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter.WorkoutViewHolder> {
 
     //region CONSTANTS
     // Timeout Constant
     private static final int PENDING_REMOVAL_TIMEOUT = 4000; // LENGTH_LONG is defined as 3500, so lets put 4000 just in case
     // Package and Debug Constants
-    private static final String DEBUG_TAG = WorkoutAdapter.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter.";
+    private static final String DEBUG_TAG = WorkoutItemAdapter.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.WorkoutItemAdapter.";
     //endregion
 
     //region VIEW_HOLDER
@@ -37,48 +37,35 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
         // Data
         private Workout curWorkout;
         // Foreground
-        private TextView itemName;
-        private TextView sets;
-        // Background
-        private ImageView delIcon;
-
-        //TEMP
-        private TextView TEST_POS_ID;
-        private TextView TEST_WRK_ID;
+        protected TextView itemName;
+        protected ImageView itemImage;
 
         private WorkoutViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
-            itemName = itemView.findViewById(R.id.item_name);
-            sets = itemView.findViewById(R.id.item_sets);
+            itemName = itemView.findViewById(R.id.workout_name);
+            itemImage = itemView.findViewById(R.id.workout_image);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
-
-            TEST_POS_ID = itemView.findViewById(R.id.TEST_POS_ID);
-            TEST_WRK_ID = itemView.findViewById(R.id.TEST_WRK_ID);
-        }
+            }
 
         void bindTo(final Workout curWorkout, final int pos){
             //Populate data when they bind the workouts to the view holder
             this.curWorkout = curWorkout;
 
             itemName.setText(curWorkout.getName());
-            sets.setText(String.format(mContext.getString(R.string.item_sets), curWorkout.getNumOfSets()));
-
-            TEST_POS_ID.setText(String.format(Locale.US, "PosID: %1$d", mWorkoutData.indexOf(curWorkout)));
-            TEST_WRK_ID.setText(String.format(Locale.US, "WrkID: %1$d", curWorkout.getWorkoutID()));
         }
 
         @Override
         public void onClick(View v) {
             // TODO: Go to the my_workout activity with the given current curWorkout
-            mListener.onWorkoutClicked(curWorkout.getWorkoutID());
+            mListener.onWorkoutClicked(curWorkout.getWorkoutID(), curWorkout.getWorkoutType());
         }
 
         @Override
         public boolean onLongClick(View view) {
-            mListener.onWorkoutLongClick(mWorkoutData.indexOf(curWorkout), curWorkout.getWorkoutID());
+            mListener.onWorkoutLongClick(mWorkoutData.indexOf(curWorkout), curWorkout.getWorkoutID(), curWorkout.getWorkoutType());
             return true;
         }
 
@@ -105,23 +92,24 @@ public class WorkoutAdapter extends PendingRemovalAdapter<WorkoutAdapter.Workout
 
     //region INTERFACES
     public interface WorkoutAdapterListener{
-        void onWorkoutClicked(int workoutIndex);
-        void onWorkoutLongClick(int workoutIndex, int workoutID);
+        void onWorkoutClicked(int workoutIndex, int type);
+        void onWorkoutLongClick(int workoutIndex, int workoutID, int type);
         void deleteFromDB(Workout workout);
     }
     private WorkoutAdapterListener mListener;
     //endregion
 
     //region LIFECYCLE
-    public WorkoutAdapter(Context context, View coordLayout, WorkoutAdapterListener listener){
+    public WorkoutItemAdapter(Context context, View coordLayout, List<Workout> workouts, WorkoutAdapterListener listener){
         mWorkoutsPendingRemoval = new ArrayList<>();
         mContext = context;
         if(coordLayout instanceof CoordinatorLayout){
             mCoordLayout = (CoordinatorLayout) coordLayout;
         }else{
-            throw new RuntimeException(WorkoutAdapter.class.getSimpleName() + " was passed a non-coord layout view");
+            throw new RuntimeException(WorkoutItemAdapter.class.getSimpleName() + " was passed a non-coord layout view");
         }        // Make sure our context is an activity and set the Listener to it
 
+        setData(workouts);
         mListener = listener;
     }
 

@@ -118,7 +118,11 @@ public class AddNewSetFragment extends Fragment {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Get sets
+                List<Set> sets = new ArrayList<>();
+                for(SetListFragment s : mSetListFrags){
+                    sets.addAll(s.getSelectedSets());
+                }
+                mListener.addSetsToWorkout(sets);
             }
         });
 
@@ -283,8 +287,9 @@ public class AddNewSetFragment extends Fragment {
                             public void newSet(String name, String descrip, int min, int sec) {
                                 Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
                                 BaseApp.incrementSetID(getContext());
-                                mSetListFrags.get(0).addSet(newSet);
-                                mTypedSetList.get(0).add(newSet);
+                                mTypedSetList.get(Set.USER_CREATED).add(newSet);
+                                mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
+                                mSetListFrags.get(Set.USER_CREATED).notifyData();
                                 mListener.applyUserSetToDB(newSet);
                             }
 
@@ -416,7 +421,8 @@ public class AddNewSetFragment extends Fragment {
             set.setName(name);
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
-            mSetListFrags.get(0).updateSet(set);
+            mSetListFrags.get(Set.USER_CREATED).updateSet(set);
+            mTypedSetList.get(Set.USER_CREATED).set(mTypedSetList.get(Set.USER_CREATED).indexOf(set), set);
             mListener.applyUserSetToDB(set);
         } else {
             throw new RuntimeException(DEBUG_TAG + " trying to update set, was null");
@@ -425,8 +431,8 @@ public class AddNewSetFragment extends Fragment {
 
     private void deleteUserSet(Set set){
         mListener.removeUserSetFromDB(set);
-        mSetListFrags.get(0).removeSet(set);
-        mTypedSetList.get(0).remove(set);
+        mSetListFrags.get(Set.USER_CREATED).removeSet(set);
+        mTypedSetList.get(Set.USER_CREATED).remove(set);
     }
 
     //endregion
@@ -449,7 +455,7 @@ public class AddNewSetFragment extends Fragment {
     }
 
     private Set getSetByID(int setID){
-        for(Set s : mTypedSetList.get(0)){
+        for(Set s : mTypedSetList.get(Set.USER_CREATED)){
             if (s.getSetId() == setID) return s;
         }
 

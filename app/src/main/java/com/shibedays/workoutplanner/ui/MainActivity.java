@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -24,12 +25,13 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
+import com.shibedays.workoutplanner.ui.adapters.WorkoutItemAdapter;
+import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.adapters.WorkoutAdapter;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
@@ -63,14 +65,14 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     private RecyclerView mRecyclerView;
 
     // Data
-    private List<Workout> mWorkoutData;
+    private List<List<Workout>> mTypedWorkouts;
     private List<List<Set>> mTypedSets;
 
     // Flags
-    private boolean HIDE_ITEMS;
+    private boolean HIDE_ACTION_ITEMS;
 
     // Adapters
-    private WorkoutAdapter mWorkoutAdapter;
+    private WorkoutRowAdapter mWorkoutRowAdapter;
 
     // Instances
     private SharedPreferences mPrivateSharedPrefs;
@@ -100,7 +102,83 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mFragmentManager = getSupportFragmentManager();
-        HIDE_ITEMS = false;
+        HIDE_ACTION_ITEMS = false;
+
+
+        //region VIEW_MODEL
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+                if(workouts != null){
+                    if(!workouts.isEmpty()){
+                        if(BaseApp.getNextWorkoutID() == DATA_DOESNT_EXIST) {
+                            BaseApp.setWorkoutID(workouts.size() + 1);
+                        }
+                    }
+                }
+            }
+        });
+
+        mTypedWorkouts = new ArrayList<List<Workout>>() {{
+           for(String TYPE : Workout.TYPES) {
+               add(new ArrayList<Workout>());
+           }
+        }};
+        for(int i = 0; i < Set.TYPES.length; i++){
+            mWorkoutViewModel.getTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
+                @Override
+                public void onChanged(@Nullable List<Workout> workouts) {
+                    if(workouts != null){
+                        if(!workouts.isEmpty()){
+                            mTypedWorkouts.set(workouts.get(0).getWorkoutType(), workouts);
+                            if(mWorkoutRowAdapter != null){
+                                mWorkoutRowAdapter.setData(mTypedWorkouts);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+
+        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+                if(sets != null) {
+                    if(!sets.isEmpty()) {
+                        if(BaseApp.getNextSetID() == DATA_DOESNT_EXIST) {
+                            BaseApp.setSetID(sets.size() + 1);
+                        }
+                    }
+                }
+            }
+        });
+
+        mTypedSets = new ArrayList<List<Set>>() {{
+            for (String TYPE : Set.TYPES) {
+                add(new ArrayList<Set>());
+            }
+        }};
+        for(int i = 0; i < Set.TYPES.length; i++){
+            mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
+                @Override
+                public void onChanged(@Nullable List<Set> sets) {
+                    if(sets != null){
+                        if(!sets.isEmpty()) {
+                            mTypedSets.set(sets.get(0).getSetType(), sets);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        Log.d(DEBUG_TAG, "Added data");
+
+        //endregion
+
 
         //region SHARED_PREFS
         // TODO: shared prefs
@@ -114,12 +192,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                 // Normal Run
                 BaseApp.setWorkoutID(mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, DATA_DOESNT_EXIST));
                 BaseApp.setSetID(mPrivateSharedPrefs.getInt(KEY_NEXT_SET_NUM, DATA_DOESNT_EXIST));
-                if(BaseApp.getNextWorkoutID() == DATA_DOESNT_EXIST){
-                    Log.e(DEBUG_TAG, "NEXT WORKOUT NUM DATA DOESN'T EXIST");
-                    BaseApp.setWorkoutID(mWorkoutData.size() + 1);
-                }
-
-            }else if (savedVersionCode == DATA_DOESNT_EXIST){
+            } else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
                 BaseApp.setWorkoutID(1);
                 BaseApp.setSetID(50);
@@ -141,42 +214,50 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
         //endregion
 
+
         //region RECYCLER_VIEW
         // Initialize the RecyclerView
         mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
 
+        mRecyclerView.setHasFixedSize(true);
+
         // Set the Layout Manager to Linear Layout
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         // Setup the adapter with correct data
-        mWorkoutAdapter = new WorkoutAdapter(this, findViewById(R.id.main_coord_layout), new WorkoutAdapter.WorkoutAdapterListener() {
-            @Override
-            public void onWorkoutClicked(int workoutIndex) {
+        mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout));
+        mRecyclerView.setAdapter(mWorkoutRowAdapter);
+        mWorkoutRowAdapter.notifyDataSetChanged();
+
+        /*
+                    @Override
+            public void onWorkoutClicked(int workoutIndex, int type) {
                 openWorkout(workoutIndex);
             }
 
             @Override
-            public void onWorkoutLongClick(int workoutIndex, int workoutID) {
-                openBottomSheet(workoutIndex);
+            public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
+                openBottomSheet(type, workoutIndex);
             }
 
             @Override
             public void deleteFromDB(Workout workout) {
                 deleteWorkoutFromDB(workout);
             }
-        });
-        mRecyclerView.setAdapter(mWorkoutAdapter);
-        mWorkoutAdapter.notifyDataSetChanged();
+         */
         //endregion
+
 
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //endregion
 
+
         //region ADDITIONAL_UI
 
         //endregion
+
 
         //region FAB
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -186,54 +267,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                 openNewWorkoutFragment();
             }
         });
-        //endregion
-
-        //region VIEW_MODEL
-        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
-            @Override
-            public void onChanged(@Nullable List<Workout> workouts) {
-                mWorkoutData = workouts;
-                mWorkoutAdapter.setData(workouts);
-            }
-        });
-
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-        mTypedSets = new ArrayList<List<Set>>() {{
-            for (String TYPE : Set.TYPES) {
-                add(new ArrayList<Set>());
-            }
-        }};
-        for(int i = 0; i < Set.TYPES.length; i++){
-            final int x = i;
-
-            mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
-                @Override
-                public void onChanged(@Nullable List<Set> sets) {
-                    if(sets != null){
-                        if(!sets.isEmpty()) {
-                            mTypedSets.set(sets.get(0).getSetType(), sets);
-                        }
-                    }
-                }
-            });
-        }
-
-        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
-            @Override
-            public void onChanged(@Nullable List<Set> sets) {
-                if(sets != null) {
-                    if(!sets.isEmpty()) {
-                        if(BaseApp.getNextSetID() == DATA_DOESNT_EXIST) {
-                            BaseApp.setSetID(sets.size() + 1);
-                        }
-                    }
-                }
-            }
-        });
-
-        Log.d(DEBUG_TAG, "Added data");
-
         //endregion
 
     }
@@ -283,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        if(HIDE_ITEMS){
+        if(HIDE_ACTION_ITEMS){
             for(int i = 0; i < menu.size(); i++){
                 menu.getItem(i).setVisible(false);
             }
@@ -327,12 +360,12 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     }
 
     public void hideActionItems(){
-        HIDE_ITEMS = true;
+        HIDE_ACTION_ITEMS = true;
         invalidateOptionsMenu();
     }
 
     public void showActionItems(){
-        HIDE_ITEMS = false;
+        HIDE_ACTION_ITEMS = false;
         invalidateOptionsMenu();
     }
     //endregion
@@ -391,8 +424,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     //endregion
 
     //region BOTTOM_SHEET_WORKOUTS
-    public void openBottomSheet(final int workoutIndex){
-        Workout workout = mWorkoutData.get(workoutIndex);
+    public void openBottomSheet(final int type, final int workoutIndex){
+        Workout workout = mTypedWorkouts.get(type).get(workoutIndex);
         Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, new BottomSheetDialog.BottomSheetDialogListener() {
             @Override
@@ -401,10 +434,11 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                     case BaseApp.EDIT:
                         throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
                     case BaseApp.DELETE:
-                        mWorkoutAdapter.pendingRemoval(workoutIndex);
+                        //TODO redo deletion
+                        //mWorkoutRowAdapter.pendingRemoval(workoutIndex);
                         break;
                     case BaseApp.DUPLCIATE:
-                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), mWorkoutData.get(workoutIndex));
+                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), mTypedWorkouts.get(type).get(workoutIndex));
                         addNewWorkout(newWorkout);
                         break;
                     default:

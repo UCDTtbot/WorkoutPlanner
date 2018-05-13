@@ -41,44 +41,46 @@ public class DataRepo {
         return INSTANCE;
     }
 
+    //region WORKOUT_FUNCTIONS
     public LiveData<List<Workout>> getAllWorkouts(){
         return mWorkouts;
     }
-
-    public LiveData<List<Set>> getAllSets(){
-        return mSets;
+    public LiveData<List<Workout>> getTypedWorkouts(int type){
+        return mDatabase.workoutDao().getTypedWorkouts(type);
     }
-
-    public LiveData<List<Set>> getTypedSets(int type) { return mDatabase.setDao().getTypedSets(type); }
-
     public LiveData<Workout> getWorkout(final int id){
         return mDatabase.workoutDao().getWorkout(id);
     }
-
     public void insertWorkout(Workout workout){
         new insertAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
-
-    public void insertSet(Set set){
-        new insertAsyncSet(mDatabase.setDao()).execute(set);
-    }
-
     public void removeWorkout(final Workout workout){
         new removeAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
-
-    public void removeSet(final Set set){
-        new removeAsyncSet(mDatabase.setDao()).execute(set);
-    }
-
     public void updateWorkout(Workout workout){
         new updateAsyncWorkout(mDatabase.workoutDao()).execute(workout);
     }
+    //endregion
 
+    //region SET_FUNCTIONS
+    public LiveData<List<Set>> getAllSets(){
+        return mSets;
+    }
+    public LiveData<List<Set>> getTypedSets(int type) {
+        return mDatabase.setDao().getTypedSets(type);
+    }
+    public void insertSet(Set set){
+        new insertAsyncSet(mDatabase.setDao()).execute(set);
+    }
+    public void removeSet(final Set set){
+        new removeAsyncSet(mDatabase.setDao()).execute(set);
+    }
     public void updateSet(Set set){
         new updateAsyncSet(mDatabase.setDao()).execute(set);
     }
+    //endregion
 
+    //region ASYNC_WORKOUT
     private static class insertAsyncWorkout extends AsyncTask<Workout, Void, Void>{
         private WorkoutDao aSyncDao;
         insertAsyncWorkout(WorkoutDao dao){
@@ -90,19 +92,6 @@ public class DataRepo {
             return null;
         }
     }
-
-    private static class insertAsyncSet extends AsyncTask<Set, Void, Void>{
-        private SetDao aSyncDao;
-
-        insertAsyncSet(SetDao dao) { aSyncDao = dao; }
-
-        @Override
-        protected Void doInBackground(Set... sets) {
-            aSyncDao.insert(sets[0]);
-            return null;
-        }
-    }
-
     private static class removeAsyncWorkout extends AsyncTask<Workout, Void, Void>{
         private WorkoutDao aSyncDao;
         removeAsyncWorkout(WorkoutDao dao){
@@ -111,18 +100,6 @@ public class DataRepo {
         @Override
         protected Void doInBackground(Workout... workouts) {
             aSyncDao.delete(workouts[0]);
-            return null;
-        }
-    }
-
-    private static class removeAsyncSet extends AsyncTask<Set, Void, Void>{
-        private SetDao aSyncDao;
-
-        removeAsyncSet(SetDao dao) { aSyncDao = dao; };
-
-        @Override
-        protected Void doInBackground(Set... sets) {
-            aSyncDao.delete(sets[0]);
             return null;
         }
     }
@@ -136,7 +113,31 @@ public class DataRepo {
             return null;
         }
     }
+    //endregion
 
+    //region ASYNC_SETS
+    private static class insertAsyncSet extends AsyncTask<Set, Void, Void>{
+        private SetDao aSyncDao;
+
+        insertAsyncSet(SetDao dao) { aSyncDao = dao; }
+
+        @Override
+        protected Void doInBackground(Set... sets) {
+            aSyncDao.insert(sets[0]);
+            return null;
+        }
+    }
+    private static class removeAsyncSet extends AsyncTask<Set, Void, Void>{
+        private SetDao aSyncDao;
+
+        removeAsyncSet(SetDao dao) { aSyncDao = dao; };
+
+        @Override
+        protected Void doInBackground(Set... sets) {
+            aSyncDao.delete(sets[0]);
+            return null;
+        }
+    }
     private static class updateAsyncSet extends AsyncTask<Set, Void, Void> {
         private SetDao aSyncDao;
         updateAsyncSet(SetDao dao) { aSyncDao = dao; }
@@ -146,4 +147,27 @@ public class DataRepo {
             return null;
         }
     }
+    //endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

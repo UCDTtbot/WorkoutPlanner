@@ -29,6 +29,7 @@ public class Set {
     @ColumnInfo(name = "id")
     private int setId;
     private int setType;
+    private int setImageId;
     private String name;
     private String descrip;
     private int time;
@@ -52,6 +53,9 @@ public class Set {
 
     public int getSetType(){ return setType; }
     public void setSetType(int type){ setType = type; }
+
+    public int getSetImageId() { return setImageId; }
+    public void setSetImageId(int id) { setImageId = id; }
 
     public String getName(){
         return name;

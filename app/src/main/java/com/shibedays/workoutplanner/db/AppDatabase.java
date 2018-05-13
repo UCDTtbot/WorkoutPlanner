@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 
-@Database(entities = {Workout.class, Set.class}, version = 6)
+@Database(entities = {Workout.class, Set.class}, version = 7)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -40,6 +40,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
+                            .fallbackToDestructiveMigration()
                             .addCallback(sAppDatabaseCallback)
                             .build();
                 }
@@ -70,36 +71,66 @@ public abstract class AppDatabase extends RoomDatabase {
 
         @Override
         protected Void doInBackground(final Void... params){
-            Workout running = new Workout(1, "Run and Walk");
-            running.setNoRestFlag(true);
-            running.setNoBreakFlag(true);
-            Set run = new Set(0, "Light Jog", "Jog at a comfortable pace", Set.ENDURANCE, 90000);
-            Set walk = new Set(1, "Brisk Walk", "Walk at a brisk pace to relax", Set.ENDURANCE, 30000);
-            running.addSet(run);
-            running.addSet(walk);
-            mWorkoutDao.insert(running);
-
+            // TODO: EDIT ALL SET DESCRIPS TO BE STRING RESOURCES
+            // Sets //
+            int setsId = 0;
             // User Created
-            mSetDao.insert(new Set(2, "Header Dummy", "This shouldn't be addable", Set.USER_CREATED, 0));
-            mSetDao.insert(new Set(3, "Custom Set", "Custom set created by the user.", Set.USER_CREATED, 60000));
+            final Set headerDummy = new Set(setsId++, "Header Dummy", "This shouldn't be addable", Set.USER_CREATED, 0);
             // Endurance
-            mSetDao.insert(run);
-            mSetDao.insert(walk);
+            final Set jog = new Set(setsId++, "Light Jog", "Jog at a comfortable pace", Set.ENDURANCE, 90000);
+            final Set walk = new Set(setsId++, "Brisk Walk", "Walk at a brisk pace to relax", Set.ENDURANCE, 30000);
 
             // Strength
-            mSetDao.insert(new Set(4, "Pushups", "Back straight and arms in line with shouldars", Set.STRENGTH, 45000));
-            mSetDao.insert(new Set(5, "Situps", "Arms across chest, use your core to rise to your knees", Set.STRENGTH, 45000));
-            mSetDao.insert(new Set(6, "Plank", "Get in a pushup position. Rest your elbows on the floor and hold this position", Set.STRENGTH, 60000));
+            final Set pushups = new Set(setsId++, "Pushups", "Back straight and arms in line with shouldars", Set.STRENGTH, 45000);
+            final Set situps = new Set(setsId++, "Situps", "Arms across chest, use your core to rise to your knees", Set.STRENGTH, 45000);
+            final Set plank = new Set(setsId++, "Plank", "Get in a pushup position. Rest your elbows on the floor and hold this position", Set.STRENGTH, 60000);
 
             // Balance
-            mSetDao.insert(new Set(7, "One foot stand", "Stand on one foot, with other leg tucked in, resting your foot on your inner thigh", Set.BALANCE, 60000));
+            final Set one_foot = new Set(setsId++, "One foot stand", "Stand on one foot, with other leg tucked in, resting your foot on your inner thigh", Set.BALANCE, 60000);
 
             // Flexibility
-            mSetDao.insert(new Set(8, "Yoda Dog Pose", "Do the yoga dog pose thing, UPDATE THIS", Set.FLEXIBILITY, 45000));
+            final Set yoga_dog = new Set(setsId++, "Yoda Dog Pose", "Do the yoga dog pose thing, UPDATE THIS", Set.FLEXIBILITY, 45000);
 
             // Other
-            mSetDao.insert(new Set(9, "Study", "Focus on studying with no distractions", Set.OTHER, 900000));
-            mSetDao.insert(new Set(10, "Study Break", "Take a break from studying. Take a walk, get a drink, use the restroom", Set.OTHER, 300000));
+            final Set study = new Set(setsId++, "Study", "Focus on studying with no distractions", Set.OTHER, 900000);
+            final Set study_break = new Set(setsId++, "Study Break", "Take a break from studying. Take a walk, get a drink, use the restroom", Set.OTHER, 300000);
+            List<Set> allSets = new ArrayList<Set>(){{
+                add(headerDummy);
+                add(jog);
+                add(walk);
+                add(pushups);
+                add(situps);
+                add(plank);
+                add(one_foot);
+                add(yoga_dog);
+                add(study);
+                add(study_break);
+            }};
+            mSetDao.insertAll(allSets);
+
+            // Workouts //
+            int workoutIds = 0;
+            Workout workout_1 = new Workout(0, Workout.CARDIO, "Cardio_1");
+            workout_1.addSet(jog);
+            workout_1.addSet(walk);
+            Workout workout_2 = new Workout(1, Workout.STRENGTH, "Strength_1");
+            workout_2.addSet(pushups);
+            workout_2.addSet(situps);
+            workout_2.addSet(plank);
+            Workout workout_3 = new Workout(2, Workout.BALANCE, "Balance_1");
+            workout_3.addSet(one_foot);
+            Workout workout_4 = new Workout(3, Workout.FLEXIBILITY, "Flexibility_1");
+            workout_4.addSet(yoga_dog);
+            Workout workout_5 = new Workout(4, Workout.OTHER, "Other_1");
+            workout_5.addSet(study);
+            workout_5.addSet(study_break);
+            Workout dummy = new Workout(5, Workout.USER_CREATED, "Dummy_1");
+            mWorkoutDao.insert(workout_1);
+            mWorkoutDao.insert(workout_2);
+            mWorkoutDao.insert(workout_3);
+            mWorkoutDao.insert(workout_4);
+            mWorkoutDao.insert(workout_5);
+            mWorkoutDao.insert(dummy);
 
             return null;
         }

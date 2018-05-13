@@ -33,6 +33,10 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mWorkouts;
     }
 
+    public LiveData<List<Workout>> getTypedWorkouts(int type){
+        return mRepo.getTypedWorkouts(type);
+    }
+
     public LiveData<Workout> getWorkout(int id){
         if(id < 0) {
             Log.e(DEBUG_TAG, "Workout ID is invalid: " + Integer.toString(id));
