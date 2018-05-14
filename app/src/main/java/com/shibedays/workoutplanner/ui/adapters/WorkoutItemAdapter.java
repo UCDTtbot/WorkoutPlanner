@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
@@ -52,8 +53,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
 
         @Override
         public void onClick(View v) {
-            // TODO: Go to the my_workout activity with the given current curWorkout
-            mListener.onWorkoutClicked(curWorkout.getWorkoutID(), curWorkout.getWorkoutType());
+            mListener.onWorkoutClicked(curWorkout.getWorkoutID());
         }
 
         @Override
@@ -85,7 +85,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
 
     //region INTERFACES
     public interface WorkoutAdapterListener{
-        void onWorkoutClicked(int workoutIndex, int type);
+        void onWorkoutClicked(int workoutIndex);
         void onWorkoutLongClick(int workoutIndex, int workoutID, int type);
         void deleteFromDB(Workout workout);
     }
@@ -116,8 +116,8 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<WorkoutItemAdapter
     @Override
     public void onBindViewHolder(@NonNull WorkoutViewHolder viewHolder, int position) {
         // Get the current data
-        Workout currentWorkout = mWorkoutData.get(position);
         viewHolder.curWorkout = mWorkoutData.get(position);
+        Glide.with(mContext).load(viewHolder.curWorkout.getWorkoutImageId()).into(viewHolder.itemImage);
         viewHolder.itemName.setText(mWorkoutData.get(position).getName());
         // Bind to the correct data
     }

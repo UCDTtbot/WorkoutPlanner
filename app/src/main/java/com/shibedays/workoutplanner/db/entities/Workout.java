@@ -54,12 +54,13 @@ public class Workout{
 
     public Workout(){
     }
-    public Workout(@NonNull int id, int type, String name) {
+    public Workout(@NonNull int id, int type, String name, int imageId) {
         workoutID = id;
         this.name = name;
         this.workoutType = type;
         numOfRounds = 1;
         setList = new ArrayList<Set>();
+        workoutImageId = imageId;
         timeBetweenSets = 10000;
         timeBetweenRounds = 30000;
         noRestFlag = false;

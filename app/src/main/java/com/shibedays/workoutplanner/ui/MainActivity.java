@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
@@ -227,8 +228,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         // Setup the adapter with correct data
         mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout), new WorkoutRowAdapter.WorkoutRowListener() {
             @Override
-            public void onWorkoutClicked(int workoutIndex, int type) {
-                openWorkout(type, workoutIndex);
+            public void onWorkoutClicked(int index) {
+                openWorkout(index);
             }
 
             @Override
@@ -275,7 +276,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
 
         //region FAB
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setVisibility(View.GONE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -430,12 +432,16 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
 
     //region OPEN_WORKOUT
-    public void openWorkout(int type, int workoutID){
-        //TODO : UPDATE TYPE
-        Intent intent = new Intent(this, MyWorkoutActivity.class);
-        intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
-        intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
-        startActivity(intent);
+    public void openWorkout(int workoutID){
+        if(workoutID >= 0) {
+            Intent intent = new Intent(this, MyWorkoutActivity.class);
+            intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+            intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Creating New", Toast.LENGTH_SHORT).show();
+        }
+
     }
     //endregion
 

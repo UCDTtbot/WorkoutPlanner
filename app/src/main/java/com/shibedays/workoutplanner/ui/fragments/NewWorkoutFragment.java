@@ -568,7 +568,7 @@ public class NewWorkoutFragment extends Fragment{
         }
 
         if(isOk) {
-            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name);
+            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name, R.drawable.android);
             workout.setNumOfRounds(rounds);
             workout.setNoRestFlag(mRestFlag);
             workout.setNoBreakFlag(mBreakFlag);
