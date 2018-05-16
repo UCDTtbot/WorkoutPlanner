@@ -286,7 +286,6 @@ public class AddNewSetFragment extends Fragment {
                             @Override
                             public void newSet(String name, String descrip, int min, int sec) {
                                 Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
-                                BaseApp.incrementSetID(getContext());
                                 mTypedSetList.get(Set.USER_CREATED).add(newSet);
                                 mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
                                 mSetListFrags.get(Set.USER_CREATED).notifyData();

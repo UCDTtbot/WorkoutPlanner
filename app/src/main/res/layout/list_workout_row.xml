@@ -20,7 +20,7 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
-            android:layout_toLeftOf="@id/more_button"
+            android:layout_toStartOf="@id/more_button"
             android:text="Sample Title"
             android:textColor="@color/material_light_black"
             android:textSize="18sp"/>
@@ -38,7 +38,7 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/workout_row_recycler"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="160dp"
         android:layout_gravity="center_vertical"
         android:orientation="horizontal">

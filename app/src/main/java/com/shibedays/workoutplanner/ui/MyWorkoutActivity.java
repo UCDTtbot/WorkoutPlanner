@@ -14,28 +14,40 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.shibedays.workoutplanner.BaseApp;
+import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
 import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
+import com.shibedays.workoutplanner.ui.fragments.SetInfoFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -49,6 +61,7 @@ import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
 
@@ -102,10 +115,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private RecyclerView mRecyclerView;
     private TextView mRestTime;
     private TextView mBreakTime;
-    private TextView mNumRounds;
+    private EditText mNumRounds;
     private ActionBar mActionBar;
+    private ViewPager mViewPager;
+    private TabLayout mTabLayout;
     // Adapters
-    private SetAdapter mSetAdapter;
+    //private SetAdapter mSetAdapter;
     // Data
     private Workout mWorkoutData;
     private List<Set> mSetList;
@@ -115,6 +130,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     // Instances
     private FragmentManager mFragmentManager;
     private TimerFragment mTimerFragment;
+    private List<SetInfoFragment> mSetInfoFrags;
     private AddNewSetFragment mAddNewSetFragment;
 
     private Messenger mTimerService;
@@ -229,11 +245,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         // if any of the above already exist, most likely means we are returning from the notification and/or need to restore the activity
         // from some previous state
 
+
         //region INSTANCE_STATE
         if(savedInstanceState != null){
             TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
         }
         //endregion
+
 
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -244,16 +262,19 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
         //endregion
 
+
         //region TTS_BINDING
         Intent TTSIntent = new Intent(this, TTSService.class);
         bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
         startService(TTSIntent);
         //endregion
 
+
         //region VIEW_MODEL
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         //endregion
+
 
         //region INTENT
         Intent intent = getIntent();
@@ -269,7 +290,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                         if (workout != null) {
                             mWorkoutData = workout;
                             mSetList = mWorkoutData.getSetList();
-                            mSetAdapter.setData(mSetList);
+                            setupViewPager(mSetList);
+                            //mSetAdapter.setData(mSetList);
                             dataUpdate();
                         } else {
                             throw new RuntimeException(DEBUG_TAG + " workout not found for LiveData");
@@ -306,6 +328,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
         //endregion
 
+
         //region UI
         mRestTime = findViewById(R.id.rest_time);
         mRestTime.setOnClickListener(new View.OnClickListener() {
@@ -324,14 +347,63 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
 
         mNumRounds = findViewById(R.id.number_rounds);
-        mNumRounds.setOnClickListener(new View.OnClickListener() {
+        /*
+        mNumRounds.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    Log.d(DEBUG_TAG, Integer.toString(actionId));
+                    mNumRounds.clearFocus();
+                    InputMethodManager man = (InputMethodManager) mNumRounds.getContext()
+                            .getSystemService(INPUT_METHOD_SERVICE);
+                    if(man != null){
+                        man.hideSoftInputFromWindow(mNumRounds.getWindowToken(), 0);
+                    }
+                }
+                return true;
             }
         });
+        */
+        mNumRounds.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                mNumRounds.setSelection(mNumRounds.getText().length());
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    int i = Integer.parseInt(s.toString());
+                    if(i != mWorkoutData.getNumOfRounds()) {
+                        Log.d(DEBUG_TAG, Integer.toString(i));
+                        if (i > 0) {
+                            mWorkoutData.setNumOfRounds(i);
+                            mWorkoutViewModel.update(mWorkoutData);
+                        }
+                        Log.d(DEBUG_TAG, "Changed Num of rounds to: " + Integer.toString(i));
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(DEBUG_TAG, e.getMessage());
+                } finally {
+                    mNumRounds.setSelection(mNumRounds.getText().length());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mNumRounds.setSelection(mNumRounds.getText().length());
+            }
+        });
+
+        //endregion
+
+        //region PAGER
+        mViewPager = findViewById(R.id.pager);
+        mTabLayout = findViewById(R.id.pager_header);
         //endregion
 
         //region RECYCLER_VIEW
+        /*
         mRecyclerView = findViewById(R.id.set_recycler_view);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -354,7 +426,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         int dragDirs = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
         int swipeDirs = 0;
-
+        */
         //endregion
 
     }
@@ -408,7 +480,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 menu.getItem(i).setVisible(false);
             }
         } else {
-            menu.findItem(R.id.add_set).setVisible(true);
+            if(mWorkoutData.getWorkoutType() == Workout.USER_CREATED) {
+                menu.findItem(R.id.add_set).setVisible(true);
+            } else {
+                menu.findItem(R.id.add_set).setVisible(false);
+            }
             menu.findItem(R.id.action_settings).setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -478,7 +554,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void updateRoundNumUI(int num){
-        mNumRounds.setText(String.format(Locale.US, " %d ", num));
+        mNumRounds.setText(String.format(Locale.US, "%d", num));
     }
 
     //endregion
@@ -518,6 +594,20 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
     }
 
+    private void setupViewPager(List<Set> s){
+        mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
+        ViewPagerAdapter adapter = new ViewPagerAdapter(mFragmentManager);
+        mSetInfoFrags = new ArrayList<>();
+        for(int i = 0; i < s.size(); i++){
+            SetInfoFragment frag = SetInfoFragment.newInstance(s.get(i), null);
+            adapter.addFragment(frag, "");
+            mSetInfoFrags.add(frag);
+        }
+
+        mViewPager.setAdapter(adapter);
+
+        mTabLayout.setupWithViewPager(mViewPager, true);
+    }
     //endregion
 
 
@@ -670,12 +760,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                                 editSet.setDescrip(descrip);
                                 mWorkoutData.updateSet(editSet, setIndex);
                                 mWorkoutViewModel.update(mWorkoutData);
-                                mSetAdapter.notifyDataSetChanged();
+                                //TODO: mSetAdapter was commented out
+                                //mSetAdapter.notifyDataSetChanged();
                             }
                         });
                         break;
                     case BaseApp.DELETE:
-                        mSetAdapter.pendingRemoval(setIndex);
+                        //mSetAdapter.pendingRemoval(setIndex);
                         break;
                     case BaseApp.DUPLCIATE:
                         break;

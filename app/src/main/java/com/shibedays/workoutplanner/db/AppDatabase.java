@@ -10,6 +10,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.dao.SetDao;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
@@ -20,12 +21,12 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 
-@Database(entities = {Workout.class, Set.class}, version = 7)
+@Database(entities = {Workout.class, Set.class}, version = 8)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
 
-    public static final String DATABASE_NAME = "workout-database";
+    public static final String DATABASE_NAME = "workoutDB";
 
     public abstract WorkoutDao workoutDao();
     public abstract SetDao setDao();
@@ -40,7 +41,6 @@ public abstract class AppDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
-                            .fallbackToDestructiveMigration()
                             .addCallback(sAppDatabaseCallback)
                             .build();
                 }
@@ -55,7 +55,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db){
             super.onCreate(db);
-            new PopulateDBAsync(INSTANCE).execute();
+                  new PopulateDBAsync(INSTANCE).execute();
         }
     };
 
@@ -110,27 +110,33 @@ public abstract class AppDatabase extends RoomDatabase {
 
             // Workouts //
             int workoutIds = 0;
-            Workout workout_1 = new Workout(0, Workout.CARDIO, "Cardio_1");
+            Workout workout_1 = new Workout(workoutIds++, Workout.CARDIO, "Cardio_1", R.drawable.android);
+            Workout workout_6 = new Workout(workoutIds++, Workout.CARDIO, "Cardio_2", R.drawable.android);
             workout_1.addSet(jog);
             workout_1.addSet(walk);
-            Workout workout_2 = new Workout(1, Workout.STRENGTH, "Strength_1");
+            Workout workout_2 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_1", R.drawable.android);
+            Workout workout_7 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_2", R.drawable.android);
+            Workout workout_8 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_3", R.drawable.android);
             workout_2.addSet(pushups);
             workout_2.addSet(situps);
             workout_2.addSet(plank);
-            Workout workout_3 = new Workout(2, Workout.BALANCE, "Balance_1");
+            Workout workout_3 = new Workout(workoutIds++, Workout.BALANCE, "Balance_1", R.drawable.android);
             workout_3.addSet(one_foot);
-            Workout workout_4 = new Workout(3, Workout.FLEXIBILITY, "Flexibility_1");
+            Workout workout_4 = new Workout(workoutIds++, Workout.FLEXIBILITY, "Flexibility_1", R.drawable.android);
             workout_4.addSet(yoga_dog);
-            Workout workout_5 = new Workout(4, Workout.OTHER, "Other_1");
+            Workout workout_5 = new Workout(workoutIds++, Workout.OTHER, "Other_1", R.drawable.android);
             workout_5.addSet(study);
             workout_5.addSet(study_break);
-            Workout dummy = new Workout(5, Workout.USER_CREATED, "Dummy_1");
+            //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);
             mWorkoutDao.insert(workout_1);
             mWorkoutDao.insert(workout_2);
             mWorkoutDao.insert(workout_3);
             mWorkoutDao.insert(workout_4);
             mWorkoutDao.insert(workout_5);
-            mWorkoutDao.insert(dummy);
+            mWorkoutDao.insert(workout_6);
+            mWorkoutDao.insert(workout_7);
+            mWorkoutDao.insert(workout_8);
+            //mWorkoutDao.insert(dummy);
 
             return null;
         }

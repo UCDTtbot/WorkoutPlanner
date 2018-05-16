@@ -341,7 +341,6 @@ public class NewWorkoutFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
         mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
-        mParentActivity.findViewById(R.id.fab).setVisibility(View.VISIBLE);
         mParentActivity.renameTitle(R.string.app_name);
         mParentActivity.showActionItems();
         mParentActivity.toggleUpArrow(false);
@@ -568,7 +567,7 @@ public class NewWorkoutFragment extends Fragment{
         }
 
         if(isOk) {
-            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name);
+            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name, R.drawable.android);
             workout.setNumOfRounds(rounds);
             workout.setNoRestFlag(mRestFlag);
             workout.setNoBreakFlag(mBreakFlag);
