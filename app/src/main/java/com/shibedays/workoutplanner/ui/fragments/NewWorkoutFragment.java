@@ -341,7 +341,6 @@ public class NewWorkoutFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
         mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
-        mParentActivity.findViewById(R.id.fab).setVisibility(View.VISIBLE);
         mParentActivity.renameTitle(R.string.app_name);
         mParentActivity.showActionItems();
         mParentActivity.toggleUpArrow(false);

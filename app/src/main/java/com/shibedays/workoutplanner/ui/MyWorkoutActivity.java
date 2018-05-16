@@ -25,14 +25,22 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
@@ -53,6 +61,7 @@ import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
 
@@ -106,7 +115,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private RecyclerView mRecyclerView;
     private TextView mRestTime;
     private TextView mBreakTime;
-    private TextView mNumRounds;
+    private EditText mNumRounds;
     private ActionBar mActionBar;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
@@ -338,11 +347,54 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
 
         mNumRounds = findViewById(R.id.number_rounds);
-        mNumRounds.setOnClickListener(new View.OnClickListener() {
+        /*
+        mNumRounds.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    Log.d(DEBUG_TAG, Integer.toString(actionId));
+                    mNumRounds.clearFocus();
+                    InputMethodManager man = (InputMethodManager) mNumRounds.getContext()
+                            .getSystemService(INPUT_METHOD_SERVICE);
+                    if(man != null){
+                        man.hideSoftInputFromWindow(mNumRounds.getWindowToken(), 0);
+                    }
+                }
+                return true;
             }
         });
+        */
+        mNumRounds.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                mNumRounds.setSelection(mNumRounds.getText().length());
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    int i = Integer.parseInt(s.toString());
+                    if(i != mWorkoutData.getNumOfRounds()) {
+                        Log.d(DEBUG_TAG, Integer.toString(i));
+                        if (i > 0) {
+                            mWorkoutData.setNumOfRounds(i);
+                            mWorkoutViewModel.update(mWorkoutData);
+                        }
+                        Log.d(DEBUG_TAG, "Changed Num of rounds to: " + Integer.toString(i));
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(DEBUG_TAG, e.getMessage());
+                } finally {
+                    mNumRounds.setSelection(mNumRounds.getText().length());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mNumRounds.setSelection(mNumRounds.getText().length());
+            }
+        });
+
         //endregion
 
         //region PAGER
@@ -428,7 +480,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 menu.getItem(i).setVisible(false);
             }
         } else {
-            menu.findItem(R.id.add_set).setVisible(true);
+            if(mWorkoutData.getWorkoutType() == Workout.USER_CREATED) {
+                menu.findItem(R.id.add_set).setVisible(true);
+            } else {
+                menu.findItem(R.id.add_set).setVisible(false);
+            }
             menu.findItem(R.id.action_settings).setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -498,7 +554,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void updateRoundNumUI(int num){
-        mNumRounds.setText(String.format(Locale.US, " %d ", num));
+        mNumRounds.setText(String.format(Locale.US, "%d", num));
     }
 
     //endregion
@@ -539,7 +595,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void setupViewPager(List<Set> s){
-        mViewPager.setOffscreenPageLimit(s.size());
+        mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
         ViewPagerAdapter adapter = new ViewPagerAdapter(mFragmentManager);
         mSetInfoFrags = new ArrayList<>();
         for(int i = 0; i < s.size(); i++){

@@ -113,9 +113,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             public void onChanged(@Nullable List<Workout> workouts) {
                 if(workouts != null){
                     if(!workouts.isEmpty()){
-                        if(BaseApp.getNextWorkoutID() == DATA_DOESNT_EXIST) {
-                            BaseApp.setWorkoutID(workouts.size() + 1);
-                        }
+                        BaseApp.setWorkoutID(workouts.size() + 1);
                     }
                 }
             }
@@ -149,9 +147,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             public void onChanged(@Nullable List<Set> sets) {
                 if(sets != null) {
                     if(!sets.isEmpty()) {
-                        if(BaseApp.getNextSetID() == DATA_DOESNT_EXIST) {
-                            BaseApp.setSetID(sets.size() + 1);
-                        }
+                        BaseApp.setSetID(sets.size() + 1);
                     }
                 }
             }
@@ -195,13 +191,13 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                 BaseApp.setSetID(mPrivateSharedPrefs.getInt(KEY_NEXT_SET_NUM, DATA_DOESNT_EXIST));
             } else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
-                BaseApp.setWorkoutID(1);
-                BaseApp.setSetID(50);
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.putInt(KEY_NEXT_WORKOUT_NUM, BaseApp.getNextWorkoutID());
                 editor.putInt(KEY_NEXT_SET_NUM, BaseApp.getNextSetID());
                 editor.apply();
+                BaseApp.setWorkoutID(DATA_DOESNT_EXIST);
+                BaseApp.setSetID(DATA_DOESNT_EXIST);
             }else if (savedVersionCode < currentVersionCode){
                 // Updated run
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
@@ -228,13 +224,19 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         // Setup the adapter with correct data
         mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout), new WorkoutRowAdapter.WorkoutRowListener() {
             @Override
-            public void onWorkoutClicked(int index) {
-                openWorkout(index);
+            public void onWorkoutClicked(int index, int type) {
+                if(index >= 0) {
+                    openWorkout(index);
+                } else if (type == Workout.USER_CREATED && index < 0) {
+                    openNewWorkoutFragment();
+                }
             }
 
             @Override
             public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
-                openBottomSheet(type, workoutIndex);
+                if(type == Workout.USER_CREATED) {
+                    openBottomSheet(type, workoutIndex);
+                }
             }
 
             @Override
@@ -406,7 +408,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     @Override
     public void addNewWorkout(Workout workout) {
-        BaseApp.incrementWorkoutID(getApplicationContext());
         mWorkoutViewModel.insert(workout);
         View view = this.getCurrentFocus();
         if(view != null) {
@@ -438,10 +439,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
             intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
             startActivity(intent);
-        } else {
-            Toast.makeText(this, "Creating New", Toast.LENGTH_SHORT).show();
         }
-
     }
     //endregion
 

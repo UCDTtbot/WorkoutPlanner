@@ -52,7 +52,7 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
     //region INTERFACES
     public interface WorkoutRowListener{
-        void onWorkoutClicked(int workoutIndex);
+        void onWorkoutClicked(int workoutIndex, int type);
         void onWorkoutLongClick(int workoutIndex, int workoutID, int type);
         void deleteFromDB(Workout workout);
     }
@@ -79,10 +79,10 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
         holder.sectionTitle.setText(sectionName);
 
-        WorkoutItemAdapter workoutItemAdapter = new WorkoutItemAdapter(mContext, mCoordLayout, mTypedWorkouts.get(position), new WorkoutItemAdapter.WorkoutAdapterListener() {
+        WorkoutItemAdapter workoutItemAdapter = new WorkoutItemAdapter(mContext, mCoordLayout, mTypedWorkouts.get(position), position, new WorkoutItemAdapter.WorkoutAdapterListener() {
             @Override
-            public void onWorkoutClicked(int workoutIndex) {
-                mListener.onWorkoutClicked(workoutIndex);
+            public void onWorkoutClicked(int workoutIndex, int type) {
+                mListener.onWorkoutClicked(workoutIndex, type);
             }
 
             @Override

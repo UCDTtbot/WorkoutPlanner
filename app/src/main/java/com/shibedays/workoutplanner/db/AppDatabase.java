@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 
-@Database(entities = {Workout.class, Set.class}, version = 7)
+@Database(entities = {Workout.class, Set.class}, version = 8)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
 
-    public static final String DATABASE_NAME = "workout-database";
+    public static final String DATABASE_NAME = "workoutDB";
 
     public abstract WorkoutDao workoutDao();
     public abstract SetDao setDao();
@@ -127,7 +127,7 @@ public abstract class AppDatabase extends RoomDatabase {
             Workout workout_5 = new Workout(workoutIds++, Workout.OTHER, "Other_1", R.drawable.android);
             workout_5.addSet(study);
             workout_5.addSet(study_break);
-            Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);
+            //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);
             mWorkoutDao.insert(workout_1);
             mWorkoutDao.insert(workout_2);
             mWorkoutDao.insert(workout_3);
@@ -136,7 +136,7 @@ public abstract class AppDatabase extends RoomDatabase {
             mWorkoutDao.insert(workout_6);
             mWorkoutDao.insert(workout_7);
             mWorkoutDao.insert(workout_8);
-            mWorkoutDao.insert(dummy);
+            //mWorkoutDao.insert(dummy);
 
             return null;
         }

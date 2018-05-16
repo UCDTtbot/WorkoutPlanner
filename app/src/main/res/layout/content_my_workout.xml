@@ -8,6 +8,8 @@
     tools:context="com.shibedays.workoutplanner.ui.MyWorkoutActivity"
     tools:showIn="@layout/activity_my_workout"
     android:orientation="vertical"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     android:weightSum="100">
 
     <FrameLayout
@@ -20,7 +22,7 @@
         android:id="@+id/view_pager_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="70"
+        android:layout_weight="65"
         android:layout_marginBottom="@dimen/activity_vertical_margin">
 
         <android.support.design.widget.TabLayout
@@ -56,61 +58,69 @@
         android:id="@+id/rel_view_titles"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="30">
+        android:layout_weight="35">
 
-        <TextView
-            android:id="@+id/rest_title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:id="@+id/rest_entry_layout"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_marginStart="@dimen/activity_deep_horizontal_margin"
             android:layout_marginTop="@dimen/activity_deep_vertical_margin"
-            android:text="@string/rest_title_text"
-            style="@style/TextAppearance.AppCompat.Title"/>
-        <TextView
-            android:id="@+id/rest_time"
-            android:layout_below="@+id/rest_title_text"
-            android:layout_alignStart="@+id/rest_title_text"
-            android:text="@string/default_time"
-            style="@style/TouchableText"/>
+            style="@style/LinearEntryField">
+
+            <TextView
+                android:id="@+id/rest_title_text"
+                android:text="@string/rest_title_text"
+                style="@style/EntryTextTitle"/>
+
+            <TextView
+                android:id="@+id/rest_time"
+                style="@style/TextEntryField"
+                android:text="@string/default_time" />
+
+        </LinearLayout>
 
 
-        <TextView
-            android:id="@+id/rounds_title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:id="@+id/round_entry_layout"
             android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
-            android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
-            android:text="@string/round_title_text"
-            style="@style/TextAppearance.AppCompat.Title"/>
-        <TextView
-            android:id="@+id/number_rounds"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/rounds_title_text"
-            android:layout_centerInParent="true"
-            android:text="@string/placeholder_number"
-            style="@style/TouchableText"/>
+            style="@style/LinearEntryField">
+
+            <TextView
+                android:id="@+id/rounds_title_text"
+                android:text="@string/round_title_text"
+                style="@style/EntryTextTitle" />
+
+            <EditText
+                android:id="@+id/number_rounds"
+                android:text="@string/default_num"
+                android:inputType="number"
+                android:imeOptions="actionDone"
+                style="@style/EditTextEntryField"/>
+        </LinearLayout>
 
 
-        <TextView
-            android:id="@+id/break_title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:id="@+id/break_entry_layout"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="@dimen/activity_deep_horizontal_margin"
             android:layout_marginTop="@dimen/activity_deep_vertical_margin"
-            android:text="@string/break_title_text"
-            style="@style/TextAppearance.AppCompat.Title"/>
-        <TextView
-            android:id="@+id/break_time"
-            android:layout_alignEnd="@+id/break_title_text"
-            android:layout_below="@id/break_title_text"
-            android:text="@string/default_time"
-            style="@style/TouchableText"/>
+            style="@style/LinearEntryField">
+
+            <TextView
+                android:id="@+id/break_title_text"
+                android:text="@string/break_title_text"
+                style="@style/EntryTextTitle"/>
+
+            <TextView
+                android:id="@+id/break_time"
+                android:text="@string/default_time"
+                style="@style/TextEntryField"/>
+
+        </LinearLayout>
+
 
         <Button
             android:layout_width="wrap_content"
