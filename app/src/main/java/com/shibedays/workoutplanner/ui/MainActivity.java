@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     private List<List<Workout>> mTypedWorkouts;
     private List<List<Set>> mTypedSets;
 
+    // Pref Data
+    private int mTTSVol;
+
     // Flags
     private boolean HIDE_ACTION_ITEMS;
 
@@ -181,6 +184,9 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
         mDefaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mTTSVol = 100;
+
         int currentVersionCode = BuildConfig.VERSION_CODE;
 
         if(mPrivateSharedPrefs != null){
@@ -437,6 +443,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         if(workoutID >= 0) {
             Intent intent = new Intent(this, MyWorkoutActivity.class);
             intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+            intent.putExtra(MyWorkoutActivity.EXTRA_TTS_VOLUME, mTTSVol);
             intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
             startActivity(intent);
         }

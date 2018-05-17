@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -102,6 +103,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final String EXTRA_INTENT_TYPE = PACKAGE + "INTENT_TYPE";
 
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
+    public static final String EXTRA_TTS_VOLUME = PACKAGE + "Volume";
     public static final String EXTRA_WORKOUT_JSON = PACKAGE + "WORKOUT_JSON";
 
     public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "INTENT_BUNDLE";
@@ -126,6 +128,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private List<Set> mSetList;
     private LiveData<Workout> mWorkoutLiveData;
     private List<List<Set>> mTypedSets;
+
+    private int mVol;
 
     // Instances
     private FragmentManager mFragmentManager;
@@ -156,7 +160,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_SAY_HELLO:
-                    Toast.makeText(getApplicationContext(), "TTS Ready", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "TTS Ready", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -262,19 +266,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
         //endregion
 
-
-        //region TTS_BINDING
-        Intent TTSIntent = new Intent(this, TTSService.class);
-        bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
-        startService(TTSIntent);
-        //endregion
-
-
         //region VIEW_MODEL
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         //endregion
-
 
         //region INTENT
         Intent intent = getIntent();
@@ -283,6 +278,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             if(mIntentType == NORMAL_INTENT_TYPE) {
                 // Normal running circumstances
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                mVol = intent.getIntExtra(EXTRA_TTS_VOLUME, 100);
                 mWorkoutLiveData = mWorkoutViewModel.getWorkout(id);
                 mWorkoutLiveData.observe(this, new Observer<Workout>() {
                     @Override
@@ -297,7 +293,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                             throw new RuntimeException(DEBUG_TAG + " workout not found for LiveData");
                         }
 
-                        }
+                    }
                 });
 
                 mTypedSets = new ArrayList<>();
@@ -329,6 +325,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         //endregion
 
 
+        //region TTS_BINDING
+        Intent TTSIntent = new Intent(this, TTSService.class);
+        TTSIntent.putExtra("TestVol", 0);
+        bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
+        startService(TTSIntent);
+        //endregion
+
+
         //region UI
         mRestTime = findViewById(R.id.rest_time);
         mRestTime.setOnClickListener(new View.OnClickListener() {
@@ -347,27 +351,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
 
         mNumRounds = findViewById(R.id.number_rounds);
-        /*
-        mNumRounds.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE){
-                    Log.d(DEBUG_TAG, Integer.toString(actionId));
-                    mNumRounds.clearFocus();
-                    InputMethodManager man = (InputMethodManager) mNumRounds.getContext()
-                            .getSystemService(INPUT_METHOD_SERVICE);
-                    if(man != null){
-                        man.hideSoftInputFromWindow(mNumRounds.getWindowToken(), 0);
-                    }
-                }
-                return true;
-            }
-        });
-        */
         mNumRounds.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                mNumRounds.setSelection(mNumRounds.getText().length());
+
             }
 
             @Override
@@ -391,7 +378,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
             @Override
             public void afterTextChanged(Editable s) {
-                mNumRounds.setSelection(mNumRounds.getText().length());
+
             }
         });
 
@@ -455,7 +442,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         if(mTTSIsBound){
             unbindService(mTTSConnection);
             Log.d(DEBUG_TAG, "TTS Shutdown ON DESTROY");
-            Toast.makeText(getApplicationContext(), "TTS Shutoff ON DESTROY", Toast.LENGTH_SHORT).show();
             stopService(new Intent(this, TTSService.class));
             mTTSIsBound = false;
         }
@@ -555,6 +541,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void updateRoundNumUI(int num){
         mNumRounds.setText(String.format(Locale.US, "%d", num));
+        mNumRounds.setSelection(mNumRounds.getText().length());
     }
 
     //endregion
@@ -824,7 +811,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         fragmentTransaction.commit();
         findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
         Log.d(DEBUG_TAG, "Timer Fragment Created");
-        bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
+        //bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -833,7 +820,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         Intent timerIntent = new Intent(this, TimerService.class);
         Bundle notifBundle = new Bundle();
         // TODO: Put items that are needed to rebuild the activity and fragment into this bundle
-
         // Build the bundle that the notification will use to restart everything
         notifBundle.putString(EXTRA_WORKOUT_JSON, mWorkoutData.toJSON());
         notifBundle.putInt(EXTRA_WORKOUT_ID, mWorkoutData.getWorkoutID());

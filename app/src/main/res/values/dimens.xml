@@ -51,6 +51,7 @@
     <dimen name="text_size_xxlarge">34sp</dimen>
     <dimen name="number_picker_height">180dp</dimen>
     <dimen name="number_picker_width">64dp</dimen>
+    <dimen name="progress_thickness">3dp</dimen>
 
 
 </resources>

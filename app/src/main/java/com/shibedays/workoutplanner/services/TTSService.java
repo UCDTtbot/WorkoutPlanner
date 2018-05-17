@@ -2,6 +2,7 @@ package com.shibedays.workoutplanner.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -34,6 +35,9 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
     //region PRIVATE_VARS
     // TTS Object(s)
     private TextToSpeech mTTS;
+
+    private int mVol;
+
     // Booleans
     private boolean mTTSReady = false;
     // Instances
@@ -81,6 +85,7 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Keep the service sticky
         Log.d(DEBUG_TAG, "TTS onStartCommand called");
+        mVol = intent.getIntExtra("TestVol", 1);
         return START_STICKY;
     }
 
@@ -91,6 +96,7 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
 
             if(result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED){
                 Log.d(DEBUG_TAG, "TTS up and running");
+                Log.d(DEBUG_TAG, Integer.toString(mVol));
                 mTTSReady = true;
             } else {
                 Log.e(DEBUG_TAG, "Missing language data or unsupported");

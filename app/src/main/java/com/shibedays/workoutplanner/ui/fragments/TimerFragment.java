@@ -54,11 +54,7 @@ public class TimerFragment extends Fragment {
     private int mCurRep;
     private int mCurRound;
     // UI Components
-    private TextView mDescipTextView;
-    private TextView mTimeTextView;
-    private TextView mCurRepTextView;
-    private TextView mCurRoundTextView;
-    private TextView mServiceTextView;
+
     // Activity
     private MyWorkoutActivity mParentActivity;
     //endregion
@@ -142,11 +138,11 @@ public class TimerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
-        mTimeTextView = view.findViewById(R.id.main_timer);
-        mCurRepTextView = view.findViewById(R.id.current_rep);
-        mCurRoundTextView = view.findViewById(R.id.current_round);
-        mDescipTextView = view.findViewById(R.id.descrip);
-        mServiceTextView = view.findViewById(R.id.service_running);
+        //mTimeTextView = view.findViewById(R.id.main_timer);
+        //mCurRepTextView = view.findViewById(R.id.current_rep);
+        //mCurRoundTextView = view.findViewById(R.id.current_round);
+        //mDescipTextView = view.findViewById(R.id.descrip);
+        //mServiceTextView = view.findViewById(R.id.service_running);
         updateTime(mCurSet.getTime());
         updateRep(mCurRep);
         updateRound(mCurRound);
@@ -229,32 +225,32 @@ public class TimerFragment extends Fragment {
         int[] splitTime = BaseApp.convertFromMillis(time);
         int min = splitTime[0], sec = splitTime[1];
         if((sec % 10) == 0){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
+            //mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
         } else if ( sec < 10 ){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+            //mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else if (min == 0 && sec == 0){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+            //mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
+            //mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
     }
 
     public void updateRep(int rep){
         mCurRep = rep;
-        mCurRepTextView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mWorkout.getNumOfSets()));
+        //mCurRepTextView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mWorkout.getNumOfSets()));
     }
 
     public void updateRound(int round){
         mCurRound = round;
-        mCurRoundTextView.setText(String.format(Locale.US, "%d / %d", (round + 1), mWorkout.getNumOfRounds()));
+        //mCurRoundTextView.setText(String.format(Locale.US, "%d / %d", (round + 1), mWorkout.getNumOfRounds()));
     }
 
     public void updateDescription(String descrip){
-        mDescipTextView.setText(descrip);
+        //mDescipTextView.setText(descrip);
     }
 
     public void updateServiceText(String msg){
-        mServiceTextView.setText(msg);
+        //mServiceTextView.setText(msg);
     }
     //endregion
 
