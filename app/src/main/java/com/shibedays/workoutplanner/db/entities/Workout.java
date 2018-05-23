@@ -22,13 +22,12 @@ import javax.crypto.spec.DESedeKeySpec;
 public class Workout{
 
     //region TYPE_CONSTANTS
-    public static final int STRENGTH = 0;
-    public static final int CARDIO = 1;
+    public static final int CARDIO = 0;
+    public static final int STRENGTH = 1;
     public static final int FLEXIBILITY = 2;
-    public static final int BALANCE = 3;
-    public static final int USER_CREATED = 4;
-    public static final int OTHER = 5;
-    public static final String[] TYPES = {"Strength Training", "Cardio Workouts", "Flexibility", "Balance", "Custom", "Other"};
+    public static final int USER_CREATED = 3;
+    public static final int OTHER = 4;
+    public static final String[] TYPES = { "Cardio Workouts", "Strength Training", "Flexibility", "Custom", "Other"};
     //endregion
 
     @PrimaryKey

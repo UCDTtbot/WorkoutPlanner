@@ -43,6 +43,8 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         // Foreground
         TextView itemName;
         ImageView itemImage;
+        TextView itemDescrip;
+
         private WorkoutViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView

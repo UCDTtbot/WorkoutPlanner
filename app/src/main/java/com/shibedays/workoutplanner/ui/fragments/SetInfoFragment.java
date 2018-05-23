@@ -28,7 +28,8 @@ public class SetInfoFragment extends Fragment {
     // UI
     private TextView mSetNameView;
     private ImageView mSetImageView;
-    private TextView mSetDescrip;
+    private TextView mSetShortDescrip;
+    private TextView mSetLongDescrip;
     // FLAGS
 
     private SetInfoFragment mThis;
@@ -73,25 +74,38 @@ public class SetInfoFragment extends Fragment {
 
         mSetNameView = view.findViewById(R.id.set_name);
         mSetImageView = view.findViewById(R.id.set_image);
-        mSetDescrip = view.findViewById(R.id.set_descrip);
+        mSetShortDescrip = view.findViewById(R.id.set_short_descrip);
+        mSetLongDescrip = view.findViewById(R.id.set_long_descrip);
 
         if(mSetData != null) {
             mSetNameView.setText(mSetData.getName());
+            mSetImageView.setImageResource(mSetData.getSetImageId());
+            String shortDescrip = mSetData.getDescrip();
+            if(shortDescrip.length() > 38){
+                shortDescrip = shortDescrip.substring(0, 38).concat("...");
+            }
+            mSetShortDescrip.setText(shortDescrip); // todo: shorten the descrip here
+
+            // ~41 characters
+            mSetLongDescrip.setText(mSetData.getDescrip());
         }
+
 
         mSetImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mSetImageView.setVisibility(View.GONE);
-                mSetDescrip.setVisibility(View.VISIBLE);
+                mSetShortDescrip.setVisibility(View.GONE);
+                mSetLongDescrip.setVisibility(View.VISIBLE);
             }
         });
 
-        mSetDescrip.setOnClickListener(new View.OnClickListener() {
+        mSetLongDescrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSetDescrip.setVisibility(View.GONE);
+                mSetLongDescrip.setVisibility(View.GONE);
                 mSetImageView.setVisibility(View.VISIBLE);
+                mSetShortDescrip.setVisibility(View.VISIBLE);
             }
         });
 

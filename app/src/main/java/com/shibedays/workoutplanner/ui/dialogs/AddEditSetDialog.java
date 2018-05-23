@@ -51,6 +51,8 @@ public class AddEditSetDialog extends DialogFragment {
     //region PRIVATE_VARS
     // UI
     private EditText mEditTextName;
+
+    private int mType;
     //endregion
 
     //region INTERFACES
@@ -117,10 +119,11 @@ public class AddEditSetDialog extends DialogFragment {
         Bundle args = getArguments();
         AlertDialog dialog = null;
 
+        mType = -1;
         if(args!= null){
-            final int type = args.getInt(EXTRA_DIALOG_TYPE);
+            final int mType = args.getInt(EXTRA_DIALOG_TYPE);
             final int setId = args.getInt(EXTRA_SET_ID);
-            if(type == NEW_SET){
+            if(mType == NEW_SET){
                 mMinutePicker.setValue(0);
                 mSecondPicker.setValue(10);
 
@@ -170,7 +173,7 @@ public class AddEditSetDialog extends DialogFragment {
                     }
                 });
 
-            } else if(type == EDIT_SET){
+            } else if(mType == EDIT_SET){
                 mEditTextName.setText(args.getString(EXTRA_SET_NAME));
                 mEditTextName.setSelection(mEditTextName.getText().length());
                 mEditTextDescrip.setText(args.getString(EXTRA_SET_DESCIP));
@@ -221,7 +224,7 @@ public class AddEditSetDialog extends DialogFragment {
 
                     }
                 });
-            } else if (type == DISPLAY_SET) {
+            } else if (mType == DISPLAY_SET) {
                 mTextViewName.setVisibility(View.VISIBLE);
                 mTextViewName.setText(args.getString(EXTRA_SET_NAME));
                 mEditTextName.setVisibility(View.INVISIBLE);
@@ -254,9 +257,12 @@ public class AddEditSetDialog extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mEditTextName.requestFocus();
-        if(getDialog().getWindow() != null)
-            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+        if(mType >= 0 && mType != DISPLAY_SET) {
+            mEditTextName.requestFocus();
+            if (getDialog().getWindow() != null)
+                getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
         getDialog().setCanceledOnTouchOutside(true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }

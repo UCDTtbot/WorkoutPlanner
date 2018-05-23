@@ -164,13 +164,12 @@ public class NewWorkoutFragment extends Fragment{
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         mSetListFrags = new ArrayList<>();
         for(int i = 0; i < Set.TYPES.length; i++){
-            boolean header = i == 0;
-            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
+            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), i, new SetListFragment.SetListListener() {
 
                 @Override
-                public void openBottomSheet(int setID) {
+                public void openBottomSheet(int setType, int setID) {
 
-                    final Set set = getSetByID(setID);
+                    final Set set = getSetByID(setID, setType);
                     if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
 
                     NewWorkoutFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
@@ -201,15 +200,15 @@ public class NewWorkoutFragment extends Fragment{
                 }
 
                 @Override
-                public void openSetDialog(int type, int setID) {
+                public void openSetDialog(int type, int setType, int setID) {
 
-                    final Set set = getSetByID(setID);
+                    final Set set = getSetByID(setID, setType);
 
                     if(type == AddEditSetDialog.NEW_SET){
                         openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
                             @Override
                             public void newSet(String name, String descrip, int min, int sec) {
-                                Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
+                                Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), R.drawable.android);
                                 BaseApp.incrementSetID(getContext());
                                 mTypedSetList.get(Set.USER_CREATED).add(newSet);
                                 mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
@@ -504,8 +503,8 @@ public class NewWorkoutFragment extends Fragment{
         }
     }
 
-    private Set getSetByID(int setID){
-        for(Set s : mTypedSetList.get(Set.USER_CREATED)){
+    private Set getSetByID(int setID, int type){
+        for(Set s : mTypedSetList.get(type)){
             if (s.getSetId() == setID) return s;
         }
 

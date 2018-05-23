@@ -89,8 +89,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //region MESSAGES
     public static final int MSG_SAY_HELLO = 0;
-
-    public static final int MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING = 1;
+    public static final int MSG_UPDATE_SET_NAME = 1;
     public static final int MSG_PASS_TTS_MSG = 2;
     public static final int MSG_UPDATE_TIME_DISPLAY = 3;
     public static final int MSG_NEXT_REP_UI = 4;
@@ -173,17 +172,20 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
-                case MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING:
-                    mTimerFragment.updateServiceText("Service is Running");
-                    break;
                 case MSG_PASS_TTS_MSG:
                     if(msg.arg1 > 0) {
                         sendTTSMessage(msg.arg1);
                     }
                     break;
+                case MSG_UPDATE_SET_NAME:
+                    if(mTimerFragment != null){
+                        mTimerFragment.updateSetTitle();
+                    } else {
+                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
+                    }
                 case MSG_UPDATE_TIME_DISPLAY:
                     if(mTimerFragment != null){
-                        mTimerFragment.updateTime(msg.arg1);
+                        mTimerFragment.updateTime(msg.arg1, msg.arg2);
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
@@ -512,7 +514,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //region UI_UPDATES
     private void updateRestTimeUI(int min, int sec, boolean flag){
-        if(flag){
+        /*if(flag){
             mRestTime.setText(R.string.none_text);
         }else if((sec % 10) == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -523,9 +525,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }  else {
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
+        */
+
+        if(flag){
+            mRestTime.setText(R.string.none_text);
+        } else if(sec == 0){
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if(sec < 10) {
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else {
+            mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
     }
 
     private void updateBreakTimeUI(int min, int sec, boolean flag){
+        /*
         if(flag){
             mBreakTime.setText(R.string.none_text);
         } else if((sec % 10) == 0) {
@@ -533,6 +547,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }else if (min == 0 && sec == 0) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         }else if ( sec < 10 ) {
+            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else {
+            mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }*/
+
+        if(flag){
+            mBreakTime.setText(R.string.none_text);
+        } else if(sec == 0){
+            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if(sec < 10) {
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
             mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -804,16 +828,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation
     public void startTimer(View view){
+        openTimerFragment(mWorkoutData);
+    }
+
+    public void openTimerFragment(Workout wrk){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
+        mTimerFragment = TimerFragment.newInstance(wrk.toJSON());
         fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
         findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
         Log.d(DEBUG_TAG, "Timer Fragment Created");
-        //bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
-
+        bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
     }
+
+
 
     private void beginTimerService(){
         // TODO: Create a function that unifies notification vs start bundle
@@ -924,5 +953,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             mTTSIsBound = false;
         }
     };
+    //endregion
+
+    //region TESTING
+    // FOR TESTING PURPOSES
+    public Workout getWrkoutData(){
+        return mWorkoutData;
+    }
     //endregion
 }

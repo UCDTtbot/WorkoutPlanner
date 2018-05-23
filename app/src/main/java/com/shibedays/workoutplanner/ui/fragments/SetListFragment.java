@@ -32,7 +32,7 @@ public class SetListFragment extends Fragment {
     private RecyclerView mListView;
     private ChooseSetAdapter mAdapter;
     // FLAGS
-    private boolean mIncludeHeader;
+    private int mType;
 
     private SetListFragment mThis;
     //endregion
@@ -40,8 +40,8 @@ public class SetListFragment extends Fragment {
 
 
     public interface SetListListener {
-        void openBottomSheet(int setID);
-        void openSetDialog(int type, int setID);
+        void openBottomSheet(int setType, int setID);
+        void openSetDialog(int type, int setType, int setID);
     }
     private SetListListener mListener;
 
@@ -50,11 +50,11 @@ public class SetListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SetListFragment newInstance(List<Set> setList, boolean header, SetListListener listener) {
+    public static SetListFragment newInstance(List<Set> setList, int type, SetListListener listener) {
         SetListFragment fragment = new SetListFragment();
         fragment.setData(setList);
         fragment.setListener(listener);
-        fragment.setHeader(header);
+        fragment.setType(type);
         return fragment;
     }
     //endregion
@@ -81,20 +81,20 @@ public class SetListFragment extends Fragment {
         mListView = view.findViewById(R.id.setlist_recycler);
         mListView.setLayoutManager(new LinearLayoutManager(getContext()));
         //mListView.setLayoutManager(new GridLayoutManager(getContext(), NUM_GRID_ROWS));
-        mAdapter = new ChooseSetAdapter(getContext(), mIncludeHeader, new ChooseSetAdapter.ChooseSetListener() {
+        mAdapter = new ChooseSetAdapter(getContext(), mType, new ChooseSetAdapter.ChooseSetListener() {
             @Override
             public void createSet() {
-                mListener.openSetDialog(AddEditSetDialog.NEW_SET, -1);
+                mListener.openSetDialog(AddEditSetDialog.NEW_SET, Set.USER_CREATED, -1);
             }
 
             @Override
-            public void openBottomSheet(int setID) {
-                mListener.openBottomSheet(setID);
+            public void openBottomSheet(int setID, int type) {
+                mListener.openBottomSheet(type, setID);
             }
 
             @Override
-            public void openDisplayInfo(int setID) {
-                mListener.openSetDialog(AddEditSetDialog.DISPLAY_SET, setID);
+            public void openDisplayInfo(int setID, int type) {
+                mListener.openSetDialog(AddEditSetDialog.DISPLAY_SET, type, setID);
             }
         });
         mListView.setAdapter(mAdapter);
@@ -156,8 +156,8 @@ public class SetListFragment extends Fragment {
         return mAdapter.getMappedSets();
     }
 
-    private void setHeader(boolean header){
-        mIncludeHeader = header;
+    private void setType(int type){
+        mType = type;
     }
 
     //endregion

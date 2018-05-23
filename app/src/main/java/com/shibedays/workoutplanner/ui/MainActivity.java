@@ -398,18 +398,20 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     //region NEW_WORKOUT
     private void openNewWorkoutFragment(){
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mTypedSets);
-        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-        fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
-        fragmentTransaction.addToBackStack(null);
-        findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
-        findViewById(R.id.fab).setVisibility(View.GONE);
-        fragmentTransaction.commit();
-        renameTitle(R.string.new_workout);
-        hideActionItems();
-        toggleUpArrow(true);
-        Log.d(DEBUG_TAG, "New Workout Fragment Created");
+        if(mTypedSets.get(0).size() > 0) {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            mNewWorkoutFragment = NewWorkoutFragment.newInstance(mTypedSets);
+            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+            fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
+            fragmentTransaction.addToBackStack(null);
+            findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+            findViewById(R.id.fab).setVisibility(View.GONE);
+            fragmentTransaction.commit();
+            renameTitle(R.string.new_workout);
+            hideActionItems();
+            toggleUpArrow(true);
+            Log.d(DEBUG_TAG, "New Workout Fragment Created");
+        }
     }
 
     @Override

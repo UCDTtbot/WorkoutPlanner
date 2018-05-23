@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 
+import com.bumptech.glide.Glide;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -22,11 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.ChooseSetHolder>{
+public class ChooseSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     //region CONSTANTS
     private static final String DEBUG_TAG = ChooseSetAdapter.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.ChooseSetAdapter.";
+
+    private static final int HEADER = -1;
     //endregion
 
     //region VIEW_HOLDER
@@ -93,22 +96,40 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
             mCardView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(currentSet.getSetType() > 0){
-                        mListener.openDisplayInfo(currentSet.getSetId());
+                    if(currentSet.getSetType() != Set.USER_CREATED){
+                        mListener.openDisplayInfo(currentSet.getSetId(), currentSet.getSetType());
                     } else {
-                        mListener.openBottomSheet(currentSet.getSetId());
+                        mListener.openBottomSheet(currentSet.getSetId(), currentSet.getSetType());
                     }
                     return false;
                 }
             });
         }
+    }
 
-        void bindHeader(){
+    class HeaderViewHolder extends RecyclerView.ViewHolder {
+
+        // UI
+        private CardView mCardView;
+        private CheckBox mCheckBox;
+        private TextView mTextViewName;
+        private TextView mTextViewTime;
+
+        public HeaderViewHolder(View itemView) {
+            super(itemView);
+
+            mCheckBox = itemView.findViewById(R.id.choose_set_check);
+            mTextViewName = itemView.findViewById(R.id.choose_set_name);
+            mTextViewTime = itemView.findViewById(R.id.choose_set_time);
+
+            mCardView = itemView.findViewById(R.id.set_narrow_card);
+        }
+
+
+        void bindTo(){
             mCheckBox.setVisibility(View.GONE);
             mTextViewName.setText("Add Custom Set");
-
             mTextViewTime.setVisibility(View.GONE);
-
             mCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -125,7 +146,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     // UI
     private Context mContext;
     // FLAGS
-    private boolean mHeader;
+    private int mType;
     // Map
     private HashMap<Set, Boolean> mCheckedMap;
     //endregion
@@ -133,33 +154,51 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     //region INTERFACES
     public interface ChooseSetListener{
         void createSet();
-        void openBottomSheet(int setID);
-        void openDisplayInfo(int setID);
+        void openBottomSheet(int setID, int type);
+        void openDisplayInfo(int setID, int type);
     }
     private ChooseSetListener mListener;
     //endregion
 
     //region LIFECYCLE
-    public ChooseSetAdapter(Context context, boolean header, ChooseSetListener listener){
+    public ChooseSetAdapter(Context context, int type, ChooseSetListener listener){
         mContext = context;
         mListener = listener;
-        mHeader = header;
+        mType = type;
         mCheckedMap = new HashMap<>();
     }
 
     @NonNull
     @Override
-    public ChooseSetHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ChooseSetHolder(LayoutInflater.from(mContext)
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        if(viewType == HEADER && mType == Set.USER_CREATED){
+            return new HeaderViewHolder(LayoutInflater.from(mContext)
                     .inflate(R.layout.list_choose_set_item, parent, false));
+        }
+        return new ChooseSetHolder(LayoutInflater.from(mContext)
+                .inflate(R.layout.list_choose_set_item, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ChooseSetHolder holder, int position) {
-        if(mHeader && position == 0){
-            holder.bindHeader();
-        } else {
-            holder.bindTo(mSetData.get(position));
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        // Get the current data
+        try{
+            if(holder instanceof ChooseSetHolder){
+                ChooseSetHolder vh = (ChooseSetHolder) holder;
+                if(mSetData.size() > 0) {
+                    if (mSetData.get(0).getSetType() == Set.USER_CREATED) {
+                        vh.bindTo(mSetData.get(position - 1));
+                    } else {
+                        vh.bindTo(mSetData.get(position));
+                    }
+                }
+            } else if (holder instanceof HeaderViewHolder) {
+                HeaderViewHolder vh = (HeaderViewHolder) holder;
+                vh.bindTo();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     //endregion
@@ -167,7 +206,24 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<ChooseSetAdapter.Choo
     //region UTILITY
     @Override
     public int getItemCount() {
-        return mSetData != null ? mSetData.size() : 0;
+        if(mSetData == null){
+            return 0;
+        } else if (mSetData.size() == 0) {
+            return 1;
+        } else if (mType == Set.USER_CREATED) {
+            return mSetData.size() + 1;
+        } else {
+            return mSetData.size();
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(position == 0 && mType == Set.USER_CREATED) {
+            return HEADER;
+        }
+
+        return super.getItemViewType(position);
     }
 
     public void setData(List<Set> data){
