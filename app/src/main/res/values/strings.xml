@@ -72,5 +72,7 @@
     <string name="rename_workout">Rename</string>
     <string name="name_error">Name must not be empty!</string>
     <string name="time_error">Time must not be 0.</string>
+    <string name="new_set">New Set</string>
+    <string name="edit_set">Edit Set</string>
 
 </resources>

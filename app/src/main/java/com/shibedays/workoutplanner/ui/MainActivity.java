@@ -365,7 +365,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
-                toggleUpArrow(false);
+                if(mFragmentManager.getBackStackEntryCount() <= 0)
+                    toggleUpArrow(false);
             }
             return true;
         }
@@ -405,7 +406,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
             fragmentTransaction.addToBackStack(null);
             findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
-            findViewById(R.id.fab).setVisibility(View.GONE);
             fragmentTransaction.commit();
             renameTitle(R.string.new_workout);
             hideActionItems();

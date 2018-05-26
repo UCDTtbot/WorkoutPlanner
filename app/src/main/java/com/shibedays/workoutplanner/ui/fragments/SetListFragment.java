@@ -23,6 +23,10 @@ public class SetListFragment extends Fragment {
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.SetListFragment.";
     private static final String DEBUG_TAG = SetListFragment.class.getSimpleName();
     private static int NUM_GRID_ROWS = 2;
+
+    public static final int NEW_SET = 0;
+    public static final int EDIT_SET = 1;
+    public static final int DISPLAY_SET = 2;
     //endregion
 
     //region PRIVATE_VARS
@@ -84,17 +88,17 @@ public class SetListFragment extends Fragment {
         mAdapter = new ChooseSetAdapter(getContext(), mType, new ChooseSetAdapter.ChooseSetListener() {
             @Override
             public void createSet() {
-                mListener.openSetDialog(AddEditSetDialog.NEW_SET, Set.USER_CREATED, -1);
+                mListener.openSetDialog(NEW_SET, Set.USER_CREATED, -1);
             }
 
             @Override
-            public void openBottomSheet(int setID, int type) {
-                mListener.openBottomSheet(type, setID);
+            public void openBottomSheet(int setID, int setType) {
+                mListener.openBottomSheet(setType, setID);
             }
 
             @Override
-            public void openDisplayInfo(int setID, int type) {
-                mListener.openSetDialog(AddEditSetDialog.DISPLAY_SET, type, setID);
+            public void openDisplayInfo(int setID, int setType) {
+                mListener.openSetDialog(DISPLAY_SET, setType, setID);
             }
         });
         mListView.setAdapter(mAdapter);

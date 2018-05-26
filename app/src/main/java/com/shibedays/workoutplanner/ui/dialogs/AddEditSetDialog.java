@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,14 +34,9 @@ public class AddEditSetDialog extends DialogFragment {
     // Package and Debug Constants
     private static final String DEBUG_TAG = AddEditSetDialog.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog.";
-
-    public static final int NEW_SET = 0;
-    public static final int EDIT_SET = 1;
-    public static final int DISPLAY_SET = 2;
     //endregion
 
     //region INTENT_KEYS
-    public static final String EXTRA_DIALOG_TYPE = PACKAGE + "DIALOG_TYPE";
     public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
     public static final String EXTRA_SET_DESCIP = PACKAGE + "SET_DESCRIP";
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
@@ -55,19 +51,10 @@ public class AddEditSetDialog extends DialogFragment {
     private int mType;
     //endregion
 
-    //region INTERFACES
-    public interface AddEditSetDialogListener {
-        void newSet(String name, String descrip, int min, int sec);
-        void editSet(int id, String name, String descrip, int min, int sec);
-    }
-    AddEditSetDialogListener mListener;
-    //endregion
-
     //region LIFECYCLE
 
-    public static AddEditSetDialog newInstance(Bundle args, AddEditSetDialogListener listener){
+    public static AddEditSetDialog newInstance(Bundle args){
         AddEditSetDialog dialog = new AddEditSetDialog();
-        dialog.setListener(listener);
         dialog.setArguments(args);
         return dialog;
     }
@@ -92,177 +79,65 @@ public class AddEditSetDialog extends DialogFragment {
 
         // UI Comoponents
         mEditTextName = view.findViewById(R.id.new_set_name);
-        final TextView mTextViewName = view.findViewById(R.id.display_set_name);
-        final EditText mEditTextDescrip = view.findViewById(R.id.new_set_descrip);
-        final TextView mTextViewDescrip = view.findViewById(R.id.display_set_descrip);
-        final View number_spinners = view.findViewById(R.id.spinners);
-        final NumberPicker mMinutePicker = number_spinners.findViewById(R.id.MinutePicker);
-        final NumberPicker mSecondPicker = number_spinners.findViewById(R.id.SecondsPicker);
+        final TextView textViewName = view.findViewById(R.id.display_set_name);
+        final EditText editTextDescrip = view.findViewById(R.id.new_set_descrip);
+        final TextView textViewDescrip = view.findViewById(R.id.display_set_descrip);
+        final View numSpinners = view.findViewById(R.id.spinners);
+        final NumberPicker minPicker = numSpinners.findViewById(R.id.MinutePicker);
+        final NumberPicker secPicker = numSpinners.findViewById(R.id.SecondsPicker);
+        final LinearLayoutCompat timeDisplay = view.findViewById(R.id.new_set_time_display);
 
-        mMinutePicker.setMinValue(0);
-        mMinutePicker.setMaxValue(30);
-        mMinutePicker.setWrapSelectorWheel(true);
-        mMinutePicker.setFadingEdgeEnabled(true);
+        minPicker.setMinValue(0);
+        minPicker.setMaxValue(30);
+        minPicker.setWrapSelectorWheel(true);
+        minPicker.setFadingEdgeEnabled(true);
 
-        mSecondPicker.setMinValue(0);
-        mSecondPicker.setMaxValue(59);
-        mSecondPicker.setFormatter(new NumberPicker.Formatter() {
+        secPicker.setMinValue(0);
+        secPicker.setMaxValue(59);
+        secPicker.setFormatter(new NumberPicker.Formatter() {
             @Override
             public String format(int value) {
                 return String.format(Locale.US, "%02d", value);
             }
         });
-        mSecondPicker.setWrapSelectorWheel(true);
-        mSecondPicker.setFadingEdgeEnabled(true);
+        secPicker.setWrapSelectorWheel(true);
+        secPicker.setFadingEdgeEnabled(true);
 
 
         Bundle args = getArguments();
-        AlertDialog dialog = null;
 
-        mType = -1;
         if(args!= null){
-            final int mType = args.getInt(EXTRA_DIALOG_TYPE);
             final int setId = args.getInt(EXTRA_SET_ID);
-            if(mType == NEW_SET){
-                mMinutePicker.setValue(0);
-                mSecondPicker.setValue(10);
 
-                builder.setView(view)
-                        .setTitle("New Set")
-                        .setPositiveButton("Add", null)
-                        .setNegativeButton("Cancel", null);
-                dialog = builder.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(final DialogInterface dialog) {
-                        Button pos = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                        pos.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // TODO: Input validation
-                                Boolean OK = true;
+            numSpinners.setVisibility(View.INVISIBLE);
+            timeDisplay.setVisibility(View.VISIBLE);
 
-                                String name = mEditTextName.getText().toString();
-                                if(TextUtils.isEmpty(name)){
-                                    mEditTextName.setError(getString(R.string.name_error));
-                                    OK = false;
-                                }
-                                String descrip = mEditTextDescrip.getText().toString();
-                                int min = mMinutePicker.getValue();
-                                int sec = mSecondPicker.getValue();
-                                if(min == 0 && sec == 0){
-                                    Toast.makeText(getContext(), R.string.time_error, Toast.LENGTH_SHORT).show();
-                                    OK = false;
-                                }
-                                if(OK) {
-                                    mListener.newSet(name, descrip, min, sec);
-                                    dialog.dismiss();
-                                } else {
-                                    Log.d(DEBUG_TAG, "Input Validation Error");
-                                }
-                            }
-                        });
-                        Button neg = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-                        neg.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
+            textViewName.setVisibility(View.VISIBLE);
+            textViewName.setText(args.getString(EXTRA_SET_NAME));
+            mEditTextName.setVisibility(View.INVISIBLE);
+            textViewDescrip.setVisibility(View.VISIBLE);
+            textViewDescrip.setText(args.getString(EXTRA_SET_DESCIP));
+            editTextDescrip.setVisibility(View.INVISIBLE);
 
-                    }
-                });
+            minPicker.setValue(args.getInt(EXTRA_SET_MIN));
+            minPicker.setScrollerEnabled(false);
+            secPicker.setValue(args.getInt(EXTRA_SET_SEC));
+            secPicker.setScrollerEnabled(false);
 
-            } else if(mType == EDIT_SET){
-                mEditTextName.setText(args.getString(EXTRA_SET_NAME));
-                mEditTextName.setSelection(mEditTextName.getText().length());
-                mEditTextDescrip.setText(args.getString(EXTRA_SET_DESCIP));
-                mEditTextDescrip.setSelection(mEditTextDescrip.getText().length());
-                mMinutePicker.setValue(args.getInt(EXTRA_SET_MIN));
-                mSecondPicker.setValue(args.getInt(EXTRA_SET_SEC));
-                builder.setView(view)
-                        .setTitle("Edit Set")
-                        .setPositiveButton("Edit", null)
-                        .setNegativeButton("Cancel", null);
-                dialog = builder.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(final DialogInterface dialog) {
-                        Button pos = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                        pos.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                boolean OK = true;
+            builder.setView(view)
+                    .setTitle("Set Info")
+                    .setPositiveButton("Ok", null);
 
-                                String name = mEditTextName.getText().toString();
-                                if(TextUtils.isEmpty(name)){
-                                    mEditTextName.setError(getString(R.string.name_error));
-                                    OK = false;
-                                }
-                                String descrip = mEditTextDescrip.getText().toString();
-                                int min = mMinutePicker.getValue();
-                                int sec = mSecondPicker.getValue();
-                                if(min == 0 && sec == 0){
-                                    Toast.makeText(getContext(), R.string.time_error, Toast.LENGTH_SHORT).show();
-                                    OK = false;
-                                }
-                                if(OK){
-                                    mListener.editSet(setId, name, descrip, min, sec);
-                                    dialog.dismiss();
-                                } else {
-                                    Log.d(DEBUG_TAG, "Input Validation Error");
-                                }
-                            }
-                        });
-                        Button neg = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-                        neg.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                    }
-                });
-            } else if (mType == DISPLAY_SET) {
-                mTextViewName.setVisibility(View.VISIBLE);
-                mTextViewName.setText(args.getString(EXTRA_SET_NAME));
-                mEditTextName.setVisibility(View.INVISIBLE);
-                mTextViewDescrip.setVisibility(View.VISIBLE);
-                mTextViewDescrip.setText(args.getString(EXTRA_SET_DESCIP));
-                mEditTextDescrip.setVisibility(View.INVISIBLE);
-
-                mMinutePicker.setValue(args.getInt(EXTRA_SET_MIN));
-                mMinutePicker.setScrollerEnabled(false);
-                mSecondPicker.setValue(args.getInt(EXTRA_SET_SEC));
-                mSecondPicker.setScrollerEnabled(false);
-
-                builder.setView(view)
-                        .setTitle("Set Info")
-                        .setPositiveButton("Ok", null);
-            }
-            else {
-                throw new RuntimeException(AddEditSetDialog.class.getSimpleName() + " Set Bottom Dialog Type was never set");
-            }
         } else {
             throw new RuntimeException(AddEditSetDialog.class.getSimpleName() + " Args never set");
         }
 
-        if(dialog != null)
-            return dialog;
-        else
-            return builder.create();
+        return builder.create();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        if(mType >= 0 && mType != DISPLAY_SET) {
-            mEditTextName.requestFocus();
-            if (getDialog().getWindow() != null)
-                getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        }
         getDialog().setCanceledOnTouchOutside(true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -270,18 +145,16 @@ public class AddEditSetDialog extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     //endregion
 
     //region UTILITY
-    public static Bundle getDialogBundle(int dialogType, int id, String setName, String setDescrip, int timeInMil){
+    public static Bundle getDialogBundle(int id, String setName, String setDescrip, int timeInMil){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
 
-        bundle.putInt(EXTRA_DIALOG_TYPE, dialogType);
         bundle.putInt(EXTRA_SET_ID, id);
         bundle.putString(EXTRA_SET_NAME, setName);
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
@@ -289,10 +162,6 @@ public class AddEditSetDialog extends DialogFragment {
         bundle.putInt(EXTRA_SET_SEC, time[1]);
 
         return bundle;
-    }
-
-    private void setListener(AddEditSetDialogListener listener){
-        mListener = listener;
     }
     //endregion
 }

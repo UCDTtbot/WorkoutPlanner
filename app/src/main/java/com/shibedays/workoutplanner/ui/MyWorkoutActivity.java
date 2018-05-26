@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -48,6 +49,7 @@ import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
 import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
+import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.SetInfoFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 import com.shibedays.workoutplanner.R;
@@ -80,6 +82,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final int NOTIF_INTENT_TYPE = 1;
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
+
+    private static final int NEW_SET = 0;
+    private static final int EDIT_SET = 1;
+    private static final int DISPLAY_SET = 3;
     // Message Constants
 
     // Bottom Sheet Constants
@@ -135,6 +141,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private TimerFragment mTimerFragment;
     private List<SetInfoFragment> mSetInfoFrags;
     private AddNewSetFragment mAddNewSetFragment;
+    private CreateEditSetFragment mCreateEditFragment;
 
     private Messenger mTimerService;
     private Messenger mTTSService;
@@ -757,24 +764,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             public void bottomSheetResult(int resultCode) {
                 switch (resultCode){
                     case BaseApp.EDIT:
-                        openDialog(AddEditSetDialog.EDIT_SET, mSetList.get(setIndex),new AddEditSetDialog.AddEditSetDialogListener() {
-                            @Override
-                            public void newSet(String name, String descrip, int min, int sec) {
-
-                            }
-
-                            @Override
-                            public void editSet(int id, String name, String descrip, int min, int sec) {
-                                Set editSet = mSetList.get(setIndex);
-                                editSet.setName(name);
-                                editSet.setTime(BaseApp.convertToMillis(min, sec));
-                                editSet.setDescrip(descrip);
-                                mWorkoutData.updateSet(editSet, setIndex);
-                                mWorkoutViewModel.update(mWorkoutData);
-                                //TODO: mSetAdapter was commented out
-                                //mSetAdapter.notifyDataSetChanged();
-                            }
-                        });
+                        openEditSet(mSetList.get(setIndex));
                         break;
                     case BaseApp.DELETE:
                         //mSetAdapter.pendingRemoval(setIndex);
@@ -793,23 +783,37 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mWorkoutViewModel.update(mWorkoutData);
     }
 
-    private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener){
-        Bundle bundle = null;
-        if( (type == AddEditSetDialog.NEW_SET) && set != null){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else if(type == AddEditSetDialog.EDIT_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
-        } else if (type == AddEditSetDialog.DISPLAY_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else {
-            throw new RuntimeException(DEBUG_TAG + "dialog type was invalid" + type);
-        }
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
+    private void displayDialog(@NonNull Set set){
+        Bundle bundle = AddEditSetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle);
         if (getFragmentManager() != null) {
-            dialog.show(mFragmentManager, DEBUG_TAG);
+            dialog.show(getSupportFragmentManager(), DEBUG_TAG);
         }
     }
+
+    private void openEditSet(@NonNull final Set set){
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.title_activity_my_workout,args, new CreateEditSetFragment.CreateEditSetListener() {
+            @Override
+            public void returnData(int id, String name, String descrip, int min, int sec, int imageId) {
+                updateUserSet(set, id, name, descrip, min, sec);
+            }
+        });
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
+        fragmentTransaction.addToBackStack(null);
+        renameTitle(R.string.edit_set);
+        fragmentTransaction.commit();
+    }
     //endregion
+
+    private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec){
+        set.setName(name);
+        set.setTime(BaseApp.convertToMillis(min, sec));
+        set.setDescrip(descrip);
+        mWorkoutData.updateSet(set, id);
+        mWorkoutViewModel.update(mWorkoutData);
+    }
 
     //region SWAP_SETS
 
