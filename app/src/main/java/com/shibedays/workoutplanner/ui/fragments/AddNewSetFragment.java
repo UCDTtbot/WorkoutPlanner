@@ -377,7 +377,7 @@ public class AddNewSetFragment extends Fragment {
         Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0);
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
-            public void returnData(int id, String name, String descrip, int min, int sec, int imageId) {
+            public void returnData(String name, String descrip, int min, int sec, int imageId) {
                 Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
                 BaseApp.incrementSetID(getContext());
                 mTypedSetList.get(Set.USER_CREATED).add(set);
@@ -398,7 +398,7 @@ public class AddNewSetFragment extends Fragment {
         Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
-            public void returnData(int id, String name, String descrip, int min, int sec, int imageId) {
+            public void returnData(String name, String descrip, int min, int sec, int imageId) {
                 updateUserSet(set, name, descrip, min, sec);
             }
         });

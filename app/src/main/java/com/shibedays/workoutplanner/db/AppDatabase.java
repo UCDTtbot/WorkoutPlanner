@@ -167,8 +167,8 @@ public abstract class AppDatabase extends RoomDatabase {
                     R.drawable.android);
             // Flexibility
             final Set yoga = new Set(setsId++,
-                    "yoga",
-                    "yoga",
+                    "Yoga",
+                    "Yoga",
                     Set.FLEXIBILITY, 45000,
                     R.drawable.android);
 

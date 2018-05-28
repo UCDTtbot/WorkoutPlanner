@@ -29,6 +29,7 @@ import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutItemAdapter;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
+import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -369,6 +370,23 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                     toggleUpArrow(false);
             }
             return true;
+        } else if(id == R.id.debug_add) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0);
+            CreateEditSetFragment createEditSetFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
+                @Override
+                public void returnData(String name, String descrip, int min, int sec, int imageId) {
+                    Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
+                    BaseApp.incrementSetID(getApplicationContext());
+                    mSetViewModel.insert(set);
+                }
+            });
+            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+            fragmentTransaction.replace(R.id.new_workout_fragment_container, createEditSetFragment);
+            findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+            fragmentTransaction.addToBackStack(null);
+            renameTitle(R.string.new_set);
+            fragmentTransaction.commit();
         }
 
         return super.onOptionsItemSelected(item);
