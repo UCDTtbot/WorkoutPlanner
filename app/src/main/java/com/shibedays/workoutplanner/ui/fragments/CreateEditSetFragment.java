@@ -22,7 +22,10 @@ import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
+import com.shibedays.workoutplanner.ui.dialogs.ChooseImageDialog;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class CreateEditSetFragment extends Fragment {
@@ -51,6 +54,10 @@ public class CreateEditSetFragment extends Fragment {
     private int mId;
 
     private int mParentTitle;
+    private CreateEditSetFragment mThis;
+
+    private List<Integer> mDefaultImageIds;
+
 
     // UI
     private ImageView mChooseImage;
@@ -90,6 +97,7 @@ public class CreateEditSetFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mThis = this;
     }
 
     @Override
@@ -103,6 +111,11 @@ public class CreateEditSetFragment extends Fragment {
             mId = args.getInt(EXTRA_SET_ID, -1);
             mMins = args.getInt(EXTRA_SET_MIN, 0);
             mSecs = args.getInt(EXTRA_SET_SEC, 0);
+        }
+
+        mDefaultImageIds = new ArrayList<>();
+        for(int i = 0; i < 6; i++){
+            mDefaultImageIds.add(R.drawable.android);
         }
         Activity act = getActivity();
     }
@@ -128,7 +141,12 @@ public class CreateEditSetFragment extends Fragment {
         mChooseImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "New Image", Toast.LENGTH_SHORT).show();
+                Bundle args = ChooseImageDialog.getDialogBundle();
+                ChooseImageDialog dialog = ChooseImageDialog.newInstance(args, mDefaultImageIds);
+                dialog.setTargetFragment(mThis, 0);
+                if (getFragmentManager() != null) {
+                    dialog.show(getFragmentManager(), DEBUG_TAG);
+                }
             }
         });
 

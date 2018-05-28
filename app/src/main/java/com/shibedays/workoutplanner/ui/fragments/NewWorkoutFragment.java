@@ -35,7 +35,7 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 
 import java.util.ArrayList;
@@ -207,7 +207,7 @@ public class NewWorkoutFragment extends Fragment{
                     } else if (type == SetListFragment.DISPLAY_SET) {
                         displayDialog(set);
                     } else {
-                        throw new RuntimeException(DEBUG_TAG + " invalid AddEditSetDialog type");
+                        throw new RuntimeException(DEBUG_TAG + " invalid DisplaySetDialog type");
                     }
                 }
             });
@@ -395,8 +395,8 @@ public class NewWorkoutFragment extends Fragment{
     }
 
     private void displayDialog(@NonNull Set set){
-        Bundle bundle = AddEditSetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle);
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         dialog.setTargetFragment(mThis, 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);

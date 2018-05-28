@@ -23,19 +23,19 @@ import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddNewSetFragment extends Fragment {
+public class AddSetsFragment extends Fragment {
 
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment.";
-    private static final String DEBUG_TAG = AddNewSetFragment.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.AddSetsFragment.";
+    private static final String DEBUG_TAG = AddSetsFragment.class.getSimpleName();
 
 
     //endregion
@@ -55,7 +55,7 @@ public class AddNewSetFragment extends Fragment {
 
     // Parent
     private MyWorkoutActivity mParentActivity;
-    private AddNewSetFragment mThis;
+    private AddSetsFragment mThis;
     private CreateEditSetFragment mCreateEditFragment;
 
 
@@ -75,12 +75,12 @@ public class AddNewSetFragment extends Fragment {
     //endregion
 
     //region FACTORY_CONSTRUCTOR
-    public AddNewSetFragment() {
+    public AddSetsFragment() {
 
     }
 
-    public static AddNewSetFragment newInstance(List<List<Set>> sets, NewSetListener listener) {
-        AddNewSetFragment newFragment = new AddNewSetFragment();
+    public static AddSetsFragment newInstance(List<List<Set>> sets, NewSetListener listener) {
+        AddSetsFragment newFragment = new AddSetsFragment();
 
         newFragment.setTypedSets(sets);
         newFragment.setListener(listener);
@@ -153,7 +153,7 @@ public class AddNewSetFragment extends Fragment {
             @Override
             public void onLongClick(Set set, int section, int relativePos) {
                 Log.d(DEBUG_TAG, "Left Adapter Default LongClicked Open Info");
-                openDialog(AddEditSetDialog.DISPLAY_SET, set, relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                openDialog(DisplaySetDialog.DISPLAY_SET, set, relativePos, section, new DisplaySetDialog.AddEditSetDialogListener() {
                     @Override
                     public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                         // Nothing
@@ -194,7 +194,7 @@ public class AddNewSetFragment extends Fragment {
                         Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
                         switch (resultCode){
                             case BaseApp.EDIT:
-                                openDialog(AddEditSetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                                openDialog(DisplaySetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new DisplaySetDialog.AddEditSetDialogListener() {
                                     @Override
                                     public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                                         updateUserCreatedSet(index, name, descrip, min, sec);
@@ -217,7 +217,7 @@ public class AddNewSetFragment extends Fragment {
             public void createUserSet(int section) {
                 Log.d(DEBUG_TAG, "Right Adapter Create New User Set");
                 //TODO : Dialog must be updated
-                openDialog(AddEditSetDialog.NEW_SET, null, -1, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                openDialog(DisplaySetDialog.NEW_SET, null, -1, section, new DisplaySetDialog.AddEditSetDialogListener() {
                     @Override
                     public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                         //Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
@@ -254,7 +254,7 @@ public class AddNewSetFragment extends Fragment {
                 public void openBottomSheet(int setType, int setID) {
                     final Set set = getSetByID(setID, setType);
                     if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
-                    AddNewSetFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
+                    AddSetsFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
                         @Override
                         public void bottomSheetResult(int resultCode) {
                             if(resultCode == BaseApp.EDIT){
@@ -280,7 +280,7 @@ public class AddNewSetFragment extends Fragment {
                     } else if (type == SetListFragment.DISPLAY_SET) {
                         displayDialog(set);
                     } else {
-                        throw new RuntimeException(DEBUG_TAG + " invalid AddEditSetDialog type");
+                        throw new RuntimeException(DEBUG_TAG + " invalid DisplaySetDialog type");
                     }
                 }
             });
@@ -364,8 +364,8 @@ public class AddNewSetFragment extends Fragment {
 
 
     private void displayDialog(@NonNull Set set){
-        Bundle bundle = AddEditSetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle);
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         dialog.setTargetFragment(mThis, 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);

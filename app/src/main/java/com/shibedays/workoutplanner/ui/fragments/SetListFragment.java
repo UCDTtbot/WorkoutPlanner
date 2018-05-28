@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.ChooseSetAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 
 import java.util.List;
 

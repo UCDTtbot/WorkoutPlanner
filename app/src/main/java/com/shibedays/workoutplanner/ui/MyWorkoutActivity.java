@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,38 +16,30 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
-import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
+import com.shibedays.workoutplanner.ui.fragments.AddSetsFragment;
 import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.SetInfoFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
@@ -56,7 +47,6 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;
 import com.shibedays.workoutplanner.services.TimerService;
-import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
@@ -64,11 +54,8 @@ import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
-
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
 public class MyWorkoutActivity extends AppCompatActivity implements TimerFragment.OnFragmentInteractionListener{
@@ -140,7 +127,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private FragmentManager mFragmentManager;
     private TimerFragment mTimerFragment;
     private List<SetInfoFragment> mSetInfoFrags;
-    private AddNewSetFragment mAddNewSetFragment;
+    private AddSetsFragment mAddSetsFragment;
     private CreateEditSetFragment mCreateEditFragment;
 
     private Messenger mTimerService;
@@ -653,7 +640,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openAddNewSetFragment(){
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mAddNewSetFragment = AddNewSetFragment.newInstance(mTypedSets, new AddNewSetFragment.NewSetListener() {
+        mAddSetsFragment = AddSetsFragment.newInstance(mTypedSets, new AddSetsFragment.NewSetListener() {
             @Override
             public void addSetsToWorkout(List<Set> sets) {
                 if(sets != null) {
@@ -676,7 +663,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-        fragmentTransaction.replace(R.id.fragment_container, mAddNewSetFragment);
+        fragmentTransaction.replace(R.id.fragment_container, mAddSetsFragment);
         fragmentTransaction.addToBackStack(null);
         findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
         renameTitle(R.string.add_set);
@@ -784,8 +771,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void displayDialog(@NonNull Set set){
-        Bundle bundle = AddEditSetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle);
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         if (getFragmentManager() != null) {
             dialog.show(getSupportFragmentManager(), DEBUG_TAG);
         }

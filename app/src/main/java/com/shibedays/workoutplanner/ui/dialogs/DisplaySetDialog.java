@@ -4,22 +4,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutCompat;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
@@ -28,12 +22,12 @@ import com.shibedays.workoutplanner.R;
 import java.util.Locale;
 
 
-public class AddEditSetDialog extends DialogFragment {
+public class DisplaySetDialog extends DialogFragment {
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String DEBUG_TAG = AddEditSetDialog.class.getSimpleName();
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog.";
+    private static final String DEBUG_TAG = DisplaySetDialog.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog.";
     //endregion
 
     //region INTENT_KEYS
@@ -53,8 +47,8 @@ public class AddEditSetDialog extends DialogFragment {
 
     //region LIFECYCLE
 
-    public static AddEditSetDialog newInstance(Bundle args){
-        AddEditSetDialog dialog = new AddEditSetDialog();
+    public static DisplaySetDialog newInstance(Bundle args){
+        DisplaySetDialog dialog = new DisplaySetDialog();
         dialog.setArguments(args);
         return dialog;
     }
@@ -129,7 +123,7 @@ public class AddEditSetDialog extends DialogFragment {
                     .setPositiveButton("Ok", null);
 
         } else {
-            throw new RuntimeException(AddEditSetDialog.class.getSimpleName() + " Args never set");
+            throw new RuntimeException(DisplaySetDialog.class.getSimpleName() + " Args never set");
         }
 
         return builder.create();
