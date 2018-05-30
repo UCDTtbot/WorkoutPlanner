@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,12 +27,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     class ImageViewHolder extends RecyclerView.ViewHolder {
 
         ImageView set_image;
-        TextView set_title;
+        CheckBox mCheckBox;
+
 
         public ImageViewHolder(View itemView) {
             super(itemView);
+
+            mCheckBox = itemView.findViewById(R.id.choose_image_check);
+            mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                }
+            });
             set_image = itemView.findViewById(R.id.image_view);
-            set_title = itemView.findViewById(R.id.image_title);
+            set_image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCheckBox.setChecked(!mCheckBox.isChecked());
+                }
+            });
         }
     }
 
@@ -67,7 +83,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public void onBindViewHolder(@NonNull ImageAdapter.ImageViewHolder holder, int position) {
         // Bind UI stuff for each item
         int image_id = mImageList.get(position);
-        holder.set_title.setText("Image Name");
 
         Glide.with(mContext).load(image_id).into(holder.set_image);
     }

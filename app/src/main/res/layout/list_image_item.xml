@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
@@ -24,19 +24,15 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="fitXY"
+                android:layout_below="@id/choose_image_check"
+                android:layout_toRightOf="@id/choose_image_check"
                 android:src="@drawable/android"/>
 
-            <TextView
-                android:id="@+id/image_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/image_view"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp"
-                android:textColor="#4c4c4c"
-                android:textSize="15dp"
-                android:text="Set Name"/>
+            <android.support.v7.widget.AppCompatCheckBox
+                android:id="@+id/choose_image_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>

@@ -115,7 +115,7 @@ public class CreateEditSetFragment extends Fragment {
 
         mDefaultImageIds = new ArrayList<>();
         for(int i = 0; i < 6; i++){
-            mDefaultImageIds.add(R.drawable.android);
+            mDefaultImageIds.add(R.drawable.ic_fitness_black_24dp);
         }
         Activity act = getActivity();
     }
