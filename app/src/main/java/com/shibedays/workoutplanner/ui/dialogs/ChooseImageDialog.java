@@ -3,6 +3,7 @@ package com.shibedays.workoutplanner.ui.dialogs;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.adapters.ImageAdapter;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ChooseImageDialog extends DialogFragment {
@@ -39,18 +41,27 @@ public class ChooseImageDialog extends DialogFragment {
     //region PRIVATE_VARS
     // DATA
     private List<Integer> mImageIds;
+    private HashMap<Integer, Boolean> mMappedImageIds;
+    private int mSelected;
+
+
     // UI
     private RecyclerView mImageRecyclerView;
 
     private ImageAdapter mAdapter;
     //endregion
 
-    //region LIFECYCLE
+    public interface ChooseImageListener {
+        void dialogResult(int image_id);
+    }
+    ChooseImageListener mListener;
 
-    public static ChooseImageDialog newInstance(Bundle args, List<Integer> imageIds){
+    //region LIFECYCLE
+    public static ChooseImageDialog newInstance(Bundle args, List<Integer> imageIds, int selectedImage, ChooseImageListener listener){
         ChooseImageDialog dialog = new ChooseImageDialog();
         dialog.setArguments(args);
-        dialog.setData(imageIds);
+        dialog.setData(imageIds, selectedImage);
+        dialog.setListener(listener);
         return dialog;
     }
 
@@ -76,6 +87,12 @@ public class ChooseImageDialog extends DialogFragment {
 
         mAdapter = new ImageAdapter(getContext(), new ImageAdapter.ImageListener() {
 
+            @Override
+            public void changeChecked(int id) {
+                mMappedImageIds.put(mSelected, false);
+                mMappedImageIds.put(id, true);
+                mSelected = id;
+            }
         });
 
         mImageRecyclerView = view.findViewById(R.id.image_recycler);
@@ -83,7 +100,7 @@ public class ChooseImageDialog extends DialogFragment {
         mImageRecyclerView.setLayoutManager(manager);
         mImageRecyclerView.setAdapter(mAdapter);
 
-        mAdapter.setImageList(mImageIds);
+        mAdapter.setImageList(mImageIds, mMappedImageIds, mSelected);
         mAdapter.notifyDataSetChanged();
         //TODO: Setup recycler view
 
@@ -92,7 +109,12 @@ public class ChooseImageDialog extends DialogFragment {
         if(args!= null){
             builder.setView(view)
                     .setTitle("")
-                    .setPositiveButton("Ok", null);
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mListener.dialogResult(mSelected);
+                        }
+                    });
         } else {
             throw new RuntimeException(DisplaySetDialog.class.getSimpleName() + " Args never set");
         }
@@ -122,8 +144,20 @@ public class ChooseImageDialog extends DialogFragment {
         return args;
     }
 
-    public void setData(List<Integer> ids){
+    public void setData(List<Integer> ids, int selected){
         mImageIds = ids;
+        mMappedImageIds = new HashMap<>();
+        mSelected = selected;
+        for(int x : ids){
+            mMappedImageIds.put(x, false);
+        }
+        if(mMappedImageIds.containsKey(selected)){
+            mMappedImageIds.put(selected, true);
+        }
+    }
+
+    public void setListener(ChooseImageListener listener){
+        mListener = listener;
     }
     //endregion
 

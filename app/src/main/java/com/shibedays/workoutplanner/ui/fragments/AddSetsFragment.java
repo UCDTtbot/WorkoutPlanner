@@ -374,7 +374,7 @@ public class AddSetsFragment extends Fragment {
 
     private void openNewSet(){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0);
+        Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
@@ -395,7 +395,7 @@ public class AddSetsFragment extends Fragment {
 
     private void openEditSet(@NonNull final Set set){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {

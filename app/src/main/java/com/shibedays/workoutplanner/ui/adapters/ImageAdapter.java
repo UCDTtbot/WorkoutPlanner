@@ -16,6 +16,7 @@ import com.shibedays.workoutplanner.R;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
@@ -28,16 +29,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         ImageView set_image;
         CheckBox mCheckBox;
+        int image_id;
+        boolean setup;
 
 
         public ImageViewHolder(View itemView) {
             super(itemView);
 
+            setup = false;
             mCheckBox = itemView.findViewById(R.id.choose_image_check);
             mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
+                    if(mImageMap.get(image_id) != b) {
+                        mListener.changeChecked(image_id);
+                        mImageMap.put(mSelectedImage, false);
+                        mImageMap.put(image_id, true);
+                        notifyItemChanged(mImageIds.indexOf(mSelectedImage));
+                        notifyItemChanged(mImageIds.indexOf(image_id));
+                        mSelectedImage = image_id;
+                    }
                 }
             });
             set_image = itemView.findViewById(R.id.image_view);
@@ -47,12 +58,15 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     mCheckBox.setChecked(!mCheckBox.isChecked());
                 }
             });
+            setup = true;
         }
     }
 
     //region PRIVATE_VARS
     // Data
-    private List<Integer> mImageList;
+    private List<Integer> mImageIds;
+    private HashMap<Integer, Boolean> mImageMap;
+    private int mSelectedImage;
     // UI
     private Context mContext;
     // FLAGS
@@ -61,7 +75,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     //region INTERFACES
     public interface ImageListener{
-
+        void changeChecked(int id);
     }
     private ImageListener mListener;
     //endregion
@@ -82,20 +96,25 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ImageViewHolder holder, int position) {
         // Bind UI stuff for each item
-        int image_id = mImageList.get(position);
+        holder.image_id = mImageIds.get(position);
+        boolean checked = mImageMap.get(holder.image_id);
+        holder.mCheckBox.setChecked(checked);
 
-        Glide.with(mContext).load(image_id).into(holder.set_image);
+        Glide.with(mContext).load(holder.image_id).into(holder.set_image);
     }
+
     //endregion
 
     //region UTILITY
     @Override
     public int getItemCount() {
-        return mImageList != null ? mImageList.size() : 0;
+        return mImageIds != null ? mImageIds.size() : 0;
     }
 
-    public void setImageList(List<Integer> image_ids){
-        mImageList = image_ids;
+    public void setImageList(List<Integer> image_ids, HashMap<Integer, Boolean> image_map, int selected){
+        mImageIds = image_ids;
+        mImageMap = image_map;
+        mSelectedImage = selected;
     }
     //endregion
 

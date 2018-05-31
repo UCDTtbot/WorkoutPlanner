@@ -43,6 +43,7 @@ public class CreateEditSetFragment extends Fragment {
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
     public static final String EXTRA_SET_ID = PACKAGE + "SET_ID";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
+    public static final String EXTRA_IMAGE_ID = PACKAGE + "SET_IMAGE_ID";
     //endregion
 
     //region PRIVATE_VARS
@@ -52,12 +53,12 @@ public class CreateEditSetFragment extends Fragment {
     private int mMins;
     private int mSecs;
     private int mId;
+    private int mImage;
 
     private int mParentTitle;
     private CreateEditSetFragment mThis;
 
     private List<Integer> mDefaultImageIds;
-
 
     // UI
     private ImageView mChooseImage;
@@ -111,12 +112,14 @@ public class CreateEditSetFragment extends Fragment {
             mId = args.getInt(EXTRA_SET_ID, -1);
             mMins = args.getInt(EXTRA_SET_MIN, 0);
             mSecs = args.getInt(EXTRA_SET_SEC, 0);
+            mImage = args.getInt(EXTRA_IMAGE_ID, R.drawable.ic_fitness_black_24dp);
         }
 
         mDefaultImageIds = new ArrayList<>();
-        for(int i = 0; i < 6; i++){
-            mDefaultImageIds.add(R.drawable.ic_fitness_black_24dp);
-        }
+        mDefaultImageIds.add(R.drawable.ic_fitness_black_24dp);
+        mDefaultImageIds.add(R.drawable.ic_run_black_24dp);
+        mDefaultImageIds.add(R.drawable.ic_access_alarm_black_24dp);
+        mDefaultImageIds.add(R.drawable.ic_info_black_24dp);
         Activity act = getActivity();
     }
 
@@ -142,13 +145,20 @@ public class CreateEditSetFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Bundle args = ChooseImageDialog.getDialogBundle();
-                ChooseImageDialog dialog = ChooseImageDialog.newInstance(args, mDefaultImageIds);
+                ChooseImageDialog dialog = ChooseImageDialog.newInstance(args, mDefaultImageIds, mImage, new ChooseImageDialog.ChooseImageListener() {
+                    @Override
+                    public void dialogResult(int image_id) {
+                        mImage = image_id;
+                        mChooseImage.setImageResource(mImage);
+                    }
+                });
                 dialog.setTargetFragment(mThis, 0);
                 if (getFragmentManager() != null) {
                     dialog.show(getFragmentManager(), DEBUG_TAG);
                 }
             }
         });
+        mChooseImage.setImageResource(mImage);
 
         mMinSpinner.setMinValue(0);
         mMinSpinner.setMaxValue(30);
@@ -196,7 +206,7 @@ public class CreateEditSetFragment extends Fragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getBundle(int id, String setName, String setDescrip, int timeInMil){
+    public static Bundle getBundle(int id, String setName, String setDescrip, int timeInMil, int imageId){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
@@ -206,6 +216,7 @@ public class CreateEditSetFragment extends Fragment {
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
         bundle.putInt(EXTRA_SET_MIN, time[0]);
         bundle.putInt(EXTRA_SET_SEC, time[1]);
+        bundle.putInt(EXTRA_IMAGE_ID, imageId);
 
         return bundle;
     }
@@ -235,7 +246,7 @@ public class CreateEditSetFragment extends Fragment {
             OK = false;
         }
         if(OK) {
-            mListener.returnData(name, descrip, min, sec, R.drawable.android);
+            mListener.returnData(name, descrip, min, sec, mImage);
 
             View view = getActivity().getCurrentFocus();
             if(view != null) {

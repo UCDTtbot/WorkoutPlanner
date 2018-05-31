@@ -372,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             return true;
         } else if(id == R.id.debug_add) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0);
+            Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
             CreateEditSetFragment createEditSetFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
                 @Override
                 public void returnData(String name, String descrip, int min, int sec, int imageId) {

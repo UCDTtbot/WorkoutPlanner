@@ -77,22 +77,22 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Light Jog",
                     "Jog at a comfortable pace",
                     Set.CARDIO, 120000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set run = new Set(setsId++,
                     "Run",
                     "High-speeding running",
                     Set.CARDIO, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set walk = new Set(setsId++,
                     "Brisk Walk",
                     "Walk at a brisk pace to cool down",
                     Set.CARDIO, 120000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set high_steps = new Set(setsId++,
                     "High Steps",
                     "7-steps (high knee march)",
                     Set.CARDIO, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
 
             // Upper Body
             final Set pushups = new Set(setsId++,
@@ -101,7 +101,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             "Keeping the body straight, lower body to the ground by bending arms at the elbows. " +
                             "Raise body up off the ground by extending the arms.",
                     Set.UPPER_BODY, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set dips = new Set(setsId++,
                     "Dips",
                     "Stand with your back to a chair or bench. Be sure that the object is sturdy and can comfortably support your body weight. " +
@@ -110,19 +110,19 @@ public abstract class AppDatabase extends RoomDatabase {
                             "Inhale, and keeping your elbows tucked in at your sides, slowly bend your arms and lower your body until your upper arms are parallel with the floor. " +
                             "Hold for a second, then exhale and straighten your arms back up to the starting position.",
                     Set.UPPER_BODY, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set bicep_curls = new Set(setsId++,
                     "Bicep Curls",
                     "Extend your arm down by your side and hold the weight, palms facing forward. " +
                             "Make sure your elbows are tucked and your shoulders are straight. " +
                             "When you’re in position, slowly bring the weight up to your shoulders, not outside of your shoulders and not too far into your chest.",
                     Set.UPPER_BODY, 30000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set shoulder_press = new Set(setsId++,
                     "Shoulder Press",
                     "7-steps",
                     Set.UPPER_BODY, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
 
             // Lower Body
             final Set squats = new Set(setsId++,
@@ -132,12 +132,12 @@ public abstract class AppDatabase extends RoomDatabase {
                             "Either stretch your arms out ahead of you, lightly position your hands behind your ears or hold your arms at your side as you slowly lower yourself into a squatting position. " +
                             "Lower your body to a position where your thighs are almost parallel to the floor. Return to the starting position and repeat.",
                     Set.LOWER_BODY, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set wall_squats = new Set(setsId++,
                     "Wall Squats",
                     "",
                     Set.LOWER_BODY, 45000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
 
             // Core
             final Set situps = new Set(setsId++,
@@ -146,43 +146,43 @@ public abstract class AppDatabase extends RoomDatabase {
                             "With hands by your side or across your chest, inhale and slowly raise your body up to your knees." +
                             "Exhale as you reach the top. Slowly let yourself back down to the starting position.",
                     Set.CORE, 45000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set roll_ups = new Set(setsId++,
                     "Roll Ups",
                             "Start with your arms all the way back behind you and slowly bring them all the way forward into a sitting position. " +
                             "Inhale as you begin to move upward and exhale as you complete.",
                     Set.CORE, 45000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set plank = new Set(setsId++,
                     "Basic Plank",
                     "Lie on your stomach, elbows close to your sides and directly under your shoulders, palms down. " +
                             "Engage the abs and slowly lift your torso off the floor, maintaining a stiff torso and legs. " +
                             "Avoid sagging at the low back or hiking up your hips. Continue to breathe while holding this position for 15 seconds or more.",
                     Set.CORE, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set lunges = new Set(setsId++,
                     "Lunges",
                     "7-steps",
                     Set.CORE, 60000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             // Flexibility
             final Set yoga = new Set(setsId++,
                     "Yoga",
                     "Yoga",
                     Set.FLEXIBILITY, 45000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
 
             // Other
             final Set study = new Set(setsId++,
                     "Study",
                     "Focus on studying with no distractions",
                     Set.OTHER, 900000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
             final Set study_break = new Set(setsId++,
                     "Study Break",
                     "Take a break from studying. Take a walk, get a drink, use the restroom",
                     Set.OTHER, 300000,
-                    R.drawable.android);
+                    R.drawable.ic_fitness_black_24dp);
 
             List<Set> allSets = new ArrayList<Set>(){{
                 add(jog);
@@ -206,21 +206,21 @@ public abstract class AppDatabase extends RoomDatabase {
 
             // Workouts //
             int workoutIds = 0;
-            Workout workout_1 = new Workout(workoutIds++, Workout.CARDIO, "Cardio_1", R.drawable.android);
+            Workout workout_1 = new Workout(workoutIds++, Workout.CARDIO, "Cardio_1", R.drawable.ic_fitness_black_24dp);
             workout_1.addSet(jog);
             workout_1.addSet(run);
-            Workout workout_2 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_1", R.drawable.android);
+            Workout workout_2 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_1", R.drawable.ic_fitness_black_24dp);
             workout_2.addSet(pushups);
             workout_2.addSet(situps);
             workout_2.addSet(plank);
             workout_2.addSet(dips);
-            Workout workout_3 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_2", R.drawable.android);
+            Workout workout_3 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_2", R.drawable.ic_fitness_black_24dp);
             workout_3.addSet(lunges);
             workout_3.addSet(bicep_curls);
             workout_3.addSet(shoulder_press);
-            Workout workout_4 = new Workout(workoutIds++, Workout.FLEXIBILITY, "Flexibility_1", R.drawable.android);
+            Workout workout_4 = new Workout(workoutIds++, Workout.FLEXIBILITY, "Flexibility_1", R.drawable.ic_fitness_black_24dp);
             workout_4.addSet(yoga);
-            Workout workout_5 = new Workout(workoutIds++, Workout.OTHER, "Other_1", R.drawable.android);
+            Workout workout_5 = new Workout(workoutIds++, Workout.OTHER, "Other_1", R.drawable.ic_fitness_black_24dp);
             workout_5.addSet(study);
             workout_5.addSet(study_break);
             //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);

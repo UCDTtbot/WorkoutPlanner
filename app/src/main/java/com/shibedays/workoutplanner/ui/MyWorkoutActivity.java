@@ -780,7 +780,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openEditSet(@NonNull final Set set){
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.title_activity_my_workout,args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
