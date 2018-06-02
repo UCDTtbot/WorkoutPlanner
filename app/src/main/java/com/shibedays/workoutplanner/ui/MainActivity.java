@@ -231,18 +231,18 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         // Setup the adapter with correct data
         mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout), new WorkoutRowAdapter.WorkoutRowListener() {
             @Override
-            public void onWorkoutClicked(int index, int type) {
-                if(index >= 0) {
-                    openWorkout(index);
-                } else if (type == Workout.USER_CREATED && index < 0) {
+            public void onWorkoutClicked(int id, int type) {
+                if(id >= 0) {
+                    openWorkout(id);
+                } else if (type == Workout.USER_CREATED) {
                     openNewWorkoutFragment();
                 }
             }
 
             @Override
-            public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
+            public void onWorkoutLongClick(int id, int type) {
                 if(type == Workout.USER_CREATED) {
-                    openBottomSheet(type, workoutIndex);
+                    openBottomSheet(id, type);
                 }
             }
 
@@ -471,8 +471,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     //endregion
 
     //region BOTTOM_SHEET_WORKOUTS
-    public void openBottomSheet(final int type, final int workoutIndex){
-        Workout workout = mTypedWorkouts.get(type).get(workoutIndex);
+    public void openBottomSheet(final int id, final int type){
+        final Workout workout = getWorkoutByID(id, type);
         Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, new BottomSheetDialog.BottomSheetDialogListener() {
             @Override
@@ -481,10 +481,10 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                     case BaseApp.EDIT:
                         throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
                     case BaseApp.DELETE:
-                        mWorkoutRowAdapter.pendingRemoval(type, workoutIndex);
+                        mWorkoutRowAdapter.pendingRemoval(id, type);
                         break;
                     case BaseApp.DUPLCIATE:
-                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), mTypedWorkouts.get(type).get(workoutIndex));
+                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), workout);
                         addNewWorkout(newWorkout);
                         break;
                     default:
@@ -499,6 +499,14 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     public void deleteWorkoutFromDB(Workout workout) {
         mWorkoutViewModel.remove(workout);
+    }
+
+    private Workout getWorkoutByID(int id, int type){
+        for(Workout w : mTypedWorkouts.get(type)){
+            if (w.getWorkoutID() == id) return w;
+        }
+
+        return null;
     }
 
     public void addSetToDB(Set set){

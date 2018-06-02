@@ -6,44 +6,70 @@
     android:background="?android:selectableItemBackground"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/set_name"
+
+    <LinearLayout
+        android:id="@+id/top_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="5dp"
-        android:text="Sample Title"
-        android:textColor="@color/material_light_black"
-        android:textSize="18sp"/>
+        android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/set_image"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_gravity="center_horizontal"
-        android:scaleType="fitCenter"
-        android:src="@drawable/android"
-        android:visibility="visible"/>
+        <ImageView
+            android:id="@+id/set_image"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
+            android:padding="2dp"
+            android:scaleType="fitXY"
+            android:layout_marginStart="@dimen/activity_shallow_margin"
+            android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
+            android:background="@drawable/syle_rounded_drop_box"
+            android:src="@drawable/android" />
+
+        <TextView
+            android:id="@+id/set_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLength="18"
+            android:paddingStart="@dimen/standard_padding"
+            android:paddingEnd="@dimen/standard_padding"
+            android:paddingTop="@dimen/half_padding"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/activity_deep_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin"
+            android:text="Sample Title"
+            android:textColor="@color/material_light_black"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/set_short_descrip"
+        android:id="@+id/set_descrip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
         android:text="Some Sample Descrip Text"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:minLines="5"
+        android:maxLines="5"
+        android:scrollbars="vertical"
         android:textSize="@dimen/text_size_normal"
-        android:visibility="visible"/>
+        android:padding="@dimen/standard_padding" />
 
     <TextView
-        android:id="@+id/set_long_descrip"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_shallow_vertical_margin"
         android:layout_gravity="center"
+        android:text="Set Time"/>
+    <TextView
+        android:id="@+id/set_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_shallow_margin"
+        android:layout_marginEnd="@dimen/activity_shallow_margin"
+        android:textSize="@dimen/text_size_xnormal"
         android:gravity="center"
-        android:text="Some Sample Descrip Text"
-        android:textSize="@dimen/text_size_normal"
-        android:padding="@dimen/standard_padding"
-        android:visibility="gone"/>
+        android:layout_gravity="center"
+        android:text="@string/default_time"/>
 
 </LinearLayout>
