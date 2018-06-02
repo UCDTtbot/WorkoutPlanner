@@ -8,14 +8,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.LinearLayoutCompat;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 
@@ -34,15 +33,12 @@ public class DisplaySetDialog extends DialogFragment {
     public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
     public static final String EXTRA_SET_DESCIP = PACKAGE + "SET_DESCRIP";
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
-    public static final String EXTRA_SET_ID = PACKAGE + "SET_ID";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
+    public static final String EXTRA_SET_IMAGE = PACKAGE + "SET_IMAGE";
     //endregion
 
     //region PRIVATE_VARS
     // UI
-    private EditText mEditTextName;
-
-    private int mType;
     //endregion
 
     //region LIFECYCLE
@@ -69,54 +65,22 @@ public class DisplaySetDialog extends DialogFragment {
         } else {
             throw new RuntimeException(DEBUG_TAG + " Parent Activity doesn't exist");
         }
-        final View view = inflater.inflate(R.layout.dialog_edit_set, null);
+        final View view = inflater.inflate(R.layout.dialog_set_info, null);
 
         // UI Comoponents
-        mEditTextName = view.findViewById(R.id.new_set_name);
         final TextView textViewName = view.findViewById(R.id.display_set_name);
-        final EditText editTextDescrip = view.findViewById(R.id.new_set_descrip);
         final TextView textViewDescrip = view.findViewById(R.id.display_set_descrip);
-        final View numSpinners = view.findViewById(R.id.spinners);
-        final NumberPicker minPicker = numSpinners.findViewById(R.id.MinutePicker);
-        final NumberPicker secPicker = numSpinners.findViewById(R.id.SecondsPicker);
-        final LinearLayoutCompat timeDisplay = view.findViewById(R.id.new_set_time_display);
-
-        minPicker.setMinValue(0);
-        minPicker.setMaxValue(30);
-        minPicker.setWrapSelectorWheel(true);
-        minPicker.setFadingEdgeEnabled(true);
-
-        secPicker.setMinValue(0);
-        secPicker.setMaxValue(59);
-        secPicker.setFormatter(new NumberPicker.Formatter() {
-            @Override
-            public String format(int value) {
-                return String.format(Locale.US, "%02d", value);
-            }
-        });
-        secPicker.setWrapSelectorWheel(true);
-        secPicker.setFadingEdgeEnabled(true);
-
+        final ImageView imageView = view.findViewById(R.id.display_image);
+        final TextView timeDisplay = view.findViewById(R.id.display_set_time);
 
         Bundle args = getArguments();
 
         if(args!= null){
-            final int setId = args.getInt(EXTRA_SET_ID);
-
-            numSpinners.setVisibility(View.INVISIBLE);
-            timeDisplay.setVisibility(View.VISIBLE);
-
-            textViewName.setVisibility(View.VISIBLE);
             textViewName.setText(args.getString(EXTRA_SET_NAME));
-            mEditTextName.setVisibility(View.INVISIBLE);
-            textViewDescrip.setVisibility(View.VISIBLE);
             textViewDescrip.setText(args.getString(EXTRA_SET_DESCIP));
-            editTextDescrip.setVisibility(View.INVISIBLE);
-
-            minPicker.setValue(args.getInt(EXTRA_SET_MIN));
-            minPicker.setScrollerEnabled(false);
-            secPicker.setValue(args.getInt(EXTRA_SET_SEC));
-            secPicker.setScrollerEnabled(false);
+            textViewDescrip.setMovementMethod(new ScrollingMovementMethod());
+            imageView.setImageResource(args.getInt(EXTRA_SET_IMAGE));
+            timeDisplay.setText(BaseApp.formatTime(args.getInt(EXTRA_SET_MIN), args.getInt(EXTRA_SET_SEC)));
 
             builder.setView(view)
                     .setTitle("Set Info")
@@ -144,16 +108,16 @@ public class DisplaySetDialog extends DialogFragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getDialogBundle(int id, String setName, String setDescrip, int timeInMil){
+    public static Bundle getDialogBundle(int id, String setName, String setDescrip, int timeInMil, int imageResource){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
 
-        bundle.putInt(EXTRA_SET_ID, id);
         bundle.putString(EXTRA_SET_NAME, setName);
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
         bundle.putInt(EXTRA_SET_MIN, time[0]);
         bundle.putInt(EXTRA_SET_SEC, time[1]);
+        bundle.putInt(EXTRA_SET_IMAGE, imageResource);
 
         return bundle;
     }

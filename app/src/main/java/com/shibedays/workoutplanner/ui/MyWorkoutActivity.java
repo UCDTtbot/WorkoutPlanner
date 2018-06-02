@@ -771,7 +771,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void displayDialog(@NonNull Set set){
-        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
         DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         if (getFragmentManager() != null) {
             dialog.show(getSupportFragmentManager(), DEBUG_TAG);
@@ -784,7 +784,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.title_activity_my_workout,args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                updateUserSet(set, set.getSetId(), name, descrip, min, sec);
+                updateUserSet(set, set.getSetId(), name, descrip, min, sec, imageId);
             }
         });
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
@@ -794,10 +794,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
     //endregion
 
-    private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec){
+    private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec, int imageId){
         set.setName(name);
         set.setTime(BaseApp.convertToMillis(min, sec));
         set.setDescrip(descrip);
+        set.setSetImageId(imageId);
         mWorkoutData.updateSet(set, id);
         mWorkoutViewModel.update(mWorkoutData);
     }

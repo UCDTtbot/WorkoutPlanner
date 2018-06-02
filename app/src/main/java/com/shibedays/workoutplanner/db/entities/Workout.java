@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.shibedays.workoutplanner.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,13 +54,12 @@ public class Workout{
 
     public Workout(){
     }
-    public Workout(@NonNull int id, int type, String name, int imageId) {
+    public Workout(@NonNull int id, int type, String name) {
         workoutID = id;
         this.name = name;
         this.workoutType = type;
         numOfRounds = 1;
         setList = new ArrayList<Set>();
-        workoutImageId = imageId;
         timeBetweenSets = 10000;
         timeBetweenRounds = 30000;
         noRestFlag = false;
@@ -99,7 +99,9 @@ public class Workout{
     public int getWorkoutType(){ return workoutType; }
     public void setWorkoutType(int type) { workoutType = type; }
 
-    public int getWorkoutImageId(){ return workoutImageId; }
+    public int getWorkoutImageId(){
+        return setList == null || setList.size() <= 0 ? R.drawable.ic_fitness_black_24dp : setList.get(0).getSetImageId();
+    }
     public void setWorkoutImageId(int id) { workoutImageId = id;}
 
     public int getNumOfSets(){

@@ -17,10 +17,11 @@
 
         <ImageView
             android:id="@+id/workout_image"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="102dp"
+            android:layout_height="102dp"
+            android:padding="2dp"
             android:layout_gravity="center_horizontal"
-            android:scaleType="fitCenter"
+            android:scaleType="fitXY"
             android:src="@drawable/android"/>
 
         <TextView

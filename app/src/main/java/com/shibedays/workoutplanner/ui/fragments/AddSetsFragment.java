@@ -364,7 +364,7 @@ public class AddSetsFragment extends Fragment {
 
 
     private void displayDialog(@NonNull Set set){
-        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
         DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         dialog.setTargetFragment(mThis, 0);
         if (getFragmentManager() != null) {
@@ -399,7 +399,7 @@ public class AddSetsFragment extends Fragment {
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                updateUserSet(set, name, descrip, min, sec);
+                updateUserSet(set, name, descrip, min, sec, imageId);
             }
         });
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
@@ -411,11 +411,12 @@ public class AddSetsFragment extends Fragment {
     //endregion
 
     //region DATA_FUNCTIONS
-    private void updateUserSet(Set set, String name, String descrip, int min, int sec){
+    private void updateUserSet(Set set, String name, String descrip, int min, int sec, int imageId){
         if(set != null) {
             set.setName(name);
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
+            set.setSetImageId(imageId);
             mSetListFrags.get(Set.USER_CREATED).updateSet(set);
             mTypedSetList.get(Set.USER_CREATED).set(mTypedSetList.get(Set.USER_CREATED).indexOf(set), set);
             mListener.applyUserSetToDB(set);

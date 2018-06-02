@@ -77,22 +77,22 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Light Jog",
                     "Jog at a comfortable pace",
                     Set.CARDIO, 120000,
-                    R.drawable.ic_fitness_black_24dp);
+                    R.drawable.ic_run_black_24dp);
             final Set run = new Set(setsId++,
                     "Run",
                     "High-speeding running",
                     Set.CARDIO, 60000,
-                    R.drawable.ic_fitness_black_24dp);
+                    R.drawable.ic_run_black_24dp);
             final Set walk = new Set(setsId++,
                     "Brisk Walk",
                     "Walk at a brisk pace to cool down",
                     Set.CARDIO, 120000,
-                    R.drawable.ic_fitness_black_24dp);
+                    R.drawable.ic_run_black_24dp);
             final Set high_steps = new Set(setsId++,
                     "High Steps",
                     "7-steps (high knee march)",
                     Set.CARDIO, 60000,
-                    R.drawable.ic_fitness_black_24dp);
+                    R.drawable.ic_run_black_24dp);
 
             // Upper Body
             final Set pushups = new Set(setsId++,
@@ -177,12 +177,12 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Study",
                     "Focus on studying with no distractions",
                     Set.OTHER, 900000,
-                    R.drawable.ic_fitness_black_24dp);
+                    R.drawable.ic_access_alarm_black_24dp);
             final Set study_break = new Set(setsId++,
                     "Study Break",
                     "Take a break from studying. Take a walk, get a drink, use the restroom",
                     Set.OTHER, 300000,
-                    R.drawable.ic_fitness_black_24dp);
+                    R.drawable.ic_access_alarm_black_24dp);
 
             List<Set> allSets = new ArrayList<Set>(){{
                 add(jog);
@@ -206,21 +206,21 @@ public abstract class AppDatabase extends RoomDatabase {
 
             // Workouts //
             int workoutIds = 0;
-            Workout workout_1 = new Workout(workoutIds++, Workout.CARDIO, "Cardio_1", R.drawable.ic_fitness_black_24dp);
+            Workout workout_1 = new Workout(workoutIds++, Workout.CARDIO, "Cardio_1");
             workout_1.addSet(jog);
             workout_1.addSet(run);
-            Workout workout_2 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_1", R.drawable.ic_fitness_black_24dp);
+            Workout workout_2 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_1");
             workout_2.addSet(pushups);
             workout_2.addSet(situps);
             workout_2.addSet(plank);
             workout_2.addSet(dips);
-            Workout workout_3 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_2", R.drawable.ic_fitness_black_24dp);
+            Workout workout_3 = new Workout(workoutIds++, Workout.STRENGTH, "Strength_2");
             workout_3.addSet(lunges);
             workout_3.addSet(bicep_curls);
             workout_3.addSet(shoulder_press);
-            Workout workout_4 = new Workout(workoutIds++, Workout.FLEXIBILITY, "Flexibility_1", R.drawable.ic_fitness_black_24dp);
+            Workout workout_4 = new Workout(workoutIds++, Workout.FLEXIBILITY, "Flexibility_1");
             workout_4.addSet(yoga);
-            Workout workout_5 = new Workout(workoutIds++, Workout.OTHER, "Other_1", R.drawable.ic_fitness_black_24dp);
+            Workout workout_5 = new Workout(workoutIds++, Workout.OTHER, "Other_1");
             workout_5.addSet(study);
             workout_5.addSet(study_break);
             //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);

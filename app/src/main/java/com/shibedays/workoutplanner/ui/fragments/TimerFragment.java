@@ -253,13 +253,7 @@ public class TimerFragment extends Fragment {
         } else {
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
         }*/
-        if(sec == 0){
-            mTimeView.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
-        } else if ( sec < 10 ){
-            mTimeView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else {
-            mTimeView.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }
+        mTimeView.setText(BaseApp.formatTime(min, sec));
 
         float floatTime = ((float)time / (float)totalTime) * 1000;
         int progress = 1000 - (int)floatTime;

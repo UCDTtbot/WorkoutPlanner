@@ -11,6 +11,7 @@ import com.shibedays.workoutplanner.ui.MainActivity;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Locale;
 
 
 public class BaseApp extends Application {
@@ -143,4 +144,18 @@ public class BaseApp extends Application {
     }
     //endregion
 
+    //region UTILITY
+
+    public static String formatTime(int min, int sec){
+        if(sec == 0){
+            return String.format(Locale.US, "%d:%d%d", min, sec, 0);
+        } else if ( sec < 10 ){
+            return String.format(Locale.US, "%d:%d%d", min, 0, sec);
+        } else {
+            return String.format(Locale.US, "%d:%d", min, sec);
+        }
+    }
+
+
+    //endregion
 }
