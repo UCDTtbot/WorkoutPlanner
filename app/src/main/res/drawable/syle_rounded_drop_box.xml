@@ -11,7 +11,10 @@
     </item>
 
     <!-- White Top -->
-    <item android:bottom="3dp">
+    <item   android:bottom="3dp"
+            android:top="3dp"
+            android:right="3dp"
+            android:left="3dp">
         <shape android:shape="rectangle">
             <solid android:color="@color/material_light_white"/>
             <corners android:radius="7dp"/>
