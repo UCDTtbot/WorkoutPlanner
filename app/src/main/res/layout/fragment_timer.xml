@@ -1,91 +1,129 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.shibedays.workoutplanner.ui.fragments.TimerFragment"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.shibedays.workoutplanner.ui.fragments.TimerFragment">
+    android:orientation="vertical"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:weightSum="100">
 
-    <TextView
-        android:id="@+id/service_running"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_above="@+id/main_timer"
-        android:textSize="24sp"
-        android:text="Service Not Running"/>
-
-    <TextView
-        android:id="@+id/main_timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/default_time"
-        android:textSize="40sp"/>
-
-    <LinearLayout
-        android:id="@+id/set_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_toStartOf="@id/main_timer"
-        android:layout_below="@id/main_timer">
-
+    <!-- Set Image -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="60">
         <TextView
-            android:id="@+id/current_set_label"
+            android:id="@+id/set_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/set_number_title"/>
-
+            android:text="Title"
+            android:layout_above="@+id/set_image"
+            android:layout_centerInParent="true"
+            android:textColor="@color/material_light_black"
+            android:textSize="18dp"/>
+        <ImageView
+            android:id="@+id/set_image"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/android"/>
         <TextView
-            android:id="@+id/current_rep"
+            android:id="@+id/set_descrip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/default_num"/>
+            android:layout_below="@+id/set_image"
+            android:text="Descrip"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
 
-    </LinearLayout>
+    <View style="@style/Divider" />
 
-    <LinearLayout
-        android:id="@+id/round_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_toEndOf="@id/main_timer"
-        android:layout_below="@id/main_timer">
+    <!-- Timer/Text -->
 
-        <TextView
-            android:id="@+id/current_round_label"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="40">
+
+        <ProgressBar
+            android:id="@+id/timer_progress"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/style_background_bar"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="65"
+            android:progressDrawable="@drawable/style_progress_bar" />
+
+
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/round_number_title"/>
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/timer_progress">
 
-        <TextView
-            android:id="@+id/current_round"
+            <TextView
+                android:id="@+id/reps_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rep:" />
+
+            <TextView
+                android:id="@+id/reps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/reps_title"
+                android:layout_centerInParent="true"
+                android:text="1" />
+        </RelativeLayout>
+
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/default_num"/>
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/timer_progress">
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/rounds_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Round:" />
 
-    <LinearLayout
-        android:id="@+id/descrip_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@id/round_info"
-        android:layout_centerInParent="true">
+            <TextView
+                android:id="@+id/rounds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/rounds_title"
+                android:layout_centerInParent="true"
+                android:text="1" />
+        </RelativeLayout>
+
 
         <TextView
-            android:id="@+id/descrip_label"
+            android:id="@+id/main_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/description_label"/>
+            android:layout_below="@+id/play_button"
+            android:layout_centerInParent="true"
+            android:text="time" />
 
-        <TextView
-            android:id="@+id/descrip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/placeholder_description"/>
+        <ImageView
+            android:id="@+id/play_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/android" />
+    </RelativeLayout>
 
-    </LinearLayout>
 
 
-</RelativeLayout>
+
+</LinearLayout>

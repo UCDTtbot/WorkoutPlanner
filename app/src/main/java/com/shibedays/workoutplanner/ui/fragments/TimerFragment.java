@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -18,7 +21,6 @@ import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
-import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.List;
@@ -53,14 +55,19 @@ public class TimerFragment extends Fragment {
     private int mCurSetIndex;
     private int mCurRep;
     private int mCurRound;
+
     // UI Components
-    private TextView mDescipTextView;
-    private TextView mTimeTextView;
-    private TextView mCurRepTextView;
-    private TextView mCurRoundTextView;
-    private TextView mServiceTextView;
+    private TextView mSetTitleView;
+    private ImageView mSetImageView;
+    private TextView mSetDescripView;
+
+    private ProgressBar mTimeBar;
+    private ImageView mPlayButtonView;
+    private TextView mTimeView;
+    private TextView mRepsView;
+    private TextView mRoundsView;
     // Activity
-    private MyWorkoutActivity mParentActivity;
+    private Activity mParentActivity;
     //endregion
 
     //region PUBLIC_VARS
@@ -114,7 +121,7 @@ public class TimerFragment extends Fragment {
         if(act instanceof MyWorkoutActivity){
             mParentActivity = (MyWorkoutActivity) act;
         } else {
-            throw new RuntimeException(DEBUG_TAG + " wasn't created from MyWorkoutActivity");
+            throw new RuntimeException(DEBUG_TAG + " wasn't created from MyWorkoutActivity or SingleFragmentTester");
         }
     }
 
@@ -142,12 +149,20 @@ public class TimerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
-        mTimeTextView = view.findViewById(R.id.main_timer);
-        mCurRepTextView = view.findViewById(R.id.current_rep);
-        mCurRoundTextView = view.findViewById(R.id.current_round);
-        mDescipTextView = view.findViewById(R.id.descrip);
-        mServiceTextView = view.findViewById(R.id.service_running);
-        updateTime(mCurSet.getTime());
+
+        mSetTitleView = view.findViewById(R.id.set_title);
+        mSetImageView = view.findViewById(R.id.set_image);
+        mSetDescripView = view.findViewById(R.id.set_descrip);
+
+        mTimeBar = view.findViewById(R.id.timer_progress);
+        mTimeBar.setMax(1000);
+        mPlayButtonView = view.findViewById(R.id.play_button);
+        mTimeView = view.findViewById(R.id.main_time);
+        mRepsView = view.findViewById(R.id.reps);
+        mRoundsView = view.findViewById(R.id.rounds);
+
+        updateSetTitle();
+        updateTime(mCurSet.getTime(), mCurSet.getTime());
         updateRep(mCurRep);
         updateRound(mCurRound);
         updateDescription(mCurSet.getDescrip());
@@ -225,9 +240,10 @@ public class TimerFragment extends Fragment {
     //endregion
 
     //region UI_UPDATE_FUNCTIONS
-    public void updateTime(int time){
+    public void updateTime(int time, int totalTime){
         int[] splitTime = BaseApp.convertFromMillis(time);
         int min = splitTime[0], sec = splitTime[1];
+        /*
         if((sec % 10) == 0){
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
         } else if ( sec < 10 ){
@@ -236,31 +252,45 @@ public class TimerFragment extends Fragment {
             mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
             mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }
+        }*/
+        mTimeView.setText(BaseApp.formatTime(min, sec));
+
+        float floatTime = ((float)time / (float)totalTime) * 1000;
+        int progress = 1000 - (int)floatTime;
+        // TODO: If API < 24, do a different thing
+        mTimeBar.setProgress(progress, true);
+    }
+
+    public void updateSetTitle(){
+        mSetTitleView.setText(mCurSet.getName());
+    }
+
+    public void updateSetImage(int imageId){
+
+    }
+
+    public void updateDescription(String descrip){
+        mSetDescripView.setText(descrip);
     }
 
     public void updateRep(int rep){
         mCurRep = rep;
-        mCurRepTextView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mWorkout.getNumOfSets()));
+        mRepsView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mWorkout.getNumOfSets()));
     }
 
     public void updateRound(int round){
         mCurRound = round;
-        mCurRoundTextView.setText(String.format(Locale.US, "%d / %d", (round + 1), mWorkout.getNumOfRounds()));
-    }
-
-    public void updateDescription(String descrip){
-        mDescipTextView.setText(descrip);
-    }
-
-    public void updateServiceText(String msg){
-        mServiceTextView.setText(msg);
+        mRoundsView.setText(String.format(Locale.US, "%d / %d", (round + 1), mWorkout.getNumOfRounds()));
     }
     //endregion
 
     //region GET_DATA_FUNCTIONS
     public int getCurSetTime(){
         return mCurSet.getTime();
+    }
+
+    public void setTotalTime(int time){
+
     }
 
     public int getRestTime(){
@@ -285,6 +315,7 @@ public class TimerFragment extends Fragment {
         mCurSetIndex++;
         if(mCurSetIndex < mSets.size()){
             mCurSet = mSets.get(mCurSetIndex);
+
             return mCurSet;
         }  else {
             return null;

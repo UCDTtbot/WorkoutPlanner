@@ -15,14 +15,16 @@ import java.util.Objects;
 public class Set {
 
     // TYPE CONSTANTS
-    public static final int USER_CREATED = 0;
-    public static final int ENDURANCE = 1;
-    public static final int STRENGTH = 2;
-    public static final int BALANCE = 3;
+    public static final int CARDIO = 0;
+    public static final int UPPER_BODY = 1;
+    public static final int LOWER_BODY = 2;
+    public static final int CORE = 3;
     public static final int FLEXIBILITY = 4;
-    public static final int OTHER = 5;
-    public static final String[] TYPES = {"User Created", "Endurance", "Strength", "Balance", "Flexibility", "Other"};
+    public static final int USER_CREATED = 5;
+    public static final int OTHER = 6;
+    public static final String[] TYPES = {"Cardio",  "Upper Body" , "Lower Body",  "Core" ,"Flexibility",  "User Created",  "Other"};
     //workout info coming from go4life.nia.nih.gov
+    //https://lifehacker.com/5839197/how-to-get-a-full-body-workout-with-nothing-but-your-body
     //make sure to source more info
 
     @PrimaryKey
@@ -40,12 +42,13 @@ public class Set {
         time = 1000;
     }
 
-    public Set(int id, String name, String descrip, int type, int time){
+    public Set(int id, String name, String descrip, int type, int time, int image){
         this.setId = id;
         this.name = name;
         this.setType = type;
         this.descrip = descrip;
         this.time = time;
+        setImageId = image;
     }
 
     public int getSetId(){ return setId; }

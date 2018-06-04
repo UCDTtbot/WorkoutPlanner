@@ -54,7 +54,7 @@ public class TimerService extends Service {
 
     //region PRIVATE_VARS
     // Time Data
-    private int mCurSetTime;
+    private int mTotalCurTime;
     private int mTimeLeft;
     private int mNextSetTime;
 
@@ -94,12 +94,6 @@ public class TimerService extends Service {
                 case MSG_TIMER_BIND:
                     mMyWorkoutActivityMessenger = msg.replyTo;
                     mIsMessengerBound = true;
-                    Message reply = Message.obtain(null, MyWorkoutActivity.MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING);
-                    try {
-                        mMyWorkoutActivityMessenger.send(reply);
-                    } catch (RemoteException e){
-                        e.printStackTrace();
-                    }
                     break;
                 case MSG_NEXT_SET_TIME:
                     if(msg.arg1 > 0) {
@@ -126,7 +120,7 @@ public class TimerService extends Service {
         // TODO: Receive the bundle that contains the notification information and use it to build the notif
         if(intent != null){
             mNotifBundle = intent.getBundleExtra(MyWorkoutActivity.EXTRA_NOTIF_BUNDLE);
-            mCurSetTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
+            mTotalCurTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
             mRestTime = intent.getIntExtra(EXTRA_REST_TIME, -1);
             mBreakTime = intent.getIntExtra(EXTRA_BREAK_TIME, -1);
             mNumReps = intent.getIntExtra(EXTRA_NUM_REPS, -1);
@@ -162,7 +156,7 @@ public class TimerService extends Service {
         mCurRep = 0;
         mCurRound = 0;
         mCurrentAction = REP_ACTION;
-        beginTimer(mCurSetTime, TTS_STARTING_DELAY);
+        beginTimer(mTotalCurTime, TTS_STARTING_DELAY);
 
         return START_NOT_STICKY;
     }
@@ -194,13 +188,13 @@ public class TimerService extends Service {
 
     //region UTILITY
     private void beginTimer(int time, int delay){
-        mCurSetTime = time;
+        mTotalCurTime = time;
         mTimeLeft = time;
 
-        if(mCurRep == (mNumReps - 1)){
+        if(mCurRep == (mNumReps - 1) && mCurrentAction == REP_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_GET_FIRST_SET, 0, 0);
             sendMessage(msg);
-        } else {
+        } else if (mCurrentAction == REP_ACTION) {
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_SET_TIME, 0, 0);
             sendMessage(msg);
         }
@@ -298,7 +292,7 @@ public class TimerService extends Service {
                 }
             }
 
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_UPDATE_TIME_DISPLAY, mTimeLeft, 0);
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_UPDATE_TIME_DISPLAY, mTimeLeft, mTotalCurTime);
             sendMessage(msg);
         }
     };

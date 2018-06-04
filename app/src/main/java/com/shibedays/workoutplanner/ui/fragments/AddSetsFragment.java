@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -22,19 +23,21 @@ import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddNewSetFragment extends Fragment {
+public class AddSetsFragment extends Fragment {
 
 
     //region CONSTANTS
     // Package and Debug Constants
-    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment.";
-    private static final String DEBUG_TAG = AddNewSetFragment.class.getSimpleName();
+    private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.AddSetsFragment.";
+    private static final String DEBUG_TAG = AddSetsFragment.class.getSimpleName();
+
+
     //endregion
 
     //region PRIVATE_VARS
@@ -52,7 +55,8 @@ public class AddNewSetFragment extends Fragment {
 
     // Parent
     private MyWorkoutActivity mParentActivity;
-    private AddNewSetFragment mThis;
+    private AddSetsFragment mThis;
+    private CreateEditSetFragment mCreateEditFragment;
 
 
     //endregion
@@ -71,12 +75,12 @@ public class AddNewSetFragment extends Fragment {
     //endregion
 
     //region FACTORY_CONSTRUCTOR
-    public AddNewSetFragment() {
+    public AddSetsFragment() {
 
     }
 
-    public static AddNewSetFragment newInstance(List<List<Set>> sets, NewSetListener listener) {
-        AddNewSetFragment newFragment = new AddNewSetFragment();
+    public static AddSetsFragment newInstance(List<List<Set>> sets, NewSetListener listener) {
+        AddSetsFragment newFragment = new AddSetsFragment();
 
         newFragment.setTypedSets(sets);
         newFragment.setListener(listener);
@@ -149,7 +153,7 @@ public class AddNewSetFragment extends Fragment {
             @Override
             public void onLongClick(Set set, int section, int relativePos) {
                 Log.d(DEBUG_TAG, "Left Adapter Default LongClicked Open Info");
-                openDialog(AddEditSetDialog.DISPLAY_SET, set, relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                openDialog(DisplaySetDialog.DISPLAY_SET, set, relativePos, section, new DisplaySetDialog.AddEditSetDialogListener() {
                     @Override
                     public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                         // Nothing
@@ -190,7 +194,7 @@ public class AddNewSetFragment extends Fragment {
                         Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
                         switch (resultCode){
                             case BaseApp.EDIT:
-                                openDialog(AddEditSetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                                openDialog(DisplaySetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new DisplaySetDialog.AddEditSetDialogListener() {
                                     @Override
                                     public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                                         updateUserCreatedSet(index, name, descrip, min, sec);
@@ -213,7 +217,7 @@ public class AddNewSetFragment extends Fragment {
             public void createUserSet(int section) {
                 Log.d(DEBUG_TAG, "Right Adapter Create New User Set");
                 //TODO : Dialog must be updated
-                openDialog(AddEditSetDialog.NEW_SET, null, -1, section, new AddEditSetDialog.AddEditSetDialogListener() {
+                openDialog(DisplaySetDialog.NEW_SET, null, -1, section, new DisplaySetDialog.AddEditSetDialogListener() {
                     @Override
                     public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
                         //Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
@@ -243,30 +247,18 @@ public class AddNewSetFragment extends Fragment {
 
         mSetListFrags = new ArrayList<>();
         for(int i = 0; i < Set.TYPES.length; i++){
-            boolean header = i == 0;
-            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
+
+            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), i, new SetListFragment.SetListListener() {
 
                 @Override
-                public void openBottomSheet(int setID) {
-                    final Set set = getSetByID(setID);
+                public void openBottomSheet(int setType, int setID) {
+                    final Set set = getSetByID(setID, setType);
                     if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
-                    AddNewSetFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
+                    AddSetsFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
                         @Override
                         public void bottomSheetResult(int resultCode) {
                             if(resultCode == BaseApp.EDIT){
-                                openDialog(AddEditSetDialog.EDIT_SET, set, new AddEditSetDialog.AddEditSetDialogListener() {
-                                    @Override
-                                    public void newSet(String name, String descrip, int min, int sec) {
-                                        throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
-                                    }
-
-                                    @Override
-                                    public void editSet(int id, String name, String descrip, int min, int sec) {
-                                        if(id == set.getSetId()){
-                                            updateUserSet(set, name, descrip, min, sec);
-                                        }
-                                    }
-                                });
+                                openEditSet(set);
                             } else if (resultCode == BaseApp.DELETE) {
                                 deleteSetConfirmation(set);
                             } else {
@@ -277,42 +269,18 @@ public class AddNewSetFragment extends Fragment {
                 }
 
                 @Override
-                public void openSetDialog(int type, int setID) {
+                public void openSetDialog(int type, int setType, int setID) {
 
-                    final Set set = getSetByID(setID);
+                    final Set set = getSetByID(setID, setType);
 
-                    if(type == AddEditSetDialog.NEW_SET){
-                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
-                            @Override
-                            public void newSet(String name, String descrip, int min, int sec) {
-                                Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
-                                mTypedSetList.get(Set.USER_CREATED).add(newSet);
-                                mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
-                                mSetListFrags.get(Set.USER_CREATED).notifyData();
-                                mListener.applyUserSetToDB(newSet);
-                            }
-
-                            @Override
-                            public void editSet(int id, String name, String descrip, int min, int sec) {
-                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
-                            }
-                        });
-                    } else if (type == AddEditSetDialog.EDIT_SET) {
-                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
-                            @Override
-                            public void newSet(String name, String descrip, int min, int sec) {
-                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
-                            }
-
-                            @Override
-                            public void editSet(int id, String name, String descrip, int min, int sec) {
-                                updateUserSet(set, name, descrip, min, sec);
-                            }
-                        });
-                    } else if (type == AddEditSetDialog.DISPLAY_SET) {
-                        openDialog(type, set, null);
+                    if(type == SetListFragment.NEW_SET){
+                        openNewSet();
+                    } else if (type == SetListFragment.EDIT_SET) {
+                        openEditSet(set);
+                    } else if (type == SetListFragment.DISPLAY_SET) {
+                        displayDialog(set);
                     } else {
-                        throw new RuntimeException(DEBUG_TAG + " invalid AddEditSetDialog type");
+                        throw new RuntimeException(DEBUG_TAG + " invalid DisplaySetDialog type");
                     }
                 }
             });
@@ -394,32 +362,61 @@ public class AddNewSetFragment extends Fragment {
         }
     }
 
-    private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener) {
-        Bundle bundle = null;
-        if( (type == AddEditSetDialog.EDIT_SET) && set != null){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else if(type == AddEditSetDialog.NEW_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
-        } else if (type == AddEditSetDialog.DISPLAY_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else {
-            throw new RuntimeException(DEBUG_TAG + "dialog type was invalid" + type);
-        }
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
+
+    private void displayDialog(@NonNull Set set){
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         dialog.setTargetFragment(mThis, 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
     }
 
+    private void openNewSet(){
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
+            @Override
+            public void returnData(String name, String descrip, int min, int sec, int imageId) {
+                Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
+                BaseApp.incrementSetID(getContext());
+                mTypedSetList.get(Set.USER_CREATED).add(set);
+                mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
+                mSetListFrags.get(Set.USER_CREATED).notifyData();
+                mListener.applyUserSetToDB(set);
+            }
+        });
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        mParentActivity.renameTitle(R.string.new_set);
+    }
+
+    private void openEditSet(@NonNull final Set set){
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
+            @Override
+            public void returnData(String name, String descrip, int min, int sec, int imageId) {
+                updateUserSet(set, name, descrip, min, sec, imageId);
+            }
+        });
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        mParentActivity.renameTitle(R.string.edit_set);
+    }
+
     //endregion
 
     //region DATA_FUNCTIONS
-    private void updateUserSet(Set set, String name, String descrip, int min, int sec){
+    private void updateUserSet(Set set, String name, String descrip, int min, int sec, int imageId){
         if(set != null) {
             set.setName(name);
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
+            set.setSetImageId(imageId);
             mSetListFrags.get(Set.USER_CREATED).updateSet(set);
             mTypedSetList.get(Set.USER_CREATED).set(mTypedSetList.get(Set.USER_CREATED).indexOf(set), set);
             mListener.applyUserSetToDB(set);
@@ -453,8 +450,8 @@ public class AddNewSetFragment extends Fragment {
         }
     }
 
-    private Set getSetByID(int setID){
-        for(Set s : mTypedSetList.get(Set.USER_CREATED)){
+    private Set getSetByID(int setID, int setType){
+        for(Set s : mTypedSetList.get(setType)){
             if (s.getSetId() == setID) return s;
         }
 

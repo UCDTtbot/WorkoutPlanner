@@ -61,18 +61,18 @@
     <style name="DialogEditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
-        <item name="android:layout_marginTop">@dimen/activity_vertical_margin</item>
-        <item name="android:layout_marginBottom">@dimen/activity_vertical_margin</item>
-        <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginStart">@dimen/activity_shallow_margin</item>
+        <item name="android:layout_marginTop">@dimen/activity_shallow_margin</item>
+        <item name="android:layout_marginBottom">@dimen/activity_shallow_margin</item>
+        <item name="android:layout_marginEnd">@dimen/activity_shallow_margin</item>
         <item name="android:inputType">textCapSentences</item>
     </style>
 
     <style name="DialogTextView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">@dimen/activity_deep_horizontal_margin</item>
-        <item name="android:layout_marginEnd">@dimen/activity_deep_horizontal_margin</item>
+        <item name="android:layout_marginStart">@dimen/activity_shallow_margin</item>
+        <item name="android:layout_marginEnd">@dimen/activity_shallow_margin</item>
         <item name="android:textSize">@dimen/text_size_xnormal</item>
         <item name="android:background">?attr/editTextBackground</item>
     </style>
@@ -154,5 +154,6 @@
         <item name="colorControlHighlight">@color/material_teal_100</item>
         <item name="colorButtonNormal">@color/material_teal_500</item>
     </style>
+
 
 </resources>

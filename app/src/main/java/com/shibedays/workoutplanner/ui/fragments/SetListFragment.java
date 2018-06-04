@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.ChooseSetAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
 
 import java.util.List;
 
@@ -23,6 +22,10 @@ public class SetListFragment extends Fragment {
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.SetListFragment.";
     private static final String DEBUG_TAG = SetListFragment.class.getSimpleName();
     private static int NUM_GRID_ROWS = 2;
+
+    public static final int NEW_SET = 0;
+    public static final int EDIT_SET = 1;
+    public static final int DISPLAY_SET = 2;
     //endregion
 
     //region PRIVATE_VARS
@@ -32,7 +35,7 @@ public class SetListFragment extends Fragment {
     private RecyclerView mListView;
     private ChooseSetAdapter mAdapter;
     // FLAGS
-    private boolean mIncludeHeader;
+    private int mType;
 
     private SetListFragment mThis;
     //endregion
@@ -40,8 +43,8 @@ public class SetListFragment extends Fragment {
 
 
     public interface SetListListener {
-        void openBottomSheet(int setID);
-        void openSetDialog(int type, int setID);
+        void openBottomSheet(int setType, int setID);
+        void openSetDialog(int type, int setType, int setID);
     }
     private SetListListener mListener;
 
@@ -50,11 +53,11 @@ public class SetListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SetListFragment newInstance(List<Set> setList, boolean header, SetListListener listener) {
+    public static SetListFragment newInstance(List<Set> setList, int type, SetListListener listener) {
         SetListFragment fragment = new SetListFragment();
         fragment.setData(setList);
         fragment.setListener(listener);
-        fragment.setHeader(header);
+        fragment.setType(type);
         return fragment;
     }
     //endregion
@@ -81,20 +84,20 @@ public class SetListFragment extends Fragment {
         mListView = view.findViewById(R.id.setlist_recycler);
         mListView.setLayoutManager(new LinearLayoutManager(getContext()));
         //mListView.setLayoutManager(new GridLayoutManager(getContext(), NUM_GRID_ROWS));
-        mAdapter = new ChooseSetAdapter(getContext(), mIncludeHeader, new ChooseSetAdapter.ChooseSetListener() {
+        mAdapter = new ChooseSetAdapter(getContext(), mType, new ChooseSetAdapter.ChooseSetListener() {
             @Override
             public void createSet() {
-                mListener.openSetDialog(AddEditSetDialog.NEW_SET, -1);
+                mListener.openSetDialog(NEW_SET, Set.USER_CREATED, -1);
             }
 
             @Override
-            public void openBottomSheet(int setID) {
-                mListener.openBottomSheet(setID);
+            public void openBottomSheet(int setID, int setType) {
+                mListener.openBottomSheet(setType, setID);
             }
 
             @Override
-            public void openDisplayInfo(int setID) {
-                mListener.openSetDialog(AddEditSetDialog.DISPLAY_SET, setID);
+            public void openDisplayInfo(int setID, int setType) {
+                mListener.openSetDialog(DISPLAY_SET, setType, setID);
             }
         });
         mListView.setAdapter(mAdapter);
@@ -156,8 +159,8 @@ public class SetListFragment extends Fragment {
         return mAdapter.getMappedSets();
     }
 
-    private void setHeader(boolean header){
-        mIncludeHeader = header;
+    private void setType(int type){
+        mType = type;
     }
 
     //endregion

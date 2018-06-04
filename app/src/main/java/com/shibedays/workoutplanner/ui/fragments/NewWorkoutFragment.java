@@ -9,12 +9,12 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.DebugUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +35,7 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ public class NewWorkoutFragment extends Fragment{
     private EditText mRoundEntry;
     private TextView mRestEntry;
     private TextView mBreakEntry;
+    private FrameLayout mFragContainer;
 
     private Button mSaveButton;
 
@@ -76,6 +78,7 @@ public class NewWorkoutFragment extends Fragment{
     private MainActivity mParentActivity;
     private NewWorkoutFragment mThis;
 
+    private CreateEditSetFragment mCreateEditFragment;
 
     //endregion
 
@@ -157,6 +160,8 @@ public class NewWorkoutFragment extends Fragment{
 
         mNameEntry = view.findViewById(R.id.name_entry);
 
+        mFragContainer = view.findViewById(R.id.frag_containter);
+
         //region PAGER
 
         ViewPager viewPager = view.findViewById(R.id.pager);
@@ -164,13 +169,12 @@ public class NewWorkoutFragment extends Fragment{
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         mSetListFrags = new ArrayList<>();
         for(int i = 0; i < Set.TYPES.length; i++){
-            boolean header = i == 0;
-            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), header, new SetListFragment.SetListListener() {
+            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), i, new SetListFragment.SetListListener() {
 
                 @Override
-                public void openBottomSheet(int setID) {
+                public void openBottomSheet(int setType, int setID) {
 
-                    final Set set = getSetByID(setID);
+                    final Set set = getSetByID(setID, setType);
                     if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
 
                     NewWorkoutFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
@@ -178,19 +182,7 @@ public class NewWorkoutFragment extends Fragment{
                         @Override
                         public void bottomSheetResult(int resultCode) {
                             if(resultCode == BaseApp.EDIT){
-                                openDialog(AddEditSetDialog.EDIT_SET, set, new AddEditSetDialog.AddEditSetDialogListener() {
-                                    @Override
-                                    public void newSet(String name, String descrip, int min, int sec) {
-                                        throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
-                                    }
-
-                                    @Override
-                                    public void editSet(int id, String name, String descrip, int min, int sec) {
-                                        if(id == set.getSetId()){
-                                            updateUserSet(set, name, descrip, min, sec);
-                                        }
-                                    }
-                                });
+                                openEditSet(set);
                             } else if (resultCode == BaseApp.DELETE) {
                                 deleteSetConfirmation(set);
                             } else {
@@ -201,43 +193,21 @@ public class NewWorkoutFragment extends Fragment{
                 }
 
                 @Override
-                public void openSetDialog(int type, int setID) {
+                public void openSetDialog(int type, int setType, int setID) {
 
-                    final Set set = getSetByID(setID);
+                    final Set set = getSetByID(setID, setType);
 
-                    if(type == AddEditSetDialog.NEW_SET){
-                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
-                            @Override
-                            public void newSet(String name, String descrip, int min, int sec) {
-                                Set newSet = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec));
-                                BaseApp.incrementSetID(getContext());
-                                mTypedSetList.get(Set.USER_CREATED).add(newSet);
-                                mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
-                                mSetListFrags.get(Set.USER_CREATED).notifyData();
-                                mListener.applyUserSetToDB(newSet);
-                            }
-
-                            @Override
-                            public void editSet(int id, String name, String descrip, int min, int sec) {
-                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
-                            }
-                        });
-                    } else if (type == AddEditSetDialog.EDIT_SET) {
-                        openDialog(type, set, new AddEditSetDialog.AddEditSetDialogListener() {
-                            @Override
-                            public void newSet(String name, String descrip, int min, int sec) {
-                                throw new RuntimeException("Should not have reached this point " + DEBUG_TAG);
-                            }
-
-                            @Override
-                            public void editSet(int id, String name, String descrip, int min, int sec) {
-                                updateUserSet(set, name, descrip, min, sec);
-                            }
-                        });
-                    } else if (type == AddEditSetDialog.DISPLAY_SET) {
-                        openDialog(type, set, null);
+                    if(type == SetListFragment.NEW_SET){
+                        openNewSet();
+                    } else if (type == SetListFragment.EDIT_SET) {
+                        if(set != null)
+                            openEditSet(set);
+                        else
+                            throw new RuntimeException(DEBUG_TAG + " set was null");
+                    } else if (type == SetListFragment.DISPLAY_SET) {
+                        displayDialog(set);
                     } else {
-                        throw new RuntimeException(DEBUG_TAG + " invalid AddEditSetDialog type");
+                        throw new RuntimeException(DEBUG_TAG + " invalid DisplaySetDialog type");
                     }
                 }
             });
@@ -424,22 +394,49 @@ public class NewWorkoutFragment extends Fragment{
         }
     }
 
-    private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener){
-        Bundle bundle = null;
-        if( (type == AddEditSetDialog.EDIT_SET) && set != null){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else if(type == AddEditSetDialog.NEW_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
-        } else if (type == AddEditSetDialog.DISPLAY_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else {
-            throw new RuntimeException(DEBUG_TAG + "dialog type was invalid" + type);
-        }
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
+    private void displayDialog(@NonNull Set set){
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         dialog.setTargetFragment(mThis, 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
+    }
+
+    private void openNewSet(){
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
+            @Override
+            public void returnData(String name, String descrip, int min, int sec, int imageId) {
+                Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
+                BaseApp.incrementSetID(getContext());
+                mTypedSetList.get(Set.USER_CREATED).add(set);
+                mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
+                mSetListFrags.get(Set.USER_CREATED).notifyData();
+                mListener.applyUserSetToDB(set);
+            }
+        });
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        mParentActivity.renameTitle(R.string.new_set);
+    }
+
+    private void openEditSet(@NonNull final Set set){
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
+            @Override
+            public void returnData(String name, String descrip, int min, int sec, int imageId) {
+                updateUserSet(set, name, descrip, min, sec, imageId);
+            }
+        });
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        mParentActivity.renameTitle(R.string.edit_set);
     }
 
     private void openNumberPicker(int type, int time, boolean flag){
@@ -467,11 +464,12 @@ public class NewWorkoutFragment extends Fragment{
     //endregion
 
     //region DATA_FUNCTIONS
-    private void updateUserSet(Set set, String name, String descrip, int min, int sec){
+    private void updateUserSet(Set set, String name, String descrip, int min, int sec, int imageId){
         if(set != null) {
             set.setName(name);
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
+            set.setSetImageId(imageId);
             mSetListFrags.get(Set.USER_CREATED).updateSet(set);
             mTypedSetList.get(Set.USER_CREATED).set(mTypedSetList.get(Set.USER_CREATED).indexOf(set), set);
             mListener.applyUserSetToDB(set);
@@ -504,8 +502,8 @@ public class NewWorkoutFragment extends Fragment{
         }
     }
 
-    private Set getSetByID(int setID){
-        for(Set s : mTypedSetList.get(Set.USER_CREATED)){
+    private Set getSetByID(int setID, int type){
+        for(Set s : mTypedSetList.get(type)){
             if (s.getSetId() == setID) return s;
         }
 
@@ -567,7 +565,7 @@ public class NewWorkoutFragment extends Fragment{
         }
 
         if(isOk) {
-            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name, R.drawable.android);
+            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name);
             workout.setNumOfRounds(rounds);
             workout.setNoRestFlag(mRestFlag);
             workout.setNoBreakFlag(mBreakFlag);

@@ -13,47 +13,40 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.AddEditSetDialog;
+import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
-import com.shibedays.workoutplanner.ui.fragments.AddNewSetFragment;
+import com.shibedays.workoutplanner.ui.fragments.AddSetsFragment;
+import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.SetInfoFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.services.TTSService;
 import com.shibedays.workoutplanner.services.TimerService;
-import com.shibedays.workoutplanner.ui.adapters.SetAdapter;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
@@ -61,11 +54,8 @@ import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
-
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
 
 
 public class MyWorkoutActivity extends AppCompatActivity implements TimerFragment.OnFragmentInteractionListener{
@@ -79,6 +69,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final int NOTIF_INTENT_TYPE = 1;
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
+
+    private static final int NEW_SET = 0;
+    private static final int EDIT_SET = 1;
+    private static final int DISPLAY_SET = 3;
     // Message Constants
 
     // Bottom Sheet Constants
@@ -88,8 +82,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //region MESSAGES
     public static final int MSG_SAY_HELLO = 0;
-
-    public static final int MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING = 1;
+    public static final int MSG_UPDATE_SET_NAME = 1;
     public static final int MSG_PASS_TTS_MSG = 2;
     public static final int MSG_UPDATE_TIME_DISPLAY = 3;
     public static final int MSG_NEXT_REP_UI = 4;
@@ -102,6 +95,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final String EXTRA_INTENT_TYPE = PACKAGE + "INTENT_TYPE";
 
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
+    public static final String EXTRA_TTS_VOLUME = PACKAGE + "Volume";
     public static final String EXTRA_WORKOUT_JSON = PACKAGE + "WORKOUT_JSON";
 
     public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "INTENT_BUNDLE";
@@ -127,11 +121,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private LiveData<Workout> mWorkoutLiveData;
     private List<List<Set>> mTypedSets;
 
+    private int mVol;
+
     // Instances
     private FragmentManager mFragmentManager;
     private TimerFragment mTimerFragment;
     private List<SetInfoFragment> mSetInfoFrags;
-    private AddNewSetFragment mAddNewSetFragment;
+    private AddSetsFragment mAddSetsFragment;
+    private CreateEditSetFragment mCreateEditFragment;
 
     private Messenger mTimerService;
     private Messenger mTTSService;
@@ -156,7 +153,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_SAY_HELLO:
-                    Toast.makeText(getApplicationContext(), "TTS Ready", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "TTS Ready", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -169,17 +166,20 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
-                case MSG_UPDATE_FRAGMENT_UI_SERVICE_RUNNING:
-                    mTimerFragment.updateServiceText("Service is Running");
-                    break;
                 case MSG_PASS_TTS_MSG:
                     if(msg.arg1 > 0) {
                         sendTTSMessage(msg.arg1);
                     }
                     break;
+                case MSG_UPDATE_SET_NAME:
+                    if(mTimerFragment != null){
+                        mTimerFragment.updateSetTitle();
+                    } else {
+                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
+                    }
                 case MSG_UPDATE_TIME_DISPLAY:
                     if(mTimerFragment != null){
-                        mTimerFragment.updateTime(msg.arg1);
+                        mTimerFragment.updateTime(msg.arg1, msg.arg2);
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
@@ -262,19 +262,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
         //endregion
 
-
-        //region TTS_BINDING
-        Intent TTSIntent = new Intent(this, TTSService.class);
-        bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
-        startService(TTSIntent);
-        //endregion
-
-
         //region VIEW_MODEL
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         //endregion
-
 
         //region INTENT
         Intent intent = getIntent();
@@ -283,6 +274,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             if(mIntentType == NORMAL_INTENT_TYPE) {
                 // Normal running circumstances
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                mVol = intent.getIntExtra(EXTRA_TTS_VOLUME, 100);
                 mWorkoutLiveData = mWorkoutViewModel.getWorkout(id);
                 mWorkoutLiveData.observe(this, new Observer<Workout>() {
                     @Override
@@ -297,7 +289,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                             throw new RuntimeException(DEBUG_TAG + " workout not found for LiveData");
                         }
 
-                        }
+                    }
                 });
 
                 mTypedSets = new ArrayList<>();
@@ -329,6 +321,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         //endregion
 
 
+        //region TTS_BINDING
+        Intent TTSIntent = new Intent(this, TTSService.class);
+        TTSIntent.putExtra("TestVol", 0);
+        bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
+        startService(TTSIntent);
+        //endregion
+
+
         //region UI
         mRestTime = findViewById(R.id.rest_time);
         mRestTime.setOnClickListener(new View.OnClickListener() {
@@ -347,27 +347,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
 
         mNumRounds = findViewById(R.id.number_rounds);
-        /*
-        mNumRounds.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE){
-                    Log.d(DEBUG_TAG, Integer.toString(actionId));
-                    mNumRounds.clearFocus();
-                    InputMethodManager man = (InputMethodManager) mNumRounds.getContext()
-                            .getSystemService(INPUT_METHOD_SERVICE);
-                    if(man != null){
-                        man.hideSoftInputFromWindow(mNumRounds.getWindowToken(), 0);
-                    }
-                }
-                return true;
-            }
-        });
-        */
         mNumRounds.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                mNumRounds.setSelection(mNumRounds.getText().length());
+
             }
 
             @Override
@@ -391,7 +374,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
             @Override
             public void afterTextChanged(Editable s) {
-                mNumRounds.setSelection(mNumRounds.getText().length());
+
             }
         });
 
@@ -455,7 +438,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         if(mTTSIsBound){
             unbindService(mTTSConnection);
             Log.d(DEBUG_TAG, "TTS Shutdown ON DESTROY");
-            Toast.makeText(getApplicationContext(), "TTS Shutoff ON DESTROY", Toast.LENGTH_SHORT).show();
             stopService(new Intent(this, TTSService.class));
             mTTSIsBound = false;
         }
@@ -526,7 +508,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //region UI_UPDATES
     private void updateRestTimeUI(int min, int sec, boolean flag){
-        if(flag){
+        /*if(flag){
             mRestTime.setText(R.string.none_text);
         }else if((sec % 10) == 0){
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
@@ -537,9 +519,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }  else {
             mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
+        */
+
+        if(flag){
+            mRestTime.setText(R.string.none_text);
+        } else if(sec == 0){
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if(sec < 10) {
+            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else {
+            mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }
     }
 
     private void updateBreakTimeUI(int min, int sec, boolean flag){
+        /*
         if(flag){
             mBreakTime.setText(R.string.none_text);
         } else if((sec % 10) == 0) {
@@ -550,11 +544,22 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
         } else {
             mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
+        }*/
+
+        if(flag){
+            mBreakTime.setText(R.string.none_text);
+        } else if(sec == 0){
+            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, sec, 0));
+        } else if(sec < 10) {
+            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
+        } else {
+            mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
         }
     }
 
     private void updateRoundNumUI(int num){
         mNumRounds.setText(String.format(Locale.US, "%d", num));
+        mNumRounds.setSelection(mNumRounds.getText().length());
     }
 
     //endregion
@@ -635,7 +640,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openAddNewSetFragment(){
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mAddNewSetFragment = AddNewSetFragment.newInstance(mTypedSets, new AddNewSetFragment.NewSetListener() {
+        mAddSetsFragment = AddSetsFragment.newInstance(mTypedSets, new AddSetsFragment.NewSetListener() {
             @Override
             public void addSetsToWorkout(List<Set> sets) {
                 if(sets != null) {
@@ -658,7 +663,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-        fragmentTransaction.replace(R.id.fragment_container, mAddNewSetFragment);
+        fragmentTransaction.replace(R.id.fragment_container, mAddSetsFragment);
         fragmentTransaction.addToBackStack(null);
         findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
         renameTitle(R.string.add_set);
@@ -746,24 +751,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             public void bottomSheetResult(int resultCode) {
                 switch (resultCode){
                     case BaseApp.EDIT:
-                        openDialog(AddEditSetDialog.EDIT_SET, mSetList.get(setIndex),new AddEditSetDialog.AddEditSetDialogListener() {
-                            @Override
-                            public void newSet(String name, String descrip, int min, int sec) {
-
-                            }
-
-                            @Override
-                            public void editSet(int id, String name, String descrip, int min, int sec) {
-                                Set editSet = mSetList.get(setIndex);
-                                editSet.setName(name);
-                                editSet.setTime(BaseApp.convertToMillis(min, sec));
-                                editSet.setDescrip(descrip);
-                                mWorkoutData.updateSet(editSet, setIndex);
-                                mWorkoutViewModel.update(mWorkoutData);
-                                //TODO: mSetAdapter was commented out
-                                //mSetAdapter.notifyDataSetChanged();
-                            }
-                        });
+                        openEditSet(mSetList.get(setIndex));
                         break;
                     case BaseApp.DELETE:
                         //mSetAdapter.pendingRemoval(setIndex);
@@ -782,23 +770,38 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mWorkoutViewModel.update(mWorkoutData);
     }
 
-    private void openDialog(int type, Set set, AddEditSetDialog.AddEditSetDialogListener listener){
-        Bundle bundle = null;
-        if( (type == AddEditSetDialog.NEW_SET) && set != null){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else if(type == AddEditSetDialog.EDIT_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, -1, "", "", -1);
-        } else if (type == AddEditSetDialog.DISPLAY_SET){
-            bundle = AddEditSetDialog.getDialogBundle(type, set.getSetId(), set.getName(), set.getDescrip(), set.getTime());
-        } else {
-            throw new RuntimeException(DEBUG_TAG + "dialog type was invalid" + type);
-        }
-        AddEditSetDialog dialog = AddEditSetDialog.newInstance(bundle, listener);
+    private void displayDialog(@NonNull Set set){
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         if (getFragmentManager() != null) {
-            dialog.show(mFragmentManager, DEBUG_TAG);
+            dialog.show(getSupportFragmentManager(), DEBUG_TAG);
         }
     }
+
+    private void openEditSet(@NonNull final Set set){
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.title_activity_my_workout,args, new CreateEditSetFragment.CreateEditSetListener() {
+            @Override
+            public void returnData(String name, String descrip, int min, int sec, int imageId) {
+                updateUserSet(set, set.getSetId(), name, descrip, min, sec, imageId);
+            }
+        });
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
+        fragmentTransaction.addToBackStack(null);
+        renameTitle(R.string.edit_set);
+        fragmentTransaction.commit();
+    }
     //endregion
+
+    private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec, int imageId){
+        set.setName(name);
+        set.setTime(BaseApp.convertToMillis(min, sec));
+        set.setDescrip(descrip);
+        set.setSetImageId(imageId);
+        mWorkoutData.updateSet(set, id);
+        mWorkoutViewModel.update(mWorkoutData);
+    }
 
     //region SWAP_SETS
 
@@ -817,23 +820,27 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation
     public void startTimer(View view){
+        openTimerFragment(mWorkoutData);
+    }
+
+    public void openTimerFragment(Workout wrk){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mTimerFragment = TimerFragment.newInstance(mWorkoutData.toJSON());
+        mTimerFragment = TimerFragment.newInstance(wrk.toJSON());
         fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
         findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
         Log.d(DEBUG_TAG, "Timer Fragment Created");
         bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
-
     }
+
+
 
     private void beginTimerService(){
         // TODO: Create a function that unifies notification vs start bundle
         Intent timerIntent = new Intent(this, TimerService.class);
         Bundle notifBundle = new Bundle();
         // TODO: Put items that are needed to rebuild the activity and fragment into this bundle
-
         // Build the bundle that the notification will use to restart everything
         notifBundle.putString(EXTRA_WORKOUT_JSON, mWorkoutData.toJSON());
         notifBundle.putInt(EXTRA_WORKOUT_ID, mWorkoutData.getWorkoutID());
@@ -938,5 +945,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             mTTSIsBound = false;
         }
     };
+    //endregion
+
+    //region TESTING
+    // FOR TESTING PURPOSES
+    public Workout getWrkoutData(){
+        return mWorkoutData;
+    }
     //endregion
 }

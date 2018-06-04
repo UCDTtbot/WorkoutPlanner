@@ -43,6 +43,8 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         // Foreground
         TextView itemName;
         ImageView itemImage;
+        TextView itemDescrip;
+
         private WorkoutViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
@@ -59,7 +61,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    mListener.onWorkoutLongClick(mWorkoutData.indexOf(curWorkout), curWorkout.getWorkoutID(), curWorkout.getWorkoutType());
+                    mListener.onWorkoutLongClick(curWorkout.getWorkoutID(), curWorkout.getWorkoutType());
                     return true;
                 }
             });
@@ -106,8 +108,8 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
 
     //region INTERFACES
     public interface WorkoutAdapterListener{
-        void onWorkoutClicked(int workoutIndex, int type);
-        void onWorkoutLongClick(int workoutIndex, int workoutID, int type);
+        void onWorkoutClicked(int id, int type);
+        void onWorkoutLongClick(int workoutID, int type);
         void deleteFromDB(Workout workout);
     }
     private WorkoutAdapterListener mListener;
@@ -200,8 +202,9 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
 
     //region PENDING_DELETE
     @Override
-    public void pendingRemoval(final int index){
-        final Workout workout = mWorkoutData.get(index);
+    public void pendingRemoval(final int id){
+        final Workout workout = getWorkoutByID(id);
+        final int index = mWorkoutData.indexOf(workout);
         if(!mWorkoutsPendingRemoval.contains(workout)){
             mWorkoutsPendingRemoval.add(workout);
             final int pendingPos = mWorkoutsPendingRemoval.indexOf(workout);
@@ -236,6 +239,8 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         // Update the file that we have removed a curWorkout
     }
 
+
+
     @Override
     public boolean isPendingRemoval(int pos){
         Workout workout = mWorkoutData.get(pos);
@@ -261,6 +266,13 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         }
     }
 
+
+    private Workout getWorkoutByID(int id){
+        for(Workout w : mWorkoutData){
+            if (w.getWorkoutID() == id) return w;
+        }
+        return null;
+    }
     //endregion
 
 }

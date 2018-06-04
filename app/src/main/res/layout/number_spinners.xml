@@ -29,7 +29,7 @@
             style="@style/NumberPickerLabel"
             android:layout_below="@+id/MinutePicker"
             android:text="@string/minute_label"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </RelativeLayout>
 
     <TextView
@@ -58,7 +58,7 @@
             style="@style/NumberPickerLabel"
             android:layout_below="@id/SecondsPicker"
             android:text="@string/second_label"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </RelativeLayout>
 
 

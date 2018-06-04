@@ -29,6 +29,7 @@ import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutItemAdapter;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
+import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -68,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     // Data
     private List<List<Workout>> mTypedWorkouts;
     private List<List<Set>> mTypedSets;
+
+    // Pref Data
+    private int mTTSVol;
 
     // Flags
     private boolean HIDE_ACTION_ITEMS;
@@ -181,6 +185,9 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
         mDefaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mTTSVol = 100;
+
         int currentVersionCode = BuildConfig.VERSION_CODE;
 
         if(mPrivateSharedPrefs != null){
@@ -224,18 +231,18 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         // Setup the adapter with correct data
         mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout), new WorkoutRowAdapter.WorkoutRowListener() {
             @Override
-            public void onWorkoutClicked(int index, int type) {
-                if(index >= 0) {
-                    openWorkout(index);
-                } else if (type == Workout.USER_CREATED && index < 0) {
+            public void onWorkoutClicked(int id, int type) {
+                if(id >= 0) {
+                    openWorkout(id);
+                } else if (type == Workout.USER_CREATED) {
                     openNewWorkoutFragment();
                 }
             }
 
             @Override
-            public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
+            public void onWorkoutLongClick(int id, int type) {
                 if(type == Workout.USER_CREATED) {
-                    openBottomSheet(type, workoutIndex);
+                    openBottomSheet(id, type);
                 }
             }
 
@@ -359,9 +366,27 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
-                toggleUpArrow(false);
+                if(mFragmentManager.getBackStackEntryCount() <= 0)
+                    toggleUpArrow(false);
             }
             return true;
+        } else if(id == R.id.debug_add) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
+            CreateEditSetFragment createEditSetFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
+                @Override
+                public void returnData(String name, String descrip, int min, int sec, int imageId) {
+                    Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
+                    BaseApp.incrementSetID(getApplicationContext());
+                    mSetViewModel.insert(set);
+                }
+            });
+            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+            fragmentTransaction.replace(R.id.new_workout_fragment_container, createEditSetFragment);
+            findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+            fragmentTransaction.addToBackStack(null);
+            renameTitle(R.string.new_set);
+            fragmentTransaction.commit();
         }
 
         return super.onOptionsItemSelected(item);
@@ -392,18 +417,19 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     //region NEW_WORKOUT
     private void openNewWorkoutFragment(){
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mNewWorkoutFragment = NewWorkoutFragment.newInstance(mTypedSets);
-        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-        fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
-        fragmentTransaction.addToBackStack(null);
-        findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
-        findViewById(R.id.fab).setVisibility(View.GONE);
-        fragmentTransaction.commit();
-        renameTitle(R.string.new_workout);
-        hideActionItems();
-        toggleUpArrow(true);
-        Log.d(DEBUG_TAG, "New Workout Fragment Created");
+        if(mTypedSets.get(0).size() > 0) {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            mNewWorkoutFragment = NewWorkoutFragment.newInstance(mTypedSets);
+            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+            fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
+            fragmentTransaction.addToBackStack(null);
+            findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+            fragmentTransaction.commit();
+            renameTitle(R.string.new_workout);
+            hideActionItems();
+            toggleUpArrow(true);
+            Log.d(DEBUG_TAG, "New Workout Fragment Created");
+        }
     }
 
     @Override
@@ -437,6 +463,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         if(workoutID >= 0) {
             Intent intent = new Intent(this, MyWorkoutActivity.class);
             intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+            intent.putExtra(MyWorkoutActivity.EXTRA_TTS_VOLUME, mTTSVol);
             intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
             startActivity(intent);
         }
@@ -444,8 +471,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     //endregion
 
     //region BOTTOM_SHEET_WORKOUTS
-    public void openBottomSheet(final int type, final int workoutIndex){
-        Workout workout = mTypedWorkouts.get(type).get(workoutIndex);
+    public void openBottomSheet(final int id, final int type){
+        final Workout workout = getWorkoutByID(id, type);
         Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, new BottomSheetDialog.BottomSheetDialogListener() {
             @Override
@@ -454,10 +481,10 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                     case BaseApp.EDIT:
                         throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
                     case BaseApp.DELETE:
-                        mWorkoutRowAdapter.pendingRemoval(type, workoutIndex);
+                        mWorkoutRowAdapter.pendingRemoval(id, type);
                         break;
                     case BaseApp.DUPLCIATE:
-                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), mTypedWorkouts.get(type).get(workoutIndex));
+                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), workout);
                         addNewWorkout(newWorkout);
                         break;
                     default:
@@ -472,6 +499,14 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     public void deleteWorkoutFromDB(Workout workout) {
         mWorkoutViewModel.remove(workout);
+    }
+
+    private Workout getWorkoutByID(int id, int type){
+        for(Workout w : mTypedWorkouts.get(type)){
+            if (w.getWorkoutID() == id) return w;
+        }
+
+        return null;
     }
 
     public void addSetToDB(Set set){
