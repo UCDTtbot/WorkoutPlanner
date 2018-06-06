@@ -187,6 +187,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
     }
 
     public void setData(List<Workout> workouts){
+        /*
         mWorkoutData = workouts;
         if(mWorkoutsPendingRemoval.size() > 0){
             for(int i = 0; i < mWorkoutsPendingRemoval.size(); i++){
@@ -197,6 +198,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
             }
         }
         notifyDataSetChanged();
+        */
     }
     //endregion
 

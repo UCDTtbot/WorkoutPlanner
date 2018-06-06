@@ -123,6 +123,7 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
     }
 
     public void setData(List<List<Workout>> workouts){
+        /*
         mTypedWorkouts = workouts;
         notifyDataSetChanged();
         if(mAdapters != null) {
@@ -133,6 +134,10 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
                 }
             }
         }
+        */
+    }
+
+    public void updateData(int type, List<Workout> data){
 
     }
 

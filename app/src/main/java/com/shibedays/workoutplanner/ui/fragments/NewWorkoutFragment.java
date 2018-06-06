@@ -1,6 +1,8 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -37,6 +39,8 @@ import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
+import com.shibedays.workoutplanner.viewmodel.NewWorkoutViewModel;
+import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,15 +56,10 @@ public class NewWorkoutFragment extends Fragment{
 
     //region PRIVATE_VARS
     // Data
-    private List<List<Set>> mTypedSetList;
+    //private List<List<Set>> mTypedSetList;
+    private NewWorkoutViewModel mViewModel;
 
     private List<SetListFragment> mSetListFrags;
-
-    private int mRounds;
-    private int mRestTime;
-    private int mBreakTime;
-    private boolean mRestFlag;
-    private boolean mBreakFlag;
     // Adapters
     // UI Components
     private CoordinatorLayout mCoordLayout; // Displaying Toasts / Undo bar
@@ -72,7 +71,6 @@ public class NewWorkoutFragment extends Fragment{
     private FrameLayout mFragContainer;
 
     private Button mSaveButton;
-
 
     // Parent
     private MainActivity mParentActivity;
@@ -108,9 +106,9 @@ public class NewWorkoutFragment extends Fragment{
     }
 
 
-    public static NewWorkoutFragment newInstance(List<List<Set>> typedList) {
+    public static NewWorkoutFragment newInstance() {
         NewWorkoutFragment newFragment = new NewWorkoutFragment();
-        newFragment.setTypedList(typedList);;
+        newFragment.setupData();
 
         return newFragment;
     }
@@ -140,13 +138,6 @@ public class NewWorkoutFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mRounds = 1;
-        mRestTime = 60000;
-        mBreakTime = 60000;
-        mRestFlag = false;
-        mBreakFlag = false;
-
     }
 
     @Nullable
@@ -484,6 +475,32 @@ public class NewWorkoutFragment extends Fragment{
         mTypedSetList.get(Set.USER_CREATED).remove(set);
     }
     //endregion
+
+
+    private void setupData(){
+        SetViewModel setVM = ViewModelProviders.of(this).get(SetViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(NewWorkoutViewModel.class);
+
+        for(int i = 0; i < Set.TYPES.length; i++){
+            setVM.getAllTypedSets(i).observe(this, new Observer<List<Set>>() {
+                @Override
+                public void onChanged(@Nullable List<Set> sets) {
+                    if(sets != null){
+                        if(!sets.isEmpty()) {
+                            int type = sets.get(0).getSetType();
+                            mViewModel.updateTypedSet(type, sets);
+                        }
+                    }
+                }
+            });
+        }
+
+        mViewModel.setRounds(1);
+        mViewModel.setRestTime(60000);
+        mViewModel.setBreakTime(60000);
+        mViewModel.setRestFlag(false);
+        mViewModel.setBreakFlag(false);
+    }
 
     //region UTILITY
     private void deleteSetConfirmation(final Set set){

@@ -22,11 +22,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.ui.adapters.WorkoutItemAdapter;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
@@ -67,11 +65,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     private RecyclerView mRecyclerView;
 
     // Data
-    private List<List<Workout>> mTypedWorkouts;
-    private List<List<Set>> mTypedSets;
-
-    // Pref Data
-    private int mTTSVol;
+    //private List<List<Workout>> mTypedWorkouts;
+    //private List<List<Set>> mTypedSets;
 
     // Flags
     private boolean HIDE_ACTION_ITEMS;
@@ -110,75 +105,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         HIDE_ACTION_ITEMS = false;
 
 
-        //region VIEW_MODEL
-        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
-            @Override
-            public void onChanged(@Nullable List<Workout> workouts) {
-                if(workouts != null){
-                    if(!workouts.isEmpty()){
-                        BaseApp.setWorkoutID(workouts.size() + 1);
-                    }
-                }
-            }
-        });
-
-        mTypedWorkouts = new ArrayList<List<Workout>>() {{
-           for(String TYPE : Workout.TYPES) {
-               add(new ArrayList<Workout>());
-           }
-        }};
-        for(int i = 0; i < Set.TYPES.length; i++){
-            mWorkoutViewModel.getTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
-                @Override
-                public void onChanged(@Nullable List<Workout> workouts) {
-                    if(workouts != null){
-                        if(!workouts.isEmpty()){
-                            mTypedWorkouts.set(workouts.get(0).getWorkoutType(), workouts);
-                            if(mWorkoutRowAdapter != null){
-                                mWorkoutRowAdapter.setData(mTypedWorkouts);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-
-        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
-            @Override
-            public void onChanged(@Nullable List<Set> sets) {
-                if(sets != null) {
-                    if(!sets.isEmpty()) {
-                        BaseApp.setSetID(sets.size() + 1);
-                    }
-                }
-            }
-        });
-
-        mTypedSets = new ArrayList<List<Set>>() {{
-            for (String TYPE : Set.TYPES) {
-                add(new ArrayList<Set>());
-            }
-        }};
-        for(int i = 0; i < Set.TYPES.length; i++){
-            mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
-                @Override
-                public void onChanged(@Nullable List<Set> sets) {
-                    if(sets != null){
-                        if(!sets.isEmpty()) {
-                            mTypedSets.set(sets.get(0).getSetType(), sets);
-                        }
-                    }
-                }
-            });
-        }
-
-
-        Log.d(DEBUG_TAG, "Added data");
-
-        //endregion
 
 
         //region SHARED_PREFS
@@ -186,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
         mDefaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mTTSVol = 100;
 
         int currentVersionCode = BuildConfig.VERSION_CODE;
 
@@ -280,6 +205,73 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
 
         //region ADDITIONAL_UI
+
+        //endregion
+
+
+        //region VIEW_MODEL
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+                if(workouts != null){
+                    if(!workouts.isEmpty()){
+                        BaseApp.setWorkoutID(workouts.size() + 1);
+                    }
+                }
+            }
+        });
+
+        for(int i = 0; i < Set.TYPES.length; i++){
+            mWorkoutViewModel.getAllTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
+                @Override
+                public void onChanged(@Nullable List<Workout> workouts) {
+                    if(workouts != null){
+                        if(!workouts.isEmpty()){
+                            int type = workouts.get(0).getWorkoutType();
+                            mWorkoutViewModel.updateTypedWorkout(type, workouts);
+
+                            if(mWorkoutRowAdapter != null){
+                                //mWorkoutRowAdapter.setData(mTypedWorkouts);
+                                mWorkoutRowAdapter.updateData(type, workouts);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+
+        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+                if(sets != null) {
+                    if(!sets.isEmpty()) {
+                        BaseApp.setSetID(sets.size() + 1);
+                    }
+                }
+            }
+        });
+
+
+        for(int i = 0; i < Set.TYPES.length; i++){
+            mSetViewModel.getAllTypedSets(i).observe(this, new Observer<List<Set>>() {
+                @Override
+                public void onChanged(@Nullable List<Set> sets) {
+                    if(sets != null){
+                        if(!sets.isEmpty()) {
+                            //mTypedSets.set(sets.get(0).getSetType(), sets);
+                            int type = sets.get(0).getSetType();
+                            mSetViewModel.updateTypedSet(type, sets);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        Log.d(DEBUG_TAG, "Added data");
 
         //endregion
 
@@ -417,19 +409,18 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     //region NEW_WORKOUT
     private void openNewWorkoutFragment(){
-        if(mTypedSets.get(0).size() > 0) {
-            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            mNewWorkoutFragment = NewWorkoutFragment.newInstance(mTypedSets);
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-            fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
-            fragmentTransaction.addToBackStack(null);
-            findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
-            fragmentTransaction.commit();
-            renameTitle(R.string.new_workout);
-            hideActionItems();
-            toggleUpArrow(true);
-            Log.d(DEBUG_TAG, "New Workout Fragment Created");
-        }
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance(this);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
+        fragmentTransaction.addToBackStack(null);
+        findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+        fragmentTransaction.commit();
+        renameTitle(R.string.new_workout);
+        hideActionItems();
+        toggleUpArrow(true);
+        Log.d(DEBUG_TAG, "New Workout Fragment Created");
+
     }
 
     @Override
@@ -463,7 +454,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         if(workoutID >= 0) {
             Intent intent = new Intent(this, MyWorkoutActivity.class);
             intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
-            intent.putExtra(MyWorkoutActivity.EXTRA_TTS_VOLUME, mTTSVol);
             intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
             startActivity(intent);
         }

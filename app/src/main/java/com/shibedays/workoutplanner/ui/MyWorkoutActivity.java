@@ -296,7 +296,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 for(int i = 0; i < Set.TYPES.length; i++) {
                     final int x = i;
 
-                    mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
+                    mSetViewModel.getAllTypedSets(i).observe(this, new Observer<List<Set>>() {
                         @Override
                         public void onChanged(@Nullable List<Set> sets) {
                             if (sets != null) {
