@@ -1,8 +1,12 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +17,7 @@ import android.view.ViewGroup;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.adapters.ChooseSetAdapter;
+import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.util.List;
 
@@ -30,11 +35,11 @@ public class SetListFragment extends Fragment {
 
     //region PRIVATE_VARS
     // Data
-    private List<Set> mSetList;
+    private SetViewModel mSetViewModel;
     // UI
     private RecyclerView mListView;
     private ChooseSetAdapter mAdapter;
-    // FLAGS
+
     private int mType;
 
     private SetListFragment mThis;
@@ -53,9 +58,8 @@ public class SetListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SetListFragment newInstance(List<Set> setList, int type, SetListListener listener) {
+    public static SetListFragment newInstance(int type, SetListListener listener) {
         SetListFragment fragment = new SetListFragment();
-        fragment.setData(setList);
         fragment.setListener(listener);
         fragment.setType(type);
         return fragment;
@@ -101,12 +105,14 @@ public class SetListFragment extends Fragment {
             }
         });
         mListView.setAdapter(mAdapter);
-        mAdapter.setData(mSetList);
-
         return view;
     }
 
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        setupData(mType);
+    }
 
     @Override
     public void onDetach() {
@@ -127,29 +133,29 @@ public class SetListFragment extends Fragment {
         mListener = listener;
     }
 
-    public void setData(List<Set> list){
-        mSetList = list;
-        if(mAdapter != null) {
-            mAdapter.setData(mSetList);
+    public void setupData(int type){
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mSetViewModel.getAllTypedSets(mType).observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+                mAdapter.updateData(sets);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    /*
+    public void updateSet(Set set){
+        if(mAdapter != null){
+            mAdapter.updateSet(set);
         }
     }
 
-    public void addSet(Set set){
-        mSetList.add(set);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    public void updateSet(Set set){
-        mSetList.set(mSetList.indexOf(set), set);
-    }
-
     public void removeSet(Set set){
-        int i = mSetList.indexOf(set);
-        mAdapter.removeMapping(set);
-        mSetList.remove(set);
-        mAdapter.notifyItemRemoved(i);
+        mAdapter.removeSet(set);
 
     }
+    */
 
     public void notifyData(){
         mAdapter.notifyDataSetChanged();

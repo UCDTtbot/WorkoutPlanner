@@ -18,10 +18,6 @@ public class NewWorkoutViewModel extends AndroidViewModel {
 
     private DataRepo mRepo;
 
-    private LiveData<List<Set>> mSets;
-    private List<List<Set>> mTypedSets;
-    private SparseBooleanArray mValidData;
-
     private int mRounds;
     private int mRestTime;
     private int mBreakTime;
@@ -30,24 +26,6 @@ public class NewWorkoutViewModel extends AndroidViewModel {
 
     public NewWorkoutViewModel(@NonNull Application application) {
         super(application);
-
-        mTypedSets = new ArrayList<>();
-        mValidData = new SparseBooleanArray();
-        int i = 0;
-        for(String s : Set.TYPES){
-            mTypedSets.add(null);
-            mValidData.put(i++, false);
-        }
-    }
-
-    public boolean isDataValid(int type){
-        return mValidData.get(type);
-    }
-
-    public void updateTypedSet(int index, List<Set> typed){
-        if(mTypedSets != null) {
-            mTypedSets.set(index, typed);
-        }
     }
 
     public void setRounds(int round){ mRounds = round; }

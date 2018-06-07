@@ -64,9 +64,6 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         mContext = context;
         mCoordLayout = coord;
         mAdapters = new ArrayList<>();
-        for(String s : Workout.TYPES){
-            mAdapters.add(null);
-        }
         mListener = listener;
     }
 
@@ -90,9 +87,7 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
             }
 
             @Override
-            public void onWorkoutLongClick(int id, int type) {
-                mListener.onWorkoutLongClick(id, type);
-            }
+            public void onWorkoutLongClick(int id, int type) { mListener.onWorkoutLongClick(id, type); }
 
             @Override
             public void deleteFromDB(Workout workout) {
@@ -102,19 +97,15 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         holder.workoutRecyclerView.setHasFixedSize(true);
         holder.workoutRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         holder.workoutRecyclerView.setAdapter(workoutItemAdapter);
-        mAdapters.set(position, workoutItemAdapter);
-        /*
-        if(mAdapters.size() >= Workout.TYPES.length)
-            Log.e(DEBUG_TAG, "ADAPTERS IS ATTEMPTING TO BECOME BIGGER");
-        else
-            mAdapters.add(workoutItemAdapter);
-        */
         holder.buttonMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(v.getContext(), "Clicked "+sectionName, Toast.LENGTH_SHORT).show();
             }
         });
+
+        mAdapters.set(position, workoutItemAdapter);
+
     }
 
     @Override
@@ -122,23 +113,19 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         return mTypedWorkouts != null ? mTypedWorkouts.size() : 0;
     }
 
-    public void setData(List<List<Workout>> workouts){
-        /*
-        mTypedWorkouts = workouts;
-        notifyDataSetChanged();
-        if(mAdapters != null) {
-            int i = 0;
-            for (WorkoutItemAdapter a : mAdapters) {
-                if (a != null) {
-                    a.notifyDataSetChanged();
-                }
-            }
+    public void initiateData(){
+        for(String s : Workout.TYPES){
+            mAdapters.add(null);
+            mTypedWorkouts.add(null);
         }
-        */
     }
 
     public void updateData(int type, List<Workout> data){
-
+        mTypedWorkouts.set(type, data);
+        notifyItemChanged(type);
+        if(mAdapters.get(type) != null){
+            mAdapters.get(type).updateData(data);
+        }
     }
 
     public void pendingRemoval(int id, int type){

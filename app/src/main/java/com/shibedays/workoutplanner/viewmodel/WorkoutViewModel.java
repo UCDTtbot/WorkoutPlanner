@@ -27,8 +27,7 @@ public class WorkoutViewModel extends AndroidViewModel {
     private DataRepo mRepo;
 
     private LiveData<List<Workout>> mWorkouts;
-    private List<List<Workout>> mTypedWorkouts;
-    private SparseBooleanArray mValidData;
+    private List<LiveData<List<Workout>>> mTypedWorkouts;
 
     private Workout mCurWorkout;
 
@@ -40,11 +39,8 @@ public class WorkoutViewModel extends AndroidViewModel {
         mWorkouts = mRepo.getAllWorkouts();
 
         mTypedWorkouts = new ArrayList<>();
-        mValidData = new SparseBooleanArray();
-        int i = 0;
-        for(String s : Workout.TYPES){
-            mTypedWorkouts.add(null);
-            mValidData.put(i++, false);
+        for(int i = 0; i < Workout.TYPES.length; i++){
+            mTypedWorkouts.add(mRepo.getTypedWorkouts(i));
         }
     }
 
@@ -53,7 +49,7 @@ public class WorkoutViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Workout>> getAllTypedWorkouts(int type){
-        return mRepo.getTypedWorkouts(type);
+        return mTypedWorkouts.get(type);
     }
 
     public LiveData<Workout> getWorkout(int id){
@@ -74,32 +70,6 @@ public class WorkoutViewModel extends AndroidViewModel {
         }
 
         return null;
-    }
-
-
-    public void setCurWorkout(final int id){
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                mCurWorkout = getWorkoutByID(id);
-            }
-        });
-    }
-
-    public Workout getCurWorkout(){
-        return mCurWorkout;
-    }
-
-
-    public boolean isDataValid(int type){
-        return mValidData.get(type);
-    }
-
-    public void updateTypedWorkout(int index, List<Workout> typed){
-        if(mTypedWorkouts != null) {
-            mTypedWorkouts.set(index, typed);
-            mValidData.put(index, true);
-        }
     }
 
     public void update(Workout workout){

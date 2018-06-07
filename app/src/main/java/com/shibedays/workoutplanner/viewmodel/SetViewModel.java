@@ -21,8 +21,7 @@ public class SetViewModel extends AndroidViewModel {
     private DataRepo mRepo;
 
     private LiveData<List<Set>> mSets;
-    private List<List<Set>> mTypedSets;
-    private SparseBooleanArray mValidData;
+    private List<LiveData<List<Set>>> mTypedSets;
 
     public SetViewModel(@NonNull Application application) {
         super(application);
@@ -32,11 +31,8 @@ public class SetViewModel extends AndroidViewModel {
         mSets = mRepo.getAllSets();
 
         mTypedSets = new ArrayList<>();
-        mValidData = new SparseBooleanArray();
-        int i = 0;
-        for(String s : Set.TYPES){
-            mTypedSets.add(null);
-            mValidData.put(i++, false);
+        for(int i = 0; i < Set.TYPES.length; i++){
+            mTypedSets.add(mRepo.getTypedSets(i));
         }
     }
 
@@ -45,17 +41,20 @@ public class SetViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Set>> getAllTypedSets(int type) {
-        return mRepo.getTypedSets(type);
+        return mTypedSets.get(type);
     }
 
-    public boolean isDataValid(int type){
-        return mValidData.get(type);
-    }
-
-    public void updateTypedSet(int index, List<Set> typed){
-        if(mTypedSets != null) {
-            mTypedSets.set(index, typed);
+    public Set getSetById(int id){
+        if(mSets != null){
+            if(mSets.getValue() != null){
+                for(Set s : mSets.getValue()){
+                    if(s.getSetId() == id){
+                        return s;
+                    }
+                }
+            }
         }
+        return null;
     }
 
     public void update(Set set){ mRepo.updateSet(set); }

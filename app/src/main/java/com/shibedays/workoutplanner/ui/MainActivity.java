@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -64,10 +65,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     // UI Components
     private RecyclerView mRecyclerView;
 
-    // Data
-    //private List<List<Workout>> mTypedWorkouts;
-    //private List<List<Set>> mTypedSets;
-
     // Flags
     private boolean HIDE_ACTION_ITEMS;
 
@@ -85,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     // View Model
     private WorkoutViewModel mWorkoutViewModel;
-    private SetViewModel mSetViewModel;
+    //private SetViewModel mSetViewModel;
 
     // Fragment(s)
     NewWorkoutFragment mNewWorkoutFragment;
@@ -103,8 +100,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         setContentView(R.layout.activity_main);
         mFragmentManager = getSupportFragmentManager();
         HIDE_ACTION_ITEMS = false;
-
-
 
 
         //region SHARED_PREFS
@@ -177,102 +172,14 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             }
         });
         mRecyclerView.setAdapter(mWorkoutRowAdapter);
+        mWorkoutRowAdapter.initiateData();
         mWorkoutRowAdapter.notifyDataSetChanged();
-
-        /*
-                    @Override
-            public void onWorkoutClicked(int workoutIndex, int type) {
-                openWorkout(workoutIndex);
-            }
-
-            @Override
-            public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
-                openBottomSheet(type, workoutIndex);
-            }
-
-            @Override
-            public void deleteFromDB(Workout workout) {
-                deleteWorkoutFromDB(workout);
-            }
-         */
         //endregion
 
 
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //endregion
-
-
-        //region ADDITIONAL_UI
-
-        //endregion
-
-
-        //region VIEW_MODEL
-        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
-            @Override
-            public void onChanged(@Nullable List<Workout> workouts) {
-                if(workouts != null){
-                    if(!workouts.isEmpty()){
-                        BaseApp.setWorkoutID(workouts.size() + 1);
-                    }
-                }
-            }
-        });
-
-        for(int i = 0; i < Set.TYPES.length; i++){
-            mWorkoutViewModel.getAllTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
-                @Override
-                public void onChanged(@Nullable List<Workout> workouts) {
-                    if(workouts != null){
-                        if(!workouts.isEmpty()){
-                            int type = workouts.get(0).getWorkoutType();
-                            mWorkoutViewModel.updateTypedWorkout(type, workouts);
-
-                            if(mWorkoutRowAdapter != null){
-                                //mWorkoutRowAdapter.setData(mTypedWorkouts);
-                                mWorkoutRowAdapter.updateData(type, workouts);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-
-        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
-            @Override
-            public void onChanged(@Nullable List<Set> sets) {
-                if(sets != null) {
-                    if(!sets.isEmpty()) {
-                        BaseApp.setSetID(sets.size() + 1);
-                    }
-                }
-            }
-        });
-
-
-        for(int i = 0; i < Set.TYPES.length; i++){
-            mSetViewModel.getAllTypedSets(i).observe(this, new Observer<List<Set>>() {
-                @Override
-                public void onChanged(@Nullable List<Set> sets) {
-                    if(sets != null){
-                        if(!sets.isEmpty()) {
-                            //mTypedSets.set(sets.get(0).getSetType(), sets);
-                            int type = sets.get(0).getSetType();
-                            mSetViewModel.updateTypedSet(type, sets);
-                        }
-                    }
-                }
-            });
-        }
-
-
-        Log.d(DEBUG_TAG, "Added data");
-
         //endregion
 
 
@@ -293,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     protected void onStart() {
         super.onStart();
         mActionBar = getSupportActionBar();
+        setupData();
 
     }
 
@@ -370,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                 public void returnData(String name, String descrip, int min, int sec, int imageId) {
                     Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
                     BaseApp.incrementSetID(getApplicationContext());
-                    mSetViewModel.insert(set);
                 }
             });
             fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
@@ -404,13 +311,49 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         HIDE_ACTION_ITEMS = false;
         invalidateOptionsMenu();
     }
+
+    private void setupData(){
+        //region VIEW_MODEL
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+                if(workouts != null){
+                    if(!workouts.isEmpty()){
+                        BaseApp.setWorkoutID(workouts.size() + 1);
+                    }
+                }
+            }
+        });
+
+        for(int i = 0; i < Set.TYPES.length; i++){
+            mWorkoutViewModel.getAllTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
+                @Override
+                public void onChanged(@Nullable List<Workout> workouts) {
+                    if(workouts != null){
+                        if(!workouts.isEmpty()){
+                            if(mWorkoutRowAdapter != null){
+                                int type = workouts.get(0).getWorkoutType();
+                                mWorkoutRowAdapter.updateData(type, workouts);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        Log.d(DEBUG_TAG, "Added data");
+
+        //endregion
+    }
     //endregion
 
 
     //region NEW_WORKOUT
     private void openNewWorkoutFragment(){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mNewWorkoutFragment = NewWorkoutFragment.newInstance(this);
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance();
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
         fragmentTransaction.addToBackStack(null);
@@ -436,16 +379,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
-    @Override
-    public void applyUserSetToDB(Set set) {
-        mSetViewModel.insert(set);
-    }
-
-    @Override
-    public void removeUserSetFromDB(Set set) {
-        mSetViewModel.remove(set);
-    }
-
     //endregion
 
 
@@ -462,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     //region BOTTOM_SHEET_WORKOUTS
     public void openBottomSheet(final int id, final int type){
-        final Workout workout = getWorkoutByID(id, type);
+        final Workout workout = mWorkoutViewModel.getWorkoutByID(id);
         Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, new BottomSheetDialog.BottomSheetDialogListener() {
             @Override
@@ -491,20 +424,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         mWorkoutViewModel.remove(workout);
     }
 
-    private Workout getWorkoutByID(int id, int type){
-        for(Workout w : mTypedWorkouts.get(type)){
-            if (w.getWorkoutID() == id) return w;
-        }
-
-        return null;
-    }
-
-    public void addSetToDB(Set set){
-        mSetViewModel.insert(set);
-    }
-    public void deleteSetFromDB(Set set){
-        mSetViewModel.remove(set);
-    }
     //endregion
 
 
