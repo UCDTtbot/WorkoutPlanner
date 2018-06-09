@@ -111,7 +111,7 @@ public class SetListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        setupData(mType);
+        setupData();
     }
 
     @Override
@@ -133,7 +133,7 @@ public class SetListFragment extends Fragment {
         mListener = listener;
     }
 
-    public void setupData(int type){
+    public void setupData(){
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         mSetViewModel.getAllTypedSets(mType).observe(this, new Observer<List<Set>>() {
             @Override

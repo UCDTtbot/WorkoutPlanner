@@ -39,47 +39,6 @@ public class BaseApp extends Application {
         }
     }
 
-    //region IDs
-    private static int NEXT_WORKOUT_ID;
-    private static int NEXT_SET_ID;
-
-
-    public static void setWorkoutID(int id){
-        NEXT_WORKOUT_ID = id;
-    }
-    public static void incrementWorkoutID(Context context){
-        NEXT_WORKOUT_ID++;
-        SharedPreferences sharedPref = context.getSharedPreferences(MainActivity.PREF_IDENTIFIER, MODE_PRIVATE);
-        sharedPref.edit().putInt(MainActivity.KEY_NEXT_WORKOUT_NUM, NEXT_WORKOUT_ID).apply();
-    }
-
-    public static int getNextWorkoutID(){
-        if(NEXT_WORKOUT_ID == -1){
-            Log.e("BaseApp", "ID was -1");
-        }
-        return NEXT_WORKOUT_ID;
-    }
-
-
-    public static void setSetID(int id){
-        NEXT_SET_ID = id;
-    }
-
-    public static void incrementSetID(Context context){
-        NEXT_SET_ID++;
-        SharedPreferences sharedPref = context.getSharedPreferences(MainActivity.PREF_IDENTIFIER, MODE_PRIVATE);
-        sharedPref.edit().putInt(MainActivity.KEY_NEXT_SET_NUM, NEXT_SET_ID).apply();
-    }
-
-    public static int getNextSetID(){
-        if(NEXT_SET_ID == -1){
-            Log.e("BaseApp", "ID was -1");
-        }
-        return NEXT_SET_ID;
-    }
-
-    //endregion
-
     //region CONVERTERS
     public static int convertToMillis(int[] time){
         return ((time[0] * 60) + time[1]) * 1000;

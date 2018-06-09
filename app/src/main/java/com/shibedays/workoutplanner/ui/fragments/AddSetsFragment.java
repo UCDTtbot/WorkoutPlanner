@@ -265,7 +265,7 @@ public class AddSetsFragment extends Fragment {
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
+                Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
                 mSetViewModel.insert(set);
             }
         });

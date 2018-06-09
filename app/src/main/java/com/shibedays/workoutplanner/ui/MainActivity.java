@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Flags
     private boolean HIDE_ACTION_ITEMS;
-    private boolean FIRST_RUN_DATA;
 
     // Adapters
     private WorkoutRowAdapter mWorkoutRowAdapter;
@@ -113,18 +112,16 @@ public class MainActivity extends AppCompatActivity {
             int savedVersionCode = mPrivateSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
             if(savedVersionCode == currentVersionCode){
                 // Normal Run
-                FIRST_RUN_DATA = false;
-                BaseApp.setWorkoutID(mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, DATA_DOESNT_EXIST));
-                BaseApp.setSetID(mPrivateSharedPrefs.getInt(KEY_NEXT_SET_NUM, DATA_DOESNT_EXIST));
+
             } else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
-                FIRST_RUN_DATA = true;
+
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.apply();
             }else if (savedVersionCode < currentVersionCode){
                 // Updated run
-                FIRST_RUN_DATA = false;
+
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.apply();
@@ -378,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
                         mWorkoutRowAdapter.pendingRemoval(id, type);
                         break;
                     case BaseApp.DUPLCIATE:
-                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), workout);
+                        Workout newWorkout = new Workout(workout);
                         mWorkoutViewModel.insert(newWorkout);
                         break;
                     default:

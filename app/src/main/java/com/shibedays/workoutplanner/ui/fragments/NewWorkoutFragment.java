@@ -388,7 +388,7 @@ public class NewWorkoutFragment extends Fragment{
         mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
+                Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
                 mSetViewModel.insert(set);
             }
         });
@@ -554,7 +554,7 @@ public class NewWorkoutFragment extends Fragment{
         }
 
         if(isOk) {
-            Workout workout = new Workout(BaseApp.getNextWorkoutID(), Workout.USER_CREATED, name);
+            Workout workout = new Workout(Workout.USER_CREATED, name);
             workout.setNumOfRounds(rounds);
             workout.setNoRestFlag(mViewModel.getRestFlag());
             workout.setNoBreakFlag(mViewModel.getBreakFlag());

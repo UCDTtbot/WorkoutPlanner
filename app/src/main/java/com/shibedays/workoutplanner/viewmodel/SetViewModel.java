@@ -61,7 +61,6 @@ public class SetViewModel extends AndroidViewModel {
 
     public void insert(Set set){
         mRepo.insertSet(set);
-        BaseApp.incrementSetID(getApplication());
     }
 
     public void remove(Set set){ mRepo.removeSet(set); }
