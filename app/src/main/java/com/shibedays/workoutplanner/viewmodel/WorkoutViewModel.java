@@ -78,6 +78,7 @@ public class WorkoutViewModel extends AndroidViewModel {
 
     public void insert(Workout workout){
         mRepo.insertWorkout(workout);
+        BaseApp.incrementWorkoutID(getApplication());
     }
 
     public void remove(Workout workout){

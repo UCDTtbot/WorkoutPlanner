@@ -114,9 +114,10 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
     }
 
     public void initiateData(){
+        mTypedWorkouts = new ArrayList<>();
         for(String s : Workout.TYPES){
             mAdapters.add(null);
-            mTypedWorkouts.add(null);
+            mTypedWorkouts.add(new ArrayList<Workout>());
         }
     }
 

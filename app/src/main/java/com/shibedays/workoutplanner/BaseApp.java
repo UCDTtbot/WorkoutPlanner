@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.DebugUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.db.AppDatabase;
@@ -41,6 +43,7 @@ public class BaseApp extends Application {
     private static int NEXT_WORKOUT_ID;
     private static int NEXT_SET_ID;
 
+
     public static void setWorkoutID(int id){
         NEXT_WORKOUT_ID = id;
     }
@@ -51,8 +54,12 @@ public class BaseApp extends Application {
     }
 
     public static int getNextWorkoutID(){
+        if(NEXT_WORKOUT_ID == -1){
+            Log.e("BaseApp", "ID was -1");
+        }
         return NEXT_WORKOUT_ID;
     }
+
 
     public static void setSetID(int id){
         NEXT_SET_ID = id;
@@ -64,13 +71,13 @@ public class BaseApp extends Application {
         sharedPref.edit().putInt(MainActivity.KEY_NEXT_SET_NUM, NEXT_SET_ID).apply();
     }
 
-    public static void addToSetID(int num){
-        NEXT_SET_ID += num;
-    }
-
     public static int getNextSetID(){
+        if(NEXT_SET_ID == -1){
+            Log.e("BaseApp", "ID was -1");
+        }
         return NEXT_SET_ID;
     }
+
     //endregion
 
     //region CONVERTERS

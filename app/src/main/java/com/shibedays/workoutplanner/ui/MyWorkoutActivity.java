@@ -640,7 +640,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openAddNewSetFragment(){
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mAddSetsFragment = AddSetsFragment.newInstance(mTypedSets, new AddSetsFragment.NewSetListener() {
+        mAddSetsFragment = AddSetsFragment.newInstance(new AddSetsFragment.NewSetListener() {
             @Override
             public void addSetsToWorkout(List<Set> sets) {
                 if(sets != null) {
@@ -650,16 +650,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     mWorkoutViewModel.update(mWorkoutData);
                 }
                 mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            }
-
-            @Override
-            public void applyUserSetToDB(Set set) {
-                mSetViewModel.insert(set);
-            }
-
-            @Override
-            public void removeUserSetFromDB(Set set) {
-                mSetViewModel.remove(set);
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);

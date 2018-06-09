@@ -115,7 +115,7 @@ public class TimerFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement NewWorkoutListener");
         }
         Activity act = getActivity();
         if(act instanceof MyWorkoutActivity){

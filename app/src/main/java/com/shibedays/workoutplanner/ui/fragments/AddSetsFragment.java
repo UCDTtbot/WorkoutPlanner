@@ -1,10 +1,13 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -25,6 +28,7 @@ import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
+import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,14 +40,11 @@ public class AddSetsFragment extends Fragment {
     // Package and Debug Constants
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.AddSetsFragment.";
     private static final String DEBUG_TAG = AddSetsFragment.class.getSimpleName();
-
-
     //endregion
 
     //region PRIVATE_VARS
     // Data
-    private List<List<Set>> mTypedSetList;
-
+    private SetViewModel mSetViewModel;
     private List<SetListFragment> mSetListFrags;
     // Adapters
     private SectionedSetAdapter mLeftAdapter;
@@ -64,10 +65,7 @@ public class AddSetsFragment extends Fragment {
     //region INTERFACES
 
     public interface NewSetListener {
-        // TODO: Update argument type and name
         void addSetsToWorkout(List<Set> sets);
-        void applyUserSetToDB(Set set);
-        void removeUserSetFromDB(Set set);
     }
     private NewSetListener mListener;
 
@@ -79,10 +77,8 @@ public class AddSetsFragment extends Fragment {
 
     }
 
-    public static AddSetsFragment newInstance(List<List<Set>> sets, NewSetListener listener) {
+    public static AddSetsFragment newInstance(NewSetListener listener) {
         AddSetsFragment newFragment = new AddSetsFragment();
-
-        newFragment.setTypedSets(sets);
         newFragment.setListener(listener);
 
         return newFragment;
@@ -93,7 +89,6 @@ public class AddSetsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         Activity act = getActivity();
         if(act instanceof MyWorkoutActivity){
             mParentActivity = (MyWorkoutActivity) act;
@@ -130,129 +125,20 @@ public class AddSetsFragment extends Fragment {
             }
         });
 
-        //region RECYCLER_VIEWS
-
-        /*
-
-                //region LEFT_RV
-        mLeftRecyclerView = view.findViewById(R.id.left_recyclerview);
-        mLeftRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        List<String> headerList = new ArrayList<>();
-        List<List<Set>> leftDataList = new ArrayList<>();
-        headerList.add(getString(R.string.header_title_default));
-
-        //        mLeftAdapter = new SectionedSetAdapter(getContext(), headerList, 0, new SectionedSetAdapter.SectionedAddSetListener() {
-        mLeftAdapter = new SectionedSetAdapter(getContext(), headerList, -1, new SectionedSetAdapter.SectionedAddSetListener() {
-            @Override
-            public void onClick(Set set, int section, int relativePos) {
-                Log.d(DEBUG_TAG, "Left Adapter Default Clicked Add Set");
-                addSetConfirmation(set);
-            }
-
-            @Override
-            public void onLongClick(Set set, int section, int relativePos) {
-                Log.d(DEBUG_TAG, "Left Adapter Default LongClicked Open Info");
-                openDialog(DisplaySetDialog.DISPLAY_SET, set, relativePos, section, new DisplaySetDialog.AddEditSetDialogListener() {
-                    @Override
-                    public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                        // Nothing
-                    }
-                });
-            }
-
-            @Override
-            public void createUserSet(int section) {
-                // Nothing
-            }
-        });
-        mLeftRecyclerView.setAdapter(mLeftAdapter);
-        mLeftAdapter.addToDataList(mDefaultSets);
-        mLeftAdapter.shouldShowHeadersForEmptySections(true);
-        mLeftAdapter.shouldShowFooters(false);
-                //endregion
-
-                //region RIGHT_RV
-        mRightRecyclerView = view.findViewById(R.id.right_recyclerview);
-        mRightRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        List<String> rightHeaderList = new ArrayList<>();
-        rightHeaderList.add(getString(R.string.header_title_user_created));
-        mRightAdapter = new SectionedSetAdapter(getContext(), headerList, 0, new SectionedSetAdapter.SectionedAddSetListener(){
-            @Override
-            public void onClick(Set set, int section, final int relativePos) {
-                Log.d(DEBUG_TAG, "Right Adapter User Created Clicked Add Set");
-                addSetConfirmation(set);
-            }
-
-            @Override
-            public void onLongClick(Set set, int section, final int relativePos) {
-                Log.d(DEBUG_TAG, "Right Adapter User Created Long Clicked Open Bottom Sheet");
-                openBottomSheet(set, relativePos, section, new BottomSheetDialog.BottomSheetDialogListener() {
-                    @Override
-                    public void bottomSheetResult(int resultCode, int index, int section) {
-                        Log.d(DEBUG_TAG, "Result Code: " + Integer.toString(resultCode) + " Section: " + section);
-                        switch (resultCode){
-                            case BaseApp.EDIT:
-                                openDialog(DisplaySetDialog.EDIT_SET, mUserCreatedSets.get(index), relativePos, section, new DisplaySetDialog.AddEditSetDialogListener() {
-                                    @Override
-                                    public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                                        updateUserCreatedSet(index, name, descrip, min, sec);
-                                    }
-                                });
-                                break;
-                            case BaseApp.DELETE:
-                                deleteUserCreatedSet(section, index);
-                                break;
-                            case BaseApp.DUPLCIATE:
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void createUserSet(int section) {
-                Log.d(DEBUG_TAG, "Right Adapter Create New User Set");
-                //TODO : Dialog must be updated
-                openDialog(DisplaySetDialog.NEW_SET, null, -1, section, new DisplaySetDialog.AddEditSetDialogListener() {
-                    @Override
-                    public void addEditResult(int dialogType, String name, String descrip, int min, int sec, int section, int index) {
-                        //Set set = new Set(name, descrip, BaseApp.convertToMillis(min, sec));
-                        //addUserCreatedSet(section, set);
-                    }
-                });
-            }
-        });
-        mRightRecyclerView.setAdapter(mRightAdapter);
-        mRightAdapter.addToDataList(mUserCreatedSets);
-        mRightAdapter.shouldShowHeadersForEmptySections(true);
-        mRightAdapter.shouldShowFooters(true);
-                //endregion
-
-            //endregion
-
-
-
-        */
-        //endregion
-
         //region PAGER
-
         ViewPager viewPager = view.findViewById(R.id.pager);
         viewPager.setOffscreenPageLimit(Set.TYPES.length);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
 
         mSetListFrags = new ArrayList<>();
-        for(int i = 0; i < Set.TYPES.length; i++){
+        for(int type = 0; type < Set.TYPES.length; type++){
 
-            SetListFragment frag = SetListFragment.newInstance(mTypedSetList.get(i), i, new SetListFragment.SetListListener() {
+            SetListFragment frag = SetListFragment.newInstance(type, new SetListFragment.SetListListener() {
 
                 @Override
                 public void openBottomSheet(int setType, int setID) {
-                    final Set set = getSetByID(setID, setType);
+                    final Set set = mSetViewModel.getSetById(setID);
+
                     if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
                     AddSetsFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
                         @Override
@@ -271,7 +157,7 @@ public class AddSetsFragment extends Fragment {
                 @Override
                 public void openSetDialog(int type, int setType, int setID) {
 
-                    final Set set = getSetByID(setID, setType);
+                    final Set set = mSetViewModel.getSetById(setID);
 
                     if(type == SetListFragment.NEW_SET){
                         openNewSet();
@@ -284,7 +170,7 @@ public class AddSetsFragment extends Fragment {
                     }
                 }
             });
-            adapter.addFragment(frag, Set.TYPES[i]);
+            adapter.addFragment(frag, Set.TYPES[type]);
             mSetListFrags.add(frag);
         }
 
@@ -300,6 +186,7 @@ public class AddSetsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        setupViewModel();
         Log.d(DEBUG_TAG, "NEW_SET_FRAGMENT ON_START");
     }
 
@@ -379,11 +266,7 @@ public class AddSetsFragment extends Fragment {
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
                 Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
-                BaseApp.incrementSetID(getContext());
-                mTypedSetList.get(Set.USER_CREATED).add(set);
-                mSetListFrags.get(Set.USER_CREATED).setData(mTypedSetList.get(Set.USER_CREATED));
-                mSetListFrags.get(Set.USER_CREATED).notifyData();
-                mListener.applyUserSetToDB(set);
+                mSetViewModel.insert(set);
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
@@ -417,18 +300,14 @@ public class AddSetsFragment extends Fragment {
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
             set.setSetImageId(imageId);
-            mSetListFrags.get(Set.USER_CREATED).updateSet(set);
-            mTypedSetList.get(Set.USER_CREATED).set(mTypedSetList.get(Set.USER_CREATED).indexOf(set), set);
-            mListener.applyUserSetToDB(set);
+            mSetViewModel.insert(set);
         } else {
             throw new RuntimeException(DEBUG_TAG + " trying to update set, was null");
         }
     }
 
     private void deleteUserSet(Set set){
-        mListener.removeUserSetFromDB(set);
-        mSetListFrags.get(Set.USER_CREATED).removeSet(set);
-        mTypedSetList.get(Set.USER_CREATED).remove(set);
+        mSetViewModel.remove(set);
     }
 
     //endregion
@@ -450,22 +329,15 @@ public class AddSetsFragment extends Fragment {
         }
     }
 
-    private Set getSetByID(int setID, int setType){
-        for(Set s : mTypedSetList.get(setType)){
-            if (s.getSetId() == setID) return s;
-        }
-
-        return null;
-    }
     //endregion
+
+    private void setupViewModel(){
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+    }
 
     //region SETTERS
     private void setListener(NewSetListener listener){
         mListener = listener;
-    }
-
-    public void setTypedSets(List<List<Set>> sets){
-        mTypedSetList = sets;
     }
     //endregion
 

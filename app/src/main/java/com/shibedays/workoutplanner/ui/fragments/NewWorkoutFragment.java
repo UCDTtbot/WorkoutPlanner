@@ -91,10 +91,10 @@ public class NewWorkoutFragment extends Fragment{
      * to the activity and potentially other fragments contained in that
      * activity.
      */
-    public interface OnFragmentInteractionListener {
+    public interface NewWorkoutListener {
         void addNewWorkout(Workout workout);
     }
-    private OnFragmentInteractionListener mListener;
+    private NewWorkoutListener mListener;
     //endregion
 
     //region FACTORY_CONSTRUCTORS
@@ -104,8 +104,9 @@ public class NewWorkoutFragment extends Fragment{
     }
 
 
-    public static NewWorkoutFragment newInstance() {
+    public static NewWorkoutFragment newInstance(NewWorkoutListener listener) {
         NewWorkoutFragment newFragment = new NewWorkoutFragment();
+        newFragment.setListener(listener);
 
         return newFragment;
     }
@@ -116,12 +117,6 @@ public class NewWorkoutFragment extends Fragment{
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if(context instanceof OnFragmentInteractionListener){
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
         Activity act = getActivity();
         if(act instanceof MainActivity){
             mParentActivity = (MainActivity) act;
@@ -266,7 +261,7 @@ public class NewWorkoutFragment extends Fragment{
     @Override
     public void onStart() {
         super.onStart();
-        setupData();
+        setupViewModels();
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_START");
     }
 
@@ -394,7 +389,6 @@ public class NewWorkoutFragment extends Fragment{
             @Override
             public void returnData(String name, String descrip, int min, int sec, int imageId) {
                 Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
-                BaseApp.incrementSetID(getContext());
                 mSetViewModel.insert(set);
             }
         });
@@ -463,20 +457,10 @@ public class NewWorkoutFragment extends Fragment{
     //endregion
 
 
-    private void setupData(){
+    private void setupViewModels(){
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         mViewModel = ViewModelProviders.of(this).get(NewWorkoutViewModel.class);
 
-        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
-            @Override
-            public void onChanged(@Nullable List<Set> sets) {
-                if(sets != null){
-                    if(!sets.isEmpty()){
-                        BaseApp.setSetID(sets.size() + 1);
-                    }
-                }
-            }
-        });
 
         mViewModel.setRounds(1);
         mViewModel.setRestTime(60000);
@@ -515,6 +499,11 @@ public class NewWorkoutFragment extends Fragment{
         return null;
     }
     */
+
+    private void setListener(NewWorkoutListener listener){
+        mListener = listener;
+    }
+
     //endregion
 
     public void saveWorkout(){

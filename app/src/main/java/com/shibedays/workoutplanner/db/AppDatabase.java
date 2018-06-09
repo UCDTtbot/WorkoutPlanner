@@ -6,15 +6,21 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Debug;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.dao.SetDao;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.db.dao.WorkoutDao;
+import com.shibedays.workoutplanner.ui.MainActivity;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +29,8 @@ import java.util.List;
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
+    private static WeakReference<Context> CONTEXT;
+
 
     public static final String DATABASE_NAME = "workoutDB";
 
@@ -45,6 +53,7 @@ public abstract class AppDatabase extends RoomDatabase {
             }
         }
 
+        CONTEXT = new WeakReference<>(context);
         return INSTANCE;
     }
 
@@ -53,7 +62,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db){
             super.onCreate(db);
-                  new PopulateDBAsync(INSTANCE).execute();
+            new PopulateDBAsync(INSTANCE, CONTEXT).execute();
         }
     };
 
@@ -61,48 +70,53 @@ public abstract class AppDatabase extends RoomDatabase {
 
         private final WorkoutDao mWorkoutDao;
         private final SetDao mSetDao;
+        private final WeakReference<Context> mContext;
+        private int workoutIds;
+        private int setIds;
 
-        PopulateDBAsync(AppDatabase db){
+        PopulateDBAsync(AppDatabase db, WeakReference<Context> context){
             mWorkoutDao = db.workoutDao();
             mSetDao = db.setDao();
+            mContext = context;
         }
 
         @Override
         protected Void doInBackground(final Void... params){
             // TODO: EDIT ALL SET DESCRIPS TO BE STRING RESOURCES
             // Sets //
-            int setsId = 0;
+            setIds = 0;
+            workoutIds = 0;
             // Cardio
-            final Set jog = new Set(setsId++,
+            final Set jog = new Set(setIds++,
                     "Light Jog",
                     "Jog at a comfortable pace",
                     Set.CARDIO, 120000,
                     R.drawable.ic_run_black_24dp);
-            final Set run = new Set(setsId++,
+            final Set run = new Set(setIds++,
                     "Run",
                     "High-speeding running",
                     Set.CARDIO, 60000,
                     R.drawable.ic_run_black_24dp);
-            final Set walk = new Set(setsId++,
+            final Set walk = new Set(setIds++,
                     "Brisk Walk",
                     "Walk at a brisk pace to cool down",
                     Set.CARDIO, 120000,
                     R.drawable.ic_run_black_24dp);
-            final Set high_steps = new Set(setsId++,
+            final Set high_steps = new Set(setIds++,
                     "High Steps",
                     "7-steps (high knee march)",
                     Set.CARDIO, 60000,
                     R.drawable.ic_run_black_24dp);
 
             // Upper Body
-            final Set pushups = new Set(setsId++,
+            final Set pushups = new Set(setIds++,
                     "Pushups",
                     "Lie prone on the ground with hands placed as wide or slightly wider than shoulder width. " +
                             "Keeping the body straight, lower body to the ground by bending arms at the elbows. " +
                             "Raise body up off the ground by extending the arms.",
                     Set.UPPER_BODY, 60000,
                     R.drawable.ic_fitness_black_24dp);
-            final Set dips = new Set(setsId++,
+            final Set dips = new Set(setIds++,
                     "Dips",
                     "Stand with your back to a chair or bench. Be sure that the object is sturdy and can comfortably support your body weight. " +
                             "Bend your legs and place your palms on the front edge of the bench, with your fingers pointing forward. " +
@@ -111,21 +125,21 @@ public abstract class AppDatabase extends RoomDatabase {
                             "Hold for a second, then exhale and straighten your arms back up to the starting position.",
                     Set.UPPER_BODY, 60000,
                     R.drawable.ic_fitness_black_24dp);
-            final Set bicep_curls = new Set(setsId++,
+            final Set bicep_curls = new Set(setIds++,
                     "Bicep Curls",
                     "Extend your arm down by your side and hold the weight, palms facing forward. " +
                             "Make sure your elbows are tucked and your shoulders are straight. " +
                             "When you’re in position, slowly bring the weight up to your shoulders, not outside of your shoulders and not too far into your chest.",
                     Set.UPPER_BODY, 30000,
                     R.drawable.ic_fitness_black_24dp);
-            final Set shoulder_press = new Set(setsId++,
+            final Set shoulder_press = new Set(setIds++,
                     "Shoulder Press",
                     "7-steps",
                     Set.UPPER_BODY, 60000,
                     R.drawable.ic_fitness_black_24dp);
 
             // Lower Body
-            final Set squats = new Set(setsId++,
+            final Set squats = new Set(setIds++,
                     "Squats",
                     "Stand up straight with your feet firmly planted on the ground approximately shoulder width apart. " +
                             "Contract your abdominal muscles as you bend your legs at the knees. " +
@@ -133,52 +147,52 @@ public abstract class AppDatabase extends RoomDatabase {
                             "Lower your body to a position where your thighs are almost parallel to the floor. Return to the starting position and repeat.",
                     Set.LOWER_BODY, 60000,
                     R.drawable.ic_fitness_black_24dp);
-            final Set wall_squats = new Set(setsId++,
+            final Set wall_squats = new Set(setIds++,
                     "Wall Squats",
                     "",
                     Set.LOWER_BODY, 45000,
                     R.drawable.ic_fitness_black_24dp);
 
             // Core
-            final Set situps = new Set(setsId++,
+            final Set situps = new Set(setIds++,
                     "Sit Ups",
                     "Lay down with feet flat on the ground creating a 45 degree angle with your legs." +
                             "With hands by your side or across your chest, inhale and slowly raise your body up to your knees." +
                             "Exhale as you reach the top. Slowly let yourself back down to the starting position.",
                     Set.CORE, 45000,
                     R.drawable.ic_fitness_black_24dp);
-            final Set roll_ups = new Set(setsId++,
+            final Set roll_ups = new Set(setIds++,
                     "Roll Ups",
                             "Start with your arms all the way back behind you and slowly bring them all the way forward into a sitting position. " +
                             "Inhale as you begin to move upward and exhale as you complete.",
                     Set.CORE, 45000,
                     R.drawable.ic_fitness_black_24dp);
-            final Set plank = new Set(setsId++,
+            final Set plank = new Set(setIds++,
                     "Basic Plank",
                     "Lie on your stomach, elbows close to your sides and directly under your shoulders, palms down. " +
                             "Engage the abs and slowly lift your torso off the floor, maintaining a stiff torso and legs. " +
                             "Avoid sagging at the low back or hiking up your hips. Continue to breathe while holding this position for 15 seconds or more.",
                     Set.CORE, 60000,
                     R.drawable.ic_fitness_black_24dp);
-            final Set lunges = new Set(setsId++,
+            final Set lunges = new Set(setIds++,
                     "Lunges",
                     "7-steps",
                     Set.CORE, 60000,
                     R.drawable.ic_fitness_black_24dp);
             // Flexibility
-            final Set yoga = new Set(setsId++,
+            final Set yoga = new Set(setIds++,
                     "Yoga",
                     "Yoga",
                     Set.FLEXIBILITY, 45000,
                     R.drawable.ic_fitness_black_24dp);
 
             // Other
-            final Set study = new Set(setsId++,
+            final Set study = new Set(setIds++,
                     "Study",
                     "Focus on studying with no distractions",
                     Set.OTHER, 900000,
                     R.drawable.ic_access_alarm_black_24dp);
-            final Set study_break = new Set(setsId++,
+            final Set study_break = new Set(setIds++,
                     "Study Break",
                     "Take a break from studying. Take a walk, get a drink, use the restroom",
                     Set.OTHER, 300000,
@@ -205,7 +219,6 @@ public abstract class AppDatabase extends RoomDatabase {
             mSetDao.insertAll(allSets);
 
             // Workouts //
-            int workoutIds = 0;
             Workout workout_1 = new Workout(workoutIds++, Workout.CARDIO, "Cardio_1");
             workout_1.addSet(jog);
             workout_1.addSet(run);
@@ -232,6 +245,16 @@ public abstract class AppDatabase extends RoomDatabase {
             //mWorkoutDao.insert(dummy);
 
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            SharedPreferences pref = mContext.get().getApplicationContext().getSharedPreferences(MainActivity.PREF_IDENTIFIER, Context.MODE_PRIVATE);
+            pref.edit().putInt(MainActivity.KEY_NEXT_WORKOUT_NUM, workoutIds).apply();
+            pref.edit().putInt(MainActivity.KEY_NEXT_SET_NUM, setIds).apply();
+            BaseApp.setWorkoutID(workoutIds++);
+            BaseApp.setSetID(setIds++);
         }
     }
 
