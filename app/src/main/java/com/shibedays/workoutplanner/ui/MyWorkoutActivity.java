@@ -96,6 +96,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
     public static final String EXTRA_TTS_VOLUME = PACKAGE + "Volume";
+    public static final String EXTRA_WORKOUT_TYPE = PACKAGE + "Type";
     public static final String EXTRA_WORKOUT_JSON = PACKAGE + "WORKOUT_JSON";
 
     public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "INTENT_BUNDLE";
@@ -117,6 +118,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //private SetAdapter mSetAdapter;
     // Data
     private Workout mWorkoutData;
+    private int mType;
     private List<Set> mSetList;
     private LiveData<Workout> mWorkoutLiveData;
     private List<List<Set>> mTypedSets;
@@ -292,6 +294,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     }
                 });
 
+                mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
+
                 mTypedSets = new ArrayList<>();
                 for(int i = 0; i < Set.TYPES.length; i++) {
                     final int x = i;
@@ -462,7 +466,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 menu.getItem(i).setVisible(false);
             }
         } else {
-            if(mWorkoutData.getWorkoutType() == Workout.USER_CREATED) {
+            if(mType == Workout.USER_CREATED) {
                 menu.findItem(R.id.add_set).setVisible(true);
             } else {
                 menu.findItem(R.id.add_set).setVisible(false);

@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onWorkoutClicked(int id, int type) {
                 if(id >= 0) {
-                    openWorkout(id);
+                    openWorkout(id, type);
                 } else if (type == Workout.USER_CREATED) {
                     openNewWorkoutFragment();
                 }
@@ -293,7 +293,12 @@ public class MainActivity extends AppCompatActivity {
     private void setupData(){
         //region VIEW_MODEL
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+                
+            }
+        });
 
         for(int i = 0; i < Workout.TYPES.length; i++){
             mWorkoutViewModel.getAllTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
@@ -351,10 +356,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     //region OPEN_WORKOUT
-    public void openWorkout(int workoutID){
+    public void openWorkout(int workoutID, int type){
         if(workoutID >= 0) {
             Intent intent = new Intent(this, MyWorkoutActivity.class);
             intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
+            intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_TYPE, type);
             intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
             startActivity(intent);
         }

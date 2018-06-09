@@ -58,6 +58,7 @@ public class WorkoutViewModel extends AndroidViewModel {
 
     public Workout getWorkoutByID(int id){
         if(mWorkouts != null && id >= 0) {
+            List<Workout> g = mWorkouts.getValue();
             if(mWorkouts.getValue() != null) {
                 for (Workout w : mWorkouts.getValue()) {
                     if(w.getWorkoutID() == id) return w;
