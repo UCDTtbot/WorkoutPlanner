@@ -191,24 +191,25 @@ public abstract class AppDatabase extends RoomDatabase {
                     R.drawable.ic_access_alarm_black_24dp);
 
             List<Set> allSets = new ArrayList<Set>(){{
-                add(jog);
-                add(run);
-                add(walk);
-                add(high_steps);
-                add(pushups);
-                add(dips);
-                add(bicep_curls);
-                add(shoulder_press);
-                add(squats);
-                add(wall_squats);
-                add(situps);
-                add(roll_ups);
-                add(plank);
-                add(lunges);
-                add(yoga);
-                add(study);
-                add(study_break);            }};
-            mSetDao.insertAll(allSets);
+                add(jog);               // 0
+                add(run);               // 1
+                add(walk);              // 2
+                add(high_steps);        // 3
+                add(pushups);           // 4
+                add(dips);              // 5
+                add(bicep_curls);       // 6
+                add(shoulder_press);    // 7
+                add(squats);            // 8
+                add(wall_squats);       // 9
+                add(situps);            // 10
+                add(roll_ups);          // 11
+                add(plank);             // 12
+                add(lunges);            // 13
+                add(yoga);              // 14
+                add(study);             // 15
+                add(study_break);       // 16
+            }};
+            long[] ids = mSetDao.insertAll(allSets);
 
             // Workouts //
             Workout workout_1 = new Workout(Workout.CARDIO, "Cardio_1");

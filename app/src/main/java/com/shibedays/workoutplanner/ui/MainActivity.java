@@ -27,13 +27,10 @@ import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
-import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
-import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.List;
@@ -99,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         mFragmentManager = getSupportFragmentManager();
         HIDE_ACTION_ITEMS = false;
 
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
 
         //region SHARED_PREFS
         // TODO: shared prefs
@@ -115,10 +113,11 @@ public class MainActivity extends AppCompatActivity {
 
             } else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
-
+                initFirstRunData();
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.apply();
+
             }else if (savedVersionCode < currentVersionCode){
                 // Updated run
 
@@ -195,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mActionBar = getSupportActionBar();
-        setupData();
+        setupViewModels();
     }
 
     @Override
@@ -290,9 +289,8 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
-    private void setupData(){
+    private void setupViewModels(){
         //region VIEW_MODEL
-        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
@@ -400,6 +398,8 @@ public class MainActivity extends AppCompatActivity {
 
     //endregion
 
+    private void initFirstRunData(){
+    }
 
 
 }

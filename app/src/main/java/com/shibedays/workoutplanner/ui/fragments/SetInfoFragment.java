@@ -1,10 +1,14 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -20,6 +24,8 @@ import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
+import com.shibedays.workoutplanner.viewmodel.SetInfoViewModel;
+import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.util.Locale;
 
@@ -30,9 +36,12 @@ public class SetInfoFragment extends Fragment {
     private static final String DEBUG_TAG = SetInfoFragment.class.getSimpleName();
     //endregion
 
+    private static final String EXTRA_SET_ID = PACKAGE + "ID";
+
     //region PRIVATE_VARS
     // Data
-    private Set mSetData;
+    private SetInfoViewModel mMainVM;
+    private SetViewModel mSetViewModel;
     // UI
     private TextView mSetNameView;
     private ImageView mSetImageView;
@@ -55,10 +64,10 @@ public class SetInfoFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SetInfoFragment newInstance(Set setData, SetInfoListener listener) {
+    public static SetInfoFragment newInstance(Bundle args, SetInfoListener listener) {
         SetInfoFragment fragment = new SetInfoFragment();
-        fragment.setData(setData);
         fragment.setListener(listener);
+        fragment.setArguments(args);
         return fragment;
     }
     //endregion
@@ -73,6 +82,15 @@ public class SetInfoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        mMainVM = ViewModelProviders.of(this).get(SetInfoViewModel.class);
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        if(args != null) {
+            int i = args.getInt(EXTRA_SET_ID);
+            mMainVM.setId(i);
+        } else {
+            mMainVM.setId(-1);
+        }
     }
 
     @Override
@@ -86,19 +104,6 @@ public class SetInfoFragment extends Fragment {
         mSetDescrip = view.findViewById(R.id.set_descrip);
         mSetTime = view.findViewById(R.id.set_time);
 
-        if(mSetData != null) {
-            mSetNameView.setText(mSetData.getName());
-            mSetImageView.setImageResource(mSetData.getSetImageId());
-            mSetDescrip.setText(mSetData.getDescrip());
-            mSetDescrip.setMovementMethod(new ScrollingMovementMethod());
-
-            int[] time = BaseApp.convertFromMillis(mSetData.getTime());
-            final int min = time[0], sec = time[1];
-            String text = BaseApp.formatTime(min, sec);
-            mSetTime.setText(text);
-        }
-
-
         mSetImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,7 +114,11 @@ public class SetInfoFragment extends Fragment {
         return view;
     }
 
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        setupViewModels();
+    }
 
     @Override
     public void onDetach() {
@@ -119,83 +128,39 @@ public class SetInfoFragment extends Fragment {
 
     //endregion
 
-    public static Bundle getBundle(){
+    public static Bundle getBundle(int id){
         Bundle args = new Bundle();
-
+        args.putInt(EXTRA_SET_ID, id);
         return args;
+    }
+
+    private void updateUi(Set s){
+        if(s != null) {
+            mSetNameView.setText(s.getName());
+            mSetImageView.setImageResource(s.getSetImageId());
+            mSetDescrip.setText(s.getDescrip());
+            mSetDescrip.setMovementMethod(new ScrollingMovementMethod());
+
+            int[] time = BaseApp.convertFromMillis(s.getTime());
+            final int min = time[0], sec = time[1];
+            String text = BaseApp.formatTime(min, sec);
+            mSetTime.setText(text);
+        }
+    }
+
+    private void setupViewModels(){
+        mSetViewModel.getSet(mMainVM.getId()).observe(this, new Observer<Set>() {
+            @Override
+            public void onChanged(@Nullable Set set) {
+                mMainVM.setData(set);
+                updateUi(set);
+            }
+        });
     }
 
     //region UTILITY
     private void setListener(SetInfoListener listener){
         mListener = listener;
     }
-
-    public void setData(Set s){
-        mSetData = s;
-    }
-
-    public void updateSet(Set set){
-        mSetData = set;
-    }
-
-    public void updateTime(int min, int sec){
-        mSetData.setTime(BaseApp.convertToMillis(min, sec));
-        mSetTime.setText(BaseApp.formatTime(min, sec));
-    }
-
     //endregion
 }
-
-/*
-{
-                @Override
-                public void onClick(View v) {
-                    LayoutInflater inflater = LayoutInflater.from(getContext());
-                    final View dialogView = inflater.inflate(R.layout.dialog_number_picker, null);
-
-                    dialogView.findViewById(R.id.check_layout).setVisibility(View.INVISIBLE);
-                    View number_spinners = dialogView.findViewById(R.id.spinners);
-                    final NumberPicker min_picker = number_spinners.findViewById(R.id.MinutePicker);
-                    final NumberPicker sec_picker = number_spinners.findViewById(R.id.SecondsPicker);
-
-                    min_picker.setMinValue(0);
-                    min_picker.setMaxValue(30);
-                    min_picker.setValue(min);
-                    min_picker.setWrapSelectorWheel(true);
-
-                    sec_picker.setMinValue(0);
-                    sec_picker.setMaxValue(59);
-                    sec_picker.setValue(sec);
-                    sec_picker.setFormatter(new NumberPicker.Formatter() {
-                        @Override
-                        public String format(int value) {
-                            return String.format(Locale.US, "%02d", value);
-                        }
-                    });
-                    sec_picker.setWrapSelectorWheel(true);
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setView(dialogView);
-                    builder.setTitle("Change Rep Time");
-                    builder.setPositiveButton("Set", null);
-                    builder.setNegativeButton("Cancel", null);
-
-                    final AlertDialog dialog = builder.create();
-                    dialog.show();
-                    Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            int min = min_picker.getValue();
-                            int sec = sec_picker.getValue();
-                            if(min == 0 && sec == 0){
-                                Toast.makeText(getContext(), "Time cannot be 0:00", Toast.LENGTH_SHORT).show();
-                            } else {
-                                updateTime(min, sec);
-                                dialog.dismiss();
-                            }
-                        }
-                    });
-                }
-            });
- */

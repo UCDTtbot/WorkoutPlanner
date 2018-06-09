@@ -21,7 +21,7 @@ public interface WorkoutDao {
     @Query("SELECT * FROM workouts WHERE workoutType=:type")
     LiveData<List<Workout>> getTypedWorkouts(int type);
 
-    @Query("SELECT * FROM workouts WHERE id LIKE :id")
+    @Query("SELECT * FROM workouts WHERE id=:id")
     LiveData<Workout> getWorkout(int id);
 
     @Query("SELECT * FROM workouts where name LIKE :name")

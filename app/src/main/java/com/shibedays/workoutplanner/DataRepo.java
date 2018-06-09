@@ -69,6 +69,9 @@ public class DataRepo {
     public LiveData<List<Set>> getTypedSets(int type) {
         return mDatabase.setDao().getTypedSets(type);
     }
+    public LiveData<Set> getSet(final int id){
+        return mDatabase.setDao().getSet(id);
+    }
     public void insertSet(Set set){
         new insertAsyncSet(mDatabase.setDao()).execute(set);
     }
