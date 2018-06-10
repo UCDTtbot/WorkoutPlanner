@@ -1,7 +1,6 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,7 +38,7 @@ import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
-import com.shibedays.workoutplanner.viewmodel.NewWorkoutViewModel;
+import com.shibedays.workoutplanner.viewmodel.fragments.NewWorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.util.ArrayList;

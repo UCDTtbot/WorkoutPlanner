@@ -1,11 +1,8 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
-import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,20 +11,14 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
-import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
-import com.shibedays.workoutplanner.viewmodel.SetInfoViewModel;
+import com.shibedays.workoutplanner.viewmodel.fragments.SetInfoViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
-
-import java.util.Locale;
 
 public class SetInfoFragment extends Fragment {
 

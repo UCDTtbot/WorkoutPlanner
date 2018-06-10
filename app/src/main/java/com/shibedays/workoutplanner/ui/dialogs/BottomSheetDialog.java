@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui.dialogs;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.viewmodel.dialogs.BottomSheetViewModel;
 
 import java.util.ArrayList;
 
@@ -35,14 +37,10 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
 
     //region PRIVATE_VARS
     // Data
-    private String mItemName;
+    private BottomSheetViewModel mViewModel;
     // UI Components
-    private int mNumRows;
-    private int mSetID;
     private TextView mTitleTextView;
-    private ArrayList<String> mRowTitles;
-    private int[] mRowICs;
-    private int[] mResultTypes;
+
 
     //endregion
 
@@ -71,13 +69,15 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mViewModel = ViewModelProviders.of(this).get(BottomSheetViewModel.class);
+
         Bundle args = getArguments();
         if(args != null){
-            mItemName = args.getString(EXTRA_ITEM_NAME);
-            mNumRows = args.getInt(EXTRA_NUM_ROWS);
-            mRowTitles = args.getStringArrayList(EXTRA_ROW_TITLES);
-            mRowICs = args.getIntArray(EXTRA_ROW_IC_IDS);
-            mResultTypes = args.getIntArray(EXTRA_RESULT_TYPE);
+            mViewModel.setItemName(args.getString(EXTRA_ITEM_NAME));
+            mViewModel.setNumRows(args.getInt(EXTRA_NUM_ROWS));
+            mViewModel.setRowTitles(args.getStringArrayList(EXTRA_ROW_TITLES));
+            mViewModel.setRowICs(args.getIntArray(EXTRA_ROW_IC_IDS));
+            mViewModel.setResultTypes(args.getIntArray(EXTRA_RESULT_TYPE));
         } else {
             throw new RuntimeException(DEBUG_TAG + " no bundle was passed.");
         }
@@ -89,15 +89,15 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.bottom_sheet, container, false);
 
         mTitleTextView = view.findViewById(R.id.bottom_sheet_title);
-        mTitleTextView.setText(mItemName);
+        mTitleTextView.setText(mViewModel.getItemName());
 
         LinearLayout rowContainer = view.findViewById(R.id.bottom_sheet_row_container);
 
-        for(int i = 0; i < mNumRows; i++){
+        for(int i = 0; i < mViewModel.getNumRows(); i++){
             View row = inflater.inflate(R.layout.bottom_sheet_item, null);
-            ((ImageView)row.findViewById(R.id.bottom_sheet_row_ic)).setImageResource(mRowICs[i]);
-            ((TextView)row.findViewById(R.id.bottom_sheet_row_title)).setText(mRowTitles.get(i));
-            final int resultType = mResultTypes[i];
+            ((ImageView)row.findViewById(R.id.bottom_sheet_row_ic)).setImageResource(mViewModel.getRowICs()[i]);
+            ((TextView)row.findViewById(R.id.bottom_sheet_row_title)).setText(mViewModel.getRowTitles().get(i));
+            final int resultType = mViewModel.getResultTypes()[i];
             row.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

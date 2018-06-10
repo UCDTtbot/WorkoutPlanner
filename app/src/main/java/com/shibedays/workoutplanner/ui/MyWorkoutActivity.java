@@ -1,8 +1,6 @@
 package com.shibedays.workoutplanner.ui;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,7 +12,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
@@ -37,11 +34,8 @@ import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
-import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
-import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
 import com.shibedays.workoutplanner.ui.fragments.AddSetsFragment;
-import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.SetInfoFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 import com.shibedays.workoutplanner.R;
@@ -51,8 +45,7 @@ import com.shibedays.workoutplanner.services.TimerService;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
-import com.shibedays.workoutplanner.viewmodel.MyWorkoutViewModel;
-import com.shibedays.workoutplanner.viewmodel.SetViewModel;
+import com.shibedays.workoutplanner.viewmodel.activities.MyWorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.ArrayList;

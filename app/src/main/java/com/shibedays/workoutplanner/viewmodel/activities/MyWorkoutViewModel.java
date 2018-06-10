@@ -1,4 +1,4 @@
-package com.shibedays.workoutplanner.viewmodel;
+package com.shibedays.workoutplanner.viewmodel.activities;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;

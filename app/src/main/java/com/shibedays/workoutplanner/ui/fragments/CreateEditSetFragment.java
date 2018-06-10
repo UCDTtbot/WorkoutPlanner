@@ -2,7 +2,6 @@ package com.shibedays.workoutplanner.ui.fragments;
 
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
@@ -27,7 +26,7 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.dialogs.ChooseImageDialog;
-import com.shibedays.workoutplanner.viewmodel.CreateEditViewModel;
+import com.shibedays.workoutplanner.viewmodel.fragments.CreateEditViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.util.ArrayList;

@@ -1,16 +1,10 @@
-package com.shibedays.workoutplanner.viewmodel;
+package com.shibedays.workoutplanner.viewmodel.fragments;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
-import android.util.SparseBooleanArray;
 
 import com.shibedays.workoutplanner.DataRepo;
-import com.shibedays.workoutplanner.db.entities.Set;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class NewWorkoutViewModel extends AndroidViewModel {
 
