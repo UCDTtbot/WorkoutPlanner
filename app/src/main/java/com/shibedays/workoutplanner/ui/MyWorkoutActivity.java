@@ -132,7 +132,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private WorkoutViewModel mWorkoutViewModel;
     private MyWorkoutViewModel mMainVM;
-    private SetViewModel mSetViewModel;
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
@@ -252,7 +251,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         //region VIEW_MODEL
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         mMainVM = ViewModelProviders.of(this).get(MyWorkoutViewModel.class);
         //endregion
 

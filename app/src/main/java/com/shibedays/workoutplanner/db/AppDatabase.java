@@ -210,6 +210,10 @@ public abstract class AppDatabase extends RoomDatabase {
                 add(study_break);       // 16
             }};
             long[] ids = mSetDao.insertAll(allSets);
+            int i = 0;
+            for(Set s : allSets){
+                s.setSetId((int)ids[i++]);
+            }
 
             // Workouts //
             Workout workout_1 = new Workout(Workout.CARDIO, "Cardio_1");
