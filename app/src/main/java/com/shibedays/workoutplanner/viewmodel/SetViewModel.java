@@ -44,9 +44,9 @@ public class SetViewModel extends AndroidViewModel {
         return mTypedSets.get(type);
     }
 
-    public LiveData<Set> getSet(int id) { return mRepo.getSet(id); }
+    public LiveData<Set> getSet(long id) { return mRepo.getSet(id); }
 
-    public Set getSetById(int id){
+    public Set getSetById(long id){
         if(mSets != null){
             if(mSets.getValue() != null){
                 for(Set s : mSets.getValue()){

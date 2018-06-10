@@ -65,7 +65,7 @@ public class AddSetsFragment extends Fragment {
     //region INTERFACES
 
     public interface NewSetListener {
-        void addSetsToWorkout(List<Set> sets);
+        void addSetsToWorkout(List<Long> sets);
     }
     private NewSetListener mListener;
 
@@ -117,11 +117,11 @@ public class AddSetsFragment extends Fragment {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Set> sets = new ArrayList<>();
+                List<Long> setIds = new ArrayList<>();
                 for(SetListFragment s : mSetListFrags){
-                    sets.addAll(s.getSelectedSets());
+                    setIds.addAll(s.getSelectedSets());
                 }
-                mListener.addSetsToWorkout(sets);
+                mListener.addSetsToWorkout(setIds);
             }
         });
 
@@ -136,7 +136,7 @@ public class AddSetsFragment extends Fragment {
             SetListFragment frag = SetListFragment.newInstance(type, new SetListFragment.SetListListener() {
 
                 @Override
-                public void openBottomSheet(int setType, int setID) {
+                public void openBottomSheet(int setType, long setID) {
                     final Set set = mSetViewModel.getSetById(setID);
 
                     if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
@@ -155,7 +155,7 @@ public class AddSetsFragment extends Fragment {
                 }
 
                 @Override
-                public void openSetDialog(int type, int setType, int setID) {
+                public void openSetDialog(int type, int setType, long setID) {
 
                     final Set set = mSetViewModel.getSetById(setID);
 

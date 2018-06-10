@@ -52,11 +52,11 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mTypedWorkouts.get(type);
     }
 
-    public LiveData<Workout> getWorkout(int id){
+    public LiveData<Workout> getWorkout(long id){
         return mRepo.getWorkout(id);
     }
 
-    public Workout getWorkoutByID(int id){
+    public Workout getWorkoutByID(long id){
         if(mWorkouts != null && id >= 0) {
             List<Workout> g = mWorkouts.getValue();
             if(mWorkouts.getValue() != null) {
@@ -66,7 +66,7 @@ public class WorkoutViewModel extends AndroidViewModel {
             }
         } else {
 
-            Log.e(DEBUG_TAG, "Workout ID is invalid: " + Integer.toString(id));
+            Log.e(DEBUG_TAG, "Workout ID is invalid: " + Long.toString(id));
             return null;
         }
 

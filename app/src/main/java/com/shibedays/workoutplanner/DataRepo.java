@@ -48,7 +48,7 @@ public class DataRepo {
     public LiveData<List<Workout>> getTypedWorkouts(int type){
         return mDatabase.workoutDao().getTypedWorkouts(type);
     }
-    public LiveData<Workout> getWorkout(final int id){
+    public LiveData<Workout> getWorkout(final long id){
         return mDatabase.workoutDao().getWorkout(id);
     }
     public void insertWorkout(Workout workout){
@@ -69,7 +69,7 @@ public class DataRepo {
     public LiveData<List<Set>> getTypedSets(int type) {
         return mDatabase.setDao().getTypedSets(type);
     }
-    public LiveData<Set> getSet(final int id){
+    public LiveData<Set> getSet(final long id){
         return mDatabase.setDao().getSet(id);
     }
     public void insertSet(Set set){

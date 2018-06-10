@@ -97,9 +97,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final String EXTRA_INTENT_TYPE = PACKAGE + "INTENT_TYPE";
 
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
-    public static final String EXTRA_TTS_VOLUME = PACKAGE + "Volume";
     public static final String EXTRA_WORKOUT_TYPE = PACKAGE + "Type";
-    public static final String EXTRA_WORKOUT_JSON = PACKAGE + "WORKOUT_JSON";
 
     public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "INTENT_BUNDLE";
 
@@ -539,17 +537,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
     }
 
-    private void setupViewPager(List<Set> s){
+    private void setupViewPager(List<Long> s){
         mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
         ViewPagerAdapter adapter = new ViewPagerAdapter(mFragmentManager);
         mSetInfoFrags = new ArrayList<>();
-        for(int i = 0; i < s.size(); i++){
-            Bundle args = SetInfoFragment.getBundle(s.get(i).getSetId());
+        for(Long id : s){
+            Bundle args = SetInfoFragment.getBundle(id);
             SetInfoFragment frag = SetInfoFragment.newInstance(args,null);
             adapter.addFragment(frag, "");
             mSetInfoFrags.add(frag);
         }
-
         mViewPager.setAdapter(adapter);
 
         mTabLayout.setupWithViewPager(mViewPager, true);
@@ -596,10 +593,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         mAddSetsFragment = AddSetsFragment.newInstance(new AddSetsFragment.NewSetListener() {
             @Override
-            public void addSetsToWorkout(List<Set> sets) {
+            public void addSetsToWorkout(List<Long> sets) {
                 if(sets != null) {
-                    for (Set set : sets) {
-                        mMainVM.getWorkoutData().addSet(set);
+                    for (Long id : sets) {
+                        mMainVM.getWorkoutData().addSet(id);
                     }
                     mWorkoutViewModel.update(mMainVM.getWorkoutData());
                 }
@@ -702,7 +699,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     public void openTimerFragment(Workout wrk){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mTimerFragment = TimerFragment.newInstance(wrk.toJSON());
+        mTimerFragment = TimerFragment.newInstance(TimerFragment.getBundle(wrk.getWorkoutID()));
         fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -719,8 +716,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         // Build the bundle that the notification will use to restart everything
 
         Workout w = mMainVM.getWorkoutData();
-        notifBundle.putString(EXTRA_WORKOUT_JSON, w.toJSON());
-        notifBundle.putInt(EXTRA_WORKOUT_ID, w.getWorkoutID());
+        notifBundle.putLong(EXTRA_WORKOUT_ID, w.getWorkoutID());
 
         timerIntent.putExtra(EXTRA_NOTIF_BUNDLE, notifBundle);
         timerIntent.putExtra(TimerService.EXTRA_SET_TIME, mTimerFragment.getCurSetTime());

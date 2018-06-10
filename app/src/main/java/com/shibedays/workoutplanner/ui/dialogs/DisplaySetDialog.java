@@ -108,11 +108,11 @@ public class DisplaySetDialog extends DialogFragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getDialogBundle(int id, String setName, String setDescrip, int timeInMil, int imageResource){
+    public static Bundle getDialogBundle(long id, String setName, String setDescrip, int timeInMil, int imageResource){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
-
+        ;
         bundle.putString(EXTRA_SET_NAME, setName);
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
         bundle.putInt(EXTRA_SET_MIN, time[0]);

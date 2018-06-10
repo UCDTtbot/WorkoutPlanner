@@ -33,7 +33,7 @@ public class Workout{
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    private int workoutID;
+    private long workoutID;
     private int workoutType;
     private int workoutImageId;
     private int numOfRounds;
@@ -47,31 +47,30 @@ public class Workout{
 
     private String name;
 
-    @Ignore
-    private List<Set> setList;
-    @ColumnInfo(name = "sets")
-    private String setListJSON;
+    private List<Long> setIds;
 
     public Workout(){
     }
-    public Workout(int type, String name) {
+    public Workout(int type, String name, int imageId) {
         this.name = name;
         this.workoutType = type;
         numOfRounds = 1;
-        setList = new ArrayList<Set>();
+        setIds = new ArrayList<Long>();
+        workoutImageId = imageId;
         timeBetweenSets = 10000;
         timeBetweenRounds = 30000;
         noRestFlag = false;
         noBreakFlag = false;
         isFavorite = false;
     }
-    public Workout(int type, String name, List<Set> sets) {
+    public Workout(int type, String name, List<Long> sets, int imageId) {
         this.name = name;
         this.workoutType = type;
         numOfRounds = 1;
-        setList = sets;
+        setIds = sets;
         timeBetweenSets = 10000;
         timeBetweenRounds = 30000;
+        workoutImageId = imageId;
         noRestFlag = false;
         noBreakFlag = false;
         isFavorite = false;
@@ -80,7 +79,8 @@ public class Workout{
         name = workout.getName();
         workoutType = workout.workoutType;
         numOfRounds = workout.getNumOfRounds();
-        setList = workout.getSetList();
+        setIds = workout.getSetList();
+        workoutImageId = workout.getWorkoutImageId();
         timeBetweenSets = workout.getTimeBetweenSets();
         timeBetweenRounds = workout.getTimeBetweenSets();
         noRestFlag = false;
@@ -88,7 +88,7 @@ public class Workout{
         isFavorite = false;
     }
 
-    public int getWorkoutID(){
+    public long getWorkoutID(){
         return workoutID;
     }
     public void setWorkoutID(int id){workoutID = id;}
@@ -97,13 +97,13 @@ public class Workout{
     public void setWorkoutType(int type) { workoutType = type; }
 
     public int getWorkoutImageId(){
-        return setList == null || setList.size() <= 0 ? R.drawable.ic_fitness_black_24dp : setList.get(0).getSetImageId();
+        return workoutImageId;
     }
     public void setWorkoutImageId(int id) { workoutImageId = id;}
 
     public int getNumOfSets(){
-        if(setList != null) {
-            return setList.size();
+        if(setIds != null) {
+            return setIds.size();
         } else {
             return 0;
         }
@@ -154,39 +154,35 @@ public class Workout{
     public boolean getIsFavorite(){ return isFavorite; }
     public void setIsFavorite(boolean favorite) { isFavorite = favorite; }
 
-    public String getSetListJSON(){
-        Gson gson = new Gson();
-        return gson.toJson(setList);
-    }
-    public void setSetListJSON(String json){
-        setListJSON = json;
-        Gson gson = new Gson();
-        setList = (List<Set>) gson.fromJson(setListJSON, new TypeToken<List<Set>>() {}.getType());
 
+    public List<Long> getSetList(){
+        return setIds;
     }
 
-    public List<Set> getSetList(){
-        return setList;
+    public void addSet(long setId){
+        if(!setIds.contains(setId)) {
+            setIds.add(setId);
+        }
     }
-
-    public void addSet(Set set){
-        setList.add(set);
-    }
-    public void addSets(List<Set> sets){
-        setList.addAll(sets);
+    public void addSets(List<Long> sets){
+        for(long i : sets){
+            if(!setIds.contains(i)){
+                setIds.add(i);
+            }
+        }
     }
     public void swapSets(int from, int to){
         //Log.d("WORKOUT", "Swapping");
-        Set temp = setList.get(to);
-        setList.set(to, setList.get(from));
-        setList.set(from, temp);
+        long temp = setIds.get(to);
+        setIds.set(to, setIds.get(from));
+        setIds.set(from, temp);
         //Log.d("WORKOUT", "Swapped");
     }
-    public void updateSet(Set set, int index){
-        setList.set(index, set);
+    public void updateSet(long id, int index){
+        setIds.set(index, id);
     }
-    public void removeSet(Set set){
-        setList.remove(setList.indexOf(set));
+    public void removeSet(int id){
+        setIds.remove(setIds.indexOf(id));
     }
 
     @Override
@@ -197,10 +193,5 @@ public class Workout{
         } else {
             return false;
         }
-    }
-
-    public String toJSON(){
-        Gson json = new Gson();
-        return json.toJson(this);
     }
 }

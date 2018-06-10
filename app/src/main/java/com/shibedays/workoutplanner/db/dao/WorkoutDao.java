@@ -22,7 +22,7 @@ public interface WorkoutDao {
     LiveData<List<Workout>> getTypedWorkouts(int type);
 
     @Query("SELECT * FROM workouts WHERE id=:id")
-    LiveData<Workout> getWorkout(int id);
+    LiveData<Workout> getWorkout(long id);
 
     @Query("SELECT * FROM workouts where name LIKE :name")
     Workout findWorkoutByName(String name);

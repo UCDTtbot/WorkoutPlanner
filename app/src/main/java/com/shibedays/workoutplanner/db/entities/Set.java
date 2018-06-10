@@ -29,7 +29,7 @@ public class Set {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    private int setId;
+    private long setId;
     private int setType;
     private int setImageId;
     private String name;
@@ -50,7 +50,7 @@ public class Set {
         setImageId = image;
     }
 
-    public int getSetId(){ return setId; }
+    public long getSetId(){ return setId; }
     public void setSetId(int id){ setId = id; }
 
     public int getSetType(){ return setType; }

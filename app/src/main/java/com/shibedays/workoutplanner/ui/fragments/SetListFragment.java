@@ -48,8 +48,8 @@ public class SetListFragment extends Fragment {
 
 
     public interface SetListListener {
-        void openBottomSheet(int setType, int setID);
-        void openSetDialog(int type, int setType, int setID);
+        void openBottomSheet(int setType, long setID);
+        void openSetDialog(int type, int setType, long setID);
     }
     private SetListListener mListener;
 
@@ -95,12 +95,12 @@ public class SetListFragment extends Fragment {
             }
 
             @Override
-            public void openBottomSheet(int setID, int setType) {
+            public void openBottomSheet(long setID, int setType) {
                 mListener.openBottomSheet(setType, setID);
             }
 
             @Override
-            public void openDisplayInfo(int setID, int setType) {
+            public void openDisplayInfo(long setID, int setType) {
                 mListener.openSetDialog(DISPLAY_SET, setType, setID);
             }
         });
@@ -161,7 +161,7 @@ public class SetListFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
     }
 
-    public List<Set> getSelectedSets(){
+    public List<Long> getSelectedSets(){
         return mAdapter.getMappedSets();
     }
 

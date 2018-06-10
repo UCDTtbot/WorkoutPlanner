@@ -25,6 +25,7 @@ import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
 
 
 /**
@@ -39,13 +40,12 @@ public class TimerFragment extends Fragment {
 
     //region CONSTANTS
     // Factory Constant
-    private static final String ARG_WORKOUT = "WORKOUT";
     // Package and Debug Constants
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.TimerFragment.";
     private static final String DEBUG_TAG = TimerFragment.class.getSimpleName();
-    // Fragment Instance
-    private static TimerFragment mTimerFragmentInstance;
     //endregion
+
+    public static final String EXTRA_WORKOUT_ID = PACKAGE + "ID";
 
     //region PRIVATE_VARS
     // Data
@@ -94,16 +94,11 @@ public class TimerFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TimerFragment newInstance(String workoutJSON) {
-        if(mTimerFragmentInstance == null) {
-            mTimerFragmentInstance = new TimerFragment();
-            Bundle args = new Bundle();
-            args.putString(ARG_WORKOUT, workoutJSON);
-            mTimerFragmentInstance.setArguments(args);
-            return mTimerFragmentInstance;
-        } else {
-            return mTimerFragmentInstance;
-        }
+    public static TimerFragment newInstance(Bundle args) {
+        TimerFragment fragment = new TimerFragment();
+        fragment.setArguments(args);
+        return fragment;
+
     }
     //endregion
 
@@ -129,14 +124,7 @@ public class TimerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            Gson json = new Gson();
-            String workoutJSON = getArguments().getString(ARG_WORKOUT);
-            mWorkout = json.fromJson(workoutJSON, Workout.class);
-            mSets = mWorkout.getSetList();
-            mCurSetIndex = 0;
-            mCurSet = mSets.get(mCurSetIndex);
-            mCurRep = 0;
-            mCurRound = 0;
+            long id = getArguments().getLong(EXTRA_WORKOUT_ID);
         } else {
             throw new RuntimeException(TimerFragment.class.getSimpleName() + " getArguments returned null. Fragment started incorrectly");
         }
@@ -199,7 +187,6 @@ public class TimerFragment extends Fragment {
         mParentActivity.findViewById(R.id.fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
-        mTimerFragmentInstance = null;
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");
     }
 
@@ -243,16 +230,6 @@ public class TimerFragment extends Fragment {
     public void updateTime(int time, int totalTime){
         int[] splitTime = BaseApp.convertFromMillis(time);
         int min = splitTime[0], sec = splitTime[1];
-        /*
-        if((sec % 10) == 0){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else if (min == 0 && sec == 0){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else {
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }*/
         mTimeView.setText(BaseApp.formatTime(min, sec));
 
         float floatTime = ((float)time / (float)totalTime) * 1000;
@@ -336,4 +313,13 @@ public class TimerFragment extends Fragment {
         return ++mCurRound;
     }
     //endregion
+
+
+    public static Bundle getBundle(Long id){
+        Bundle args = new Bundle();
+
+        args.putLong(EXTRA_WORKOUT_ID, id);
+
+        return args;
+    }
 }

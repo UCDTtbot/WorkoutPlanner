@@ -128,9 +128,9 @@ public class SetInfoFragment extends Fragment {
 
     //endregion
 
-    public static Bundle getBundle(int id){
+    public static Bundle getBundle(Long id){
         Bundle args = new Bundle();
-        args.putInt(EXTRA_SET_ID, id);
+        args.putLong(EXTRA_SET_ID, id);
         return args;
     }
 

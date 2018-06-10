@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Database(entities = {Workout.class, Set.class}, version = 10)
+@Database(entities = {Workout.class, Set.class}, version = 11)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -212,23 +212,23 @@ public abstract class AppDatabase extends RoomDatabase {
             long[] ids = mSetDao.insertAll(allSets);
 
             // Workouts //
-            Workout workout_1 = new Workout(Workout.CARDIO, "Cardio_1");
-            workout_1.addSet(jog);
-            workout_1.addSet(run);
-            Workout workout_2 = new Workout(Workout.STRENGTH, "Strength_1");
-            workout_2.addSet(pushups);
-            workout_2.addSet(situps);
-            workout_2.addSet(plank);
-            workout_2.addSet(dips);
-            Workout workout_3 = new Workout(Workout.STRENGTH, "Strength_2");
-            workout_3.addSet(lunges);
-            workout_3.addSet(bicep_curls);
-            workout_3.addSet(shoulder_press);
-            Workout workout_4 = new Workout(Workout.FLEXIBILITY, "Flexibility_1");
-            workout_4.addSet(yoga);
-            Workout workout_5 = new Workout(Workout.OTHER, "Other_1");
-            workout_5.addSet(study);
-            workout_5.addSet(study_break);
+            Workout workout_1 = new Workout(Workout.CARDIO, "Cardio_1", jog.getSetImageId());
+            workout_1.addSet(ids[0]);           // jog
+            workout_1.addSet(ids[2]);           // walk
+            Workout workout_2 = new Workout(Workout.STRENGTH, "Strength_1", pushups.getSetImageId());
+            workout_2.addSet(ids[4]);          // pushups
+            workout_2.addSet(ids[10]);           // situps
+            workout_2.addSet(ids[12]);            // plank
+            workout_2.addSet(ids[5]);             // dips
+            Workout workout_3 = new Workout(Workout.STRENGTH, "Strength_2", lunges.getSetImageId());
+            workout_3.addSet(ids[13]);           // lunges
+            workout_3.addSet(ids[6]);      // bicep_curls
+            workout_3.addSet(ids[7]);   // shoulder_press
+            Workout workout_4 = new Workout(Workout.FLEXIBILITY, "Flexibility_1", yoga.getSetImageId());
+            workout_4.addSet(ids[14]);             // yoga
+            Workout workout_5 = new Workout(Workout.OTHER, "Other_1", study.getSetImageId());
+            workout_5.addSet(ids[15]);            // study
+            workout_5.addSet(ids[16]);      // study_break
             //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);
             mWorkoutDao.insert(workout_1);
             mWorkoutDao.insert(workout_2);

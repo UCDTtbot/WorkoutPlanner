@@ -154,8 +154,8 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     //region INTERFACES
     public interface ChooseSetListener{
         void createSet();
-        void openBottomSheet(int setID, int type);
-        void openDisplayInfo(int setID, int type);
+        void openBottomSheet(long setID, int type);
+        void openDisplayInfo(long setID, int type);
     }
     private ChooseSetListener mListener;
     //endregion
@@ -250,11 +250,11 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyItemChanged(i);
     }
 
-    public List<Set> getMappedSets(){
-        List<Set> selectedSets = new ArrayList<>();
+    public List<Long> getMappedSets(){
+        List<Long> selectedSets = new ArrayList<>();
         for(Set s : mCheckedMap.keySet()){
             if(mCheckedMap.get(s))
-                selectedSets.add(s);
+                selectedSets.add(s.getSetId());
         }
         return selectedSets;
     }

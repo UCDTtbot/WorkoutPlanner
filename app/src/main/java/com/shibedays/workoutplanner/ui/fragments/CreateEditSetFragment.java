@@ -52,7 +52,7 @@ public class CreateEditSetFragment extends Fragment {
     private String mDescrip;
     private int mMins;
     private int mSecs;
-    private int mId;
+    private long mId;
     private int mImage;
 
     private int mParentTitle;
@@ -109,7 +109,7 @@ public class CreateEditSetFragment extends Fragment {
         if(args != null) {
             mName = args.getString(EXTRA_SET_NAME, "");
             mDescrip = args.getString(EXTRA_SET_DESCIP, "");
-            mId = args.getInt(EXTRA_SET_ID, -1);
+            mId = args.getLong(EXTRA_SET_ID, -1);
             mMins = args.getInt(EXTRA_SET_MIN, 0);
             mSecs = args.getInt(EXTRA_SET_SEC, 0);
             mImage = args.getInt(EXTRA_IMAGE_ID, R.drawable.ic_fitness_black_24dp);
@@ -206,12 +206,12 @@ public class CreateEditSetFragment extends Fragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getBundle(int id, String setName, String setDescrip, int timeInMil, int imageId){
+    public static Bundle getBundle(long id, String setName, String setDescrip, int timeInMil, int imageId){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
 
-        bundle.putInt(EXTRA_SET_ID, id);
+        bundle.putLong(EXTRA_SET_ID, id);
         bundle.putString(EXTRA_SET_NAME, setName);
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
         bundle.putInt(EXTRA_SET_MIN, time[0]);

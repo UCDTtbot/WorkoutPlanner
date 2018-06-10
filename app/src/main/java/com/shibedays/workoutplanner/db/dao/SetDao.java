@@ -21,7 +21,7 @@ public interface SetDao {
     LiveData<List<Set>> getTypedSets(int type);
 
     @Query("SELECT * FROM sets WHERE id=:id")
-    LiveData<Set> getSet(int id);
+    LiveData<Set> getSet(long id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Set set);
