@@ -27,7 +27,7 @@ public class Set {
     //https://lifehacker.com/5839197/how-to-get-a-full-body-workout-with-nothing-but-your-body
     //make sure to source more info
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     private int setId;
     private int setType;
@@ -42,8 +42,7 @@ public class Set {
         time = 1000;
     }
 
-    public Set(int id, String name, String descrip, int type, int time, int image){
-        this.setId = id;
+    public Set(String name, String descrip, int type, int time, int image){
         this.name = name;
         this.setType = type;
         this.descrip = descrip;

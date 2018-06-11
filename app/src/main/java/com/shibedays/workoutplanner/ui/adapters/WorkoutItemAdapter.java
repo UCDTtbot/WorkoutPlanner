@@ -101,9 +101,6 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
     // Threading Components
     private Handler handler = new Handler(); // Handler for running async delayed tasks
     private HashMap<Workout, Runnable> pendingRunnables = new HashMap<>(); // Map of the items to their async runnable rasks
-
-
-
     //endregion
 
     //region INTERFACES
@@ -126,7 +123,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
             throw new RuntimeException(WorkoutItemAdapter.class.getSimpleName() + " was passed a non-coord layout view");
         }        // Make sure our context is an activity and set the Listener to it
 
-        setData(workouts);
+        mWorkoutData = workouts;
         mListener = listener;
     }
 
@@ -186,13 +183,12 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         return super.getItemViewType(position);
     }
 
-    public void setData(List<Workout> workouts){
+    public void updateData(List<Workout> workouts){
         mWorkoutData = workouts;
         if(mWorkoutsPendingRemoval.size() > 0){
-            for(int i = 0; i < mWorkoutsPendingRemoval.size(); i++){
-                Workout workout = mWorkoutsPendingRemoval.get(i);
-                if (mWorkoutData.contains(workout)){
-                    mWorkoutData.remove(workout);
+            for(Workout w : mWorkoutsPendingRemoval){
+                if(mWorkoutData.contains(w)){
+                    mWorkoutData.remove(w);
                 }
             }
         }

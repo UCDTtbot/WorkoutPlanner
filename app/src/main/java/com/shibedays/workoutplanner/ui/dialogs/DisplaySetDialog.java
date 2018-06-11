@@ -3,6 +3,7 @@ package com.shibedays.workoutplanner.ui.dialogs;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.viewmodel.dialogs.DisplaySetViewModel;
 
 import java.util.Locale;
 
@@ -38,7 +40,10 @@ public class DisplaySetDialog extends DialogFragment {
     //endregion
 
     //region PRIVATE_VARS
-    // UI
+    // Data
+    private DisplaySetViewModel mViewModel;
+
+    private Activity mParentActivity;
     //endregion
 
     //region LIFECYCLE
@@ -54,11 +59,32 @@ public class DisplaySetDialog extends DialogFragment {
         super.onAttach(context);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mParentActivity = getActivity();
+
+        Bundle args = getArguments();
+        mViewModel = ViewModelProviders.of(this).get(DisplaySetViewModel.class);
+
+        if(args!= null){
+            mViewModel.setSetName(args.getString(EXTRA_SET_NAME));
+            mViewModel.setSetDescrip(args.getString(EXTRA_SET_DESCIP));
+            mViewModel.setSetMin(args.getInt(EXTRA_SET_MIN));
+            mViewModel.setSetSec(args.getInt(EXTRA_SET_SEC));
+            mViewModel.setSetImageId(args.getInt(EXTRA_SET_IMAGE));
+        } else {
+            throw new RuntimeException(DisplaySetDialog.class.getSimpleName() + " Args never set");
+        }
+
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Activity mParentActivity = getActivity();
         final AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
+
         LayoutInflater inflater = null;
         if(mParentActivity != null) {
             inflater = mParentActivity.getLayoutInflater();
@@ -73,23 +99,15 @@ public class DisplaySetDialog extends DialogFragment {
         final ImageView imageView = view.findViewById(R.id.display_image);
         final TextView timeDisplay = view.findViewById(R.id.display_set_time);
 
-        Bundle args = getArguments();
+        textViewName.setText(mViewModel.getSetName());
+        textViewDescrip.setText(mViewModel.getSetDescrip());
+        textViewDescrip.setMovementMethod(new ScrollingMovementMethod());
+        imageView.setImageResource(mViewModel.getSetImageId());
+        timeDisplay.setText(BaseApp.formatTime(mViewModel.getSetMin(), mViewModel.getSetSec()));
 
-        if(args!= null){
-            textViewName.setText(args.getString(EXTRA_SET_NAME));
-            textViewDescrip.setText(args.getString(EXTRA_SET_DESCIP));
-            textViewDescrip.setMovementMethod(new ScrollingMovementMethod());
-            imageView.setImageResource(args.getInt(EXTRA_SET_IMAGE));
-            timeDisplay.setText(BaseApp.formatTime(args.getInt(EXTRA_SET_MIN), args.getInt(EXTRA_SET_SEC)));
-
-            builder.setView(view)
-                    .setTitle("Set Info")
-                    .setPositiveButton("Ok", null);
-
-        } else {
-            throw new RuntimeException(DisplaySetDialog.class.getSimpleName() + " Args never set");
-        }
-
+        builder.setView(view)
+                .setTitle("Set Info")
+                .setPositiveButton("Ok", null);
         return builder.create();
     }
 

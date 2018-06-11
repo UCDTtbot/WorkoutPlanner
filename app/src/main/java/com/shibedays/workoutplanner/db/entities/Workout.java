@@ -31,7 +31,7 @@ public class Workout{
     public static final String[] TYPES = { "Cardio Workouts", "Strength Training", "Flexibility", "Custom", "Other"};
     //endregion
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     private int workoutID;
     private int workoutType;
@@ -54,8 +54,7 @@ public class Workout{
 
     public Workout(){
     }
-    public Workout(@NonNull int id, int type, String name) {
-        workoutID = id;
+    public Workout(int type, String name) {
         this.name = name;
         this.workoutType = type;
         numOfRounds = 1;
@@ -66,8 +65,7 @@ public class Workout{
         noBreakFlag = false;
         isFavorite = false;
     }
-    public Workout(@NonNull int id, int type, String name, List<Set> sets) {
-        workoutID = id;
+    public Workout(int type, String name, List<Set> sets) {
         this.name = name;
         this.workoutType = type;
         numOfRounds = 1;
@@ -78,8 +76,7 @@ public class Workout{
         noBreakFlag = false;
         isFavorite = false;
     }
-    public Workout(int ID, Workout workout){
-        workoutID = ID;
+    public Workout(Workout workout){
         name = workout.getName();
         workoutType = workout.workoutType;
         numOfRounds = workout.getNumOfRounds();
@@ -165,7 +162,6 @@ public class Workout{
         setListJSON = json;
         Gson gson = new Gson();
         setList = (List<Set>) gson.fromJson(setListJSON, new TypeToken<List<Set>>() {}.getType());
-
     }
 
     public List<Set> getSetList(){
@@ -200,10 +196,5 @@ public class Workout{
         } else {
             return false;
         }
-    }
-
-    public String toJSON(){
-        Gson json = new Gson();
-        return json.toJson(this);
     }
 }

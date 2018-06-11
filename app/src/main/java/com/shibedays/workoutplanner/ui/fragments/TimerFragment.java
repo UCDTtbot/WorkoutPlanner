@@ -1,7 +1,7 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,14 +16,15 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
+import com.shibedays.workoutplanner.viewmodel.fragments.TimerViewModel;
 
-import java.util.List;
+import java.lang.ref.WeakReference;
 import java.util.Locale;
 
 
@@ -38,30 +39,24 @@ import java.util.Locale;
 public class TimerFragment extends Fragment {
 
     //region CONSTANTS
-    // Factory Constant
-    private static final String ARG_WORKOUT = "WORKOUT";
     // Package and Debug Constants
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.TimerFragment.";
     private static final String DEBUG_TAG = TimerFragment.class.getSimpleName();
-    // Fragment Instance
-    private static TimerFragment mTimerFragmentInstance;
-    //endregion
+
+    private static final String EXTRA_WORKOUT_ID = PACKAGE + "ID";
+
+    private static WeakReference<TimerFragment> mInstance;
 
     //region PRIVATE_VARS
     // Data
-    private Workout mWorkout;
-    private List<Set> mSets;
-    private Set mCurSet;
-    private int mCurSetIndex;
-    private int mCurRep;
-    private int mCurRound;
-
+    private TimerViewModel mTimerViewModel;
+    private WorkoutViewModel mWorkoutViewModel;
     // UI Components
     private TextView mSetTitleView;
     private ImageView mSetImageView;
     private TextView mSetDescripView;
 
-    private ProgressBar mTimeBar;
+    private ProgressBar mProgressBar;
     private ImageView mPlayButtonView;
     private TextView mTimeView;
     private TextView mRepsView;
@@ -94,15 +89,13 @@ public class TimerFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TimerFragment newInstance(String workoutJSON) {
-        if(mTimerFragmentInstance == null) {
-            mTimerFragmentInstance = new TimerFragment();
-            Bundle args = new Bundle();
-            args.putString(ARG_WORKOUT, workoutJSON);
-            mTimerFragmentInstance.setArguments(args);
-            return mTimerFragmentInstance;
+    public static TimerFragment newInstance(Bundle args) {
+        if(mInstance == null) {
+            mInstance = new WeakReference<>(new TimerFragment());
+            mInstance.get().setArguments(args);
+            return mInstance.get();
         } else {
-            return mTimerFragmentInstance;
+            return mInstance.get();
         }
     }
     //endregion
@@ -115,7 +108,7 @@ public class TimerFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement NewWorkoutListener");
         }
         Activity act = getActivity();
         if(act instanceof MyWorkoutActivity){
@@ -128,15 +121,17 @@ public class TimerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            Gson json = new Gson();
-            String workoutJSON = getArguments().getString(ARG_WORKOUT);
-            mWorkout = json.fromJson(workoutJSON, Workout.class);
-            mSets = mWorkout.getSetList();
-            mCurSetIndex = 0;
-            mCurSet = mSets.get(mCurSetIndex);
-            mCurRep = 0;
-            mCurRound = 0;
+        Bundle args = getArguments();
+
+        mTimerViewModel = ViewModelProviders.of(this).get(TimerViewModel.class);
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        if (args != null) {
+            Workout w = mWorkoutViewModel.getWorkoutByID(args.getInt(EXTRA_WORKOUT_ID));
+            mTimerViewModel.setWorkoutId(w);
+            mTimerViewModel.setSets(w.getSetList());
+            mTimerViewModel.setCurSet(w.getSetList().get(0));
+            mTimerViewModel.setCurRep(0);
+            mTimerViewModel.setCurRound(0);
         } else {
             throw new RuntimeException(TimerFragment.class.getSimpleName() + " getArguments returned null. Fragment started incorrectly");
         }
@@ -154,24 +149,23 @@ public class TimerFragment extends Fragment {
         mSetImageView = view.findViewById(R.id.set_image);
         mSetDescripView = view.findViewById(R.id.set_descrip);
 
-        mTimeBar = view.findViewById(R.id.timer_progress);
-        mTimeBar.setMax(1000);
+        mProgressBar = view.findViewById(R.id.timer_progress);
+        mProgressBar.setMax(1000);
         mPlayButtonView = view.findViewById(R.id.play_button);
         mTimeView = view.findViewById(R.id.main_time);
         mRepsView = view.findViewById(R.id.reps);
         mRoundsView = view.findViewById(R.id.rounds);
-
-        updateSetTitle();
-        updateTime(mCurSet.getTime(), mCurSet.getTime());
-        updateRep(mCurRep);
-        updateRound(mCurRound);
-        updateDescription(mCurSet.getDescrip());
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        updateSetTitle();
+        updateTime(mTimerViewModel.getCurSetTime(), mTimerViewModel.getCurSetTime());
+        updateRep(mTimerViewModel.getCurRep());
+        updateRound(mTimerViewModel.getCurRound());
+        updateDescription(mTimerViewModel.getCurSetDescrip());
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_START");
     }
 
@@ -199,7 +193,7 @@ public class TimerFragment extends Fragment {
         mParentActivity.findViewById(R.id.fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
-        mTimerFragmentInstance = null;
+        mInstance = null;
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");
     }
 
@@ -243,26 +237,17 @@ public class TimerFragment extends Fragment {
     public void updateTime(int time, int totalTime){
         int[] splitTime = BaseApp.convertFromMillis(time);
         int min = splitTime[0], sec = splitTime[1];
-        /*
-        if((sec % 10) == 0){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if ( sec < 10 ){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else if (min == 0 && sec == 0){
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else {
-            mTimeTextView.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }*/
+
         mTimeView.setText(BaseApp.formatTime(min, sec));
 
         float floatTime = ((float)time / (float)totalTime) * 1000;
         int progress = 1000 - (int)floatTime;
         // TODO: If API < 24, do a different thing
-        mTimeBar.setProgress(progress, true);
+        mProgressBar.setProgress(progress, true);
     }
 
     public void updateSetTitle(){
-        mSetTitleView.setText(mCurSet.getName());
+        mSetTitleView.setText(mTimerViewModel.getCurSetName());
     }
 
     public void updateSetImage(int imageId){
@@ -274,19 +259,19 @@ public class TimerFragment extends Fragment {
     }
 
     public void updateRep(int rep){
-        mCurRep = rep;
-        mRepsView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mWorkout.getNumOfSets()));
+        mTimerViewModel.setCurRep(rep);
+        mRepsView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mTimerViewModel.getTotalReps()));
     }
 
     public void updateRound(int round){
-        mCurRound = round;
-        mRoundsView.setText(String.format(Locale.US, "%d / %d", (round + 1), mWorkout.getNumOfRounds()));
+        mTimerViewModel.setCurRound(round);
+        mRoundsView.setText(String.format(Locale.US, "%d / %d", (round + 1), mTimerViewModel.getTotalRounds()));
     }
     //endregion
 
     //region GET_DATA_FUNCTIONS
     public int getCurSetTime(){
-        return mCurSet.getTime();
+        return mTimerViewModel.getCurSetTime();
     }
 
     public void setTotalTime(int time){
@@ -294,46 +279,43 @@ public class TimerFragment extends Fragment {
     }
 
     public int getRestTime(){
-        return mWorkout.getTimeBetweenSets();
+        return mTimerViewModel.getRestTime();
     }
 
     public int getBreakTime(){
-        return mWorkout.getTimeBetweenRounds();
+        return mTimerViewModel.getBreakTime();
     }
 
     public int getCurRep(){
-        return mCurRep;
+        return mTimerViewModel.getCurRep();
     }
 
     public int getCurRound(){
-        return mCurRound;
+        return mTimerViewModel.getCurRound();
     }
     //endregion
 
     //region TIMER_INTERACTIONS
     public Set nextSet(){ // Sets and returns mCurSet with the next set if its not the last
-        mCurSetIndex++;
-        if(mCurSetIndex < mSets.size()){
-            mCurSet = mSets.get(mCurSetIndex);
-
-            return mCurSet;
-        }  else {
-            return null;
-        }
+        return mTimerViewModel.getNextSet();
     }
 
     public Set firstSet(){ // Sets and returns mCurSet with the first set of all
-        mCurSetIndex = 0;
-        mCurSet = mSets.get(mCurSetIndex);
-        return mCurSet;
+        return mTimerViewModel.getFirstSet();
     }
 
     public int nextRep(){
-        return ++mCurRep;
+        return mTimerViewModel.getNextRep();
     }
 
     public int nextRound(){
-        return ++mCurRound;
+        return mTimerViewModel.getNextRound();
     }
     //endregion
+
+    public static Bundle getBundle(int id){
+        Bundle args = new Bundle();
+        args.putInt(EXTRA_WORKOUT_ID, id);
+        return args;
+    }
 }

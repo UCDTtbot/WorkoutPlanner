@@ -22,27 +22,21 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
-import com.shibedays.workoutplanner.ui.adapters.WorkoutItemAdapter;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
-import com.shibedays.workoutplanner.ui.fragments.CreateEditSetFragment;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
-import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements NewWorkoutFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity {
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -66,13 +60,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     // UI Components
     private RecyclerView mRecyclerView;
 
-    // Data
-    private List<List<Workout>> mTypedWorkouts;
-    private List<List<Set>> mTypedSets;
-
-    // Pref Data
-    private int mTTSVol;
-
     // Flags
     private boolean HIDE_ACTION_ITEMS;
 
@@ -90,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     // View Model
     private WorkoutViewModel mWorkoutViewModel;
-    private SetViewModel mSetViewModel;
+    //private SetViewModel mSetViewModel;
 
     // Fragment(s)
     NewWorkoutFragment mNewWorkoutFragment;
@@ -109,84 +96,13 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         mFragmentManager = getSupportFragmentManager();
         HIDE_ACTION_ITEMS = false;
 
-
-        //region VIEW_MODEL
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
-            @Override
-            public void onChanged(@Nullable List<Workout> workouts) {
-                if(workouts != null){
-                    if(!workouts.isEmpty()){
-                        BaseApp.setWorkoutID(workouts.size() + 1);
-                    }
-                }
-            }
-        });
-
-        mTypedWorkouts = new ArrayList<List<Workout>>() {{
-           for(String TYPE : Workout.TYPES) {
-               add(new ArrayList<Workout>());
-           }
-        }};
-        for(int i = 0; i < Set.TYPES.length; i++){
-            mWorkoutViewModel.getTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
-                @Override
-                public void onChanged(@Nullable List<Workout> workouts) {
-                    if(workouts != null){
-                        if(!workouts.isEmpty()){
-                            mTypedWorkouts.set(workouts.get(0).getWorkoutType(), workouts);
-                            if(mWorkoutRowAdapter != null){
-                                mWorkoutRowAdapter.setData(mTypedWorkouts);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-
-        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
-            @Override
-            public void onChanged(@Nullable List<Set> sets) {
-                if(sets != null) {
-                    if(!sets.isEmpty()) {
-                        BaseApp.setSetID(sets.size() + 1);
-                    }
-                }
-            }
-        });
-
-        mTypedSets = new ArrayList<List<Set>>() {{
-            for (String TYPE : Set.TYPES) {
-                add(new ArrayList<Set>());
-            }
-        }};
-        for(int i = 0; i < Set.TYPES.length; i++){
-            mSetViewModel.getTypedSet(i).observe(this, new Observer<List<Set>>() {
-                @Override
-                public void onChanged(@Nullable List<Set> sets) {
-                    if(sets != null){
-                        if(!sets.isEmpty()) {
-                            mTypedSets.set(sets.get(0).getSetType(), sets);
-                        }
-                    }
-                }
-            });
-        }
-
-
-        Log.d(DEBUG_TAG, "Added data");
-
-        //endregion
-
 
         //region SHARED_PREFS
         // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
         mDefaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mTTSVol = 100;
 
         int currentVersionCode = BuildConfig.VERSION_CODE;
 
@@ -194,19 +110,17 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             int savedVersionCode = mPrivateSharedPrefs.getInt(KEY_VERSION_CODE, DATA_DOESNT_EXIST);
             if(savedVersionCode == currentVersionCode){
                 // Normal Run
-                BaseApp.setWorkoutID(mPrivateSharedPrefs.getInt(KEY_NEXT_WORKOUT_NUM, DATA_DOESNT_EXIST));
-                BaseApp.setSetID(mPrivateSharedPrefs.getInt(KEY_NEXT_SET_NUM, DATA_DOESNT_EXIST));
+
             } else if (savedVersionCode == DATA_DOESNT_EXIST){
                 // First run
+                initFirstRunData();
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
-                editor.putInt(KEY_NEXT_WORKOUT_NUM, BaseApp.getNextWorkoutID());
-                editor.putInt(KEY_NEXT_SET_NUM, BaseApp.getNextSetID());
                 editor.apply();
-                BaseApp.setWorkoutID(DATA_DOESNT_EXIST);
-                BaseApp.setSetID(DATA_DOESNT_EXIST);
+
             }else if (savedVersionCode < currentVersionCode){
                 // Updated run
+
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.apply();
@@ -233,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             @Override
             public void onWorkoutClicked(int id, int type) {
                 if(id >= 0) {
-                    openWorkout(id);
+                    openWorkout(id, type);
                 } else if (type == Workout.USER_CREATED) {
                     openNewWorkoutFragment();
                 }
@@ -252,35 +166,14 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
             }
         });
         mRecyclerView.setAdapter(mWorkoutRowAdapter);
+        mWorkoutRowAdapter.initiateData();
         mWorkoutRowAdapter.notifyDataSetChanged();
-
-        /*
-                    @Override
-            public void onWorkoutClicked(int workoutIndex, int type) {
-                openWorkout(workoutIndex);
-            }
-
-            @Override
-            public void onWorkoutLongClick(int workoutIndex, int workoutID, int type) {
-                openBottomSheet(type, workoutIndex);
-            }
-
-            @Override
-            public void deleteFromDB(Workout workout) {
-                deleteWorkoutFromDB(workout);
-            }
-         */
         //endregion
 
 
         //region TOOLBAR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //endregion
-
-
-        //region ADDITIONAL_UI
-
         //endregion
 
 
@@ -301,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
     protected void onStart() {
         super.onStart();
         mActionBar = getSupportActionBar();
-
+        setupViewModels();
     }
 
     @Override
@@ -370,23 +263,6 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                     toggleUpArrow(false);
             }
             return true;
-        } else if(id == R.id.debug_add) {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
-            CreateEditSetFragment createEditSetFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
-                @Override
-                public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                    Set set = new Set(BaseApp.getNextSetID(), name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
-                    BaseApp.incrementSetID(getApplicationContext());
-                    mSetViewModel.insert(set);
-                }
-            });
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-            fragmentTransaction.replace(R.id.new_workout_fragment_container, createEditSetFragment);
-            findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
-            fragmentTransaction.addToBackStack(null);
-            renameTitle(R.string.new_set);
-            fragmentTransaction.commit();
         }
 
         return super.onOptionsItemSelected(item);
@@ -412,58 +288,77 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         HIDE_ACTION_ITEMS = false;
         invalidateOptionsMenu();
     }
+
+    private void setupViewModels(){
+        //region VIEW_MODEL
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+                
+            }
+        });
+
+        for(int i = 0; i < Workout.TYPES.length; i++){
+            mWorkoutViewModel.getAllTypedWorkouts(i).observe(this, new Observer<List<Workout>>() {
+                @Override
+                public void onChanged(@Nullable List<Workout> workouts) {
+                    if(workouts != null){
+                        if(!workouts.isEmpty()){
+                            if(mWorkoutRowAdapter != null){
+                                int type = workouts.get(0).getWorkoutType();
+                                mWorkoutRowAdapter.updateData(type, workouts);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        Log.d(DEBUG_TAG, "Added data");
+
+        //endregion
+    }
     //endregion
 
 
     //region NEW_WORKOUT
     private void openNewWorkoutFragment(){
-        if(mTypedSets.get(0).size() > 0) {
-            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            mNewWorkoutFragment = NewWorkoutFragment.newInstance(mTypedSets);
-            fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-            fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
-            fragmentTransaction.addToBackStack(null);
-            findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
-            fragmentTransaction.commit();
-            renameTitle(R.string.new_workout);
-            hideActionItems();
-            toggleUpArrow(true);
-            Log.d(DEBUG_TAG, "New Workout Fragment Created");
-        }
-    }
-
-    @Override
-    public void addNewWorkout(Workout workout) {
-        mWorkoutViewModel.insert(workout);
-        View view = this.getCurrentFocus();
-        if(view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if(imm != null) {
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        mNewWorkoutFragment = NewWorkoutFragment.newInstance(new NewWorkoutFragment.NewWorkoutListener() {
+            @Override
+            public void addNewWorkout(Workout workout) {
+                mWorkoutViewModel.insert(workout);
+                View view = getCurrentFocus();
+                if(view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if(imm != null) {
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                }
+                mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
-        }
-        mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-    }
+        });
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+        fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
+        fragmentTransaction.addToBackStack(null);
+        findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+        fragmentTransaction.commit();
+        renameTitle(R.string.new_workout);
+        hideActionItems();
+        toggleUpArrow(true);
+        Log.d(DEBUG_TAG, "New Workout Fragment Created");
 
-    @Override
-    public void applyUserSetToDB(Set set) {
-        mSetViewModel.insert(set);
     }
-
-    @Override
-    public void removeUserSetFromDB(Set set) {
-        mSetViewModel.remove(set);
-    }
-
     //endregion
 
 
     //region OPEN_WORKOUT
-    public void openWorkout(int workoutID){
+    public void openWorkout(int workoutID, int type){
         if(workoutID >= 0) {
             Intent intent = new Intent(this, MyWorkoutActivity.class);
             intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, workoutID);
-            intent.putExtra(MyWorkoutActivity.EXTRA_TTS_VOLUME, mTTSVol);
+            intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_TYPE, type);
             intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
             startActivity(intent);
         }
@@ -472,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
 
     //region BOTTOM_SHEET_WORKOUTS
     public void openBottomSheet(final int id, final int type){
-        final Workout workout = getWorkoutByID(id, type);
+        final Workout workout = mWorkoutViewModel.getWorkoutByID(id);
         Bundle bundle = BottomSheetDialog.getBottomSheetBundle(workout.getName(), BaseApp.getWrkBtmSheetRows(), BaseApp.getWrkBtmSheetNames(this), BaseApp.getWrkBtmSheetICs(), BaseApp.getWrkBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, new BottomSheetDialog.BottomSheetDialogListener() {
             @Override
@@ -484,8 +379,8 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
                         mWorkoutRowAdapter.pendingRemoval(id, type);
                         break;
                     case BaseApp.DUPLCIATE:
-                        Workout newWorkout = new Workout(BaseApp.getNextWorkoutID(), workout);
-                        addNewWorkout(newWorkout);
+                        Workout newWorkout = new Workout(workout);
+                        mWorkoutViewModel.insert(newWorkout);
                         break;
                     default:
                         break;
@@ -501,22 +396,10 @@ public class MainActivity extends AppCompatActivity implements NewWorkoutFragmen
         mWorkoutViewModel.remove(workout);
     }
 
-    private Workout getWorkoutByID(int id, int type){
-        for(Workout w : mTypedWorkouts.get(type)){
-            if (w.getWorkoutID() == id) return w;
-        }
-
-        return null;
-    }
-
-    public void addSetToDB(Set set){
-        mSetViewModel.insert(set);
-    }
-    public void deleteSetFromDB(Set set){
-        mSetViewModel.remove(set);
-    }
     //endregion
 
+    private void initFirstRunData(){
+    }
 
 
 }

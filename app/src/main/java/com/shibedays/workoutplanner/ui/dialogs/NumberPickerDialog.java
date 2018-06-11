@@ -3,6 +3,7 @@ package com.shibedays.workoutplanner.ui.dialogs;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,11 +21,13 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.formats.MediaView;
 import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.viewmodel.dialogs.NumberPickerViewModel;
 
 import java.util.Locale;
 
@@ -48,6 +51,8 @@ public class NumberPickerDialog extends DialogFragment {
     //endregion
 
     //region PRIVATE_VARS
+    // Data
+    private NumberPickerViewModel mViewModel;
     // UI Components
     private NumberPicker mMinutePicker;
     private NumberPicker mSecondPicker;
@@ -55,9 +60,6 @@ public class NumberPickerDialog extends DialogFragment {
     // Utility
     private Activity mParentActivity;
 
-    private int mWhichTime;
-    private int mGivenTime;
-    private boolean mNoFlag;
     //endregion
 
     //region INTERFACES
@@ -91,31 +93,43 @@ public class NumberPickerDialog extends DialogFragment {
         }
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mViewModel = ViewModelProviders.of(this).get(NumberPickerViewModel.class);
+
+        Bundle args = getArguments();
+
+        if(args != null){
+            mViewModel.setWhichTime(args.getInt(EXTRA_DIALOG_TYPE));
+            mViewModel.setGivenTime(args.getInt(EXTRA_GIVEN_TIME));
+            mViewModel.setNoFlag(args.getBoolean(EXTRA_NO_FLAG));
+        }
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Bundle args = getArguments();
-        if(args != null){
-            mWhichTime = args.getInt(EXTRA_DIALOG_TYPE);
-            mGivenTime = args.getInt(EXTRA_GIVEN_TIME);
-            mNoFlag = args.getBoolean(EXTRA_NO_FLAG);
-        }
-
-        int[] time = BaseApp.convertFromMillis(mGivenTime);
-        final int min = time[0], sec = time[1];
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
         LayoutInflater inflater = mParentActivity.getLayoutInflater();
 
         final View view = inflater.inflate(R.layout.dialog_number_picker, null);
+
         TextView noTitle = view.findViewById(R.id.no_title);
-        if(mWhichTime == REST_TYPE){
+        if(mViewModel.getWhichTime() == REST_TYPE){
             noTitle.setText(R.string.no_rest);
-        } else if(mWhichTime == BREAK_TYPE){
+        } else if(mViewModel.getWhichTime() == BREAK_TYPE){
             noTitle.setText(R.string.no_break);
         } else {
             Log.e(DEBUG_TAG, "NO TIME TYPE GIVEN ");
         }
+
+
+
+        int[] time = BaseApp.convertFromMillis(mViewModel.getGivenTime());
+        final int min = time[0], sec = time[1];
 
         View number_spinners = view.findViewById(R.id.spinners);
         mMinutePicker = number_spinners.findViewById(R.id.MinutePicker);
@@ -125,6 +139,14 @@ public class NumberPickerDialog extends DialogFragment {
         mMinutePicker.setMaxValue(30);
         mMinutePicker.setValue(min);
         mMinutePicker.setWrapSelectorWheel(true);
+        mMinutePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                if(oldVal != newVal){
+                    mViewModel.setMins(newVal);
+                }
+            }
+        });
 
         mSecondPicker.setMinValue(0);
         mSecondPicker.setMaxValue(59);
@@ -136,17 +158,25 @@ public class NumberPickerDialog extends DialogFragment {
             }
         });
         mSecondPicker.setWrapSelectorWheel(true);
+        mSecondPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                if(oldVal != newVal){
+                    mViewModel.setSecs(newVal);
+                }
+            }
+        });
 
         mNoCheck = (CheckBox) view.findViewById(R.id.no_flag_checkbox);
-        mNoCheck.setChecked(mNoFlag);
+        mNoCheck.setChecked(mViewModel.isNoFlag());
         mNoCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mNoFlag = isChecked;
-                ifCheckedDisableUI(mNoFlag);
+                mViewModel.setNoFlag(isChecked);
+                ifCheckedDisableUI(isChecked);
             }
         });
-        ifCheckedDisableUI(mNoFlag);
+        ifCheckedDisableUI(mViewModel.isNoFlag());
 
         builder.setView(view)
                 .setTitle("Set Time")
@@ -163,12 +193,18 @@ public class NumberPickerDialog extends DialogFragment {
                     public void onClick(View v) {
 
                         if(mMinutePicker.getValue() == 0 && mSecondPicker.getValue() == 0){
-                            mNoFlag = true;
+                            mViewModel.setNoFlag(true);
                         }
-                        if(mWhichTime == REST_TYPE) {
-                            mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
-                        } else if(mWhichTime == BREAK_TYPE) {
-                            mListener.setTime(mWhichTime, mMinutePicker.getValue(), mSecondPicker.getValue(), mNoFlag);
+                        if(mViewModel.getWhichTime() == REST_TYPE) {
+                            mListener.setTime(mViewModel.getWhichTime(),
+                                    mViewModel.getMins(),
+                                    mViewModel.getSecs(),
+                                    mViewModel.isNoFlag());
+                        } else if(mViewModel.getWhichTime() == BREAK_TYPE) {
+                            mListener.setTime(mViewModel.getWhichTime(),
+                                    mViewModel.getMins(),
+                                    mViewModel.getSecs(),
+                                    mViewModel.isNoFlag());
                         } else {
                             Log.e(DEBUG_TAG, "WHICH TYPE WAS NOT SET CORRECTLY");
                         }

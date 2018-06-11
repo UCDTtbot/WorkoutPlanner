@@ -3,13 +3,16 @@ package com.shibedays.workoutplanner.ui.dialogs;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import android.widget.Toast;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.viewmodel.dialogs.RenameWorkoutViewModel;
 
 
 public class RenameWorkoutDialog extends DialogFragment {
@@ -41,8 +45,7 @@ public class RenameWorkoutDialog extends DialogFragment {
     // Utility
     private Activity mParentActivity;
     // Data
-    private String name;
-    private int index;
+    private RenameWorkoutViewModel mViewModel;
     //endregion
 
     //region INTERFACES
@@ -66,13 +69,18 @@ public class RenameWorkoutDialog extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Activity act = getActivity();
-        if(act instanceof MyWorkoutActivity){
-            mParentActivity = (MyWorkoutActivity) act;
-        } else if (act instanceof MainActivity){
-            mParentActivity = (MainActivity) act;
-        } else {
-            throw new RuntimeException(DEBUG_TAG + " must be cast to either MyWorkoutActivity or MainActivity");
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mParentActivity = getActivity();
+
+        mViewModel = ViewModelProviders.of(this).get(RenameWorkoutViewModel.class);
+        Bundle args = getArguments();
+        if(args != null){
+            mViewModel.setName(args.getString(EXTRA_WORKOUT_NAME));
         }
 
     }
@@ -90,14 +98,23 @@ public class RenameWorkoutDialog extends DialogFragment {
         mEditText = view.findViewById(R.id.workout_name);
         //endregion
 
-        //region INTENT
+        mEditText.setText(mViewModel.getName());
+        mEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-        Bundle args = getArguments();
-        if(args != null){
-            name = args.getString(EXTRA_WORKOUT_NAME);
-        }
+            }
 
-        mEditText.setText(name);
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mViewModel.setName(s.toString());
+            }
+        });
 
         builder.setView(view)
                 .setTitle("Rename")
@@ -112,10 +129,10 @@ public class RenameWorkoutDialog extends DialogFragment {
                 pos.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(TextUtils.isEmpty(mEditText.getText().toString())){
+                        if(TextUtils.isEmpty(mViewModel.getName())){
                             mEditText.setError(getString(R.string.name_error));
                         } else {
-                            mListener.RenameWorkout(mEditText.getText().toString());
+                            mListener.RenameWorkout(mViewModel.getName());
                             dialog.dismiss();
                         }
                     }
@@ -131,7 +148,6 @@ public class RenameWorkoutDialog extends DialogFragment {
             }
         });
 
-        //endregion
         return dialog;
     }
 

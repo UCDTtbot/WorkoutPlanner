@@ -3,6 +3,7 @@ package com.shibedays.workoutplanner.services;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ public class TimerService extends Service {
     public static final String EXTRA_NO_REST_FLAG = PACKAGE + "NO_REST_FLAG";
     public static final String EXTRA_NO_BREAK_FLAG = PACKAGE + "NO_BREAK_FLAG";
     public static final String EXTRA_REBUILD_BUNDLE = PACKAGE + "REBUILD";
+    public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "NOTIF";
     //endregion
 
     //region PRIVATE_VARS
@@ -119,7 +121,7 @@ public class TimerService extends Service {
 
         // TODO: Receive the bundle that contains the notification information and use it to build the notif
         if(intent != null){
-            mNotifBundle = intent.getBundleExtra(MyWorkoutActivity.EXTRA_NOTIF_BUNDLE);
+            mNotifBundle = intent.getBundleExtra(EXTRA_NOTIF_BUNDLE);
             mTotalCurTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
             mRestTime = intent.getIntExtra(EXTRA_REST_TIME, -1);
             mBreakTime = intent.getIntExtra(EXTRA_BREAK_TIME, -1);
@@ -335,5 +337,17 @@ public class TimerService extends Service {
         }
     }
 
+    public static Intent getServiceIntent(Context context, Bundle notif, int setTime, int restTime, int breakTime, int reps, int rounds, boolean no_rest, boolean no_break){
+        Intent intent = new Intent(context, TimerService.class);
+        intent.putExtra(EXTRA_NOTIF_BUNDLE, notif);
+        intent.putExtra(EXTRA_SET_TIME, setTime);
+        intent.putExtra(EXTRA_REST_TIME, restTime);
+        intent.putExtra(EXTRA_BREAK_TIME, breakTime);
+        intent.putExtra(EXTRA_NUM_REPS, reps);
+        intent.putExtra(EXTRA_NUM_ROUNDS, rounds);
+        intent.putExtra(EXTRA_NO_REST_FLAG, no_rest);
+        intent.putExtra(EXTRA_NO_BREAK_FLAG, no_break);
+        return intent;
+    }
 
 }

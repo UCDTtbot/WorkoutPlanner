@@ -20,11 +20,14 @@ public interface SetDao {
     @Query("SELECT * FROM sets WHERE setType=:type")
     LiveData<List<Set>> getTypedSets(int type);
 
+    @Query("SELECT * FROM sets WHERE id=:id")
+    LiveData<Set> getSet(int id);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Set set);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAll(List<Set> sets);
+    long[] insertAll(List<Set> sets);
 
     @Update
     void update(Set set);

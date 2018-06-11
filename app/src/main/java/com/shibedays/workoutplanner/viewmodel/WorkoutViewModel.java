@@ -7,6 +7,7 @@ import android.arch.lifecycle.Observer;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.DataRepo;
@@ -14,7 +15,9 @@ import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class WorkoutViewModel extends AndroidViewModel {
@@ -35,13 +38,9 @@ public class WorkoutViewModel extends AndroidViewModel {
 
         mWorkouts = mRepo.getAllWorkouts();
 
-        mTypedWorkouts = new ArrayList<LiveData<List<Workout>>>() {{
-            for(String TYPE : Workout.TYPES) {
-                add(null);
-            }
-        }};
-        for(int i = 0; i < Set.TYPES.length; i++){
-            mTypedWorkouts.add(getTypedWorkouts(i));
+        mTypedWorkouts = new ArrayList<>();
+        for(int i = 0; i < Workout.TYPES.length; i++){
+            mTypedWorkouts.add(mRepo.getTypedWorkouts(i));
         }
     }
 
@@ -49,12 +48,17 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mWorkouts;
     }
 
-    public LiveData<List<Workout>> getTypedWorkouts(int type){
-        return mRepo.getTypedWorkouts(type);
+    public LiveData<List<Workout>> getAllTypedWorkouts(int type){
+        return mTypedWorkouts.get(type);
+    }
+
+    public LiveData<Workout> getWorkout(int id){
+        return mRepo.getWorkout(id);
     }
 
     public Workout getWorkoutByID(int id){
         if(mWorkouts != null && id >= 0) {
+            List<Workout> g = mWorkouts.getValue();
             if(mWorkouts.getValue() != null) {
                 for (Workout w : mWorkouts.getValue()) {
                     if(w.getWorkoutID() == id) return w;
@@ -67,32 +71,6 @@ public class WorkoutViewModel extends AndroidViewModel {
         }
 
         return null;
-    }
-
-    private Workout getWorkoutByID(int id, int type){
-        if(mTypedWorkouts != null){
-            if(mTypedWorkouts.get(type) != null){
-                if(mTypedWorkouts.get(type).getValue() != null) {
-                    for (Workout w : mTypedWorkouts.get(type).getValue()) {
-                        if (w.getWorkoutID() == id) return w;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public void setCurWorkout(final int id){
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                mCurWorkout = getWorkoutByID(id);
-            }
-        });
-    }
-
-    public Workout getCurWorkout(){
-        return mCurWorkout;
     }
 
     public void update(Workout workout){

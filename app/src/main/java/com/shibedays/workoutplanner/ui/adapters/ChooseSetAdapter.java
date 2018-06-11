@@ -226,7 +226,7 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return super.getItemViewType(position);
     }
 
-    public void setData(List<Set> data){
+    public void updateData(List<Set> data){
         mSetData = data;
         for(Set s : mSetData){
             if(!mCheckedMap.containsKey(s)){
@@ -236,8 +236,18 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public void removeMapping(Set set){
+    public void updateSet(Set set){
+        if(mSetData.contains(set)) {
+            mSetData.set(mSetData.indexOf(set), set);
+            notifyItemChanged(mSetData.indexOf(set));
+        }
+    }
+
+    public void removeSet(Set set){
         mCheckedMap.remove(set);
+        int i = mSetData.indexOf(set);
+        mSetData.remove(set);
+        notifyItemChanged(i);
     }
 
     public List<Set> getMappedSets(){
