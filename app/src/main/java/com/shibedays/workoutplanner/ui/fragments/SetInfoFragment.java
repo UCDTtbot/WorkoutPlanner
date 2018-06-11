@@ -105,7 +105,7 @@ public class SetInfoFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        setupViewModels();
+        setupDataListener();
     }
 
     @Override
@@ -136,7 +136,7 @@ public class SetInfoFragment extends Fragment {
         }
     }
 
-    private void setupViewModels(){
+    private void setupDataListener(){
         mSetViewModel.getSet(mMainVM.getId()).observe(this, new Observer<Set>() {
             @Override
             public void onChanged(@Nullable Set set) {

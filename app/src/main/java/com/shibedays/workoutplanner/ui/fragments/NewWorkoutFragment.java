@@ -133,6 +133,15 @@ public class NewWorkoutFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(NewWorkoutViewModel.class);
+
+        mViewModel.setRounds(1);
+        mViewModel.setRestTime(60000);
+        mViewModel.setBreakTime(60000);
+        mViewModel.setRestFlag(false);
+        mViewModel.setBreakFlag(false);
     }
 
     @Nullable
@@ -258,13 +267,17 @@ public class NewWorkoutFragment extends Fragment{
 
         //endregion
 
+        int[] breakTime = BaseApp.convertFromMillis(60000);
+        int[] restTime = BaseApp.convertFromMillis(60000);
+        updateBreakTimeUI(breakTime[0], breakTime[1], false);
+        updateRestTimeUI(restTime[0], restTime[1], false);
+
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        setupViewModels();
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_START");
     }
 
@@ -447,23 +460,6 @@ public class NewWorkoutFragment extends Fragment{
         mSetViewModel.remove(set);
     }
     //endregion
-
-
-    private void setupViewModels(){
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
-        mViewModel = ViewModelProviders.of(this).get(NewWorkoutViewModel.class);
-
-
-        mViewModel.setRounds(1);
-        mViewModel.setRestTime(60000);
-        mViewModel.setBreakTime(60000);
-        mViewModel.setRestFlag(false);
-        mViewModel.setBreakFlag(false);
-        int[] breakTime = BaseApp.convertFromMillis(60000);
-        int[] restTime = BaseApp.convertFromMillis(60000);
-        updateBreakTimeUI(breakTime[0], breakTime[1], false);
-        updateRestTimeUI(restTime[0], restTime[1], false);
-    }
 
     //region UTILITY
     private void deleteSetConfirmation(final Set set){
