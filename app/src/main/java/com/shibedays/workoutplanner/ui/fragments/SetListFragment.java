@@ -112,6 +112,11 @@ public class SetListFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;

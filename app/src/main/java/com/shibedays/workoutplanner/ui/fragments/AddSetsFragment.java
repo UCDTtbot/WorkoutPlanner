@@ -219,6 +219,7 @@ public class AddSetsFragment extends Fragment {
         mParentActivity.findViewById(R.id.fragment_container).setVisibility(View.GONE);
         mParentActivity.showActionItems();
         mParentActivity.renameTitle(-1);
+        mInstance = null;
         Log.d(DEBUG_TAG, "NEW_SET_FRAGMENT ON_DESTROY");
 
     }

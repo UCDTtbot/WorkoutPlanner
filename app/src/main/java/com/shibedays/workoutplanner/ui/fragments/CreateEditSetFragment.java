@@ -246,6 +246,12 @@ public class CreateEditSetFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mInstance = null;
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         getActivity().setTitle(mParentTitle);

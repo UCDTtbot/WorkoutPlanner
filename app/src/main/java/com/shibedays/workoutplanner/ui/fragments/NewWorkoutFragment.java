@@ -309,6 +309,7 @@ public class NewWorkoutFragment extends Fragment{
         mParentActivity.renameTitle(R.string.app_name);
         mParentActivity.showActionItems();
         mParentActivity.toggleUpArrow(false);
+        mInstance = null;
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
 
     }
