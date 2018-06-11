@@ -29,6 +29,7 @@ import com.shibedays.workoutplanner.ui.dialogs.ChooseImageDialog;
 import com.shibedays.workoutplanner.viewmodel.fragments.CreateEditViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -51,16 +52,14 @@ public class CreateEditSetFragment extends Fragment {
     public static final String EXTRA_IMAGE_ID = PACKAGE + "SET_IMAGE_ID";
     //endregion
 
+    private static WeakReference<CreateEditSetFragment> mInstance;
+
     //region PRIVATE_VARS
     // Data
     private CreateEditViewModel mViewModel;
     private SetViewModel mSetViewModel;
 
     private int mParentTitle;
-    private CreateEditSetFragment mThis;
-
-    private List<Integer> mDefaultImageIds;
-
     // UI
     private ImageView mChooseImage;
     private EditText mEditName;
@@ -84,12 +83,15 @@ public class CreateEditSetFragment extends Fragment {
     }
 
 
-    public static CreateEditSetFragment newInstance(int parentName, Bundle args, CreateEditSetListener listener) {
-        CreateEditSetFragment fragment = new CreateEditSetFragment();
-        fragment.setListener(listener);
-        fragment.setArguments(args);
-        fragment.setParentTitle(parentName);
-        return fragment;
+    public static CreateEditSetFragment newInstance(int parentName, Bundle args) {
+        if(mInstance == null) {
+            mInstance = new WeakReference<>(new CreateEditSetFragment());
+            mInstance.get().setArguments(args);
+            mInstance.get().setParentTitle(parentName);
+            return mInstance.get();
+        } else {
+            return mInstance.get();
+        }
     }
     //endregion
 
@@ -99,7 +101,6 @@ public class CreateEditSetFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mThis = this;
     }
 
     @Override
@@ -117,13 +118,8 @@ public class CreateEditSetFragment extends Fragment {
             mViewModel.setMins(args.getInt(EXTRA_SET_MIN, 0));
             mViewModel.setSecs(args.getInt(EXTRA_SET_SEC, 0));
             mViewModel.setImage(args.getInt(EXTRA_IMAGE_ID, R.drawable.ic_fitness_black_24dp));
+            mViewModel.setupDefaultImages();
         }
-
-        mDefaultImageIds = new ArrayList<>();
-        mDefaultImageIds.add(R.drawable.ic_fitness_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_run_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_access_alarm_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_info_black_24dp);
         Activity act = getActivity();
     }
 
@@ -136,15 +132,15 @@ public class CreateEditSetFragment extends Fragment {
         mChooseImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle args = ChooseImageDialog.getDialogBundle();
-                ChooseImageDialog dialog = ChooseImageDialog.newInstance(args, mDefaultImageIds, mViewModel.getImage(), new ChooseImageDialog.ChooseImageListener() {
+                Bundle args = ChooseImageDialog.getDialogBundle(mViewModel.getDefaultImageIds(), mViewModel.getImage());
+                ChooseImageDialog dialog = ChooseImageDialog.newInstance(args, new ChooseImageDialog.ChooseImageListener() {
                     @Override
                     public void dialogResult(int image_id) {
                         mViewModel.setImage(image_id);
                         mChooseImage.setImageResource(mViewModel.getImage());
                     }
                 });
-                dialog.setTargetFragment(mThis, 0);
+                dialog.setTargetFragment(mInstance.get(), 0);
                 if (getFragmentManager() != null) {
                     dialog.show(getFragmentManager(), DEBUG_TAG);
                 }

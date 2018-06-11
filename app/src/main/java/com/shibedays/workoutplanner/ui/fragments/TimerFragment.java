@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -22,8 +21,10 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
+import com.shibedays.workoutplanner.viewmodel.fragments.TimerViewModel;
 
-import java.util.List;
+import java.lang.ref.WeakReference;
 import java.util.Locale;
 
 
@@ -38,24 +39,18 @@ import java.util.Locale;
 public class TimerFragment extends Fragment {
 
     //region CONSTANTS
-    // Factory Constant
-    private static final String ARG_WORKOUT = "WORKOUT";
     // Package and Debug Constants
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.TimerFragment.";
     private static final String DEBUG_TAG = TimerFragment.class.getSimpleName();
-    // Fragment Instance
-    private static TimerFragment mTimerFragmentInstance;
-    //endregion
+
+    private static final String EXTRA_WORKOUT_ID = PACKAGE + "ID";
+
+    private static WeakReference<TimerFragment> mInstance;
 
     //region PRIVATE_VARS
     // Data
-    private Workout mWorkout;
-    private List<Set> mSets;
-    private Set mCurSet;
-    private int mCurSetIndex;
-    private int mCurRep;
-    private int mCurRound;
-
+    private TimerViewModel mTimerViewModel;
+    private WorkoutViewModel mWorkoutViewModel;
     // UI Components
     private TextView mSetTitleView;
     private ImageView mSetImageView;
@@ -94,15 +89,13 @@ public class TimerFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static TimerFragment newInstance(String workoutJSON) {
-        if(mTimerFragmentInstance == null) {
-            mTimerFragmentInstance = new TimerFragment();
-            Bundle args = new Bundle();
-            args.putString(ARG_WORKOUT, workoutJSON);
-            mTimerFragmentInstance.setArguments(args);
-            return mTimerFragmentInstance;
+    public static TimerFragment newInstance(Bundle args) {
+        if(mInstance == null) {
+            mInstance = new WeakReference<>(new TimerFragment());
+            mInstance.get().setArguments(args);
+            return mInstance.get();
         } else {
-            return mTimerFragmentInstance;
+            return mInstance.get();
         }
     }
     //endregion
@@ -199,7 +192,7 @@ public class TimerFragment extends Fragment {
         mParentActivity.findViewById(R.id.fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
-        mTimerFragmentInstance = null;
+        mInstance = null;
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");
     }
 
@@ -336,4 +329,8 @@ public class TimerFragment extends Fragment {
         return ++mCurRound;
     }
     //endregion
+
+    public static Bundle getBundle(int id){
+
+    }
 }

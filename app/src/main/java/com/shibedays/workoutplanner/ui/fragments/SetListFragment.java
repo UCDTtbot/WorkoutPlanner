@@ -41,8 +41,6 @@ public class SetListFragment extends Fragment {
     private ChooseSetAdapter mAdapter;
 
     private int mType;
-
-    private SetListFragment mThis;
     //endregion
 
 
@@ -70,7 +68,6 @@ public class SetListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mThis = this;
     }
 
     @Override

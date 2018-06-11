@@ -41,6 +41,7 @@ import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.viewmodel.fragments.NewWorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -52,6 +53,8 @@ public class NewWorkoutFragment extends Fragment{
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment.";
     private static final String DEBUG_TAG = NewWorkoutFragment.class.getSimpleName();
     //endregion
+
+    private static WeakReference<NewWorkoutFragment> mInstance;
 
     //region PRIVATE_VARS
     // Data
@@ -73,7 +76,6 @@ public class NewWorkoutFragment extends Fragment{
 
     // Parent
     private MainActivity mParentActivity;
-    private NewWorkoutFragment mThis;
 
     private CreateEditSetFragment mCreateEditFragment;
 
@@ -104,10 +106,13 @@ public class NewWorkoutFragment extends Fragment{
 
 
     public static NewWorkoutFragment newInstance(NewWorkoutListener listener) {
-        NewWorkoutFragment newFragment = new NewWorkoutFragment();
-        newFragment.setListener(listener);
-
-        return newFragment;
+        if(mInstance == null){
+            mInstance = new WeakReference<>(new NewWorkoutFragment());
+            mInstance.get().setListener(listener);
+            return mInstance.get();
+        } else {
+            return mInstance.get();
+        }
     }
     //endregion
 
@@ -122,7 +127,6 @@ public class NewWorkoutFragment extends Fragment{
         } else {
             throw new RuntimeException(DEBUG_TAG + " wasn't called from MainActivity");
         }
-        mThis = this;
     }
 
     // onCreate for data
@@ -366,7 +370,7 @@ public class NewWorkoutFragment extends Fragment{
                 BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity),
                 BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, listener);
-        dialog.setTargetFragment(mThis, 0);
+        dialog.setTargetFragment(mInstance.get(), 0);
         if(getFragmentManager() != null){
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
@@ -375,7 +379,7 @@ public class NewWorkoutFragment extends Fragment{
     private void displayDialog(@NonNull Set set){
         Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
         DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
-        dialog.setTargetFragment(mThis, 0);
+        dialog.setTargetFragment(mInstance.get(), 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
@@ -384,13 +388,7 @@ public class NewWorkoutFragment extends Fragment{
     private void openNewSet(){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
-            @Override
-            public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
-                mSetViewModel.insert(set);
-            }
-        });
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args);
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
@@ -401,12 +399,7 @@ public class NewWorkoutFragment extends Fragment{
     private void openEditSet(@NonNull final Set set){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args, new CreateEditSetFragment.CreateEditSetListener() {
-            @Override
-            public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                updateUserSet(set, name, descrip, min, sec, imageId);
-            }
-        });
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

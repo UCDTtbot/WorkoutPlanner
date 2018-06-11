@@ -39,8 +39,6 @@ public class SetInfoFragment extends Fragment {
     private TextView mSetDescrip;
     private TextView mSetTime;
     // FLAGS
-
-    private SetInfoFragment mThis;
     //endregion
 
 
@@ -67,7 +65,6 @@ public class SetInfoFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mThis = this;
     }
 
     @Override

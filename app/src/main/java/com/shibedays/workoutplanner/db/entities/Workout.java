@@ -162,7 +162,6 @@ public class Workout{
         setListJSON = json;
         Gson gson = new Gson();
         setList = (List<Set>) gson.fromJson(setListJSON, new TypeToken<List<Set>>() {}.getType());
-
     }
 
     public List<Set> getSetList(){
@@ -197,10 +196,5 @@ public class Workout{
         } else {
             return false;
         }
-    }
-
-    public String toJSON(){
-        Gson json = new Gson();
-        return json.toJson(this);
     }
 }

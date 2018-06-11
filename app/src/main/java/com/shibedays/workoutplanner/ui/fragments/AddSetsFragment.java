@@ -1,13 +1,11 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -30,6 +28,7 @@ import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +40,8 @@ public class AddSetsFragment extends Fragment {
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.fragments.AddSetsFragment.";
     private static final String DEBUG_TAG = AddSetsFragment.class.getSimpleName();
     //endregion
+
+    private static WeakReference<AddSetsFragment> mInstance;
 
     //region PRIVATE_VARS
     // Data
@@ -56,7 +57,6 @@ public class AddSetsFragment extends Fragment {
 
     // Parent
     private MyWorkoutActivity mParentActivity;
-    private AddSetsFragment mThis;
     private CreateEditSetFragment mCreateEditFragment;
 
 
@@ -78,10 +78,13 @@ public class AddSetsFragment extends Fragment {
     }
 
     public static AddSetsFragment newInstance(NewSetListener listener) {
-        AddSetsFragment newFragment = new AddSetsFragment();
-        newFragment.setListener(listener);
-
-        return newFragment;
+        if(mInstance == null){
+            mInstance = new WeakReference<>(new AddSetsFragment());
+            mInstance.get().setListener(listener);
+            return mInstance.get();
+        } else {
+            return mInstance.get();
+        }
     }
     //endregion
 
@@ -95,7 +98,6 @@ public class AddSetsFragment extends Fragment {
         } else {
             throw new RuntimeException(DEBUG_TAG + " wasn't called from MyWorkoutActivity");
         }
-        mThis = this;
     }
 
     @Override
@@ -243,7 +245,7 @@ public class AddSetsFragment extends Fragment {
                 BaseApp.getSetBtmSheetRows(), BaseApp.getSetBtmSheetNames(mParentActivity),
                 BaseApp.getSetBtmSheetICs(), BaseApp.getSetBtmSheetResults());
         BottomSheetDialog dialog = BottomSheetDialog.newInstance(bundle, listener);
-        dialog.setTargetFragment(mThis, 0);
+        dialog.setTargetFragment(mInstance.get(), 0);
         if(getFragmentManager() != null){
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
@@ -253,7 +255,7 @@ public class AddSetsFragment extends Fragment {
     private void displayDialog(@NonNull Set set){
         Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
         DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
-        dialog.setTargetFragment(mThis, 0);
+        dialog.setTargetFragment(mInstance.get(), 0);
         if (getFragmentManager() != null) {
             dialog.show(getFragmentManager(), DEBUG_TAG);
         }
@@ -262,13 +264,7 @@ public class AddSetsFragment extends Fragment {
     private void openNewSet(){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
-            @Override
-            public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                Set set = new Set(name, descrip, Set.USER_CREATED, BaseApp.convertToMillis(min, sec), imageId);
-                mSetViewModel.insert(set);
-            }
-        });
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args);
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
@@ -279,12 +275,7 @@ public class AddSetsFragment extends Fragment {
     private void openEditSet(@NonNull final Set set){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args, new CreateEditSetFragment.CreateEditSetListener() {
-            @Override
-            public void returnData(String name, String descrip, int min, int sec, int imageId) {
-                updateUserSet(set, name, descrip, min, sec, imageId);
-            }
-        });
+        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

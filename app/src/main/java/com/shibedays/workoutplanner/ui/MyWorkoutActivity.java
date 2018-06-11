@@ -90,11 +90,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final String EXTRA_INTENT_TYPE = PACKAGE + "INTENT_TYPE";
 
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WORKOUT_ID";
-    public static final String EXTRA_TTS_VOLUME = PACKAGE + "Volume";
     public static final String EXTRA_WORKOUT_TYPE = PACKAGE + "Type";
-    public static final String EXTRA_WORKOUT_JSON = PACKAGE + "WORKOUT_JSON";
-
-    public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "INTENT_BUNDLE";
 
     public static final String EXTRA_UPDATE_DESCRIPTION = PACKAGE + "UPDATE_DESCRIP";
 
@@ -676,6 +672,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     //endregion
+
     private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec, int imageId){
         set.setName(name);
         set.setTime(BaseApp.convertToMillis(min, sec));
@@ -693,7 +690,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     public void openTimerFragment(Workout wrk){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mTimerFragment = TimerFragment.newInstance(wrk.toJSON());
+        Bundle args = TimerFragment.getBundle(wrk.getWorkoutID());
+        mTimerFragment = TimerFragment.newInstance(args);
         fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -704,23 +702,24 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void beginTimerService(){
         // TODO: Create a function that unifies notification vs start bundle
-        Intent timerIntent = new Intent(this, TimerService.class);
-        Bundle notifBundle = new Bundle();
+        Workout w = mMainVM.getWorkoutData();
+
         // TODO: Put items that are needed to rebuild the activity and fragment into this bundle
         // Build the bundle that the notification will use to restart everything
 
-        Workout w = mMainVM.getWorkoutData();
-        notifBundle.putString(EXTRA_WORKOUT_JSON, w.toJSON());
-        notifBundle.putInt(EXTRA_WORKOUT_ID, w.getWorkoutID());
-
-        timerIntent.putExtra(EXTRA_NOTIF_BUNDLE, notifBundle);
-        timerIntent.putExtra(TimerService.EXTRA_SET_TIME, mTimerFragment.getCurSetTime());
-        timerIntent.putExtra(TimerService.EXTRA_REST_TIME, w.getTimeBetweenSets());
-        timerIntent.putExtra(TimerService.EXTRA_BREAK_TIME, w.getTimeBetweenRounds());
-        timerIntent.putExtra(TimerService.EXTRA_NUM_REPS, w.getNumOfSets());
-        timerIntent.putExtra(TimerService.EXTRA_NUM_ROUNDS, w.getNumOfRounds());
-        timerIntent.putExtra(TimerService.EXTRA_NO_REST_FLAG, w.getNoRestFlag());
-        timerIntent.putExtra(TimerService.EXTRA_NO_BREAK_FLAG, w.getNoBreakFlag());
+        final Bundle notifBundle = getNotifBundle(w.getWorkoutID());
+        //Context context, Bundle notif, int setTime, int restTime, int breakTime, int reps, int rounds, boolean no_rest, boolean no_break
+        int curTime = mTimerFragment != null ? mTimerFragment.getCurSetTime() : w.getSetList().get(0).getTime();
+        final Intent timerIntent = TimerService.getServiceIntent(
+                this,
+                notifBundle,
+                curTime,
+                w.getTimeBetweenSets(),
+                w.getTimeBetweenRounds(),
+                w.getNumOfSets(),
+                w.getNumOfRounds(),
+                w.getNoRestFlag(),
+                w.getNoBreakFlag());
 
         startService(timerIntent);
     }
@@ -821,4 +820,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         return mMainVM.getWorkoutData();
     }
     //endregion
+
+
+    public static Bundle getNotifBundle(int workoutId){
+        Bundle args = new Bundle();
+        args.putInt(EXTRA_WORKOUT_ID, workoutId);
+        return args;
+    }
 }
