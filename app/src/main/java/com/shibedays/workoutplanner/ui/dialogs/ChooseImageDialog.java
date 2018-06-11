@@ -40,6 +40,7 @@ public class ChooseImageDialog extends DialogFragment {
     //region PRIVATE_VARS
     // DATA
     private ChooseImageViewModel mViewModel;
+    private Activity mParentActivity;
 
     // UI
     private RecyclerView mImageRecyclerView;
@@ -65,19 +66,25 @@ public class ChooseImageDialog extends DialogFragment {
         super.onAttach(context);
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Activity mParentActivity = getActivity();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+        mParentActivity = getActivity();
         mViewModel = ViewModelProviders.of(this).get(ChooseImageViewModel.class);
         Bundle args = getArguments();
-        if(args != null){
+        if (args != null) {
             mViewModel.setImageIds(args.getIntegerArrayList(EXTRA_IMAGE_LIST));
             mViewModel.setSelected(args.getInt(EXTRA_SELECTED_IMAGE));
             mViewModel.setupMap();
         }
+
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
 
         LayoutInflater inflater = null;
         if(mParentActivity != null) {
@@ -86,8 +93,6 @@ public class ChooseImageDialog extends DialogFragment {
             throw new RuntimeException(DEBUG_TAG + " Parent Activity doesn't exist");
         }
         final View view = inflater.inflate(R.layout.dialog_choose_image, null);
-
-
 
         mAdapter = new ImageAdapter(getContext(), new ImageAdapter.ImageListener() {
             @Override
@@ -109,18 +114,14 @@ public class ChooseImageDialog extends DialogFragment {
         mAdapter.notifyDataSetChanged();
         //TODO: Setup recycler view
 
-        if(args!= null){
-            builder.setView(view)
-                    .setTitle("")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            mListener.dialogResult(mViewModel.getSelected());
-                        }
-                    });
-        } else {
-            throw new RuntimeException(DisplaySetDialog.class.getSimpleName() + " Args never set");
-        }
+        builder.setView(view)
+                .setTitle("")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mListener.dialogResult(mViewModel.getSelected());
+                    }
+                });
 
         return builder.create();
     }
@@ -129,7 +130,6 @@ public class ChooseImageDialog extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         getDialog().setCanceledOnTouchOutside(true);
-
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 

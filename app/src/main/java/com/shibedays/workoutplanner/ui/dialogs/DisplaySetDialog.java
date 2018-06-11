@@ -42,6 +42,8 @@ public class DisplaySetDialog extends DialogFragment {
     //region PRIVATE_VARS
     // Data
     private DisplaySetViewModel mViewModel;
+
+    private Activity mParentActivity;
     //endregion
 
     //region LIFECYCLE
@@ -57,24 +59,11 @@ public class DisplaySetDialog extends DialogFragment {
         super.onAttach(context);
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Activity mParentActivity = getActivity();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
-        LayoutInflater inflater = null;
-        if(mParentActivity != null) {
-            inflater = mParentActivity.getLayoutInflater();
-        } else {
-            throw new RuntimeException(DEBUG_TAG + " Parent Activity doesn't exist");
-        }
-        final View view = inflater.inflate(R.layout.dialog_set_info, null);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        // UI Comoponents
-        final TextView textViewName = view.findViewById(R.id.display_set_name);
-        final TextView textViewDescrip = view.findViewById(R.id.display_set_descrip);
-        final ImageView imageView = view.findViewById(R.id.display_image);
-        final TextView timeDisplay = view.findViewById(R.id.display_set_time);
+        mParentActivity = getActivity();
 
         Bundle args = getArguments();
         mViewModel = ViewModelProviders.of(this).get(DisplaySetViewModel.class);
@@ -88,6 +77,27 @@ public class DisplaySetDialog extends DialogFragment {
         } else {
             throw new RuntimeException(DisplaySetDialog.class.getSimpleName() + " Args never set");
         }
+
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mParentActivity);
+
+        LayoutInflater inflater = null;
+        if(mParentActivity != null) {
+            inflater = mParentActivity.getLayoutInflater();
+        } else {
+            throw new RuntimeException(DEBUG_TAG + " Parent Activity doesn't exist");
+        }
+        final View view = inflater.inflate(R.layout.dialog_set_info, null);
+
+        // UI Comoponents
+        final TextView textViewName = view.findViewById(R.id.display_set_name);
+        final TextView textViewDescrip = view.findViewById(R.id.display_set_descrip);
+        final ImageView imageView = view.findViewById(R.id.display_image);
+        final TextView timeDisplay = view.findViewById(R.id.display_set_time);
 
         textViewName.setText(mViewModel.getSetName());
         textViewDescrip.setText(mViewModel.getSetDescrip());
