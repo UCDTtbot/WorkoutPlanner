@@ -95,9 +95,9 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
 
         for(int i = 0; i < mViewModel.getNumRows(); i++){
             View row = inflater.inflate(R.layout.bottom_sheet_item, null);
-            ((ImageView)row.findViewById(R.id.bottom_sheet_row_ic)).setImageResource(mViewModel.getRowICs()[i]);
-            ((TextView)row.findViewById(R.id.bottom_sheet_row_title)).setText(mViewModel.getRowTitles().get(i));
-            final int resultType = mViewModel.getResultTypes()[i];
+            ((ImageView)row.findViewById(R.id.bottom_sheet_row_ic)).setImageResource(mViewModel.getRowIC(i));
+            ((TextView)row.findViewById(R.id.bottom_sheet_row_title)).setText(mViewModel.getRowTitle(i));
+            final int resultType = mViewModel.getResultType(i);
             row.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -49,6 +49,9 @@ public class BottomSheetViewModel extends AndroidViewModel {
     public void setRowICs(int[] mRowICs) {
         this.mRowICs = mRowICs;
     }
+    public int getRowIC(int index){
+        return mRowICs[index];
+    }
 
     public int[] getResultTypes() {
         return mResultTypes;
@@ -56,11 +59,17 @@ public class BottomSheetViewModel extends AndroidViewModel {
     public void setResultTypes(int[] mResultTypes) {
         this.mResultTypes = mResultTypes;
     }
+    public int getResultType(int index){
+        return mResultTypes[index];
+    }
 
     public ArrayList<String> getRowTitles() {
         return mRowTitles;
     }
     public void setRowTitles(ArrayList<String> mRowTitles) {
         this.mRowTitles = mRowTitles;
+    }
+    public String getRowTitle(int index){
+        return mRowTitles.get(index);
     }
 }
