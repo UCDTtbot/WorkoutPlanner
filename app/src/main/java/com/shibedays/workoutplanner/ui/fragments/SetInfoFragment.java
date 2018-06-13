@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.viewmodel.fragments.SetInfoViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
@@ -38,6 +41,7 @@ public class SetInfoFragment extends Fragment {
     private ImageView mSetImageView;
     private TextView mSetDescrip;
     private TextView mSetTime;
+    private ImageView mEditSetView;
     // FLAGS
     //endregion
 
@@ -91,14 +95,14 @@ public class SetInfoFragment extends Fragment {
         mSetImageView = view.findViewById(R.id.set_image);
         mSetDescrip = view.findViewById(R.id.set_descrip);
         mSetTime = view.findViewById(R.id.set_time);
-
-        mSetImageView.setOnClickListener(new View.OnClickListener() {
+        mEditSetView = view.findViewById(R.id.edit_ic);
+        mEditSetView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSetImageView.setVisibility(View.GONE);
-                mSetDescrip.setVisibility(View.GONE);
+                openEditSet();
             }
         });
+
         return view;
     }
 
@@ -144,6 +148,32 @@ public class SetInfoFragment extends Fragment {
                 updateUi(set);
             }
         });
+    }
+
+    private void openEditSet(){
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        Set set = mMainVM.getData();
+        Bundle args = CreateEditSetFragment.getBundle(
+                set.getSetId(),
+                set.getName(),
+                set.getDescrip(),
+                set.getTime(),
+                set.getSetImageId());
+        CreateEditSetFragment frag = CreateEditSetFragment.newInstance(R.string.new_workout, args);
+        View v = getActivity().findViewById(R.id.fragment_container);
+        v.setVisibility(View.VISIBLE);
+        fragmentTransaction.replace(R.id.fragment_container, frag);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
+        Activity act = getActivity();
+        if(act instanceof MyWorkoutActivity){
+            ((MyWorkoutActivity) act).renameTitle(R.string.edit_set);
+        }
+    }
+
+    public Set getSetData(){
+        return mMainVM.getData();
     }
 
     //region UTILITY

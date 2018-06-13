@@ -4,6 +4,8 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
+import com.shibedays.workoutplanner.BaseApp;
+
 public class NumberPickerViewModel extends AndroidViewModel {
 
     private static final String DEBUG_TAG = NumberPickerViewModel.class.getSimpleName();
@@ -28,8 +30,11 @@ public class NumberPickerViewModel extends AndroidViewModel {
     public int getGivenTime() {
         return mGivenTime;
     }
-    public void setGivenTime(int mGivenTime) {
-        this.mGivenTime = mGivenTime;
+    public void setGivenTime(int time) {
+        this.mGivenTime = time;
+        int[] t = BaseApp.convertFromMillis(mGivenTime);
+        this.mMins = t[0];
+        this.mSecs = t[1];
     }
 
     public boolean isNoFlag() {

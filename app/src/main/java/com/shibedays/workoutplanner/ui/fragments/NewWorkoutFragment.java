@@ -81,10 +81,6 @@ public class NewWorkoutFragment extends Fragment{
 
     //endregion
 
-    //region PUBLIC_VARS
-
-    //endregion
-
     //region INTERFACES
     /**
      * This interface must be implemented by activities that contain this

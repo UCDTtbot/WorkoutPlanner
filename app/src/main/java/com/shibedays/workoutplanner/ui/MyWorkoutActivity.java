@@ -19,6 +19,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.recyclerview.extensions.AsyncListDiffer;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -114,6 +116,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private TimerFragment mTimerFragment;
     private AddSetsFragment mAddSetsFragment;
     private List<SetInfoFragment> mSetInfoFrags;
+    private ViewPagerAdapter mViewPagerAdapter;
 
     private Messenger mTimerService;
     private Messenger mTTSService;
@@ -209,8 +212,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //endregion
 
     //region LIFECYCLE
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -331,6 +332,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
 
     }
+
 
 
     @Override
@@ -528,17 +530,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void setupViewPager(List<Set> s){
         mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
-        ViewPagerAdapter adapter = new ViewPagerAdapter(mFragmentManager);
+        mViewPagerAdapter = new ViewPagerAdapter(mFragmentManager);
         mSetInfoFrags = new ArrayList<>();
+
         for(int i = 0; i < s.size(); i++){
             Bundle args = SetInfoFragment.getBundle(s.get(i).getSetId());
             SetInfoFragment frag = SetInfoFragment.newInstance(args,null);
-            adapter.addFragment(frag, "");
+            mViewPagerAdapter.addFragment(frag, "");
             mSetInfoFrags.add(frag);
         }
-
-        mViewPager.setAdapter(adapter);
-
+        mViewPager.setAdapter(mViewPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager, true);
     }
 
@@ -549,11 +550,36 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mWorkoutViewModel.getWorkout(mMainVM.getId()).observe(this, new Observer<Workout>() {
             @Override
             public void onChanged(@Nullable Workout workout) {
-                mMainVM.setWorkout(workout);
-                dataUpdate(mMainVM.getWorkoutData());
-                setupViewPager(mMainVM.getWorkoutData().getSetList());
+                if(workout != null) {
+                    if(mMainVM.getWorkoutData() == null){
+                        setupViewPager(workout.getSetList());
+                    } else {
+                        List<Set> newSetList = workout.getSetList();
+                        List<Set> diff = workout.getSetList();
+                        diff.removeAll(mMainVM.getWorkoutData().getSetList());
+                        Log.d(DEBUG_TAG, diff.toString());
+                        // TODO: update view pager
+                    }
+                    mMainVM.setWorkout(workout);
+                    dataUpdate(mMainVM.getWorkoutData());
+                }
             }
         });
+    }
+
+    public static Bundle getNotifBundle(int workoutId){
+        Bundle args = new Bundle();
+        args.putInt(EXTRA_WORKOUT_ID, workoutId);
+        return args;
+    }
+
+    private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec, int imageId){
+        set.setName(name);
+        set.setTime(BaseApp.convertToMillis(min, sec));
+        set.setDescrip(descrip);
+        set.setSetImageId(imageId);
+        mMainVM.getWorkoutData().updateSet(set, id);
+        mWorkoutViewModel.update(mMainVM.getWorkoutData());
     }
 
 
@@ -573,8 +599,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
         dialog.show(mFragmentManager, DEBUG_TAG);
     }
-
-
     //endregion
 
     //region ADD_SET
@@ -670,17 +694,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mMainVM.getWorkoutData().setNoBreakFlag(noFlag);
         mWorkoutViewModel.update(mMainVM.getWorkoutData());
     }
-
     //endregion
 
-    private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec, int imageId){
-        set.setName(name);
-        set.setTime(BaseApp.convertToMillis(min, sec));
-        set.setDescrip(descrip);
-        set.setSetImageId(imageId);
-        mMainVM.getWorkoutData().updateSet(set, id);
-        mWorkoutViewModel.update(mMainVM.getWorkoutData());
-    }
 
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation
@@ -822,9 +837,5 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //endregion
 
 
-    public static Bundle getNotifBundle(int workoutId){
-        Bundle args = new Bundle();
-        args.putInt(EXTRA_WORKOUT_ID, workoutId);
-        return args;
-    }
+
 }

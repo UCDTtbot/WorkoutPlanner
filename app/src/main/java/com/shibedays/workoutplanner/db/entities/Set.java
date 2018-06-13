@@ -3,6 +3,7 @@ package com.shibedays.workoutplanner.db.entities;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.util.StringUtil;
 import android.support.annotation.NonNull;
 
 import java.util.List;
@@ -86,7 +87,14 @@ public class Set {
         if(!(obj instanceof Set)) return false;
 
         Set set = (Set) obj;
-        return set.setId == this.setId;
+        if(set.setId == this.setId &&
+                set.setImageId == this.setImageId &&
+                set.name.equals(this.name) &&
+                set.descrip.equals(this.descrip) &&
+                set.time == this.time) {
+            return set.setId == this.setId;
+        } else
+            return false;
     }
 
     @Override

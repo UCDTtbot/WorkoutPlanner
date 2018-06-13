@@ -256,6 +256,7 @@ public class CreateEditSetFragment extends Fragment {
         super.onDetach();
         getActivity().setTitle(mParentTitle);
         if(getFragmentManager().getBackStackEntryCount() <= 0){
+            // TODO: NOT ONLY MAIN ACT
             MainActivity m = (MainActivity) getActivity();
             m.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
         }
