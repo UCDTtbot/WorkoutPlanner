@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
         mDefaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         int currentVersionCode = BuildConfig.VERSION_CODE;
 

@@ -49,16 +49,18 @@ public class CreateEditSetFragment extends Fragment {
 
     //region INTENT_KEYS
     public static final String EXTRA_SET_NAME = PACKAGE + "SET_NAME";
+    public static final String EXTRA_SET_ID = PACKAGE + "ID";
     public static final String EXTRA_SET_DESCIP = PACKAGE + "SET_DESCRIP";
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
-    public static final String EXTRA_SET_ID = PACKAGE + "SET_ID";
+    public static final String EXTRA_SET_POS = PACKAGE + "SET_POS";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
     public static final String EXTRA_IMAGE_ID = PACKAGE + "SET_IMAGE_ID";
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WRKOUT_ID";
     //endregion
 
     public static final int TYPE_NEW_SET = 33;
-    public static final int TYPE_EDIT_SET = 34;
+    public static final int TYPE_EDIT_WORKOUT_SET = 34;
+    public static final int TYPE_EDIT = 35;
 
     private static WeakReference<CreateEditSetFragment> mInstance;
 
@@ -128,11 +130,12 @@ public class CreateEditSetFragment extends Fragment {
         if(args != null) {
             mViewModel.setName(args.getString(EXTRA_SET_NAME, ""));
             mViewModel.setDescrip(args.getString(EXTRA_SET_DESCIP, ""));
-            mViewModel.setId(args.getInt(EXTRA_SET_ID, -1));
+            mViewModel.setId(args.getInt(EXTRA_SET_ID));
+            mViewModel.setPos(args.getInt(EXTRA_SET_POS, -1));
             mViewModel.setMins(args.getInt(EXTRA_SET_MIN, 0));
             mViewModel.setSecs(args.getInt(EXTRA_SET_SEC, 0));
             mViewModel.setImage(args.getInt(EXTRA_IMAGE_ID, R.drawable.ic_fitness_black_24dp));
-            mViewModel.setWorkoutId(args.getInt(EXTRA_WORKOUT_ID, -1));
+            mViewModel.setWorkoutId(args.getInt(EXTRA_WORKOUT_ID));
             mViewModel.setupDefaultImages();
         }
     }
@@ -291,7 +294,7 @@ public class CreateEditSetFragment extends Fragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getBundle(int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId){
+    public static Bundle getIdBundle(int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
@@ -303,6 +306,21 @@ public class CreateEditSetFragment extends Fragment {
         bundle.putInt(EXTRA_SET_SEC, time[1]);
         bundle.putInt(EXTRA_IMAGE_ID, imageId);
         bundle.putInt(EXTRA_WORKOUT_ID, wrkid);
+        return bundle;
+    }
+    public static Bundle getPosBundle(int pos, int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId){
+        Bundle bundle = new Bundle();
+
+        int[] time = BaseApp.convertFromMillis(timeInMil);
+
+        bundle.putInt(EXTRA_SET_POS, pos);
+        bundle.putString(EXTRA_SET_NAME, setName);
+        bundle.putString(EXTRA_SET_DESCIP, setDescrip);
+        bundle.putInt(EXTRA_SET_MIN, time[0]);
+        bundle.putInt(EXTRA_SET_SEC, time[1]);
+        bundle.putInt(EXTRA_IMAGE_ID, imageId);
+        bundle.putInt(EXTRA_WORKOUT_ID, wrkid);
+        bundle.putInt(EXTRA_SET_ID, id);
         return bundle;
     }
 
@@ -332,19 +350,32 @@ public class CreateEditSetFragment extends Fragment {
             OK = false;
         }
         if(OK) {
-            Set s = new Set(
-                    mViewModel.getName(),
-                    mViewModel.getDescrip(),
-                    Set.USER_CREATED,
-                    BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()),
-                    mViewModel.getImage());
-
             if(mType == TYPE_NEW_SET) {
+                Set s = new Set(
+                        mViewModel.getName(),
+                        mViewModel.getDescrip(),
+                        Set.USER_CREATED,
+                        BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()),
+                        mViewModel.getImage());
                 mSetViewModel.insert(s);
-            } else if (mType == TYPE_EDIT_SET){
+            } else if (mType == TYPE_EDIT_WORKOUT_SET){
                 Workout w = mWrkViewModel.getWorkoutByID(mViewModel.getWorkoutId());
-                w.updateSet(s, s.getSetId());
+                Set s = new Set(
+                        mViewModel.getId(),
+                        mViewModel.getName(),
+                        mViewModel.getDescrip(),
+                        Set.USER_CREATED,
+                        BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()),
+                        mViewModel.getImage());
+                w.updateSet(s, mViewModel.getPos());
                 mWrkViewModel.update(w);
+            } else if (mType == TYPE_EDIT){
+                Set p = mSetViewModel.getSetById(mViewModel.getId());
+                p.setName(mViewModel.getName());
+                p.setDescrip(mViewModel.getDescrip());
+                p.setTime(BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()));
+                p.setSetImageId(mViewModel.getImage());
+                mSetViewModel.update(p);
             } else {
                 throw new RuntimeException(DEBUG_TAG + "No create set type given");
             }

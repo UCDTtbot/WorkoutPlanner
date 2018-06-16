@@ -43,6 +43,15 @@ public class Set {
         time = 1000;
     }
 
+    public Set(int id, String name, String descrip, int type, int time, int image){
+        this.setId = id;
+        this.name = name;
+        this.descrip = descrip;
+        this.setType = type;
+        this.time = time;
+        this.setImageId = image;
+    }
+
     public Set(String name, String descrip, int type, int time, int image){
         this.name = name;
         this.setType = type;

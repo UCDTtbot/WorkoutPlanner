@@ -27,7 +27,7 @@ public class TimerViewModel extends AndroidViewModel {
     public Workout getWorkout() {
         return mWorkout;
     }
-    public void setWorkoutId(Workout w) {
+    public void setWorkout(Workout w) {
         this.mWorkout = w;
     }
 

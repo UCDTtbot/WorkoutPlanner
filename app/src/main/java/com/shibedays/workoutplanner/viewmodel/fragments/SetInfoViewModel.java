@@ -16,6 +16,7 @@ public class SetInfoViewModel extends AndroidViewModel {
 
     private int mParentWrkoutId;
     private MutableLiveData<Set> mLive;
+    private int mSetPos;
 
     public SetInfoViewModel(@NonNull Application application) {
         super(application);
@@ -52,5 +53,8 @@ public class SetInfoViewModel extends AndroidViewModel {
     public void setParentWrkoutId(int mParentId) {
         this.mParentWrkoutId = mParentId;
     }
+
+    public int getPos() { return mSetPos; }
+    public void setPos(int pos){ mSetPos = pos; }
 
 }

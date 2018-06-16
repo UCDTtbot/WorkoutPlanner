@@ -34,6 +34,7 @@ public class SetInfoFragment extends Fragment {
 
     private static final String EXTRA_SET_JSON = PACKAGE + "JSON";
     private static final String EXTRA_PARENT_ID = PACKAGE + "WORKOUT_ID";
+    private static final String EXTRA_SET_POS = PACKAGE + "POS";
 
     //region PRIVATE_VARS
     // Data
@@ -83,7 +84,7 @@ public class SetInfoFragment extends Fragment {
         if(args != null) {
             mMainVM.setData(args.getString(EXTRA_SET_JSON));
             mMainVM.setParentWrkoutId(args.getInt(EXTRA_PARENT_ID));
-
+            mMainVM.setPos(args.getInt(EXTRA_SET_POS));
         } else {
             mMainVM.setParentWrkoutId(-1);
         }
@@ -124,12 +125,13 @@ public class SetInfoFragment extends Fragment {
 
     //endregion
 
-    public static Bundle getBundle(Set set, int workoutid){
+    public static Bundle getBundle(Set set, int setPos, int workoutId){
         Bundle args = new Bundle();
         Gson g = new Gson();
         String json = g.toJson(set);
         args.putString(EXTRA_SET_JSON, json);
-        args.putInt(EXTRA_PARENT_ID, workoutid);
+        args.putInt(EXTRA_PARENT_ID, workoutId);
+        args.putInt(EXTRA_SET_POS, setPos);
         return args;
     }
 
@@ -160,7 +162,8 @@ public class SetInfoFragment extends Fragment {
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         Set set = mMainVM.getData().getValue();
         if(set != null) {
-            Bundle args = CreateEditSetFragment.getBundle(
+            Bundle args = CreateEditSetFragment.getPosBundle(
+                    mMainVM.getPos(),
                     set.getSetId(),
                     mMainVM.getParentWrkoutId(),
                     set.getName(),
@@ -168,7 +171,7 @@ public class SetInfoFragment extends Fragment {
                     set.getTime(),
                     set.getSetImageId());
 
-            CreateEditSetFragment frag = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_EDIT_SET, args);
+            CreateEditSetFragment frag = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_EDIT_WORKOUT_SET, args);
             View v = getActivity().findViewById(R.id.fragment_container);
             v.setVisibility(View.VISIBLE);
             fragmentTransaction.replace(R.id.fragment_container, frag);

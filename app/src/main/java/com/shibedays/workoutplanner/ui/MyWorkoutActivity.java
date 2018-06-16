@@ -6,12 +6,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
@@ -53,6 +55,7 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
 
 
 public class MyWorkoutActivity extends AppCompatActivity implements TimerFragment.OnFragmentInteractionListener{
@@ -129,6 +132,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private boolean mTTSIsBound;
     private boolean HIDE_ITEMS;
 
+    private List<Message> mMsgQueue;
     //endregion
 
     //region MESSAGE_HANDLING
@@ -220,8 +224,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         //TODO: in onCreate, we need to check if: TTS Service already Exists, Fragment Already Exists, TimerService already exists
         // if any of the above already exist, most likely means we are returning from the notification and/or need to restore the activity
-        // from some previous state
-
+        // from some previous stat
 
         //region INSTANCE_STATE
         if(savedInstanceState != null){
@@ -347,6 +350,30 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     protected void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_RESUME");
+        SharedPreferences defaultPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if(defaultPrefs != null){
+            boolean muted = defaultPrefs.getBoolean("voice_mute", false);
+            Message msg = null;
+            if(muted){
+                msg = Message.obtain(null, TTSService.MSG_MUTE_SPEECH, 0, 0);
+            } else {
+                msg = Message.obtain(null, TTSService.MSG_UNMUTE_SPEECH, 0, 0);
+            }
+            if(mTTSIsBound) {
+                try {
+                    mTTSService.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if(mMsgQueue == null){
+                    mMsgQueue = new ArrayList<>();
+                }
+                mMsgQueue.add(msg);
+            }
+        }
+
     }
 
     @Override
@@ -533,7 +560,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mViewPagerAdapter = new ViewPagerAdapter(mFragmentManager);
         mSetInfoFrags = new ArrayList<>();
         for(int i = 0; i < s.size(); i++){
-            Bundle args = SetInfoFragment.getBundle(s.get(i), mMainVM.getId());
+            Bundle args = SetInfoFragment.getBundle(s.get(i), i ,mMainVM.getId());
             SetInfoFragment frag = SetInfoFragment.newInstance(args,null);
             mViewPagerAdapter.addFragment(frag, "");
             mSetInfoFrags.add(frag);
@@ -550,7 +577,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             @Override
             public void onChanged(@Nullable Workout workout) {
                 if(workout != null) {
-                    if(mMainVM.getWorkoutData() == null){
+                    mMainVM.setWorkout(workout);
+                    if(mSetInfoFrags == null){
                         setupViewPager(workout.getSetList());
                     } else {
                         List<Set> newSetList = workout.getSetList();
@@ -562,10 +590,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                                 f.updateData(newSetList.get(i++));
                             }
                         }
-
-                        // TODO: update view pager
                     }
-                    mMainVM.setWorkout(workout);
                     dataUpdate(mMainVM.getWorkoutData());
                 }
             }
@@ -824,6 +849,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 mTTSService.send(msg);
             } catch (RemoteException e){
                 e.printStackTrace();
+            }
+
+            if(!mMsgQueue.isEmpty()){
+                for(Message m : mMsgQueue){
+                    try {
+                        mTTSService.send(m);
+                    } catch (RemoteException e){
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 

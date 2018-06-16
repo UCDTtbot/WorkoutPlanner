@@ -30,6 +30,8 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
     public static final int MSG_TTS_BIND = 0;
     public static final int MSG_SPEAK = 1;
     public static final int MSG_STOP_SPEECH = 2;
+    public static final int MSG_MUTE_SPEECH = 3;
+    public static final int MSG_UNMUTE_SPEECH = 4;
     //endregion
 
     //region PRIVATE_VARS
@@ -40,6 +42,7 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
 
     // Booleans
     private boolean mTTSReady = false;
+    private boolean mIsMuted = false;
     // Instances
     private Messenger mMyWorkoutActivityMessenger;
     //endregion
@@ -70,6 +73,12 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
                 case MSG_STOP_SPEECH:
                     mTTS.stop();
                     break;
+                case MSG_MUTE_SPEECH:
+                    mIsMuted = true;
+                    break;
+                case MSG_UNMUTE_SPEECH:
+                    mIsMuted = false;
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -85,7 +94,6 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Keep the service sticky
         Log.d(DEBUG_TAG, "TTS onStartCommand called");
-        mVol = intent.getIntExtra("TestVol", 1);
         return START_STICKY;
     }
 
@@ -134,7 +142,7 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
 
     //region UTILITY
     public void speak(String speech) {
-        if(mTTSReady){
+        if(mTTSReady && !mIsMuted){
             mTTS.speak(speech, TextToSpeech.QUEUE_FLUSH, null, SPEECH_ID);
         }
     }

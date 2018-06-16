@@ -17,7 +17,8 @@ public class CreateEditViewModel extends AndroidViewModel {
     private String mDescrip;
     private int mMins;
     private int mSecs;
-    private int mId;
+    private int mSetId;
+    private int mPos;
     private int mWorkoutId;
     private int mImage;
     private ArrayList<Integer> mDefaultImageIds;
@@ -55,11 +56,14 @@ public class CreateEditViewModel extends AndroidViewModel {
         this.mSecs = mSecs;
     }
 
-    public int getId() {
-        return mId;
+    public int getId(){ return mSetId; }
+    public void setId(int id){ mSetId = id; }
+
+    public int getPos() {
+        return mPos;
     }
-    public void setId(int mId) {
-        this.mId = mId;
+    public void setPos(int mPos) {
+        this.mPos = mPos;
     }
 
     public int getImage() {

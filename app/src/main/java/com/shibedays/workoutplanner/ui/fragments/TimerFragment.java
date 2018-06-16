@@ -125,9 +125,10 @@ public class TimerFragment extends Fragment {
 
         mTimerViewModel = ViewModelProviders.of(this).get(TimerViewModel.class);
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+
         if (args != null) {
             Workout w = mWorkoutViewModel.getWorkoutByID(args.getInt(EXTRA_WORKOUT_ID));
-            mTimerViewModel.setWorkoutId(w);
+            mTimerViewModel.setWorkout(w);
             mTimerViewModel.setSets(w.getSetList());
             mTimerViewModel.setCurSet(w.getSetList().get(0));
             mTimerViewModel.setCurRep(0);
@@ -257,6 +258,8 @@ public class TimerFragment extends Fragment {
     public void updateDescription(String descrip){
         mSetDescripView.setText(descrip);
     }
+
+
 
     public void updateRep(int rep){
         mTimerViewModel.setCurRep(rep);
