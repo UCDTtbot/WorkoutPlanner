@@ -55,12 +55,6 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
             switch (msg.what) {
                 case MSG_TTS_BIND:
                     mMyWorkoutActivityMessenger = msg.replyTo;
-                    Message reply = Message.obtain(null, MyWorkoutActivity.MSG_SAY_HELLO);
-                    try {
-                        mMyWorkoutActivityMessenger.send(reply);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
                     break;
                 case MSG_SPEAK:
                     int strID = msg.arg1;

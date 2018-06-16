@@ -21,8 +21,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.recyclerview.extensions.AsyncListDiffer;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -55,7 +53,6 @@ import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Queue;
 
 
 public class MyWorkoutActivity extends AppCompatActivity implements TimerFragment.OnFragmentInteractionListener{
@@ -81,14 +78,15 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //endregion
 
     //region MESSAGES
-    public static final int MSG_SAY_HELLO = 0;
-    public static final int MSG_UPDATE_SET_NAME = 1;
+    public static final int MSG_UPDATE_SET_INFO = 1;
     public static final int MSG_PASS_TTS_MSG = 2;
     public static final int MSG_UPDATE_TIME_DISPLAY = 3;
-    public static final int MSG_NEXT_REP_UI = 4;
-    public static final int MSG_NEXT_ROUND_UI = 5;
-    public static final int MSG_NEXT_SET_TIME = 6;
-    public static final int MSG_GET_FIRST_SET =  7;
+    public static final int MSG_PRELOAD_NEXT_SET = 4;
+    public static final int MSG_PRELOAD_FIRST_SET = 5;
+    public static final int MSG_NEXT_ROUND = 6;
+    public static final int MSG_NEXT_REP = 7;
+    public static final int MSG_LOAD_NEXT_SET = 8;
+    public static final int MSG_LOAD_FIRST_SET = 9;
     //endregion
 
     //region INTENT_KEYS
@@ -141,11 +139,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_SAY_HELLO:
-                    //Toast.makeText(getApplicationContext(), "TTS Ready", Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    super.handleMessage(msg);
             }
         }
     }
@@ -154,57 +147,67 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     class IncomingTimerMessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
+            Set s = null;
+            Message m = null;
             switch (msg.what){
                 case MSG_PASS_TTS_MSG:
                     if(msg.arg1 > 0) {
                         sendTTSMessage(msg.arg1);
                     }
                     break;
-                case MSG_UPDATE_SET_NAME:
+
+                case MSG_UPDATE_SET_INFO:
                     if(mTimerFragment != null){
-                        mTimerFragment.updateSetTitle();
+                        mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
+                    break;
+
+                case MSG_LOAD_NEXT_SET:
+                    s = mTimerFragment.getNextSet();
+                    mTimerFragment.showNextSetInfo(s);
+                    mTimerFragment.loadNextSet();
+                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), 0);
+                    sendTimerMessage(m);
+                    break;
+
+                case MSG_LOAD_FIRST_SET:
+                    s = mTimerFragment.getNextSet();
+                    mTimerFragment.showNextSetInfo(s);
+                    mTimerFragment.loadNextSet();
+                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), 0);
+                    sendTimerMessage(m);
+                    break;
+
+                case MSG_PRELOAD_NEXT_SET:
+                    //s = mTimerFragment.preloadNextSet();
+                    //m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime());
+                    //sendTimerMessage(m);
+                    break;
+
+                case MSG_PRELOAD_FIRST_SET:
+                    //s = mTimerFragment.preloadFirstSet();
+                    //m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime());
+                    //sendTimerMessage(m);
+                    break;
+
+                case MSG_NEXT_REP:
+                    int rep = msg.arg1;
+                    mTimerFragment.updateRep(rep);
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
+                    break;
+                case MSG_NEXT_ROUND:
+                    int round = msg.arg1;
+                    mTimerFragment.updateRep(0);
+                    mTimerFragment.updateRound(round);
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
+
                 case MSG_UPDATE_TIME_DISPLAY:
                     if(mTimerFragment != null){
                         mTimerFragment.updateTime(msg.arg1, msg.arg2);
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
-                    }
-                    break;
-                case MSG_NEXT_REP_UI:
-                    if(msg.arg1 >= 0){
-                        if(mTimerFragment != null) {
-                            mTimerFragment.updateRep(msg.arg1);
-                        } else {
-                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_REP_UI");
-                        }
-                    }
-                    break;
-                case MSG_NEXT_ROUND_UI:
-                    if(msg.arg1 >= 0){
-                        if(mTimerFragment != null) {
-                            mTimerFragment.updateRound(msg.arg1);
-                        } else {
-                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_ROUND_UI");
-                        }
-                    }
-                    break;
-                case MSG_NEXT_SET_TIME:
-                    Set nextSet = mTimerFragment.nextSet();
-                    if(nextSet != null) {
-                        Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, nextSet.getTime(), 0);
-                        sendTimerMessage(message);
-                    } else {
-                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "No next set exists. Something went wrong with curRep counter");
-                    }
-                    break;
-                case MSG_GET_FIRST_SET:
-                    Set firstSet = mTimerFragment.firstSet();
-                    if(firstSet != null){
-                        Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, firstSet.getTime(), 0);
-                        sendTimerMessage(message);
                     }
                     break;
                 default:

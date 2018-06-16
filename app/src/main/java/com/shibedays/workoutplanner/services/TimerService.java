@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -193,11 +192,20 @@ public class TimerService extends Service {
         mTotalCurTime = time;
         mTimeLeft = time;
 
-        if(mCurRep == (mNumReps - 1) && mCurrentAction == REP_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_GET_FIRST_SET, 0, 0);
+
+
+        /*if(mCurRep == (mNumReps - 1) && mCurrentAction == REP_ACTION){
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PRELOAD_FIRST_SET, 0, 0);
             sendMessage(msg);
-        } else if (mCurrentAction == REP_ACTION) {
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_SET_TIME, 0, 0);
+        } else if(mCurrentAction == REP_ACTION){
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PRELOAD_NEXT_SET, 0, 0);
+            sendMessage(msg);
+        } else */
+        if(mCurrentAction == REST_ACTION){
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_NEXT_SET, 0, 0);
+            sendMessage(msg);
+        } else if(mCurrentAction == BREAK_ACTION){
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_FIRST_SET, 0, 0);
             sendMessage(msg);
         }
 
@@ -241,7 +249,7 @@ public class TimerService extends Service {
 
                 if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound != (mNumRounds - 1)) {  // Round Finished. Break
                     if(mNoBreakFlag){ // No Break
-                        updateRound();
+                        nextRound();
 
                         sendTTSMessage(R.string.tts_begin);
                         mCurrentAction = REP_ACTION;
@@ -260,13 +268,13 @@ public class TimerService extends Service {
                 } else if(mCurrentAction == REP_ACTION && mCurRep < (mNumReps - 1 )){ // Set finished. Rest
                     //Repetition finished. Rest.
 
-                    if(mNoRestFlag){
-                        updateRep();
+                    if(mNoRestFlag){ // No Rest
+                        nextRep();
 
                         sendTTSMessage(R.string.tts_begin);
                         mCurrentAction = REP_ACTION;
                         beginTimer(mNextSetTime, TTS_NO_DELAY);
-                    } else {
+                    } else { // Yes Rest
                         sendTTSMessage(R.string.tts_take_rest);
                         mCurrentAction = REST_ACTION;
                         beginTimer(mRestTime, TTS_REST_DELAY);
@@ -274,7 +282,7 @@ public class TimerService extends Service {
 
                 } else if(mCurrentAction == REST_ACTION){ // Rest finished. Next Rep
                     //Rest finished. Start next rep.
-                    updateRep();
+                    nextRep();
 
                     //TODO: Custom Message
                     sendTTSMessage(R.string.tts_begin);
@@ -283,7 +291,7 @@ public class TimerService extends Service {
 
                 } else if(mCurrentAction == BREAK_ACTION){ // Break Finished. Next Round
                     //Break finished, start next round
-                    updateRound();
+                    nextRound();
 
                     sendTTSMessage(R.string.tts_next_round);
                     mCurrentAction = REP_ACTION;
@@ -304,21 +312,18 @@ public class TimerService extends Service {
         //TODO: Update the notif
     }
 
-    private void updateRep(){
+    private void nextRep(){
         mCurRep++;
-        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
+        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP, mCurRep, 0);
         sendMessage(msg);
         updateNotification();
     }
 
-    private void updateRound(){
-        mCurRound++;
-        Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND_UI, mCurRound, 0);
-        sendMessage(msg_round);
-
+    private void nextRound(){
         mCurRep = 0;
-        Message msg_rep = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP_UI, mCurRep, 0);
-        sendMessage(msg_rep);
+        mCurRound++;
+        Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND, mCurRound, 0);
+        sendMessage(msg_round);
         updateNotification();
     }
 
