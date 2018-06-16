@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -24,8 +25,11 @@ import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
+import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.ui.dialogs.ChooseImageDialog;
+import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.fragments.CreateEditViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
@@ -50,7 +54,11 @@ public class CreateEditSetFragment extends Fragment {
     public static final String EXTRA_SET_ID = PACKAGE + "SET_ID";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
     public static final String EXTRA_IMAGE_ID = PACKAGE + "SET_IMAGE_ID";
+    public static final String EXTRA_WORKOUT_ID = PACKAGE + "WRKOUT_ID";
     //endregion
+
+    public static final int TYPE_NEW_SET = 33;
+    public static final int TYPE_EDIT_SET = 34;
 
     private static WeakReference<CreateEditSetFragment> mInstance;
 
@@ -58,8 +66,10 @@ public class CreateEditSetFragment extends Fragment {
     // Data
     private CreateEditViewModel mViewModel;
     private SetViewModel mSetViewModel;
+    private WorkoutViewModel mWrkViewModel;
 
-    private int mParentTitle;
+    private String mParentTitle;
+    private int mType;
     // UI
     private ImageView mChooseImage;
     private EditText mEditName;
@@ -83,11 +93,12 @@ public class CreateEditSetFragment extends Fragment {
     }
 
 
-    public static CreateEditSetFragment newInstance(int parentName, Bundle args) {
+    public static CreateEditSetFragment newInstance(String parentName, int type, Bundle args) {
         if(mInstance == null) {
             mInstance = new WeakReference<>(new CreateEditSetFragment());
             mInstance.get().setArguments(args);
             mInstance.get().setParentTitle(parentName);
+            mInstance.get().setType(type);
             return mInstance.get();
         } else {
             return mInstance.get();
@@ -110,6 +121,9 @@ public class CreateEditSetFragment extends Fragment {
 
         mViewModel = ViewModelProviders.of(this).get(CreateEditViewModel.class);
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mWrkViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mSetViewModel.getAllSets();
+        mWrkViewModel.getAllWorkouts();
 
         if(args != null) {
             mViewModel.setName(args.getString(EXTRA_SET_NAME, ""));
@@ -118,9 +132,9 @@ public class CreateEditSetFragment extends Fragment {
             mViewModel.setMins(args.getInt(EXTRA_SET_MIN, 0));
             mViewModel.setSecs(args.getInt(EXTRA_SET_SEC, 0));
             mViewModel.setImage(args.getInt(EXTRA_IMAGE_ID, R.drawable.ic_fitness_black_24dp));
+            mViewModel.setWorkoutId(args.getInt(EXTRA_WORKOUT_ID, -1));
             mViewModel.setupDefaultImages();
         }
-        Activity act = getActivity();
     }
 
     @Override
@@ -249,17 +263,24 @@ public class CreateEditSetFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         mInstance = null;
+        FragmentManager man = getFragmentManager();
+        if(getActivity() instanceof MainActivity){
+            getActivity().setTitle(mParentTitle);
+            if(man.getBackStackEntryCount() <=  0)
+                getActivity().findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
+        } else if (getActivity() instanceof MyWorkoutActivity){
+            getActivity().setTitle(mParentTitle);
+            if(man.getBackStackEntryCount() <= 0)
+                getActivity().findViewById(R.id.fragment_container).setVisibility(View.GONE);
+        } else {
+            throw new RuntimeException(DEBUG_TAG + "create edit set fragment was not opened by a valid acitivity");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        getActivity().setTitle(mParentTitle);
-        if(getFragmentManager().getBackStackEntryCount() <= 0){
-            // TODO: NOT ONLY MAIN ACT
-            MainActivity m = (MainActivity) getActivity();
-            m.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
-        }
+
     }
 
     @Override
@@ -270,7 +291,7 @@ public class CreateEditSetFragment extends Fragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getBundle(int id, String setName, String setDescrip, int timeInMil, int imageId){
+    public static Bundle getBundle(int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
@@ -281,7 +302,7 @@ public class CreateEditSetFragment extends Fragment {
         bundle.putInt(EXTRA_SET_MIN, time[0]);
         bundle.putInt(EXTRA_SET_SEC, time[1]);
         bundle.putInt(EXTRA_IMAGE_ID, imageId);
-
+        bundle.putInt(EXTRA_WORKOUT_ID, wrkid);
         return bundle;
     }
 
@@ -289,7 +310,11 @@ public class CreateEditSetFragment extends Fragment {
         mListener = listener;
     }
 
-    private void setParentTitle(int name){
+    private void setType(int type){
+        mType = type;
+    }
+
+    private void setParentTitle(String name){
         mParentTitle = name;
     }
 
@@ -313,7 +338,16 @@ public class CreateEditSetFragment extends Fragment {
                     Set.USER_CREATED,
                     BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()),
                     mViewModel.getImage());
-            mSetViewModel.insert(s);
+
+            if(mType == TYPE_NEW_SET) {
+                mSetViewModel.insert(s);
+            } else if (mType == TYPE_EDIT_SET){
+                Workout w = mWrkViewModel.getWorkoutByID(mViewModel.getWorkoutId());
+                w.updateSet(s, s.getSetId());
+                mWrkViewModel.update(w);
+            } else {
+                throw new RuntimeException(DEBUG_TAG + "No create set type given");
+            }
 
             View view = getActivity().getCurrentFocus();
             if(view != null) {
@@ -322,7 +356,9 @@ public class CreateEditSetFragment extends Fragment {
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
             }
+
             getFragmentManager().popBackStack();
+
         } else {
             Log.d(DEBUG_TAG, "Input Validation Error");
         }

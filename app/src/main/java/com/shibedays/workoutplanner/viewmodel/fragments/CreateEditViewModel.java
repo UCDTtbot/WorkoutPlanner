@@ -18,9 +18,9 @@ public class CreateEditViewModel extends AndroidViewModel {
     private int mMins;
     private int mSecs;
     private int mId;
+    private int mWorkoutId;
     private int mImage;
     private ArrayList<Integer> mDefaultImageIds;
-
 
     public CreateEditViewModel(@NonNull Application application) {
         super(application);
@@ -81,5 +81,12 @@ public class CreateEditViewModel extends AndroidViewModel {
     }
     public int getDefaultImageID(int index){
         return mDefaultImageIds.get(index);
+    }
+
+    public int getWorkoutId() {
+        return mWorkoutId;
+    }
+    public void setWorkoutId(int mWorkoutId) {
+        this.mWorkoutId = mWorkoutId;
     }
 }

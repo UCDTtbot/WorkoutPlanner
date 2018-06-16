@@ -41,12 +41,15 @@ public class AddSetsFragment extends Fragment {
     private static final String DEBUG_TAG = AddSetsFragment.class.getSimpleName();
     //endregion
 
+    private static final String EXTRA_PARENT_ID = PACKAGE + "WRK_ID";
+
     private static WeakReference<AddSetsFragment> mInstance;
 
     //region PRIVATE_VARS
     // Data
     private SetViewModel mSetViewModel;
     private List<SetListFragment> mSetListFrags;
+    private int mParentWrkoutId;
     // Adapters
     private SectionedSetAdapter mLeftAdapter;
     private SectionedSetAdapter mRightAdapter;
@@ -77,10 +80,11 @@ public class AddSetsFragment extends Fragment {
 
     }
 
-    public static AddSetsFragment newInstance(NewSetListener listener) {
+    public static AddSetsFragment newInstance(Bundle args, NewSetListener listener) {
         if(mInstance == null){
             mInstance = new WeakReference<>(new AddSetsFragment());
             mInstance.get().setListener(listener);
+            mInstance.get().setArguments(args);
             return mInstance.get();
         } else {
             return mInstance.get();
@@ -103,7 +107,8 @@ public class AddSetsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mParentWrkoutId = getArguments().getInt(EXTRA_PARENT_ID);
     }
 
     @Override
@@ -188,7 +193,6 @@ public class AddSetsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        setupViewModel();
         Log.d(DEBUG_TAG, "NEW_SET_FRAGMENT ON_START");
     }
 
@@ -264,8 +268,8 @@ public class AddSetsFragment extends Fragment {
 
     private void openNewSet(){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args);
+        Bundle args = CreateEditSetFragment.getBundle(-1, mParentWrkoutId, "", "", 0, R.drawable.ic_fitness_black_24dp);
+        mCreateEditFragment = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_NEW_SET, args);
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
@@ -275,8 +279,8 @@ public class AddSetsFragment extends Fragment {
 
     private void openEditSet(@NonNull final Set set){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.add_new_set, args);
+        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), mParentWrkoutId, set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        mCreateEditFragment = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_EDIT_SET, args);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -322,9 +326,10 @@ public class AddSetsFragment extends Fragment {
     }
 
     //endregion
-
-    private void setupViewModel(){
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+    public static Bundle getBundle(int wrkout){
+        Bundle args = new Bundle();
+        args.putInt(EXTRA_PARENT_ID, wrkout);
+        return args;
     }
 
     //region SETTERS

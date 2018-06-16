@@ -259,8 +259,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
-                if(mFragmentManager.getBackStackEntryCount() <= 0)
+                if((mFragmentManager.getBackStackEntryCount() - 1) <= 0) {
                     toggleUpArrow(false);
+                }
             }
             return true;
         }

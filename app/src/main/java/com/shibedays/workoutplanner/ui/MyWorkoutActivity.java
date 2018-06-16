@@ -532,9 +532,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
         mViewPagerAdapter = new ViewPagerAdapter(mFragmentManager);
         mSetInfoFrags = new ArrayList<>();
-
         for(int i = 0; i < s.size(); i++){
-            Bundle args = SetInfoFragment.getBundle(s.get(i).getSetId());
+            Bundle args = SetInfoFragment.getBundle(s.get(i), mMainVM.getId());
             SetInfoFragment frag = SetInfoFragment.newInstance(args,null);
             mViewPagerAdapter.addFragment(frag, "");
             mSetInfoFrags.add(frag);
@@ -555,9 +554,15 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                         setupViewPager(workout.getSetList());
                     } else {
                         List<Set> newSetList = workout.getSetList();
-                        List<Set> diff = workout.getSetList();
-                        diff.removeAll(mMainVM.getWorkoutData().getSetList());
-                        Log.d(DEBUG_TAG, diff.toString());
+                        if(newSetList.size() != mSetInfoFrags.size()){
+                            Log.e(DEBUG_TAG, "Set Info Frag List doesn't match the workout set list");
+                        } else {
+                            int i = 0;
+                            for(SetInfoFragment f : mSetInfoFrags){
+                                f.updateData(newSetList.get(i++));
+                            }
+                        }
+
                         // TODO: update view pager
                     }
                     mMainVM.setWorkout(workout);
@@ -605,7 +610,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openAddNewSetFragment(){
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mAddSetsFragment = AddSetsFragment.newInstance(new AddSetsFragment.NewSetListener() {
+        Bundle args = AddSetsFragment.getBundle(mMainVM.getId());
+        mAddSetsFragment = AddSetsFragment.newInstance(args, new AddSetsFragment.NewSetListener() {
             @Override
             public void addSetsToWorkout(List<Set> sets) {
                 if(sets != null) {

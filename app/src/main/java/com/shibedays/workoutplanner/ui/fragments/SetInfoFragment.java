@@ -10,12 +10,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -30,7 +32,8 @@ public class SetInfoFragment extends Fragment {
     private static final String DEBUG_TAG = SetInfoFragment.class.getSimpleName();
     //endregion
 
-    private static final String EXTRA_SET_ID = PACKAGE + "ID";
+    private static final String EXTRA_SET_JSON = PACKAGE + "JSON";
+    private static final String EXTRA_PARENT_ID = PACKAGE + "WORKOUT_ID";
 
     //region PRIVATE_VARS
     // Data
@@ -78,10 +81,11 @@ public class SetInfoFragment extends Fragment {
         mMainVM = ViewModelProviders.of(this).get(SetInfoViewModel.class);
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
         if(args != null) {
-            int i = args.getInt(EXTRA_SET_ID);
-            mMainVM.setId(i);
+            mMainVM.setData(args.getString(EXTRA_SET_JSON));
+            mMainVM.setParentWrkoutId(args.getInt(EXTRA_PARENT_ID));
+
         } else {
-            mMainVM.setId(-1);
+            mMainVM.setParentWrkoutId(-1);
         }
     }
 
@@ -109,7 +113,7 @@ public class SetInfoFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        setupDataListener();
+        setupData();
     }
 
     @Override
@@ -120,9 +124,12 @@ public class SetInfoFragment extends Fragment {
 
     //endregion
 
-    public static Bundle getBundle(int id){
+    public static Bundle getBundle(Set set, int workoutid){
         Bundle args = new Bundle();
-        args.putInt(EXTRA_SET_ID, id);
+        Gson g = new Gson();
+        String json = g.toJson(set);
+        args.putString(EXTRA_SET_JSON, json);
+        args.putInt(EXTRA_PARENT_ID, workoutid);
         return args;
     }
 
@@ -140,11 +147,10 @@ public class SetInfoFragment extends Fragment {
         }
     }
 
-    private void setupDataListener(){
-        mSetViewModel.getSet(mMainVM.getId()).observe(this, new Observer<Set>() {
+    private void setupData(){
+        mMainVM.getData().observe(this, new Observer<Set>() {
             @Override
             public void onChanged(@Nullable Set set) {
-                mMainVM.setData(set);
                 updateUi(set);
             }
         });
@@ -152,28 +158,34 @@ public class SetInfoFragment extends Fragment {
 
     private void openEditSet(){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Set set = mMainVM.getData();
-        Bundle args = CreateEditSetFragment.getBundle(
-                set.getSetId(),
-                set.getName(),
-                set.getDescrip(),
-                set.getTime(),
-                set.getSetImageId());
-        CreateEditSetFragment frag = CreateEditSetFragment.newInstance(R.string.new_workout, args);
-        View v = getActivity().findViewById(R.id.fragment_container);
-        v.setVisibility(View.VISIBLE);
-        fragmentTransaction.replace(R.id.fragment_container, frag);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        Set set = mMainVM.getData().getValue();
+        if(set != null) {
+            Bundle args = CreateEditSetFragment.getBundle(
+                    set.getSetId(),
+                    mMainVM.getParentWrkoutId(),
+                    set.getName(),
+                    set.getDescrip(),
+                    set.getTime(),
+                    set.getSetImageId());
 
-        Activity act = getActivity();
-        if(act instanceof MyWorkoutActivity){
-            ((MyWorkoutActivity) act).renameTitle(R.string.edit_set);
+            CreateEditSetFragment frag = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_EDIT_SET, args);
+            View v = getActivity().findViewById(R.id.fragment_container);
+            v.setVisibility(View.VISIBLE);
+            fragmentTransaction.replace(R.id.fragment_container, frag);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+
+            Activity act = getActivity();
+            if (act instanceof MyWorkoutActivity) {
+                ((MyWorkoutActivity) act).renameTitle(R.string.edit_set);
+            }
+        } else {
+            Log.e(DEBUG_TAG, "Set came up null");
         }
     }
 
-    public Set getSetData(){
-        return mMainVM.getData();
+    public void updateData(Set s){
+        mMainVM.setData(s);
     }
 
     //region UTILITY
