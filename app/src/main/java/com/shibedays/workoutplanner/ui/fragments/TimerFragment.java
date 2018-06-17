@@ -54,6 +54,7 @@ public class TimerFragment extends Fragment {
     // UI Components
     private TextView mSetTitleView;
     private ImageView mSetImageView;
+    private TextView mSetPreTitleView;
     private TextView mSetDescripView;
 
     private ProgressBar mProgressBar;
@@ -148,6 +149,7 @@ public class TimerFragment extends Fragment {
         mSetTitleView = view.findViewById(R.id.set_title);
         mSetImageView = view.findViewById(R.id.set_image);
         mSetDescripView = view.findViewById(R.id.set_descrip);
+        mSetPreTitleView = view.findViewById(R.id.set_pre);
 
         mProgressBar = view.findViewById(R.id.timer_progress);
         mProgressBar.setMax(1000);
