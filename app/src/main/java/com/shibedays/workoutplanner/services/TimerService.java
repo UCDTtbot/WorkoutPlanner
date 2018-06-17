@@ -59,6 +59,7 @@ public class TimerService extends Service {
     public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "NOTIF";
     public static final String EXTRA_SET_NAME = PACKAGE + "NAME";
     public static final String EXTRA_SET_IMAGE = PACKAGE + "IMAGE";
+    public static final String EXTRA_IS_TTS_MUTED = PACKAGE + "IS_MUTED";
     //endregion
 
     public final int NOTIF_CURRENT = 0;
@@ -86,6 +87,8 @@ public class TimerService extends Service {
     private int mNumRounds;
     private boolean mNoRestFlag;
     private boolean mNoBreakFlag;
+
+    private boolean mIsTTSMuted;
     // Action Tracker
     private int mCurrentAction;
     // Notification Variables
@@ -152,6 +155,7 @@ public class TimerService extends Service {
             mNoBreakFlag = intent.getBooleanExtra(EXTRA_NO_BREAK_FLAG, false);
             mSetName = intent.getStringExtra(EXTRA_SET_NAME);
             mSetImage = intent.getIntExtra(EXTRA_SET_IMAGE, R.drawable.ic_fitness_black_24dp);
+            mIsTTSMuted = intent.getBooleanExtra(EXTRA_IS_TTS_MUTED, false);
         } else {
             // abort?
         }
@@ -186,7 +190,10 @@ public class TimerService extends Service {
         mCurRep = 0;
         mCurRound = 0;
         mCurrentAction = REP_ACTION;
-        beginTimer(mTotalCurTime, TTS_STARTING_DELAY);
+        if(mIsTTSMuted)
+            beginTimer(mTotalCurTime, TTS_NO_DELAY);
+        else
+            beginTimer(mTotalCurTime, TTS_STARTING_DELAY);
 
         return START_NOT_STICKY;
     }
@@ -303,7 +310,10 @@ public class TimerService extends Service {
                     } else {    // Yes Break
                         sendTTSMessage(R.string.tts_round_finished);
                         mCurrentAction = BREAK_ACTION;
-                        beginTimer(mBreakTime, TTS_BREAK_DELAY);
+                        if(mIsTTSMuted)
+                            beginTimer(mBreakTime, TTS_NO_DELAY);
+                        else
+                            beginTimer(mBreakTime, TTS_BREAK_DELAY);
                     }
                 } else if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
                     sendTTSMessage(R.string.tts_finished);
@@ -322,7 +332,10 @@ public class TimerService extends Service {
                     } else { // Yes Rest
                         sendTTSMessage(R.string.tts_take_rest);
                         mCurrentAction = REST_ACTION;
-                        beginTimer(mRestTime, TTS_REST_DELAY);
+                        if(mIsTTSMuted)
+                            beginTimer(mRestTime, TTS_NO_DELAY);
+                        else
+                            beginTimer(mRestTime, TTS_REST_DELAY);
                     }
 
                 } else if(mCurrentAction == REST_ACTION){ // Rest finished. Next Rep
@@ -332,7 +345,10 @@ public class TimerService extends Service {
                     //TODO: Custom Message
                     sendTTSMessage(R.string.tts_begin);
                     mCurrentAction = REP_ACTION;
-                    beginTimer(mNextSetTime, 1);
+                    if(mIsTTSMuted)
+                        beginTimer(mNextSetTime, TTS_NO_DELAY);
+                    else
+                        beginTimer(mNextSetTime, 1);
 
                 } else if(mCurrentAction == BREAK_ACTION){ // Break Finished. Next Round
                     //Break finished, start next round
@@ -340,7 +356,10 @@ public class TimerService extends Service {
 
                     sendTTSMessage(R.string.tts_next_round);
                     mCurrentAction = REP_ACTION;
-                    beginTimer(mNextSetTime, 2);
+                    if(mIsTTSMuted)
+                        beginTimer(mNextSetTime, TTS_NO_DELAY);
+                    else
+                        beginTimer(mNextSetTime, TTS_REST_DELAY);
                 } else {
                     //TODO: Something bad happened (?)
                     Log.e(DEBUG_TAG, "mTimeLeft is negative ?");
@@ -431,7 +450,8 @@ public class TimerService extends Service {
                                           int reps,
                                           int rounds,
                                           boolean no_rest,
-                                          boolean no_break){
+                                          boolean no_break,
+                                          boolean muted){
         Intent intent = new Intent(context, TimerService.class);
         intent.putExtra(EXTRA_NOTIF_BUNDLE, notif);
         intent.putExtra(EXTRA_SET_TIME, setTime);
@@ -443,6 +463,7 @@ public class TimerService extends Service {
         intent.putExtra(EXTRA_NO_REST_FLAG, no_rest);
         intent.putExtra(EXTRA_NO_BREAK_FLAG, no_break);
         intent.putExtra(EXTRA_SET_NAME, name);
+        intent.putExtra(EXTRA_IS_TTS_MUTED, muted);
         return intent;
     }
 

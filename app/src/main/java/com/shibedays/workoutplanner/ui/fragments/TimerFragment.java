@@ -52,9 +52,9 @@ public class TimerFragment extends Fragment {
     private TimerViewModel mTimerViewModel;
     private WorkoutViewModel mWorkoutViewModel;
     // UI Components
-    private TextView mSetTitleView;
+    private TextView mSetNameView;
+    private TextView mNextSetNameView;
     private ImageView mSetImageView;
-    private TextView mSetPreTitleView;
     private TextView mSetDescripView;
 
     private ProgressBar mProgressBar;
@@ -147,10 +147,10 @@ public class TimerFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
 
-        mSetTitleView = view.findViewById(R.id.set_title);
+        mSetNameView = view.findViewById(R.id.cur_set);
+        mNextSetNameView = view.findViewById(R.id.next_set);
         mSetImageView = view.findViewById(R.id.set_image);
         mSetDescripView = view.findViewById(R.id.set_descrip);
-        mSetPreTitleView = view.findViewById(R.id.set_pre);
 
         mProgressBar = view.findViewById(R.id.timer_progress);
         mProgressBar.setMax(1000);
@@ -164,7 +164,7 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateSetInfo(mTimerViewModel.getCurSet());
+        updateSetInfo(mTimerViewModel.getCurSet(), mTimerViewModel.getNextSet());
         updateTime(mTimerViewModel.getCurSetTime(), mTimerViewModel.getCurSetTime());
         updateRep(0);
         updateRound(0);
@@ -236,18 +236,16 @@ public class TimerFragment extends Fragment {
     //endregion
 
     //region UI_UPDATE_FUNCTIONS
-    public void updateSetInfo(Set set){
-        mSetPreTitleView.setText("Current:");
-        mSetTitleView.setText(set.getName());
-        mSetImageView.setImageResource(set.getSetImageId());
-        mSetDescripView.setText(set.getDescrip());
-    }
-
-    public void showNextSetInfo(Set set){
-        mSetPreTitleView.setText("Next:");
-        mSetTitleView.setText(set.getName());
-        mSetImageView.setImageResource(set.getSetImageId());
-        mSetDescripView.setText(set.getDescrip());
+    public void updateSetInfo(Set cur, Set next){
+        mSetNameView.setText(cur.getName());
+        if(mTimerViewModel.getCurRep() == mTimerViewModel.getTotalReps() - 1 &&
+                mTimerViewModel.getCurRound() == mTimerViewModel.getTotalRounds() - 1){
+            mNextSetNameView.setText("Finished");
+        } else {
+            mNextSetNameView.setText(next.getName());
+        }
+        mSetImageView.setImageResource(cur.getSetImageId());
+        mSetDescripView.setText(cur.getDescrip());
     }
 
     public void updateTime(int time, int totalTime){

@@ -43,27 +43,60 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/set_pre"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Current Set:"
-                        android:layout_marginTop="@dimen/activity_shallow_margin"
-                        android:paddingStart="@dimen/standard_padding"
-                        android:paddingEnd="@dimen/standard_padding"
-                        android:textSize="@dimen/text_size_normal"/>
-                    <TextView
-                        android:id="@+id/set_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxLength="18"
-                        android:paddingStart="@dimen/deep_padding"
-                        android:paddingEnd="@dimen/standard_padding"
-                        android:text="Sample Title"
-                        android:textColor="@color/material_light_black"
-                        android:textSize="@dimen/text_size_large"/>
+                    android:weightSum="100"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="50">
+                        <TextView
+                            android:id="@+id/cur_set_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Now: "
+                            android:layout_marginTop="@dimen/activity_shallow_margin"
+                            android:paddingStart="@dimen/standard_padding"
+                            android:paddingEnd="@dimen/standard_padding"
+                            android:textSize="@dimen/text_size_normal"/>
+                        <TextView
+                            android:id="@+id/cur_set"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLength="18"
+                            android:paddingStart="@dimen/deep_padding"
+                            android:paddingEnd="@dimen/standard_padding"
+                            android:text="Set Name"
+                            android:textColor="@color/material_light_black"
+                            android:textSize="@dimen/text_size_large"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="50">
+                        <TextView
+                            android:id="@+id/next_set_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Next:"
+                            android:layout_marginTop="@dimen/activity_shallow_margin"
+                            android:paddingStart="@dimen/standard_padding"
+                            android:paddingEnd="@dimen/standard_padding"
+                            android:textSize="@dimen/text_size_normal"/>
+                        <TextView
+                            android:id="@+id/next_set"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLength="18"
+                            android:paddingStart="@dimen/deep_padding"
+                            android:paddingEnd="@dimen/standard_padding"
+                            android:text="Set Name"
+                            android:textColor="@color/material_light_black"
+                            android:textSize="@dimen/text_size_large"/>
+                    </LinearLayout>
                 </LinearLayout>
+
             </LinearLayout>
 
             <TextView

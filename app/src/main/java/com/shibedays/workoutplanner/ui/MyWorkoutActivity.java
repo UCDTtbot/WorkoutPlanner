@@ -129,6 +129,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     // Booleans
     private boolean mTimerIsBound;
     private boolean mTTSIsBound;
+    private boolean mIsTTSMuted;
     private boolean HIDE_ITEMS;
 
     private List<Message> mMsgQueue;
@@ -159,7 +160,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                 case MSG_UPDATE_SET_INFO:
                     if(mTimerFragment != null){
-                        mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
+                        mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
@@ -167,7 +168,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                 case MSG_LOAD_NEXT_SET:
                     s = mTimerFragment.getNextSet();
-                    mTimerFragment.showNextSetInfo(s);
+                    Set restSet = new Set(0, "Rest Time", "Take a short rest",
+                            -1, -1, R.drawable.ic_down_arrow_black_24dp);
+                    mTimerFragment.updateSetInfo(restSet, s);
                     mTimerFragment.loadNextSet();
                     m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
@@ -175,7 +178,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                 case MSG_LOAD_FIRST_SET:
                     s = mTimerFragment.getNextSet();
-                    mTimerFragment.showNextSetInfo(s);
+                    Set breakSet = new Set(0, "Break Time", "Take a longer rest",
+                            -1, -1, R.drawable.ic_access_alarm_black_24dp);
+                    mTimerFragment.updateSetInfo(breakSet, s);
                     mTimerFragment.loadNextSet();
                     m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
@@ -196,13 +201,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 case MSG_NEXT_REP:
                     int rep = msg.arg1;
                     mTimerFragment.updateRep(rep);
-                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
                     break;
                 case MSG_NEXT_ROUND:
                     int round = msg.arg1;
                     mTimerFragment.updateRep(0);
                     mTimerFragment.updateRound(round);
-                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
 
                 case MSG_UPDATE_TIME_DISPLAY:
                     if(mTimerFragment != null){
@@ -360,9 +365,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         SharedPreferences defaultPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         if(defaultPrefs != null){
-            boolean muted = defaultPrefs.getBoolean("voice_mute", false);
+            mIsTTSMuted = defaultPrefs.getBoolean("voice_mute", false);
             Message msg = null;
-            if(muted){
+            if(mIsTTSMuted){
                 msg = Message.obtain(null, TTSService.MSG_MUTE_SPEECH, 0, 0);
             } else {
                 msg = Message.obtain(null, TTSService.MSG_UNMUTE_SPEECH, 0, 0);
@@ -756,7 +761,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 w.getNumOfSets(),
                 w.getNumOfRounds(),
                 w.getNoRestFlag(),
-                w.getNoBreakFlag());
+                w.getNoBreakFlag(),
+                mIsTTSMuted);
 
         startService(timerIntent);
     }
