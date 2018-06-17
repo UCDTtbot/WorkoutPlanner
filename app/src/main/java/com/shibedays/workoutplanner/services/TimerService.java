@@ -61,6 +61,11 @@ public class TimerService extends Service {
     public static final String EXTRA_SET_IMAGE = PACKAGE + "IMAGE";
     //endregion
 
+    public final int NOTIF_CURRENT = 0;
+    public final int NOTIF_REST = 1;
+    public final int NOTIF_BREAK = 2;
+    public final int NOTIF_NEXT = 3;
+
     //region PRIVATE_VARS
     // Time Data
     private int mTotalCurTime;
@@ -164,10 +169,11 @@ public class TimerService extends Service {
         mBuilder = new NotificationCompat.Builder(this, "MainTimerChannel");
         Bitmap b = BitmapFactory.decodeResource(getResources(), mSetImage);
         mBuilder.setContentTitle(mSetName)
-                .setContentText(BaseApp.formatTime(mTotalCurTime))
+                .setContentText(BaseApp.formatTime(mTotalCurTime) + " left.")
                 .setContentIntent(mPendingIntent)
                 .setSmallIcon(R.drawable.ic_access_alarm_black_24dp)
                 .setOngoing(true)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setStyle(new NotificationCompat.InboxStyle()
                         .addLine(BaseApp.formatTime(mTotalCurTime) + " left.")
@@ -228,9 +234,11 @@ public class TimerService extends Service {
         if(mCurrentAction == REST_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_NEXT_SET, 0, 0);
             sendMessage(msg);
+            updateNotification(NOTIF_REST);
         } else if(mCurrentAction == BREAK_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_FIRST_SET, 0, 0);
             sendMessage(msg);
+            updateNotification(NOTIF_BREAK);
         }
 
         mHandler.removeCallbacks(timer);
@@ -276,8 +284,8 @@ public class TimerService extends Service {
                     sendTTSMessage(R.string.tts_one);
                 }
 
-                if(mTimeElapsed % 30000 == 0){
-                    updateNotification(false);
+                if(mTimeElapsed % 10000 == 0){
+                    updateNotification(NOTIF_CURRENT);
                 }
 
                 mHandler.postDelayed(this, ONE_SEC);
@@ -345,22 +353,39 @@ public class TimerService extends Service {
     };
     //endregion
 
-    private void updateNotification(boolean next){
+    private void updateNotification(int type){
         //TODO: Update the notif
-        if(next){
-            mSetName = mNextSetName;
-            mSetImage = mNextSetImage;
+        int time = 0;
+        String name = "";
+        switch (type){
+            case NOTIF_CURRENT:
+                time = mTimeLeft;
+                name = mSetName;
+                break;
+            case NOTIF_NEXT:
+                mSetName = mNextSetName;
+                mSetImage = mNextSetImage;
+                name = mSetName;
+                time = mNextSetTime;
+                break;
+            case NOTIF_REST:
+                name = "Rest Time";
+                time = mRestTime;
+                break;
+            case NOTIF_BREAK:
+                name = "Break Time";
+                time = mBreakTime;
+                break;
         }
-
-        final int rep = mCurRep;
-        final int round = mCurRound;
-        mBuilder.setContentTitle(mSetName)
+        mBuilder.setContentTitle(name)
+                .setContentText(BaseApp.formatTime(time) + " left.")
                 .setContentIntent(mPendingIntent)
                 .setSmallIcon(R.drawable.ic_access_alarm_black_24dp)
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setStyle(new NotificationCompat.InboxStyle()
-                        .addLine(BaseApp.formatTime(mTimeLeft) + " left.")
+                        .addLine(BaseApp.formatTime(time) + " left.")
                         .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));
         NotificationManagerCompat.from(this).notify(NOTIF_ID, mBuilder.build());
 
@@ -370,7 +395,7 @@ public class TimerService extends Service {
         mCurRep++;
         Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP, mCurRep, 0);
         sendMessage(msg);
-        updateNotification(true);
+        updateNotification(NOTIF_NEXT);
     }
 
     private void nextRound(){
@@ -378,7 +403,7 @@ public class TimerService extends Service {
         mCurRound++;
         Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND, mCurRound, 0);
         sendMessage(msg_round);
-        updateNotification(true);
+        updateNotification(NOTIF_NEXT);
     }
 
     private void sendTTSMessage(int stringID){
