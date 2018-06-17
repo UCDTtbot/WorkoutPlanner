@@ -83,27 +83,6 @@ public class SetListFragment extends Fragment {
 
         //region RECYCLER_VIEW
         mListView = view.findViewById(R.id.setlist_recycler);
-        mListView.setLayoutManager(new LinearLayoutManager(getContext()));
-        //mListView.setLayoutManager(new GridLayoutManager(getContext(), NUM_GRID_ROWS));
-        if (mAdapter == null){
-            mAdapter = new ChooseSetAdapter(getContext(), mType, new ChooseSetAdapter.ChooseSetListener() {
-                @Override
-                public void createSet() {
-                    mListener.openSetDialog(NEW_SET, Set.USER_CREATED, -1);
-                }
-
-                @Override
-                public void openBottomSheet(int setID, int setType) {
-                    mListener.openBottomSheet(setType, setID);
-                }
-
-                @Override
-                public void openDisplayInfo(int setID, int setType) {
-                    mListener.openSetDialog(DISPLAY_SET, setType, setID);
-                }
-            });
-        }
-        mListView.setAdapter(mAdapter);
         return view;
     }
 
@@ -111,6 +90,7 @@ public class SetListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         setupData();
+        setupListView();
     }
 
     @Override
@@ -147,6 +127,31 @@ public class SetListFragment extends Fragment {
             }
         });
     }
+
+    private void setupListView(){
+        mListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        //mListView.setLayoutManager(new GridLayoutManager(getContext(), NUM_GRID_ROWS));
+        if (mAdapter == null){
+            mAdapter = new ChooseSetAdapter(getContext(), mType, new ChooseSetAdapter.ChooseSetListener() {
+                @Override
+                public void createSet() {
+                    mListener.openSetDialog(NEW_SET, Set.USER_CREATED, -1);
+                }
+
+                @Override
+                public void openBottomSheet(int setID, int setType) {
+                    mListener.openBottomSheet(setType, setID);
+                }
+
+                @Override
+                public void openDisplayInfo(int setID, int setType) {
+                    mListener.openSetDialog(DISPLAY_SET, setType, setID);
+                }
+            });
+        }
+        mListView.setAdapter(mAdapter);
+    }
+
 
     /*
     public void updateSet(Set set){

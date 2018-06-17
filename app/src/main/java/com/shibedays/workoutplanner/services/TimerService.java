@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -12,10 +14,14 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+
+import java.util.Locale;
 
 public class TimerService extends Service {
 
@@ -51,13 +57,21 @@ public class TimerService extends Service {
     public static final String EXTRA_NO_BREAK_FLAG = PACKAGE + "NO_BREAK_FLAG";
     public static final String EXTRA_REBUILD_BUNDLE = PACKAGE + "REBUILD";
     public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "NOTIF";
+    public static final String EXTRA_SET_NAME = PACKAGE + "NAME";
+    public static final String EXTRA_SET_IMAGE = PACKAGE + "IMAGE";
     //endregion
 
     //region PRIVATE_VARS
     // Time Data
     private int mTotalCurTime;
     private int mTimeLeft;
+    private int mTimeElapsed;
     private int mNextSetTime;
+    private String mSetName;
+    private int mSetImage;
+
+    private String mNextSetName;
+    private int mNextSetImage;
 
     private int mRestTime;
     private int mBreakTime;
@@ -71,6 +85,7 @@ public class TimerService extends Service {
     private int mCurrentAction;
     // Notification Variables
     private Bundle mNotifBundle;
+    private PendingIntent mPendingIntent;
     // Threading Handler
     private Handler mHandler = new Handler();
     // Notification Variables
@@ -99,6 +114,8 @@ public class TimerService extends Service {
                 case MSG_NEXT_SET_TIME:
                     if(msg.arg1 > 0) {
                         setNextSetTime(msg.arg1);
+                        setNextSetImage(msg.arg2);
+                        setNextSetName(msg.obj.toString());
                     }else{
                         Log.e(DEBUG_TAG, "NEXT SET TIME HAS INVALID ARG");
                     }
@@ -128,6 +145,8 @@ public class TimerService extends Service {
             mNumRounds = intent.getIntExtra(EXTRA_NUM_ROUNDS, -1);
             mNoRestFlag = intent.getBooleanExtra(EXTRA_NO_REST_FLAG, false);
             mNoBreakFlag = intent.getBooleanExtra(EXTRA_NO_BREAK_FLAG, false);
+            mSetName = intent.getStringExtra(EXTRA_SET_NAME);
+            mSetImage = intent.getIntExtra(EXTRA_SET_IMAGE, R.drawable.ic_fitness_black_24dp);
         } else {
             // abort?
         }
@@ -139,16 +158,20 @@ public class TimerService extends Service {
         notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notifIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NOTIF_INTENT_TYPE);
         // Create the pending intent that will bring us back to MyWorkoutActivity
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIF_ID, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mPendingIntent = PendingIntent.getActivity(this, NOTIF_ID, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // TODO: Setup the notification with correct data
         mBuilder = new NotificationCompat.Builder(this, "MainTimerChannel");
-        mBuilder.setContentTitle("Workout Timer")
-                .setContentText("XX Minutes Left")
-                .setContentIntent(pendingIntent)
+        Bitmap b = BitmapFactory.decodeResource(getResources(), mSetImage);
+        mBuilder.setContentTitle(mSetName)
+                .setContentText(BaseApp.formatTime(mTotalCurTime))
+                .setContentIntent(mPendingIntent)
                 .setSmallIcon(R.drawable.ic_access_alarm_black_24dp)
                 .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setStyle(new NotificationCompat.InboxStyle()
+                        .addLine(BaseApp.formatTime(mTotalCurTime) + " left.")
+                        .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));
         startForeground(NOTIF_ID, mBuilder.build());
         //endregion
 
@@ -191,6 +214,7 @@ public class TimerService extends Service {
     private void beginTimer(int time, int delay){
         mTotalCurTime = time;
         mTimeLeft = time;
+        mTimeElapsed = 0;
 
 
 
@@ -216,12 +240,21 @@ public class TimerService extends Service {
     public void setNextSetTime(int time){
         mNextSetTime = time;
     }
+
+    public void setNextSetName(String name){
+        mNextSetName = name;
+    }
+
+    public void setNextSetImage(int id){
+        mNextSetImage = id;
+    }
     //endregion
 
     //region TIMER_LOOP
     private Runnable timer = new Runnable(){
         public void run(){
             mTimeLeft -= ONE_SEC;
+            mTimeElapsed += ONE_SEC;
 
             if(mTimeLeft > 0){ // Still running
                 if(mTimeLeft == 7000 && mCurrentAction == REST_ACTION){
@@ -241,6 +274,10 @@ public class TimerService extends Service {
                 }
                 if(mTimeLeft == 1000) {
                     sendTTSMessage(R.string.tts_one);
+                }
+
+                if(mTimeElapsed % 30000 == 0){
+                    updateNotification(false);
                 }
 
                 mHandler.postDelayed(this, ONE_SEC);
@@ -308,15 +345,32 @@ public class TimerService extends Service {
     };
     //endregion
 
-    private void updateNotification(){
+    private void updateNotification(boolean next){
         //TODO: Update the notif
+        if(next){
+            mSetName = mNextSetName;
+            mSetImage = mNextSetImage;
+        }
+
+        final int rep = mCurRep;
+        final int round = mCurRound;
+        mBuilder.setContentTitle(mSetName)
+                .setContentIntent(mPendingIntent)
+                .setSmallIcon(R.drawable.ic_access_alarm_black_24dp)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setStyle(new NotificationCompat.InboxStyle()
+                        .addLine(BaseApp.formatTime(mTimeLeft) + " left.")
+                        .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));
+        NotificationManagerCompat.from(this).notify(NOTIF_ID, mBuilder.build());
+
     }
 
     private void nextRep(){
         mCurRep++;
         Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP, mCurRep, 0);
         sendMessage(msg);
-        updateNotification();
+        updateNotification(true);
     }
 
     private void nextRound(){
@@ -324,7 +378,7 @@ public class TimerService extends Service {
         mCurRound++;
         Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND, mCurRound, 0);
         sendMessage(msg_round);
-        updateNotification();
+        updateNotification(true);
     }
 
     private void sendTTSMessage(int stringID){
@@ -342,16 +396,28 @@ public class TimerService extends Service {
         }
     }
 
-    public static Intent getServiceIntent(Context context, Bundle notif, int setTime, int restTime, int breakTime, int reps, int rounds, boolean no_rest, boolean no_break){
+    public static Intent getServiceIntent(Context context,
+                                          Bundle notif,
+                                          String name,
+                                          int image,
+                                          int setTime,
+                                          int restTime,
+                                          int breakTime,
+                                          int reps,
+                                          int rounds,
+                                          boolean no_rest,
+                                          boolean no_break){
         Intent intent = new Intent(context, TimerService.class);
         intent.putExtra(EXTRA_NOTIF_BUNDLE, notif);
         intent.putExtra(EXTRA_SET_TIME, setTime);
+        intent.putExtra(EXTRA_SET_IMAGE, image);
         intent.putExtra(EXTRA_REST_TIME, restTime);
         intent.putExtra(EXTRA_BREAK_TIME, breakTime);
         intent.putExtra(EXTRA_NUM_REPS, reps);
         intent.putExtra(EXTRA_NUM_ROUNDS, rounds);
         intent.putExtra(EXTRA_NO_REST_FLAG, no_rest);
         intent.putExtra(EXTRA_NO_BREAK_FLAG, no_break);
+        intent.putExtra(EXTRA_SET_NAME, name);
         return intent;
     }
 

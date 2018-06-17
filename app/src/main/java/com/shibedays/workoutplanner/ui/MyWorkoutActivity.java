@@ -169,7 +169,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     s = mTimerFragment.getNextSet();
                     mTimerFragment.showNextSetInfo(s);
                     mTimerFragment.loadNextSet();
-                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), 0);
+                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
                     break;
 
@@ -177,7 +177,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     s = mTimerFragment.getNextSet();
                     mTimerFragment.showNextSetInfo(s);
                     mTimerFragment.loadNextSet();
-                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), 0);
+                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
                     break;
 
@@ -232,7 +232,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         //region INSTANCE_STATE
         if(savedInstanceState != null){
-            TimerFragment tg = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
+            mTimerFragment = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
         }
         //endregion
 
@@ -261,7 +261,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 mMainVM.setId(id);
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
             } else if (mIntentType == NOTIF_INTENT_TYPE){
-                // This is what happens if we're opening this activity from the notification
+                int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
             } else {
                 throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
             }
@@ -272,10 +272,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
 
         //region TTS_BINDING
-        Intent TTSIntent = new Intent(this, TTSService.class);
-        TTSIntent.putExtra("TestVol", 0);
-        bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
-        startService(TTSIntent);
+        if(!mTTSIsBound) {
+            Intent TTSIntent = new Intent(this, TTSService.class);
+            bindService(TTSIntent, mTTSConnection, Context.BIND_AUTO_CREATE);
+            startService(TTSIntent);
+        }
         //endregion
 
 
@@ -521,7 +522,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         updateBreakTimeUI(breakMin, breakSec, w.getNoBreakFlag());
 
         int[] total = BaseApp.convertFromMillis(w.getTotalTime());
-        updateTotalTime(total[0], total[1]r);
+        updateTotalTime(total[0], total[1]);
     }
 
     public void hideActionItems(){
@@ -584,9 +585,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
     }
 
-    public static Bundle getNotifBundle(int workoutId){
+    public static Bundle getNotifBundle(int workoutId, int workoutType){
         Bundle args = new Bundle();
         args.putInt(EXTRA_WORKOUT_ID, workoutId);
+        args.putInt(EXTRA_WORKOUT_TYPE, workoutType);
         return args;
     }
 
@@ -740,12 +742,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         // TODO: Put items that are needed to rebuild the activity and fragment into this bundle
         // Build the bundle that the notification will use to restart everything
 
-        final Bundle notifBundle = getNotifBundle(w.getWorkoutID());
+        final Bundle notifBundle = getNotifBundle(w.getWorkoutID(), w.getWorkoutType());
         //Context context, Bundle notif, int setTime, int restTime, int breakTime, int reps, int rounds, boolean no_rest, boolean no_break
         int curTime = mTimerFragment != null ? mTimerFragment.getCurSetTime() : w.getSetList().get(0).getTime();
         final Intent timerIntent = TimerService.getServiceIntent(
                 this,
                 notifBundle,
+                w.getSetList().get(0).getName(),
+                w.getSetList().get(0).getSetImageId(),
                 curTime,
                 w.getTimeBetweenSets(),
                 w.getTimeBetweenRounds(),

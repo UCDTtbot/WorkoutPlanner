@@ -122,6 +122,17 @@ public class BaseApp extends Application {
         }
     }
 
+    public static String formatTime(int time){
+        int[] t = convertFromMillis(time);
+        int min = t[0], sec = t[1];
+        if(sec == 0){
+            return String.format(Locale.US, "%d:%d%d", min, sec, 0);
+        } else if ( sec < 10 ){
+            return String.format(Locale.US, "%d:%d%d", min, 0, sec);
+        } else {
+            return String.format(Locale.US, "%d:%d", min, sec);
+        }
+    }
 
     //endregion
 }
