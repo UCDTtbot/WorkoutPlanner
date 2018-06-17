@@ -1,6 +1,7 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -131,6 +132,12 @@ public class NewWorkoutFragment extends Fragment{
         super.onCreate(savedInstanceState);
 
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+
+            }
+        });
         mViewModel = ViewModelProviders.of(this).get(NewWorkoutViewModel.class);
 
         mViewModel.setRounds(1);
@@ -301,10 +308,10 @@ public class NewWorkoutFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
         mParentActivity.renameTitle(R.string.app_name);
         mParentActivity.showActionItems();
         mParentActivity.toggleUpArrow(false);
+        mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
         mInstance = null;
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
 
@@ -397,8 +404,8 @@ public class NewWorkoutFragment extends Fragment{
 
     private void openNewSet(){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getBundle(-1, "", "", 0, R.drawable.ic_fitness_black_24dp);
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args);
+        Bundle args = CreateEditSetFragment.getIdBundle(-1, -1,  "", "", 0, R.drawable.ic_fitness_black_24dp);
+        mCreateEditFragment = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_NEW_SET, args);
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
@@ -408,8 +415,8 @@ public class NewWorkoutFragment extends Fragment{
 
     private void openEditSet(@NonNull final Set set){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
-        mCreateEditFragment = CreateEditSetFragment.newInstance(R.string.new_workout, args);
+        Bundle args = CreateEditSetFragment.getIdBundle(set.getSetId(), -1, set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        mCreateEditFragment = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_EDIT, args);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

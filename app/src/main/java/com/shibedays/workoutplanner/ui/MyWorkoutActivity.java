@@ -6,12 +6,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
@@ -19,8 +21,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.recyclerview.extensions.AsyncListDiffer;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -78,14 +78,15 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //endregion
 
     //region MESSAGES
-    public static final int MSG_SAY_HELLO = 0;
-    public static final int MSG_UPDATE_SET_NAME = 1;
+    public static final int MSG_UPDATE_SET_INFO = 1;
     public static final int MSG_PASS_TTS_MSG = 2;
     public static final int MSG_UPDATE_TIME_DISPLAY = 3;
-    public static final int MSG_NEXT_REP_UI = 4;
-    public static final int MSG_NEXT_ROUND_UI = 5;
-    public static final int MSG_NEXT_SET_TIME = 6;
-    public static final int MSG_GET_FIRST_SET =  7;
+    public static final int MSG_PRELOAD_NEXT_SET = 4;
+    public static final int MSG_PRELOAD_FIRST_SET = 5;
+    public static final int MSG_NEXT_ROUND = 6;
+    public static final int MSG_NEXT_REP = 7;
+    public static final int MSG_LOAD_NEXT_SET = 8;
+    public static final int MSG_LOAD_FIRST_SET = 9;
     //endregion
 
     //region INTENT_KEYS
@@ -129,6 +130,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private boolean mTTSIsBound;
     private boolean HIDE_ITEMS;
 
+    private List<Message> mMsgQueue;
     //endregion
 
     //region MESSAGE_HANDLING
@@ -137,11 +139,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_SAY_HELLO:
-                    //Toast.makeText(getApplicationContext(), "TTS Ready", Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    super.handleMessage(msg);
             }
         }
     }
@@ -150,57 +147,67 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     class IncomingTimerMessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
+            Set s = null;
+            Message m = null;
             switch (msg.what){
                 case MSG_PASS_TTS_MSG:
                     if(msg.arg1 > 0) {
                         sendTTSMessage(msg.arg1);
                     }
                     break;
-                case MSG_UPDATE_SET_NAME:
+
+                case MSG_UPDATE_SET_INFO:
                     if(mTimerFragment != null){
-                        mTimerFragment.updateSetTitle();
+                        mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
+                    break;
+
+                case MSG_LOAD_NEXT_SET:
+                    s = mTimerFragment.getNextSet();
+                    mTimerFragment.showNextSetInfo(s);
+                    mTimerFragment.loadNextSet();
+                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), 0);
+                    sendTimerMessage(m);
+                    break;
+
+                case MSG_LOAD_FIRST_SET:
+                    s = mTimerFragment.getNextSet();
+                    mTimerFragment.showNextSetInfo(s);
+                    mTimerFragment.loadNextSet();
+                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), 0);
+                    sendTimerMessage(m);
+                    break;
+
+                case MSG_PRELOAD_NEXT_SET:
+                    //s = mTimerFragment.preloadNextSet();
+                    //m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime());
+                    //sendTimerMessage(m);
+                    break;
+
+                case MSG_PRELOAD_FIRST_SET:
+                    //s = mTimerFragment.preloadFirstSet();
+                    //m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime());
+                    //sendTimerMessage(m);
+                    break;
+
+                case MSG_NEXT_REP:
+                    int rep = msg.arg1;
+                    mTimerFragment.updateRep(rep);
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
+                    break;
+                case MSG_NEXT_ROUND:
+                    int round = msg.arg1;
+                    mTimerFragment.updateRep(0);
+                    mTimerFragment.updateRound(round);
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet());
+
                 case MSG_UPDATE_TIME_DISPLAY:
                     if(mTimerFragment != null){
                         mTimerFragment.updateTime(msg.arg1, msg.arg2);
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
-                    }
-                    break;
-                case MSG_NEXT_REP_UI:
-                    if(msg.arg1 >= 0){
-                        if(mTimerFragment != null) {
-                            mTimerFragment.updateRep(msg.arg1);
-                        } else {
-                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_REP_UI");
-                        }
-                    }
-                    break;
-                case MSG_NEXT_ROUND_UI:
-                    if(msg.arg1 >= 0){
-                        if(mTimerFragment != null) {
-                            mTimerFragment.updateRound(msg.arg1);
-                        } else {
-                            throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_NEXT_ROUND_UI");
-                        }
-                    }
-                    break;
-                case MSG_NEXT_SET_TIME:
-                    Set nextSet = mTimerFragment.nextSet();
-                    if(nextSet != null) {
-                        Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, nextSet.getTime(), 0);
-                        sendTimerMessage(message);
-                    } else {
-                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "No next set exists. Something went wrong with curRep counter");
-                    }
-                    break;
-                case MSG_GET_FIRST_SET:
-                    Set firstSet = mTimerFragment.firstSet();
-                    if(firstSet != null){
-                        Message message = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, firstSet.getTime(), 0);
-                        sendTimerMessage(message);
                     }
                     break;
                 default:
@@ -220,8 +227,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         //TODO: in onCreate, we need to check if: TTS Service already Exists, Fragment Already Exists, TimerService already exists
         // if any of the above already exist, most likely means we are returning from the notification and/or need to restore the activity
-        // from some previous state
-
+        // from some previous stat
 
         //region INSTANCE_STATE
         if(savedInstanceState != null){
@@ -347,6 +353,30 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     protected void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_RESUME");
+        SharedPreferences defaultPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if(defaultPrefs != null){
+            boolean muted = defaultPrefs.getBoolean("voice_mute", false);
+            Message msg = null;
+            if(muted){
+                msg = Message.obtain(null, TTSService.MSG_MUTE_SPEECH, 0, 0);
+            } else {
+                msg = Message.obtain(null, TTSService.MSG_UNMUTE_SPEECH, 0, 0);
+            }
+            if(mTTSIsBound) {
+                try {
+                    mTTSService.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if(mMsgQueue == null){
+                    mMsgQueue = new ArrayList<>();
+                }
+                mMsgQueue.add(msg);
+            }
+        }
+
     }
 
     @Override
@@ -532,9 +562,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
         mViewPagerAdapter = new ViewPagerAdapter(mFragmentManager);
         mSetInfoFrags = new ArrayList<>();
-
         for(int i = 0; i < s.size(); i++){
-            Bundle args = SetInfoFragment.getBundle(s.get(i).getSetId());
+            Bundle args = SetInfoFragment.getBundle(s.get(i), i ,mMainVM.getId());
             SetInfoFragment frag = SetInfoFragment.newInstance(args,null);
             mViewPagerAdapter.addFragment(frag, "");
             mSetInfoFrags.add(frag);
@@ -551,16 +580,20 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             @Override
             public void onChanged(@Nullable Workout workout) {
                 if(workout != null) {
-                    if(mMainVM.getWorkoutData() == null){
+                    mMainVM.setWorkout(workout);
+                    if(mSetInfoFrags == null){
                         setupViewPager(workout.getSetList());
                     } else {
                         List<Set> newSetList = workout.getSetList();
-                        List<Set> diff = workout.getSetList();
-                        diff.removeAll(mMainVM.getWorkoutData().getSetList());
-                        Log.d(DEBUG_TAG, diff.toString());
-                        // TODO: update view pager
+                        if(newSetList.size() != mSetInfoFrags.size()){
+                            Log.e(DEBUG_TAG, "Set Info Frag List doesn't match the workout set list");
+                        } else {
+                            int i = 0;
+                            for(SetInfoFragment f : mSetInfoFrags){
+                                f.updateData(newSetList.get(i++));
+                            }
+                        }
                     }
-                    mMainVM.setWorkout(workout);
                     dataUpdate(mMainVM.getWorkoutData());
                 }
             }
@@ -605,7 +638,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openAddNewSetFragment(){
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        mAddSetsFragment = AddSetsFragment.newInstance(new AddSetsFragment.NewSetListener() {
+        Bundle args = AddSetsFragment.getBundle(mMainVM.getId());
+        mAddSetsFragment = AddSetsFragment.newInstance(args, new AddSetsFragment.NewSetListener() {
             @Override
             public void addSetsToWorkout(List<Set> sets) {
                 if(sets != null) {
@@ -818,6 +852,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 mTTSService.send(msg);
             } catch (RemoteException e){
                 e.printStackTrace();
+            }
+
+            if(!mMsgQueue.isEmpty()){
+                for(Message m : mMsgQueue){
+                    try {
+                        mTTSService.send(m);
+                    } catch (RemoteException e){
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 

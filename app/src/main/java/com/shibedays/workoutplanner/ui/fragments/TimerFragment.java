@@ -126,9 +126,10 @@ public class TimerFragment extends Fragment {
 
         mTimerViewModel = ViewModelProviders.of(this).get(TimerViewModel.class);
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+
         if (args != null) {
             Workout w = mWorkoutViewModel.getWorkoutByID(args.getInt(EXTRA_WORKOUT_ID));
-            mTimerViewModel.setWorkoutId(w);
+            mTimerViewModel.setWorkout(w);
             mTimerViewModel.setSets(w.getSetList());
             mTimerViewModel.setCurSet(w.getSetList().get(0));
             mTimerViewModel.setCurRep(0);
@@ -163,11 +164,10 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateSetTitle();
+        updateSetInfo(mTimerViewModel.getCurSet());
         updateTime(mTimerViewModel.getCurSetTime(), mTimerViewModel.getCurSetTime());
-        updateRep(mTimerViewModel.getCurRep());
-        updateRound(mTimerViewModel.getCurRound());
-        updateDescription(mTimerViewModel.getCurSetDescrip());
+        updateRep(0);
+        updateRound(0);
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_START");
     }
 
@@ -236,6 +236,18 @@ public class TimerFragment extends Fragment {
     //endregion
 
     //region UI_UPDATE_FUNCTIONS
+    public void updateSetInfo(Set set){
+        mSetTitleView.setText(set.getName());
+        mSetImageView.setImageResource(set.getSetImageId());
+        mSetDescripView.setText(set.getDescrip());
+    }
+
+    public void showNextSetInfo(Set set){
+        mSetTitleView.setText("NEXT SET");
+        mSetImageView.setImageResource(set.getSetImageId());
+        mSetDescripView.setText(set.getName());
+    }
+
     public void updateTime(int time, int totalTime){
         int[] splitTime = BaseApp.convertFromMillis(time);
         int min = splitTime[0], sec = splitTime[1];
@@ -248,26 +260,14 @@ public class TimerFragment extends Fragment {
         mProgressBar.setProgress(progress, true);
     }
 
-    public void updateSetTitle(){
-        mSetTitleView.setText(mTimerViewModel.getCurSetName());
-    }
-
-    public void updateSetImage(int imageId){
-
-    }
-
-    public void updateDescription(String descrip){
-        mSetDescripView.setText(descrip);
-    }
-
     public void updateRep(int rep){
         mTimerViewModel.setCurRep(rep);
-        mRepsView.setText(String.format(Locale.US, "%d / %d", (rep + 1), mTimerViewModel.getTotalReps()));
+        mRepsView.setText(String.format(Locale.US, "%d / %d", (mTimerViewModel.getCurRep() + 1), mTimerViewModel.getTotalReps()));
     }
 
     public void updateRound(int round){
         mTimerViewModel.setCurRound(round);
-        mRoundsView.setText(String.format(Locale.US, "%d / %d", (round + 1), mTimerViewModel.getTotalRounds()));
+        mRoundsView.setText(String.format(Locale.US, "%d / %d", (mTimerViewModel.getCurRound() + 1), mTimerViewModel.getTotalRounds()));
     }
     //endregion
 
@@ -275,43 +275,14 @@ public class TimerFragment extends Fragment {
     public int getCurSetTime(){
         return mTimerViewModel.getCurSetTime();
     }
-
-    public void setTotalTime(int time){
-
-    }
-
-    public int getRestTime(){
-        return mTimerViewModel.getRestTime();
-    }
-
-    public int getBreakTime(){
-        return mTimerViewModel.getBreakTime();
-    }
-
-    public int getCurRep(){
-        return mTimerViewModel.getCurRep();
-    }
-
-    public int getCurRound(){
-        return mTimerViewModel.getCurRound();
-    }
     //endregion
 
     //region TIMER_INTERACTIONS
-    public Set nextSet(){ // Sets and returns mCurSet with the next set if its not the last
-        return mTimerViewModel.getNextSet();
-    }
+    public Set getCurSet(){ return mTimerViewModel.getCurSet(); }
+    public Set getNextSet() { return mTimerViewModel.getNextSet(); }
 
-    public Set firstSet(){ // Sets and returns mCurSet with the first set of all
-        return mTimerViewModel.getFirstSet();
-    }
-
-    public int nextRep(){
-        return mTimerViewModel.getNextRep();
-    }
-
-    public int nextRound(){
-        return mTimerViewModel.getNextRound();
+    public Set loadNextSet(){
+        return mTimerViewModel.loadInNextSet();
     }
     //endregion
 

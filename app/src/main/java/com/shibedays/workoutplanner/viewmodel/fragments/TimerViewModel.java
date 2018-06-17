@@ -16,6 +16,7 @@ public class TimerViewModel extends AndroidViewModel {
     private List<Set> mSets;
 
     private Set mCurSet;
+    private Set mNextSet;
 
     private int mCurRep;
     private int mCurRound;
@@ -27,7 +28,7 @@ public class TimerViewModel extends AndroidViewModel {
     public Workout getWorkout() {
         return mWorkout;
     }
-    public void setWorkoutId(Workout w) {
+    public void setWorkout(Workout w) {
         this.mWorkout = w;
     }
 
@@ -40,17 +41,34 @@ public class TimerViewModel extends AndroidViewModel {
     public Set getSet(int index){
         return mSets.get(index);
     }
-    public Set getNextSet(){
-        int i = getCurSetIndex() + 1;
-        if(i < mSets.size()){
-            mCurSet = mSets.get(i);
-            return mCurSet;
+
+    /*
+    public Set preloadNextSet(){
+        if((getCurSetIndex() + 1) < mSets.size()) {
+            mNextSet = mSets.get(getCurSetIndex() + 1);
+            return mNextSet;
         } else {
             return null;
         }
     }
-    public Set getFirstSet(){
-        mCurSet = mSets.get(0);
+    public Set preloadFirstSet(){
+        mNextSet = mSets.get(0);
+        return mNextSet;
+    }
+    */
+
+    public Set getNextSet(){
+        if((getCurSetIndex() + 1) < mSets.size()){
+            mNextSet = mSets.get(getCurSetIndex() + 1);
+            return mNextSet;
+        } else {
+            mNextSet = mSets.get(0);
+        }
+        return mNextSet;
+    }
+
+    public Set loadInNextSet(){
+        mCurSet = mNextSet;
         return mCurSet;
     }
 
@@ -73,6 +91,7 @@ public class TimerViewModel extends AndroidViewModel {
     public String getCurSetName(){
         return mCurSet.getName();
     }
+    public int getCurSetImage(){ return mCurSet.getSetImageId(); }
 
 
     public int getCurRep() {
@@ -84,9 +103,6 @@ public class TimerViewModel extends AndroidViewModel {
     public int getTotalReps(){
         return mWorkout.getNumOfSets();
     }
-    public int getNextRep(){
-        return ++mCurRep;
-    }
 
 
     public int getCurRound() {
@@ -97,16 +113,5 @@ public class TimerViewModel extends AndroidViewModel {
     }
     public int getTotalRounds(){
         return mWorkout.getNumOfRounds();
-    }
-    public int getNextRound(){
-        return ++mCurRound;
-    }
-
-
-    public int getRestTime(){
-        return mWorkout.getTimeBetweenSets();
-    }
-    public int getBreakTime(){
-        return mWorkout.getTimeBetweenRounds();
     }
 }
