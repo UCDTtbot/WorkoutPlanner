@@ -164,55 +164,62 @@ public class NewWorkoutFragment extends Fragment{
 
         ViewPager viewPager = view.findViewById(R.id.pager);
         viewPager.setOffscreenPageLimit(Set.TYPES.length);
+
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
-        mSetListFrags = new ArrayList<>();
-        for(int type = 0; type < Set.TYPES.length; type++){
-            SetListFragment frag = SetListFragment.newInstance(type, new SetListFragment.SetListListener() {
+        if(mSetListFrags == null) {
+            mSetListFrags = new ArrayList<>();
+            for(int type = 0; type < Set.TYPES.length; type++) {
+                SetListFragment frag = SetListFragment.newInstance(type, new SetListFragment.SetListListener() {
+                    @Override
+                    public void openBottomSheet(int setType, int setID) {
 
-                @Override
-                public void openBottomSheet(int setType, int setID) {
+                        final Set set = mSetViewModel.getSetById(setID);
 
-                    final Set set = mSetViewModel.getSetById(setID);
+                        if (set == null)
+                            throw new RuntimeException(DEBUG_TAG + " set came up null");
 
-                    if(set == null) throw new RuntimeException(DEBUG_TAG + " set came up null");
+                        NewWorkoutFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
 
-                    NewWorkoutFragment.this.openBottomSheet(set, new BottomSheetDialog.BottomSheetDialogListener() {
-
-                        @Override
-                        public void bottomSheetResult(int resultCode) {
-                            if(resultCode == BaseApp.EDIT){
-                                openEditSet(set);
-                            } else if (resultCode == BaseApp.DELETE) {
-                                deleteSetConfirmation(set);
-                            } else {
-                                Log.e(DEBUG_TAG, "Invalid Result Code " + resultCode);
+                            @Override
+                            public void bottomSheetResult(int resultCode) {
+                                if (resultCode == BaseApp.EDIT) {
+                                    openEditSet(set);
+                                } else if (resultCode == BaseApp.DELETE) {
+                                    deleteSetConfirmation(set);
+                                } else {
+                                    Log.e(DEBUG_TAG, "Invalid Result Code " + resultCode);
+                                }
                             }
-                        }
-                    });
-                }
-
-                @Override
-                public void openSetDialog(int type, int setType, int setID) {
-
-                    final Set set = mSetViewModel.getSetById(setID);
-
-                    if(type == SetListFragment.NEW_SET){
-                        openNewSet();
-                    } else if (type == SetListFragment.EDIT_SET) {
-                        if(set != null)
-                            openEditSet(set);
-                        else
-                            throw new RuntimeException(DEBUG_TAG + " set was null");
-                    } else if (type == SetListFragment.DISPLAY_SET) {
-                        displayDialog(set);
-                    } else {
-                        throw new RuntimeException(DEBUG_TAG + " invalid DisplaySetDialog type");
+                        });
                     }
-                }
-            });
-            adapter.addFragment(frag, Set.TYPES[type]);
-            mSetListFrags.add(frag);
+
+                    @Override
+                    public void openSetDialog(int type, int setType, int setID) {
+
+                        final Set set = mSetViewModel.getSetById(setID);
+
+                        if (type == SetListFragment.NEW_SET) {
+                            openNewSet();
+                        } else if (type == SetListFragment.EDIT_SET) {
+                            if (set != null)
+                                openEditSet(set);
+                            else
+                                throw new RuntimeException(DEBUG_TAG + " set was null");
+                        } else if (type == SetListFragment.DISPLAY_SET) {
+                            displayDialog(set);
+                        } else {
+                            throw new RuntimeException(DEBUG_TAG + " invalid DisplaySetDialog type");
+                        }
+                    }
+                });
+                mSetListFrags.add(frag);
+            }
         }
+        int type = 0;
+        for(SetListFragment frag : mSetListFrags){
+            adapter.addFragment(frag, Set.TYPES[type++]);
+        }
+
 
         viewPager.setAdapter(adapter);
 

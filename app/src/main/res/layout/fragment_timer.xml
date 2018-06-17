@@ -12,41 +12,10 @@
     android:focusableInTouchMode="true"
     android:weightSum="100">
 
-    <!-- Set Image -->
-    <!--
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="60">
-        <TextView
-            android:id="@+id/set_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Title"
-            android:layout_above="@+id/set_image"
-            android:layout_centerInParent="true"
-            android:textColor="@color/material_light_black"
-            android:textSize="18dp"/>
-        <ImageView
-            android:id="@+id/set_image"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/android"/>
-        <TextView
-            android:id="@+id/set_descrip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/set_image"
-            android:text="Descrip"
-            android:layout_centerInParent="true"/>
-    </RelativeLayout>
-    -->
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="60"
+        android:layout_weight="50"
         android:padding="5dp"
         android:background="?android:selectableItemBackground">
         <LinearLayout
@@ -82,7 +51,7 @@
                         android:text="Current Set:"
                         android:paddingStart="@dimen/standard_padding"
                         android:paddingEnd="@dimen/standard_padding"
-                        android:textSize="@dimen/text_size_large"/>
+                        android:textSize="@dimen/text_size_normal"/>
                     <TextView
                         android:id="@+id/set_title"
                         android:layout_width="wrap_content"
@@ -92,7 +61,7 @@
                         android:paddingEnd="@dimen/standard_padding"
                         android:text="Sample Title"
                         android:textColor="@color/material_light_black"
-                        android:textSize="@dimen/text_size_xlarge"/>
+                        android:textSize="@dimen/text_size_large"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -125,7 +94,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:layout_weight="40">
+        android:layout_weight="50">
 
         <ProgressBar
             android:id="@+id/timer_progress"
@@ -196,7 +165,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_centerInParent="true"
-            android:src="@drawable/android" />
+            android:src="@drawable/ic_pause_black_24dp" />
     </RelativeLayout>
 
 

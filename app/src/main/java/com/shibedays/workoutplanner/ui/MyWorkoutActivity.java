@@ -105,6 +105,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private TextView mRestTime;
     private TextView mBreakTime;
     private EditText mNumRounds;
+    private TextView mTotalTime;
     private ActionBar mActionBar;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
@@ -295,6 +296,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
         });
 
+        mTotalTime = findViewById(R.id.total_time);
+
         mNumRounds = findViewById(R.id.number_rounds);
         mNumRounds.addTextChangedListener(new TextWatcher() {
             @Override
@@ -467,19 +470,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //region UI_UPDATES
     private void updateRestTimeUI(int min, int sec, boolean flag){
-        /*if(flag){
-            mRestTime.setText(R.string.none_text);
-        }else if((sec % 10) == 0){
-            mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        } else if (min == 0 && sec == 0){
-            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else if ( sec < 10 ){
-            mRestTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }  else {
-            mRestTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }
-        */
-
         if(flag){
             mRestTime.setText(R.string.none_text);
         } else if(sec == 0){
@@ -492,19 +482,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void updateBreakTimeUI(int min, int sec, boolean flag){
-        /*
-        if(flag){
-            mBreakTime.setText(R.string.none_text);
-        } else if((sec % 10) == 0) {
-            mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }else if (min == 0 && sec == 0) {
-            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        }else if ( sec < 10 ) {
-            mBreakTime.setText(String.format(Locale.US, "%d:%d%d", min, 0, sec));
-        } else {
-            mBreakTime.setText(String.format(Locale.US, "%d:%d", min, sec));
-        }*/
-
         if(flag){
             mBreakTime.setText(R.string.none_text);
         } else if(sec == 0){
@@ -519,6 +496,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private void updateRoundNumUI(int num){
         mNumRounds.setText(String.format(Locale.US, "%d", num));
         mNumRounds.setSelection(mNumRounds.getText().length());
+    }
+
+    private void updateTotalTime(int min, int sec){
+        mTotalTime.setText(BaseApp.formatTime(min, sec));
     }
 
     //endregion
@@ -538,6 +519,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         int[] breakTime = BaseApp.convertFromMillis( w.getTimeBetweenRounds() );
         int breakMin = breakTime[0], breakSec = breakTime[1];
         updateBreakTimeUI(breakMin, breakSec, w.getNoBreakFlag());
+
+        int[] total = BaseApp.convertFromMillis(w.getTotalTime());
+        updateTotalTime(total[0], total[1]r);
     }
 
     public void hideActionItems(){

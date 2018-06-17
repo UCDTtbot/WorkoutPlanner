@@ -237,15 +237,17 @@ public class TimerFragment extends Fragment {
 
     //region UI_UPDATE_FUNCTIONS
     public void updateSetInfo(Set set){
+        mSetPreTitleView.setText("Current:");
         mSetTitleView.setText(set.getName());
         mSetImageView.setImageResource(set.getSetImageId());
         mSetDescripView.setText(set.getDescrip());
     }
 
     public void showNextSetInfo(Set set){
-        mSetTitleView.setText("NEXT SET");
+        mSetPreTitleView.setText("Next:");
+        mSetTitleView.setText(set.getName());
         mSetImageView.setImageResource(set.getSetImageId());
-        mSetDescripView.setText(set.getName());
+        mSetDescripView.setText(set.getDescrip());
     }
 
     public void updateTime(int time, int totalTime){

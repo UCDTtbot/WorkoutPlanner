@@ -109,6 +109,14 @@ public class Workout{
         }
     }
 
+    public int getTotalTime(){
+        int totalTime = 0;
+        for(Set s : setList){
+            totalTime += s.getTime();
+        }
+        return totalTime;
+    }
+
     public int getNumOfRounds(){
         return numOfRounds;
     }
