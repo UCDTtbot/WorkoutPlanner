@@ -91,6 +91,7 @@ public class TimerService extends Service {
     private boolean mNoBreakFlag;
 
     private boolean mIsTTSMuted;
+    private boolean mMsgSent;
     // Action Tracker
     private int mCurrentAction;
     // Notification Variables
@@ -246,10 +247,10 @@ public class TimerService extends Service {
 
 
         /*if(mCurRep == (mNumReps - 1) && mCurrentAction == REP_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PRELOAD_FIRST_SET, 0, 0);
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_SET, 0, 0);
             sendMessage(msg);
         } else if(mCurrentAction == REP_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PRELOAD_NEXT_SET, 0, 0);
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
             sendMessage(msg);
         } else */
         if(mCurrentAction == REST_ACTION){
@@ -262,6 +263,7 @@ public class TimerService extends Service {
             updateNotification(NOTIF_BREAK);
         }
 
+        mMsgSent = false;
         mHandler.removeCallbacks(timer);
         mHandler.postDelayed(timer, ONE_SEC * delay);
     }
@@ -285,7 +287,19 @@ public class TimerService extends Service {
             mTimeLeft -= ONE_SEC;
             mTimeElapsed += ONE_SEC;
 
+
+
             if(mTimeLeft > 0){ // Still running
+                if (!mMsgSent && mTimeLeft <= 10000 && mNoRestFlag && mCurrentAction == REP_ACTION) {
+                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
+                    sendMessage(msg);
+                    mMsgSent = true;
+                } else if (!mMsgSent && mTimeLeft <= 10000 && mNoBreakFlag && mCurrentAction == REP_ACTION) {
+                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_SET, 0, 0);
+                    sendMessage(msg);
+                    mMsgSent = true;
+                }
+
                 if(mTimeLeft == 7000 && mCurrentAction == REST_ACTION){
                     sendTTSMessage(R.string.tts_rest_ending);
                 }
@@ -305,7 +319,7 @@ public class TimerService extends Service {
                     sendTTSMessage(R.string.tts_one);
                 }
 
-                if(mTimeElapsed % 10000 == 0){
+                if(mTimeLeft % 10000 == 0){
                     updateNotification(NOTIF_CURRENT);
                 }
 
@@ -319,7 +333,10 @@ public class TimerService extends Service {
 
                         sendTTSMessage(R.string.tts_begin);
                         mCurrentAction = REP_ACTION;
-                        beginTimer(mNextSetTime, TTS_NO_DELAY);
+                        if(mIsTTSMuted)
+                            beginTimer(mNextSetTime, TTS_NO_DELAY);
+                        else
+                            beginTimer(mNextSetTime, 1);
 
                     } else {    // Yes Break
                         sendTTSMessage(R.string.tts_round_finished);
@@ -342,7 +359,10 @@ public class TimerService extends Service {
 
                         sendTTSMessage(R.string.tts_begin);
                         mCurrentAction = REP_ACTION;
-                        beginTimer(mNextSetTime, TTS_NO_DELAY);
+                        if(mIsTTSMuted)
+                            beginTimer(mNextSetTime, TTS_NO_DELAY);
+                        else
+                            beginTimer(mNextSetTime, 1);
                     } else { // Yes Rest
                         sendTTSMessage(R.string.tts_take_rest);
                         mCurrentAction = REST_ACTION;
@@ -387,7 +407,6 @@ public class TimerService extends Service {
     //endregion
 
     private void updateNotification(int type){
-        //TODO: Update the notif
         int time = 0;
         String name = "";
         switch (type){
