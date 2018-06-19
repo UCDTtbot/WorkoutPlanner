@@ -146,7 +146,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
     final Messenger mIncomingTTSMessenger = new Messenger(new IncomingTTSMessageHandler());
 
-    class IncomingTimerMessageHandler extends Handler {
+    public class IncomingTimerMessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             Set s = null;
@@ -172,7 +172,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                             -1, -1, R.drawable.ic_down_arrow_black_24dp);
                     mTimerFragment.updateSetInfo(restSet, s);
                     mTimerFragment.loadNextSet();
-                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
+                    m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
                     break;
 
@@ -182,7 +182,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                             -1, -1, R.drawable.ic_access_alarm_black_24dp);
                     mTimerFragment.updateSetInfo(breakSet, s);
                     mTimerFragment.loadNextSet();
-                    m = Message.obtain(this, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
+                    m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
                     break;
 
@@ -221,7 +221,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
         }
     }
-    final Messenger mIncomingTimerMessenger = new Messenger(new IncomingTimerMessageHandler());
+    public final Messenger mIncomingTimerMessenger = new Messenger(new IncomingTimerMessageHandler());
     //endregion
 
     //region LIFECYCLE

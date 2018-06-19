@@ -40,6 +40,8 @@ public class TimerService extends Service {
     // Message Constants
     public static final int MSG_TIMER_BIND = 0;
     public static final int MSG_NEXT_SET_TIME = 1;
+    public static final int MSG_PAUSE_TIMER = 2;
+    public static final int MSG_CONTINUE_TIMER = 3;
 
     private static final int TTS_STARTING_DELAY = 6;
     private static final int TTS_BREAK_DELAY = 2;
@@ -126,6 +128,18 @@ public class TimerService extends Service {
                         setNextSetName(msg.obj.toString());
                     }else{
                         Log.e(DEBUG_TAG, "NEXT SET TIME HAS INVALID ARG");
+                    }
+                    break;
+                case MSG_PAUSE_TIMER:
+                    if(mHandler != null){
+                        mHandler.removeCallbacks(timer);
+                        Log.d(DEBUG_TAG, "Timer (should have been) paused.");
+                    }
+                    break;
+                case MSG_CONTINUE_TIMER:
+                    if(mHandler != null){
+                        mHandler.removeCallbacks(timer);
+                        mHandler.postDelayed(timer, ONE_SEC / 2);
                     }
                     break;
                 default:

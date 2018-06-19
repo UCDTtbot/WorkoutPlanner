@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.services.TimerService;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.fragments.TimerViewModel;
@@ -57,8 +59,12 @@ public class TimerFragment extends Fragment {
     private ImageView mSetImageView;
     private TextView mSetDescripView;
 
+    private View.OnClickListener mOnPause;
+    private View.OnClickListener mOnCont;
+
     private ProgressBar mProgressBar;
-    private ImageView mPlayButtonView;
+    private ImageView mPauseButtonView;
+    private ImageView mContinueButtonView;
     private TextView mTimeView;
     private TextView mRepsView;
     private TextView mRoundsView;
@@ -154,7 +160,25 @@ public class TimerFragment extends Fragment {
 
         mProgressBar = view.findViewById(R.id.timer_progress);
         mProgressBar.setMax(1000);
-        mPlayButtonView = view.findViewById(R.id.play_button);
+
+        mOnPause = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pauseTimer();
+            }
+        };
+        mOnCont = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                continueTimer();
+            }
+        };
+
+        mPauseButtonView = view.findViewById(R.id.pause_button);
+        mPauseButtonView.setOnClickListener(mOnPause);
+        mContinueButtonView = view.findViewById(R.id.continue_button);
+        mContinueButtonView.setOnClickListener(null);
+
         mTimeView = view.findViewById(R.id.main_time);
         mRepsView = view.findViewById(R.id.reps);
         mRoundsView = view.findViewById(R.id.rounds);
@@ -280,6 +304,28 @@ public class TimerFragment extends Fragment {
     //region TIMER_INTERACTIONS
     public Set getCurSet(){ return mTimerViewModel.getCurSet(); }
     public Set getNextSet() { return mTimerViewModel.getNextSet(); }
+
+    public void pauseTimer(){
+        if(mParentActivity instanceof MyWorkoutActivity){
+            Message msg = Message.obtain(null, TimerService.MSG_PAUSE_TIMER, 0);
+            ((MyWorkoutActivity) mParentActivity).sendTimerMessage(msg);
+            mPauseButtonView.setVisibility(View.INVISIBLE);
+            mPauseButtonView.setOnClickListener(null);
+            mContinueButtonView.setVisibility(View.VISIBLE);
+            mContinueButtonView.setOnClickListener(mOnCont);
+        }
+    }
+
+    public void continueTimer(){
+        if(mParentActivity instanceof MyWorkoutActivity){
+            Message msg = Message.obtain(null, TimerService.MSG_CONTINUE_TIMER, 0);
+            ((MyWorkoutActivity) mParentActivity).sendTimerMessage(msg);
+            mContinueButtonView.setVisibility(View.INVISIBLE);
+            mContinueButtonView.setOnClickListener(null);
+            mPauseButtonView.setVisibility(View.VISIBLE);
+            mPauseButtonView.setOnClickListener(mOnPause);
+        }
+    }
 
     public Set loadNextSet(){
         return mTimerViewModel.loadInNextSet();

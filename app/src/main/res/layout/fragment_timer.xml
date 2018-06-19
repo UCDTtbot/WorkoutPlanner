@@ -190,16 +190,26 @@
             android:id="@+id/main_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/play_button"
+            android:layout_below="@id/pause_button"
             android:layout_centerInParent="true"
             android:text="time" />
 
         <ImageView
-            android:id="@+id/play_button"
+            android:id="@+id/pause_button"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_centerInParent="true"
+            android:scaleType="fitXY"
             android:src="@drawable/ic_pause_black_24dp" />
+
+        <ImageView
+            android:id="@+id/continue_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitXY"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_play_arrow_black_24dp"
+            android:visibility="invisible"/>
     </RelativeLayout>
 
 
