@@ -82,7 +82,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final int MSG_PASS_TTS_MSG = 2;
     public static final int MSG_UPDATE_TIME_DISPLAY = 3;
     public static final int MSG_NO_REST_NEXT_SET = 4;
-    public static final int MSG_NO_BREAK_NEXT_SET = 5;
+    public static final int MSG_NO_BREAK_NEXT_ROUND = 5;
     public static final int MSG_NEXT_ROUND = 6;
     public static final int MSG_NEXT_REP = 7;
     public static final int MSG_LOAD_NEXT_SET = 8;
@@ -187,11 +187,18 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     break;
 
                 case MSG_NO_REST_NEXT_SET:
-
-
-                case MSG_NO_BREAK_NEXT_SET:
-
-
+                    s = mTimerFragment.getNextSet();
+                    m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
+                    sendTimerMessage(m);
+                    mTimerFragment.loadNextSet();
+                    break;
+                case MSG_NO_BREAK_NEXT_ROUND:
+                    int rnd = msg.arg1;
+                    mTimerFragment.updateRep(0);
+                    mTimerFragment.updateRound(rnd);
+                    mTimerFragment.loadNextSet();
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
+                    break;
                 case MSG_NEXT_REP:
                     int rep = msg.arg1;
                     mTimerFragment.updateRep(rep);

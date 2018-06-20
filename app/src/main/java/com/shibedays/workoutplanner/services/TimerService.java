@@ -127,6 +127,7 @@ public class TimerService extends Service {
                         setNextSetTime(msg.arg1);
                         setNextSetImage(msg.arg2);
                         setNextSetName(msg.obj.toString());
+                        mMsgSent = true;
                     }else{
                         Log.e(DEBUG_TAG, "NEXT SET TIME HAS INVALID ARG");
                     }
@@ -247,12 +248,12 @@ public class TimerService extends Service {
 
 
         /*if(mCurRep == (mNumReps - 1) && mCurrentAction == REP_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_SET, 0, 0);
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_ROUND, 0, 0);
             sendMessage(msg);
         } else if(mCurrentAction == REP_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
             sendMessage(msg);
-        } else */
+        }*/
         if(mCurrentAction == REST_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_NEXT_SET, 0, 0);
             sendMessage(msg);
@@ -290,13 +291,15 @@ public class TimerService extends Service {
 
 
             if(mTimeLeft > 0){ // Still running
-                if (!mMsgSent && mTimeLeft <= 10000 && mNoRestFlag && mCurrentAction == REP_ACTION) {
-                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
-                    sendMessage(msg);
-                    mMsgSent = true;
-                } else if (!mMsgSent && mTimeLeft <= 10000 && mNoBreakFlag && mCurrentAction == REP_ACTION) {
-                    Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_SET, 0, 0);
-                    sendMessage(msg);
+
+                if (!mMsgSent && mTimeLeft <= 15000 && mNoRestFlag && mCurrentAction == REP_ACTION) {
+                    if (mCurRep != mNumReps - 1 && !mNoBreakFlag) {
+                        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
+                        sendMessage(msg);
+                    } else if(mCurRep != mNumReps - 1 && mNoBreakFlag){
+                        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
+                        sendMessage(msg);
+                    }
                     mMsgSent = true;
                 }
 
@@ -451,9 +454,14 @@ public class TimerService extends Service {
     }
 
     private void nextRound(){
+        Message msg_round;
         mCurRep = 0;
         mCurRound++;
-        Message msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND, mCurRound, 0);
+        if(mNoBreakFlag){
+            msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_ROUND, mCurRound, 0);
+        } else {
+            msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND, mCurRound, 0);
+        }
         sendMessage(msg_round);
         updateNotification(NOTIF_NEXT);
     }
