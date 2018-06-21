@@ -3,12 +3,4 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.shibedays.workoutplanner.ui.MainActivity">
-
-    <item
-        android:id="@+id/pause"
-        android:orderInCategory="10"
-        android:icon="@drawable/ic_pause_white_24dp"
-        android:title="@string/menu_pause"
-        app:showAsAction="ifRoom"/>
-
 </menu>

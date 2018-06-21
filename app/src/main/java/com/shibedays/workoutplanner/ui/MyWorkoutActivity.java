@@ -437,6 +437,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 menu.findItem(R.id.add_set).setVisible(false);
             }
             menu.findItem(R.id.action_settings).setVisible(true);
+            menu.findItem(R.id.rename_workout).setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
     }

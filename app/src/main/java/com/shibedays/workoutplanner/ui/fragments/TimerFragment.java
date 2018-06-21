@@ -243,6 +243,7 @@ public class TimerFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.add_set).setVisible(false);
         menu.findItem(R.id.action_settings).setVisible(false);
+        menu.findItem(R.id.rename_workout).setVisible(false);
         super.onPrepareOptionsMenu(menu);
     }
 
