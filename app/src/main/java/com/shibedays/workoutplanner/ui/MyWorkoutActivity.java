@@ -578,6 +578,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     } else {
                         List<Set> newSetList = workout.getSetList();
                         if(newSetList.size() != mSetInfoFrags.size()){
+                            //TODO add new fragment for the set
+                            setupViewPager(workout.getSetList());
                             Log.e(DEBUG_TAG, "Set Info Frag List doesn't match the workout set list");
                         } else {
                             int i = 0;
