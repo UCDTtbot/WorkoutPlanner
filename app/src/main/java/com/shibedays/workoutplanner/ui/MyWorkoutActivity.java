@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
+import com.shibedays.workoutplanner.ui.dialogs.ReorderSetsDialog;
 import com.shibedays.workoutplanner.ui.fragments.AddSetsFragment;
 import com.shibedays.workoutplanner.ui.fragments.SetInfoFragment;
 import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
@@ -49,6 +50,7 @@ import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.activities.MyWorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
+import com.shibedays.workoutplanner.viewmodel.dialogs.ReorderViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -463,8 +465,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             return true;
         } else if(id == R.id.add_set) {
             openAddNewSetFragment();
-        } else if( id == R.id.rename_workout){
+        } else if( id == R.id.rename_workout) {
             renameWorkout();
+        } else if( id == R.id.re_order) {
+            openReorderDialog();
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
@@ -601,15 +605,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         return args;
     }
 
-    private void updateUserSet(Set set, int id, String name, String descrip, int min, int sec, int imageId){
-        set.setName(name);
-        set.setTime(BaseApp.convertToMillis(min, sec));
-        set.setDescrip(descrip);
-        set.setSetImageId(imageId);
-        mMainVM.getWorkoutData().updateSet(set, id);
-        mWorkoutViewModel.update(mMainVM.getWorkoutData());
+    private void openReorderDialog(){
+        Bundle args = ReorderSetsDialog.getBundle(mMainVM.getWorkoutData().getSetList());
+        ReorderSetsDialog dialog = ReorderSetsDialog.newInstance(args);
+        dialog.show(mFragmentManager, DEBUG_TAG);
     }
-
 
     //region RENAME_WORKOUT
     private void renameWorkout(){
