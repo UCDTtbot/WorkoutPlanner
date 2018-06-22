@@ -83,6 +83,7 @@ public class OrderSetsAdapter extends RecyclerView.Adapter<OrderSetsAdapter.Orde
                 Collections.swap(mSetList, i, i - 1);
             }
         }
+        notifyItemMoved(from, to);
     }
     //endregion
 

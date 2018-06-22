@@ -105,6 +105,7 @@ public class ReorderSetsDialog extends DialogFragment {
 
         int dragDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
 
+        //TODO : item touch helper not working
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
