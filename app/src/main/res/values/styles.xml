@@ -24,7 +24,7 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
         <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
-        <item name="android:background">@color/material_grey_500</item>
+        <item name="android:background">@color/colorDivider</item>
     </style>
 
     <!-- MyWorkoutActivity Styles -->
@@ -150,8 +150,8 @@
     </style>
 
     <style name="MyButton" parent="Theme.AppCompat.Light">
-        <item name="colorControlHighlight">@color/material_teal_100</item>
-        <item name="colorButtonNormal">@color/material_teal_500</item>
+        <item name="colorControlHighlight">@color/colorPrimaryLight</item>
+        <item name="colorButtonNormal">@color/colorPrimary</item>
     </style>
 
 
