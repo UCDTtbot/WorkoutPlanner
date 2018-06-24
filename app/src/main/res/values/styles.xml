@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimaryLight</item>
+        <item name="colorAccent">@color/colorAccent</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
@@ -49,7 +49,6 @@
     <style name="Colon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">@dimen/text_size_xlarge</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_marginStart">@dimen/activity_shallow_horizontal_margin</item>
         <item name="android:layout_marginEnd">@dimen/activity_shallow_horizontal_margin</item>
@@ -57,7 +56,7 @@
     </style>
 
     <!-- Dialog Windows -->
-    <style name="DialogEditText">
+    <style name="Dialog_Edit_Text">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">@dimen/activity_shallow_margin</item>
@@ -67,17 +66,60 @@
         <item name="android:inputType">textCapSentences</item>
     </style>
 
-    <style name="DialogTextView">
+    <style name="Dialog_View_Text">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">@dimen/activity_shallow_margin</item>
         <item name="android:layout_marginEnd">@dimen/activity_shallow_margin</item>
-        <item name="android:textSize">@dimen/text_size_xnormal</item>
         <item name="android:background">?attr/editTextBackground</item>
     </style>
 
-    <!-- Lists -->
-    <style name="ListTitle" parent="TextAppearance.AppCompat.Title">
+    <!-- Views -->
+    <style name="Edit_Number" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:digits">0123456789</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:background">?attr/editTextBackground</item>
+    </style>
+
+    <style name="Edit_Text" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">textCapSentences</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:background">?attr/editTextBackground</item>
+    </style>
+
+    <style name="View_Text" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">none</item>
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+        <item name="android:cursorVisible">false</item>
+        <item name="android:background">?attr/editTextBackground</item>
+    </style>
+
+    <style name="View_Clickable_Time" parent="Base.TextAppearance.AppCompat.Body1">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">none</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:cursorVisible">false</item>
+        <item name="android:background">?attr/editTextBackground</item>
+    </style>
+
+    <!-- Bottom Sheet Styles -->
+    <style name="BottomSheet_View_ListTitle" parent="TextAppearance.AppCompat.Title">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/list_title_size</item>
         <item name="android:paddingStart">@dimen/standard_icon_margin_start</item>
@@ -85,45 +127,7 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="LinearEntryField">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
-        <item name="android:layout_marginEnd">@dimen/activity_horizontal_margin</item>
-        <item name="android:layout_marginTop">@dimen/activity_quarter_vertical_margin</item>
-        <item name="android:layout_marginBottom">@dimen/activity_quarter_vertical_margin</item>
-        <item name="android:orientation">vertical</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="EntryTextTitle" parent="Base.TextAppearance.AppCompat.Subhead">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textSize">@dimen/text_size_normal</item>
-    </style>
-
-    <style name="EditTextEntryField" parent="Base.TextAppearance.AppCompat.Body1">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">@dimen/text_size_xnormal</item>
-        <item name="android:gravity">center</item>
-        <item name="android:digits">0123456789</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:imeOptions">actionDone</item>
-    </style>
-
-    <style name="TextEntryField" parent="Base.TextAppearance.AppCompat.Body1">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">@dimen/text_size_xnormal</item>
-        <item name="android:gravity">center</item>
-        <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:layout_weight">20</item>
-    </style>
-
-    <!-- Bottom Sheet Styles -->
-    <style name="BottomSheetLinearRow">
+    <style name="BottomSheet_LinearRow">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/list_three_quarters_vertical_size</item>
         <item name="android:clickable">true</item>
@@ -134,7 +138,7 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="BottomSheetImage">
+    <style name="BottomSheet_View_Image">
         <item name="android:layout_width">@dimen/standard_icon_touchable_size</item>
         <item name="android:layout_height">@dimen/standard_icon_touchable_size</item>
         <item name="android:padding">@dimen/standard_icon_touchable_padding</item>
@@ -142,15 +146,17 @@
         <item name="android:layout_marginEnd">@dimen/standard_icon_margin_end</item>
     </style>
 
-    <style name="BottomSheetText" parent="Base.TextAppearance.AppCompat.Title">
+    <style name="BottomSheet_View_Text" parent="Base.TextAppearance.AppCompat.Title">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
-    <style name="MyButton" parent="Theme.AppCompat.Light">
-        <item name="colorControlHighlight">@color/colorPrimaryLight</item>
+
+
+    <style name="Button_Custom" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/colorPrimary</item>
         <item name="colorButtonNormal">@color/colorPrimary</item>
     </style>
 

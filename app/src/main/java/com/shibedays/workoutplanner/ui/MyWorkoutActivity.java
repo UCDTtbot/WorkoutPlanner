@@ -27,9 +27,13 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -290,6 +294,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         //region UI
         mRestTime = findViewById(R.id.rest_time);
+        mRestTime.setFocusable(false);
         mRestTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -298,6 +303,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
 
         mBreakTime = findViewById(R.id.break_time);
+        mBreakTime.setFocusable(false);
         mBreakTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -306,8 +312,23 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         });
 
         mTotalTime = findViewById(R.id.total_time);
+        mTotalTime.setFocusable(false);
+        mTotalTime.setClickable(false);
+        mTotalTime.setKeyListener(null);
 
         mNumRounds = findViewById(R.id.number_rounds);
+        mNumRounds.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                    if(imm != null)
+                        imm.hideSoftInputFromWindow(mNumRounds.getWindowToken(), 0);
+                    mNumRounds.clearFocus();
+                }
+                return false;
+            }
+        });
         mNumRounds.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

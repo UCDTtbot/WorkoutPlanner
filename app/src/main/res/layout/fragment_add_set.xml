@@ -36,7 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="@dimen/activity_shallow_margin"
-        android:text="@string/button_save" />
+        android:text="@string/button_save"
+        android:theme="@style/Button_Custom"/>
 
 
 </RelativeLayout>

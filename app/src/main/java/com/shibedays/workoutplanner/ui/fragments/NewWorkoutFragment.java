@@ -18,12 +18,15 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -171,6 +174,19 @@ public class NewWorkoutFragment extends Fragment{
         //endregion
 
         mRoundEntry = view.findViewById(R.id.round_entry_num);
+        mRoundEntry.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    Activity act = getActivity();
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if(imm != null)
+                        imm.hideSoftInputFromWindow(mRoundEntry.getWindowToken(), 0);
+                    mRoundEntry.clearFocus();
+                }
+                return false;
+            }
+        });
         mRoundEntry.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -193,6 +209,7 @@ public class NewWorkoutFragment extends Fragment{
         });
 
         mRestEntry = view.findViewById(R.id.rest_entry_time);
+        mRestEntry.setFocusable(false);
         mRestEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -201,6 +218,7 @@ public class NewWorkoutFragment extends Fragment{
         });
 
         mBreakEntry = view.findViewById(R.id.break_entry_time);
+        mBreakEntry.setFocusable(false);
         mBreakEntry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

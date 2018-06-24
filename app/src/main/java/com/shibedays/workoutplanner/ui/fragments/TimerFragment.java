@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,6 +59,8 @@ public class TimerFragment extends Fragment {
     private TextView mNextSetNameView;
     private ImageView mSetImageView;
     private TextView mSetDescripView;
+
+    private TabLayout mTabs;
 
     private View.OnClickListener mOnPause;
     private View.OnClickListener mOnCont;
@@ -152,6 +155,11 @@ public class TimerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
+
+        mTabs = view.findViewById(R.id.tab_header);
+        for(Set s : mTimerViewModel.getSets()) {
+            mTabs.addTab(mTabs.newTab());
+        }
 
         mSetNameView = view.findViewById(R.id.cur_set);
         mNextSetNameView = view.findViewById(R.id.next_set);
@@ -271,6 +279,7 @@ public class TimerFragment extends Fragment {
         }
         mSetImageView.setImageResource(cur.getSetImageId());
         mSetDescripView.setText(cur.getDescrip());
+        mTabs.getTabAt(mTimerViewModel.getCurSetIndex()).select();
     }
 
     public void updateTime(int time, int totalTime){

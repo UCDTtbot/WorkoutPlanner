@@ -8,7 +8,7 @@
     <TextView
         android:id="@+id/bottom_sheet_title"
         android:text="@string/placeholder_title"
-        style="@style/ListTitle"/>
+        style="@style/BottomSheet_View_ListTitle"/>
 
     <LinearLayout
         android:id="@+id/bottom_sheet_row_container"

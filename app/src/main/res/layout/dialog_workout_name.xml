@@ -7,6 +7,6 @@
     <EditText
         android:id="@+id/workout_name"
         android:hint="@string/name_hint"
-        style="@style/DialogEditText"/>
+        style="@style/Dialog_Edit_Text"/>
 
 </RelativeLayout>

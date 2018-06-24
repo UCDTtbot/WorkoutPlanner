@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -112,6 +113,18 @@ public class ReorderSetsDialog extends DialogFragment {
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
                 int swipeFlags = 0;
                 return makeMovementFlags(dragFlags, swipeFlags);
+            }
+
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                float topY = viewHolder.itemView.getTop() + dY;
+                float bottomY = topY + viewHolder.itemView.getHeight();
+                if(topY < 0){
+                    dY = 0;
+                } else if (bottomY > recyclerView.getHeight()){
+                    dY = recyclerView.getHeight() - viewHolder.itemView.getHeight() - viewHolder.itemView.getTop();
+                }
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
 
             @Override

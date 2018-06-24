@@ -33,7 +33,7 @@
             android:layout_centerVertical="true"
             android:text="More"
             android:textColor="#FFF"
-            android:theme="@style/MyButton"/>
+            android:theme="@style/Button_Custom"/>
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView

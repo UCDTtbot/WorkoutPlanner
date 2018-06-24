@@ -12,6 +12,7 @@
         android:id="@+id/top_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
         <ImageView
@@ -25,31 +26,52 @@
             android:src="@drawable/ic_image_black_24dp"
             android:clickable="true"
             android:focusable="true"/>
-        <EditText
-            android:id="@+id/new_set_name"
-            android:hint="@string/name_hint"
-            android:maxLength="18"
-            android:imeOptions="actionDone"
-            style="@style/DialogEditText"/>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/set_name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/new_set_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/name_hint"
+                android:maxLines="1"
+                android:maxLength="23"
+                android:imeOptions="actionDone"
+                android:inputType="textCapSentences"/>
+        </android.support.design.widget.TextInputLayout>
+
+
+
     </LinearLayout>
 
 
-    <EditText
-        android:id="@+id/new_set_descrip"
-        android:layout_below="@+id/top_row"
-        android:hint="@string/descrip_hint"
-        android:imeOptions="actionDone"
-        android:inputType="text|textCapSentences|textMultiLine"
-        android:gravity="bottom"
-        android:maxLines="5"
-        android:minLines="5"
-        style="@style/DialogEditText" />
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/set_descrip_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_below="@id/top_row">
+
+        <EditText
+            android:id="@+id/new_set_descrip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/descrip_hint"
+            android:imeOptions="actionDone"
+            android:inputType="text|textCapSentences|textMultiLine"
+            android:gravity="left"
+            android:maxLines="5"
+            android:minLines="5"/>
+    </android.support.design.widget.TextInputLayout>
 
     <include layout="@layout/number_spinners"
         android:id="@+id/spinners"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/new_set_descrip"
+        android:layout_below="@id/set_descrip_layout"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -58,6 +80,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="@dimen/activity_shallow_margin"
-        android:text="@string/button_save" />
+        android:text="@string/button_save"
+        android:theme="@style/Button_Custom"/>
 
 </RelativeLayout>

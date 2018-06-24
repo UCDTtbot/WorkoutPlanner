@@ -2,16 +2,16 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:id="@+id/bottom_sheet_row"
-    style="@style/BottomSheetLinearRow">
+    style="@style/BottomSheet_LinearRow">
 
     <ImageView
         android:id="@+id/bottom_sheet_row_ic"
         android:src="@drawable/ic_edit_black_24dp"
         android:contentDescription="@string/ic_descrip"
-        style="@style/BottomSheetImage"/>
+        style="@style/BottomSheet_View_Image"/>
     <TextView
         android:id="@+id/bottom_sheet_row_title"
         android:text="@string/default_name"
-        style="@style/BottomSheetText" />
+        style="@style/BottomSheet_View_Text" />
 
 </LinearLayout>

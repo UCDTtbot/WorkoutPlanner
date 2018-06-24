@@ -61,6 +61,84 @@
         android:layout_weight="40"
         android:layout_marginTop="8dp">
 
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/round_entry_layout"
+            android:layout_width="@dimen/Edit_Number_Width"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true">
+
+            <EditText
+                android:id="@+id/number_rounds"
+                style="@style/Edit_Number"
+                android:maxLength="2"
+                android:hint="@string/round_title_text"
+                android:text="@string/default_num"/>
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/rest_entry_layout"
+            android:layout_width="@dimen/Edit_Time_Width"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true">
+
+            <EditText
+                android:id="@+id/rest_time"
+                style="@style/View_Clickable_Time"
+                android:hint="@string/rest_title_text"
+                android:text="@string/default_time" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/break_entry_layout"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_width="@dimen/Edit_Time_Width"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/break_time"
+                style="@style/View_Clickable_Time"
+                android:hint="@string/break_title_text"
+                android:text="@string/default_time"/>
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/total_time_layout"
+            android:layout_centerInParent="true"
+            android:layout_above="@id/start_button"
+            android:layout_width="@dimen/Edit_Time_Width"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/total_time"
+                android:hint="@string/total_time_title"
+                android:text="@string/default_time"
+                style="@style/View_Text" />
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/start_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/start_workout_button"
+            android:onClick="startTimer"
+            android:focusable="true"
+            android:layout_marginBottom="@dimen/activity_shallow_vertical_margin"
+            android:theme="@style/Button_Custom"/>
+    </RelativeLayout>
+
+</LinearLayout>
+
+
+<!--
         <LinearLayout
             android:id="@+id/rest_entry_layout"
             android:layout_alignParentTop="true"
@@ -76,7 +154,7 @@
 
             <TextView
                 android:id="@+id/rest_time"
-                style="@style/TextEntryField"
+                style="@style/Edit_Text"
                 android:text="@string/default_time" />
 
         </LinearLayout>
@@ -100,6 +178,7 @@
                 android:imeOptions="actionDone"
                 style="@style/EditTextEntryField"/>
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/total_time_layout"
@@ -136,20 +215,7 @@
             <TextView
                 android:id="@+id/break_time"
                 android:text="@string/default_time"
-                style="@style/TextEntryField"/>
+                style="@style/Edit_Text"/>
 
         </LinearLayout>
-
-
-        <Button
-            android:id="@+id/start_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/start_workout_button"
-            android:onClick="startTimer"
-            android:layout_marginBottom="@dimen/activity_shallow_vertical_margin"/>
-    </RelativeLayout>
-
-</LinearLayout>
+-->

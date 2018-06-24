@@ -74,5 +74,6 @@
     <string name="time_error">Time must not be 0.</string>
     <string name="new_set">New Set</string>
     <string name="edit_set">Edit Set</string>
+    <string name="total_time_title">Total Time:</string>
 
 </resources>
