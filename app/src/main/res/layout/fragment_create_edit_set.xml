@@ -62,7 +62,7 @@
             android:hint="@string/descrip_hint"
             android:imeOptions="actionDone"
             android:inputType="text|textCapSentences|textMultiLine"
-            android:gravity="left"
+            android:gravity="start"
             android:maxLines="5"
             android:minLines="5"/>
     </android.support.design.widget.TextInputLayout>

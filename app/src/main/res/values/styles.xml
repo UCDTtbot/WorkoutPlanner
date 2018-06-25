@@ -75,7 +75,7 @@
     </style>
 
     <!-- Views -->
-    <style name="Edit_Number" parent="Base.TextAppearance.AppCompat.Body1">
+    <style name="Edit_Number" parent="Base.TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:maxLines">1</item>
@@ -84,9 +84,10 @@
         <item name="android:digits">0123456789</item>
         <item name="android:imeOptions">actionDone</item>
         <item name="android:background">?attr/editTextBackground</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
     </style>
 
-    <style name="Edit_Text" parent="Base.TextAppearance.AppCompat.Body1">
+    <style name="Edit_Text" parent="Base.TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:maxLines">1</item>
@@ -94,9 +95,11 @@
         <item name="android:inputType">textCapSentences</item>
         <item name="android:imeOptions">actionDone</item>
         <item name="android:background">?attr/editTextBackground</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+
     </style>
 
-    <style name="View_Text" parent="Base.TextAppearance.AppCompat.Body1">
+    <style name="View_Text" parent="Base.TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
@@ -105,9 +108,11 @@
         <item name="android:focusable">false</item>
         <item name="android:cursorVisible">false</item>
         <item name="android:background">?attr/editTextBackground</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+
     </style>
 
-    <style name="View_Clickable_Time" parent="Base.TextAppearance.AppCompat.Body1">
+    <style name="View_Clickable_Time" parent="Base.TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
@@ -116,6 +121,25 @@
         <item name="android:focusable">true</item>
         <item name="android:cursorVisible">false</item>
         <item name="android:background">?attr/editTextBackground</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+
+    </style>
+
+    <style name="TextView" parent="TextAppearance.AppCompat">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+    </style>
+
+    <style name="TextView_Header" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+    </style>
+
+    <style name="TextLabelHint" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">@dimen/text_size_small</item>
     </style>
 
     <!-- Bottom Sheet Styles -->
