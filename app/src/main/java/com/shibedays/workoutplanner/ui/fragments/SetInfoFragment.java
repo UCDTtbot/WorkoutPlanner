@@ -21,9 +21,13 @@ import com.google.gson.Gson;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.fragments.SetInfoViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
+
+import java.util.List;
 
 public class SetInfoFragment extends Fragment {
 
@@ -39,13 +43,16 @@ public class SetInfoFragment extends Fragment {
     //region PRIVATE_VARS
     // Data
     private SetInfoViewModel mMainVM;
-    private SetViewModel mSetViewModel;
+    private WorkoutViewModel mWorkoutViewModel;
     // UI
     private TextView mSetNameView;
     private ImageView mSetImageView;
     private TextView mSetDescrip;
     private TextView mSetTime;
-    private ImageView mEditSetView;
+
+    private ImageView mEditSetIC;
+    private ImageView mDeleteSetIC;
+    private ImageView mMoreInfoIC;
     // FLAGS
     //endregion
 
@@ -80,7 +87,13 @@ public class SetInfoFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         mMainVM = ViewModelProviders.of(this).get(SetInfoViewModel.class);
-        mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+
+            }
+        });
         if(args != null) {
             mMainVM.setData(args.getString(EXTRA_SET_JSON));
             mMainVM.setParentWrkoutId(args.getInt(EXTRA_PARENT_ID));
@@ -100,11 +113,29 @@ public class SetInfoFragment extends Fragment {
         mSetImageView = view.findViewById(R.id.set_image);
         mSetDescrip = view.findViewById(R.id.set_descrip);
         mSetTime = view.findViewById(R.id.set_time);
-        mEditSetView = view.findViewById(R.id.edit_ic);
-        mEditSetView.setOnClickListener(new View.OnClickListener() {
+
+
+        mEditSetIC = view.findViewById(R.id.edit_ic);
+        mEditSetIC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openEditSet();
+            }
+        });
+
+        mDeleteSetIC = view.findViewById(R.id.delete_ic);
+        mDeleteSetIC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteSet();
+            }
+        });
+
+        mMoreInfoIC = view.findViewById(R.id.more_info_ic);
+        mMoreInfoIC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMoreInfo();
             }
         });
 
@@ -185,6 +216,18 @@ public class SetInfoFragment extends Fragment {
         } else {
             Log.e(DEBUG_TAG, "Set came up null");
         }
+    }
+
+    private void deleteSet(){
+        Workout parent = mWorkoutViewModel.getWorkoutByID(mMainVM.getParentWrkoutId());
+        if(parent != null) {
+            parent.removeSet(mMainVM.getData().getValue());
+        }
+        mWorkoutViewModel.update(parent);
+    }
+
+    private void openMoreInfo(){
+
     }
 
     public void updateData(Set s){
