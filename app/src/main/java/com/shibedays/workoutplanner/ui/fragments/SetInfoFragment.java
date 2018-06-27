@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -219,9 +221,22 @@ public class SetInfoFragment extends Fragment {
     }
 
     private void deleteSet(){
-        Workout parent = mWorkoutViewModel.getWorkoutByID(mMainVM.getParentWrkoutId());
-        if(parent != null) {
-            parent.removeSet(mMainVM.getData().getValue());
+        final Workout parent = mWorkoutViewModel.getWorkoutByID(mMainVM.getParentWrkoutId());
+        final Set s = mMainVM.getData().getValue();
+        if(s != null && parent != null) {
+            if (getContext() != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+                builder.setTitle("Delete Set")
+                        .setMessage("Are you sure you want to delete " + s.getName() + " ?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                parent.removeSet(mMainVM.getData().getValue());
+                            }
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            }
         }
         mWorkoutViewModel.update(parent);
     }
