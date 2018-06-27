@@ -437,7 +437,7 @@ public class NewWorkoutFragment extends Fragment{
         if(getContext() != null){
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
             builder.setTitle("Delete Set")
-                    .setMessage("Are you sure you want to delete " + set.getName() + " ?")
+                    .setMessage("Are you sure you want to delete \n" + set.getName() + " ?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

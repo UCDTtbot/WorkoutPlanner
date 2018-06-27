@@ -227,18 +227,18 @@ public class SetInfoFragment extends Fragment {
             if (getContext() != null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
                 builder.setTitle("Delete Set")
-                        .setMessage("Are you sure you want to delete " + s.getName() + " ?")
+                        .setMessage("Are you sure you want to delete \n" + s.getName() + " ?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                parent.removeSet(mMainVM.getData().getValue());
+                                parent.removeSet(s);
+                                mWorkoutViewModel.update(parent);
                             }
                         })
                         .setNegativeButton("No", null)
                         .show();
             }
         }
-        mWorkoutViewModel.update(parent);
     }
 
     private void openMoreInfo(){
