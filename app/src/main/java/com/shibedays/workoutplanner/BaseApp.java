@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.DebugUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -135,4 +136,20 @@ public class BaseApp extends Application {
     }
 
     //endregion
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs != null) {
+            boolean isDark = prefs.getBoolean("dark_theme", false);
+            if(isDark){
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+        }
+
+    }
 }

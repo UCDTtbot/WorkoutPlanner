@@ -81,7 +81,6 @@
                                 android:paddingStart="@dimen/deep_padding"
                                 android:paddingEnd="@dimen/standard_padding"
                                 android:text="Set Name"
-                                android:textColor="@color/material_light_black"
                                 android:textSize="@dimen/text_size_large"/>
                         </LinearLayout>
                         <LinearLayout
@@ -106,7 +105,6 @@
                                 android:paddingStart="@dimen/deep_padding"
                                 android:paddingEnd="@dimen/standard_padding"
                                 android:text="Set Name"
-                                android:textColor="@color/material_light_black"
                                 android:textSize="@dimen/text_size_large"/>
                         </LinearLayout>
                     </LinearLayout>

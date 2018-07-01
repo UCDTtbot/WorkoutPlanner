@@ -2,9 +2,11 @@ package com.shibedays.workoutplanner.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -30,7 +33,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -54,7 +56,6 @@ import com.shibedays.workoutplanner.ui.dialogs.NumberPickerDialog;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.activities.MyWorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
-import com.shibedays.workoutplanner.viewmodel.dialogs.ReorderViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MyWorkoutActivity.";
     // Intent Types
     public static final int NORMAL_INTENT_TYPE = 0;
-    public static final int NOTIF_INTENT_TYPE = 1;
+    public static final int NOTIF_INTENT_TYPE = 3;
+
+    public static final int PAUSE_INTENT_TYPE = 5;
+    public static final int PLAY_INTENT_TYPE = 10;
     // Data Constants
     private int DATA_DOESNT_EXIST = -1;
 
@@ -139,6 +143,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private boolean HIDE_ITEMS;
 
     private List<Message> mMsgQueue;
+
+    private BroadcastReceiver mNotifReceiver;
+    public static final String FILTER_TIMER = PACKAGE + "TIMER_NOTIF";
     //endregion
 
     //region MESSAGE_HANDLING
@@ -235,7 +242,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES){
+            setTheme(R.style.AppTheme_Dark_NoActionBar);
+        }
         setContentView(R.layout.activity_my_workout);
+
         mFragmentManager = getSupportFragmentManager();
 
         //TODO: in onCreate, we need to check if: TTS Service already Exists, Fragment Already Exists, TimerService already exists
@@ -266,13 +277,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         //region INTENT
         Intent intent = getIntent();
         if(intent != null){
-            int mIntentType = intent.getIntExtra(EXTRA_INTENT_TYPE, -1);
-            if(mIntentType == NORMAL_INTENT_TYPE) {
+            int intentType = intent.getIntExtra(EXTRA_INTENT_TYPE, -1);
+            if(intentType == NORMAL_INTENT_TYPE) {
                 // Normal running circumstances
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
                 mMainVM.setId(id);
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
-            } else if (mIntentType == NOTIF_INTENT_TYPE){
+            } else if (intentType == NOTIF_INTENT_TYPE){
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
             } else {
                 throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
@@ -282,6 +293,30 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
         //endregion
 
+        if(mNotifReceiver == null){
+            mNotifReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent in) {
+                    if(in != null){
+                        int type = in.getIntExtra(EXTRA_INTENT_TYPE, -1);
+                        if (type == PAUSE_INTENT_TYPE) {
+                            Log.d(DEBUG_TAG, "pausing");
+                            if(mTimerFragment != null){
+                                mTimerFragment.pauseTimer();
+                            }
+                        } else if(type == PLAY_INTENT_TYPE) {
+                            Log.d(DEBUG_TAG, "resuming");
+                            if(mTimerFragment != null){
+                                mTimerFragment.continueTimer();
+                            }
+                        }
+                    }
+
+                }
+            };
+        }
+        IntentFilter fil = new IntentFilter(FILTER_TIMER);
+        registerReceiver(mNotifReceiver, fil);
 
         //region TTS_BINDING
         if(!mTTSIsBound) {
@@ -433,6 +468,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             stopService(new Intent(this, TTSService.class));
             mTTSIsBound = false;
         }
+        if(mNotifReceiver != null)
+            unregisterReceiver(mNotifReceiver);
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_DESTROY");
 
     }
@@ -627,7 +664,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void openReorderDialog(){
-        Bundle args = ReorderSetsDialog.getBundle(mMainVM.getWorkoutData().getSetList());
+        Bundle args = ReorderSetsDialog.getBundle(mMainVM.getWorkoutData().getSetList(), mMainVM.getWorkoutData().getWorkoutID());
         ReorderSetsDialog dialog = ReorderSetsDialog.newInstance(args);
         dialog.show(mFragmentManager, DEBUG_TAG);
     }

@@ -175,6 +175,7 @@ public class Workout{
     public List<Set> getSetList(){
         return setList;
     }
+    public void setSetList(List<Set> list){ setList = list; }
 
     public void addSet(Set set){
         setList.add(set);

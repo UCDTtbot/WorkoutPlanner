@@ -5,11 +5,27 @@
     <color name="colorPrimaryDark">@color/material_orange_700</color>
     <color name="colorAccent">@color/material_cyan_500</color>
     <color name="colorPrimaryLight">@color/material_deep_orange_100</color>
+
+    <color name="colorPrimaryDarkTheme">@color/material_grey_900</color>
+    <color name="colorAccentDarkTheme">@color/material_orange_600</color>
+
     <color name="colorPrimaryText">@color/material_grey_900</color>
     <color name="colorSecondaryText">@color/material_grey_600</color>
     <color name="colorIcons">@color/material_light_white</color>
     <color name="colorDivider">@color/material_grey_400</color>
     <color name="colorBackground">?android:colorBackground</color>
+
+    <color name="dark_text_primary">#FF000000</color>
+    <color name="dark_text_secondary">#B3000000</color>
+    <color name="dark_text_hint">#80000000</color>
+    <color name="dark_text_dividers">#0C000000</color>
+
+    <color name="light_text_primary">#FFFFFFFF</color>
+    <color name="light_text_secondary">#B3FFFFFF</color>
+    <color name="light_text_hint">#80FFFFFF</color>
+    <color name="light_text_dividers">#0CFFFFFF</color>
+
+
 
     <color name="transparent">#00000000</color>
     <color name="border_color">#000000</color>

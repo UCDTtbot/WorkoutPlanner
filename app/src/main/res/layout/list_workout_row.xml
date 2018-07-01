@@ -22,8 +22,8 @@
             android:layout_gravity="center_vertical"
             android:layout_toStartOf="@id/more_button"
             android:text="Sample Title"
-            android:textColor="@color/material_light_black"
-            android:textSize="18sp"/>
+            android:textAppearance="@style/LightThemeText"
+            android:textSize="@dimen/text_size_large"/>
 
         <Button
             android:id="@+id/more_button"
@@ -39,7 +39,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/workout_row_recycler"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="124dp"
         android:layout_gravity="center_vertical"
         android:orientation="horizontal">
 

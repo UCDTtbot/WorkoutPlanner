@@ -17,10 +17,11 @@
 
         <ImageView
             android:id="@+id/workout_image"
-            android:layout_width="102dp"
-            android:layout_height="102dp"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
             android:padding="2dp"
             android:layout_gravity="center_horizontal"
+            android:background="@drawable/syle_rounded_drop_box"
             android:scaleType="fitXY" />
 
         <TextView
@@ -30,8 +31,7 @@
             android:gravity="center"
             android:padding="5dp"
             android:text="Sample Title"
-            android:textColor="@color/material_light_black"
-            android:textSize="18sp"/>
+            android:textSize="@dimen/text_size_normal" />
     </LinearLayout>
 
 

@@ -1,11 +1,15 @@
 package com.shibedays.workoutplanner.ui.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shibedays.workoutplanner.R;
@@ -22,13 +26,20 @@ public class OrderSetsAdapter extends RecyclerView.Adapter<OrderSetsAdapter.Orde
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.OrderSetsAdapter.";
     //endregion
 
+    public interface OnStartDragListener{
+        void onStartDrag(RecyclerView.ViewHolder viewHolder);
+    }
+    private OnStartDragListener mListener;
+
     class OrderViewHolder extends RecyclerView.ViewHolder {
 
         TextView name;
+        ImageView dragHandle;
 
         public OrderViewHolder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.set_name);
+            dragHandle = itemView.findViewById(R.id.drag_handle);
         }
     }
 
@@ -42,8 +53,9 @@ public class OrderSetsAdapter extends RecyclerView.Adapter<OrderSetsAdapter.Orde
     //endregion
 
     //region LIFECYCLE
-    public OrderSetsAdapter(Context context){
+    public OrderSetsAdapter(Context context, OnStartDragListener listener) {
         mContext = context;
+        mListener = listener;
     }
 
     @NonNull
@@ -53,11 +65,21 @@ public class OrderSetsAdapter extends RecyclerView.Adapter<OrderSetsAdapter.Orde
                 .inflate(R.layout.list_order_set_item, parent, false));
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
-    public void onBindViewHolder(@NonNull OrderSetsAdapter.OrderViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final OrderSetsAdapter.OrderViewHolder holder, int position) {
         // Bind UI stuff for each item
         if(mSetList != null) {
             holder.name.setText(mSetList.get(position).getName());
+            holder.dragHandle.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if(event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        mListener.onStartDrag(holder);
+                    }
+                    return false;
+                }
+            });
         }
     }
 
@@ -71,6 +93,10 @@ public class OrderSetsAdapter extends RecyclerView.Adapter<OrderSetsAdapter.Orde
 
     public void setData(List<Set> data){
         mSetList = data;
+    }
+
+    public List<Set> getData(){
+        return mSetList;
     }
 
     public void moveItems(int from, int to){

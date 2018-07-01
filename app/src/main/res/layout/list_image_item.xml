@@ -25,7 +25,7 @@
                 android:focusable="true"
                 android:scaleType="fitXY"
                 android:layout_below="@id/choose_image_check"
-                android:layout_toRightOf="@id/choose_image_check"
+                android:layout_toEndOf="@id/choose_image_check"
                 android:src="@drawable/android"/>
 
             <android.support.v7.widget.AppCompatCheckBox

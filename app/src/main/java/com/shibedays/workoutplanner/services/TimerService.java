@@ -20,6 +20,7 @@ import android.util.Log;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
 
 import java.util.Locale;
 
@@ -68,6 +69,7 @@ public class TimerService extends Service {
     public final int NOTIF_REST = 1;
     public final int NOTIF_BREAK = 2;
     public final int NOTIF_NEXT = 3;
+    public final int NOTIF_PLAY_ACTION = 4;
 
     //region PRIVATE_VARS
     // Time Data
@@ -96,7 +98,6 @@ public class TimerService extends Service {
     private int mCurrentAction;
     // Notification Variables
     private Bundle mNotifBundle;
-    private PendingIntent mPendingIntent;
     // Threading Handler
     private Handler mHandler = new Handler();
     // Notification Variables
@@ -135,12 +136,14 @@ public class TimerService extends Service {
                 case MSG_PAUSE_TIMER:
                     if(mHandler != null){
                         mHandler.removeCallbacks(timer);
+                        updateNotification(NOTIF_CURRENT, NOTIF_PLAY_ACTION, false);
                         Log.d(DEBUG_TAG, "Timer (should have been) paused.");
                     }
                     break;
                 case MSG_CONTINUE_TIMER:
                     if(mHandler != null){
                         mHandler.removeCallbacks(timer);
+                        updateNotification(NOTIF_CURRENT, 0, false);
                         mHandler.postDelayed(timer, ONE_SEC / 2);
                     }
                     break;
@@ -178,27 +181,7 @@ public class TimerService extends Service {
 
         //region NOTIFICATION_BUILDING
         // Create the intent for rebuilding the activity
-        Intent notifIntent = new Intent(this, MyWorkoutActivity.class);
-        notifIntent.putExtra(EXTRA_REBUILD_BUNDLE, mNotifBundle);
-        notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notifIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NOTIF_INTENT_TYPE);
-        // Create the pending intent that will bring us back to MyWorkoutActivity
-        mPendingIntent = PendingIntent.getActivity(this, NOTIF_ID, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // TODO: Setup the notification with correct data
-        mBuilder = new NotificationCompat.Builder(this, "MainTimerChannel");
-        Bitmap b = BitmapFactory.decodeResource(getResources(), mSetImage);
-        mBuilder.setContentTitle(mSetName)
-                .setContentText(BaseApp.formatTime(mTotalCurTime) + " left.")
-                .setContentIntent(mPendingIntent)
-                .setSmallIcon(R.drawable.ic_access_alarm_black_24dp)
-                .setOngoing(true)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setStyle(new NotificationCompat.InboxStyle()
-                        .addLine(BaseApp.formatTime(mTotalCurTime) + " left.")
-                        .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));
-        startForeground(NOTIF_ID, mBuilder.build());
+        updateNotification(NOTIF_CURRENT, 0, true);
         //endregion
 
         sendTTSMessage(R.string.tts_starting);
@@ -257,11 +240,11 @@ public class TimerService extends Service {
         if(mCurrentAction == REST_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_NEXT_SET, 0, 0);
             sendMessage(msg);
-            updateNotification(NOTIF_REST);
+            updateNotification(NOTIF_REST, 0, false);
         } else if(mCurrentAction == BREAK_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_FIRST_SET, 0, 0);
             sendMessage(msg);
-            updateNotification(NOTIF_BREAK);
+            updateNotification(NOTIF_BREAK, 0, false);
         }
 
         mMsgSent = false;
@@ -323,7 +306,7 @@ public class TimerService extends Service {
                 }
 
                 if(mTimeLeft % 10000 == 0){
-                    updateNotification(NOTIF_CURRENT);
+                    updateNotification(NOTIF_CURRENT, 0, false);
                 }
 
                 mHandler.postDelayed(this, ONE_SEC);
@@ -409,7 +392,20 @@ public class TimerService extends Service {
     };
     //endregion
 
-    private void updateNotification(int type){
+    private void updateNotification(int type, int flags, boolean isFirstRun){
+
+        if(mBuilder == null)
+            mBuilder = new NotificationCompat.Builder(this, "Timer");
+
+        Intent notifIntent = new Intent(this, MyWorkoutActivity.class);
+        notifIntent.putExtra(EXTRA_REBUILD_BUNDLE, mNotifBundle);
+        notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notifIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NOTIF_INTENT_TYPE);
+        PendingIntent mainPendingIntent = PendingIntent.getActivity(this, NOTIF_ID, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder = new NotificationCompat.Builder(this, "MainTimerChannel");
+        Bitmap b = BitmapFactory.decodeResource(getResources(), mSetImage);
+
         int time = 0;
         String name = "";
         switch (type){
@@ -434,23 +430,41 @@ public class TimerService extends Service {
         }
         mBuilder.setContentTitle(name)
                 .setContentText(BaseApp.formatTime(time) + " left.")
-                .setContentIntent(mPendingIntent)
+                .setContentIntent(mainPendingIntent)
                 .setSmallIcon(R.drawable.ic_access_alarm_black_24dp)
                 .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setStyle(new NotificationCompat.InboxStyle()
-                        .addLine(BaseApp.formatTime(time) + " left.")
+                        .addLine(BaseApp.formatTime(mTotalCurTime) + " left.")
                         .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));
-        NotificationManagerCompat.from(this).notify(NOTIF_ID, mBuilder.build());
+        if(flags == NOTIF_PLAY_ACTION){
+            Intent playIntent = new Intent();
+            playIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.PLAY_INTENT_TYPE);
+            playIntent.setAction(MyWorkoutActivity.FILTER_TIMER);
+            PendingIntent playPendingIntent = PendingIntent.getBroadcast(this, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.addAction(R.drawable.ic_play_arrow_black_24dp, "Play", playPendingIntent);
+        } else {
+            Intent pauseIntent = new Intent();
+            pauseIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.PAUSE_INTENT_TYPE);
+            pauseIntent.setAction(MyWorkoutActivity.FILTER_TIMER);
+            PendingIntent pausePendingIntent = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.addAction(R.drawable.ic_pause_black_24dp, "Pause", pausePendingIntent);
 
+        }
+
+        if(isFirstRun){
+            startForeground(NOTIF_ID, mBuilder.build());
+        } else {
+            NotificationManagerCompat.from(this).notify(NOTIF_ID, mBuilder.build());
+        }
     }
 
     private void nextRep(){
         mCurRep++;
         Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_REP, mCurRep, 0);
         sendMessage(msg);
-        updateNotification(NOTIF_NEXT);
+        updateNotification(NOTIF_NEXT, 0, false);
     }
 
     private void nextRound(){
@@ -463,7 +477,7 @@ public class TimerService extends Service {
             msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NEXT_ROUND, mCurRound, 0);
         }
         sendMessage(msg_round);
-        updateNotification(NOTIF_NEXT);
+        updateNotification(NOTIF_NEXT, 0, false);
     }
 
     private void sendTTSMessage(int stringID){

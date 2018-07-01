@@ -2,6 +2,7 @@ package com.shibedays.workoutplanner.ui.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.adapters.OrderSetsAdapter;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.dialogs.ReorderViewModel;
@@ -40,6 +42,7 @@ public class ReorderSetsDialog extends DialogFragment {
 
     //region INTENT_KEYS
     public static final String EXTRA_SET_LIST = PACKAGE + "SET_LIST";
+    public static final String EXTRA_WRKOUT_ID = PACKAGE + "WRK_ID";
     //endregion
 
     //region PRIVATE_VARS
@@ -51,6 +54,7 @@ public class ReorderSetsDialog extends DialogFragment {
     // UI
     private RecyclerView mSetsRecyclerView;
     private OrderSetsAdapter mAdapter;
+    private ItemTouchHelper mItemTouchHelper;
     //endregion
 
     //region LIFECYCLE
@@ -80,7 +84,7 @@ public class ReorderSetsDialog extends DialogFragment {
             String json = args.getString(EXTRA_SET_LIST);
             Type token = new TypeToken<ArrayList<Set>>(){}.getType();
             List<Set> list = g.fromJson(json, token);
-            setupData(list);
+            setupData(list, args.getInt(EXTRA_WRKOUT_ID));
         }
     }
 
@@ -97,17 +101,11 @@ public class ReorderSetsDialog extends DialogFragment {
         }
         final View view = inflater.inflate(R.layout.dialog_reorder_sets, null);
 
-        mAdapter = new OrderSetsAdapter(getContext());
+
 
         mSetsRecyclerView = view.findViewById(R.id.order_recycler);
-        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
-        mSetsRecyclerView.setLayoutManager(manager);
-        mSetsRecyclerView.setAdapter(mAdapter);
 
-        int dragDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-
-        //TODO : item touch helper not working
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+        mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
@@ -129,7 +127,7 @@ public class ReorderSetsDialog extends DialogFragment {
 
             @Override
             public boolean isLongPressDragEnabled() {
-                return true;
+                return false;
             }
 
             @Override
@@ -148,7 +146,19 @@ public class ReorderSetsDialog extends DialogFragment {
 
             }
         });
-        itemTouchHelper.attachToRecyclerView(mSetsRecyclerView);
+
+        mAdapter = new OrderSetsAdapter(getContext(), new OrderSetsAdapter.OnStartDragListener() {
+            @Override
+            public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+                mItemTouchHelper.startDrag(viewHolder);
+            }
+        });
+
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        mSetsRecyclerView.setLayoutManager(manager);
+        mSetsRecyclerView.setAdapter(mAdapter);
+
+        mItemTouchHelper.attachToRecyclerView(mSetsRecyclerView);
 
         mAdapter.setData(mViewModel.getSetList());
         mAdapter.notifyDataSetChanged();
@@ -160,6 +170,12 @@ public class ReorderSetsDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //TODO handle the reorder
+                        List<Set> s = mAdapter.getData();
+                        Workout w = mWorkoutViewModel.getWorkoutByID(mViewModel.getID());
+                        if(w != null && s != null){
+                            w.setSetList(s);
+                            mWorkoutViewModel.update(w);
+                        }
                     }
                 });
 
@@ -181,23 +197,31 @@ public class ReorderSetsDialog extends DialogFragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getBundle(List<Set> list){
+    public static Bundle getBundle(List<Set> list, int workoutId){
         Bundle args = new Bundle();
         Gson g = new Gson();
         String json = g.toJson(list);
         args.putString(EXTRA_SET_LIST, json);
+        args.putInt(EXTRA_WRKOUT_ID, workoutId);
         return args;
     }
 
 
-    private void setupData(List<Set> data) {
+    private void setupData(List<Set> data, int id) {
         if(mWorkoutViewModel == null){
             mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         }
+        mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+            @Override
+            public void onChanged(@Nullable List<Workout> workouts) {
+
+            }
+        });
         if(mViewModel == null){
             mViewModel = ViewModelProviders.of(this).get(ReorderViewModel.class);
         }
         mViewModel.setSetList(data);
+        mViewModel.setID(id);
     }
     //endregion
 

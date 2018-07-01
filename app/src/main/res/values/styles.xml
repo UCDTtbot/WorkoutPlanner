@@ -1,21 +1,44 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:textAppearance">@style/LightThemeText</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
+    <style name="AppTheme.Dark" parent="Theme.AppCompat">
+        <item name="android:colorPrimary">@color/colorPrimaryDarkTheme</item>
+        <item name="android:colorPrimaryDark">@color/material_light_black</item>
+        <item name="colorAccent">@color/colorAccentDarkTheme</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+    </style>
+
+    <style name="LightThemeText" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">@color/dark_text_primary</item>
+        <item name="android:textColorPrimary">@color/dark_text_primary</item>
+        <item name="android:textColorSecondary">@color/dark_text_secondary</item>
+        <item name="android:textColorHint">@color/dark_text_hint</item>
+    </style>
+    <style name="DarkThemeText" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/light_text_primary</item>
+        <item name="android:textColorPrimary">@color/light_text_primary</item>
+        <item name="android:textColorSecondary">@color/light_text_secondary</item>
+        <item name="android:textColorHint">@color/light_text_hint</item>
+    </style>
+    
+    <style name="AppTheme.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="AppTheme.Dark.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <!-- Custom Styles -->
@@ -35,8 +58,6 @@
         <item name="android:focusable">true</item>
         <item name="android:padding">@dimen/half_padding</item>
     </style>
-
-
 
     <!-- Number Picker Styles -->
     <style name="NumberPickerLabel">

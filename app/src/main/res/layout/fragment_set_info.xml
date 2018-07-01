@@ -36,7 +36,6 @@
                     android:layout_marginStart="@dimen/activity_shallow_horizontal_margin"
                     android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin"
                     android:text="Sample Title"
-                    android:textColor="@color/material_light_black"
                     android:textSize="@dimen/text_size_large"/>
 
                 <android.support.v7.widget.LinearLayoutCompat

@@ -13,6 +13,7 @@ public class ReorderViewModel  extends AndroidViewModel {
     private static final String DEBUG_TAG = ReorderViewModel.class.getSimpleName();
 
     private List<Set> mSetList;
+    private int mWorkoutID;
 
     public ReorderViewModel(@NonNull Application application) {
         super(application);
@@ -20,4 +21,7 @@ public class ReorderViewModel  extends AndroidViewModel {
 
     public List<Set> getSetList(){ return mSetList; }
     public void setSetList(List<Set> list) { mSetList = list; }
+
+    public int getID(){ return mWorkoutID; }
+    public void setID(int id) { mWorkoutID = id; }
 }
