@@ -23,7 +23,6 @@ import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedSetAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
 import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
@@ -51,8 +50,6 @@ public class AddSetsFragment extends Fragment {
     private List<SetListFragment> mSetListFrags;
     private int mParentWrkoutId;
     // Adapters
-    private SectionedSetAdapter mLeftAdapter;
-    private SectionedSetAdapter mRightAdapter;
     // UI Components
     private Button mSaveButton;
 

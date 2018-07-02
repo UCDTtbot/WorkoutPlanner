@@ -2,33 +2,32 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textAppearance">@style/LightThemeText</item>
-    </style>
-
-    <style name="AppTheme.Dark" parent="Theme.AppCompat">
-        <item name="android:colorPrimary">@color/colorPrimaryDarkTheme</item>
-        <item name="android:colorPrimaryDark">@color/material_light_black</item>
-        <item name="colorAccent">@color/colorAccentDarkTheme</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-    </style>
-
-    <style name="LightThemeText" parent="@android:style/TextAppearance.Large">
         <item name="android:textColor">@color/dark_text_primary</item>
         <item name="android:textColorPrimary">@color/dark_text_primary</item>
         <item name="android:textColorSecondary">@color/dark_text_secondary</item>
         <item name="android:textColorHint">@color/dark_text_hint</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
-    <style name="DarkThemeText" parent="@android:style/TextAppearance">
+
+    <style name="AppTheme.Dark" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimaryDarkTheme</item>
+        <item name="colorPrimaryDark">@color/material_light_black</item>
+        <item name="colorAccent">@color/colorAccentDarkTheme</item>
         <item name="android:textColor">@color/light_text_primary</item>
         <item name="android:textColorPrimary">@color/light_text_primary</item>
         <item name="android:textColorSecondary">@color/light_text_secondary</item>
         <item name="android:textColorHint">@color/light_text_hint</item>
+        <item name="android:itemTextAppearance">@style/OverflowMenu</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
-    
+
+    <style name="OverflowMenu">
+        <item name="android:textColor">@color/material_light_black</item>
+    </style>
+
     <style name="AppTheme.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -42,7 +41,7 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <!-- Custom Styles -->
-    <style name="Divider">
+    <style name="Divider" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginStart">@dimen/activity_horizontal_margin</item>
@@ -50,24 +49,15 @@
         <item name="android:background">@color/colorDivider</item>
     </style>
 
-    <!-- MyWorkoutActivity Styles -->
-    <style name="TouchableText" parent="Base.TextAppearance.AppCompat.Subhead">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:padding">@dimen/half_padding</item>
-    </style>
-
     <!-- Number Picker Styles -->
-    <style name="NumberPickerLabel">
+    <style name="NumberPickerLabel" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerInParent">true</item>
         <item name="android:layout_marginTop">@dimen/quarter_padding</item>
     </style>
 
-    <style name="Colon">
+    <style name="Colon" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
@@ -77,7 +67,7 @@
     </style>
 
     <!-- Dialog Windows -->
-    <style name="Dialog_Edit_Text">
+    <style name="Dialog_Edit_Text" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">@dimen/activity_shallow_margin</item>
@@ -87,7 +77,7 @@
         <item name="android:inputType">textCapSentences</item>
     </style>
 
-    <style name="Dialog_View_Text">
+    <style name="Dialog_View_Text" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">@dimen/activity_shallow_margin</item>
@@ -95,8 +85,9 @@
         <item name="android:background">?attr/editTextBackground</item>
     </style>
 
+
     <!-- Views -->
-    <style name="Edit_Number" parent="Base.TextAppearance.AppCompat">
+    <style name="EditText_Number" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:maxLines">1</item>
@@ -105,35 +96,9 @@
         <item name="android:digits">0123456789</item>
         <item name="android:imeOptions">actionDone</item>
         <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:textSize">@dimen/text_size_normal</item>
     </style>
 
-    <style name="Edit_Text" parent="Base.TextAppearance.AppCompat">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:gravity">center</item>
-        <item name="android:inputType">textCapSentences</item>
-        <item name="android:imeOptions">actionDone</item>
-        <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:textSize">@dimen/text_size_normal</item>
-
-    </style>
-
-    <style name="View_Text" parent="Base.TextAppearance.AppCompat">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:gravity">center</item>
-        <item name="android:inputType">none</item>
-        <item name="android:clickable">false</item>
-        <item name="android:focusable">false</item>
-        <item name="android:cursorVisible">false</item>
-        <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:textSize">@dimen/text_size_normal</item>
-
-    </style>
-
-    <style name="View_Clickable_Time" parent="Base.TextAppearance.AppCompat">
+    <style name="TextView_Time_Clickable" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
@@ -142,29 +107,29 @@
         <item name="android:focusable">true</item>
         <item name="android:cursorVisible">false</item>
         <item name="android:background">?attr/editTextBackground</item>
-        <item name="android:textSize">@dimen/text_size_normal</item>
-
     </style>
 
-    <style name="TextView" parent="TextAppearance.AppCompat">
+    <style name="TextView_Display_Item" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">@dimen/text_size_normal</item>
     </style>
 
-    <style name="TextView_Header" parent="TextAppearance.AppCompat.Caption">
+    <style name="TextView_Display_Header" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
+    <style name="EditText_Label_Hint" parent="TextAppearance.Design.Hint">
         <item name="android:textSize">@dimen/text_size_small</item>
     </style>
 
-    <style name="TextLabelHint" parent="TextAppearance.Design.Hint">
-        <item name="android:textSize">@dimen/text_size_small</item>
+    <style name="RecyclerView_Text_Header" parent="TextAppearance.AppCompat">
+
     </style>
 
     <!-- Bottom Sheet Styles -->
-    <style name="BottomSheet_View_ListTitle" parent="TextAppearance.AppCompat.Title">
+    <style name="BottomSheet_View_ListTitle" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/list_title_size</item>
         <item name="android:paddingStart">@dimen/standard_icon_margin_start</item>
@@ -172,7 +137,7 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="BottomSheet_LinearRow">
+    <style name="BottomSheet_LinearRow" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/list_three_quarters_vertical_size</item>
         <item name="android:clickable">true</item>
@@ -183,7 +148,7 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="BottomSheet_View_Image">
+    <style name="BottomSheet_View_Image" parent="TextAppearance.AppCompat">
         <item name="android:layout_width">@dimen/standard_icon_touchable_size</item>
         <item name="android:layout_height">@dimen/standard_icon_touchable_size</item>
         <item name="android:padding">@dimen/standard_icon_touchable_padding</item>
@@ -195,14 +160,14 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:fontFamily">sans-serif</item>
     </style>
 
 
 
-    <style name="Button_Custom" parent="Theme.AppCompat.Light">
+    <style name="Button_Custom">
         <item name="colorControlHighlight">@color/colorPrimary</item>
         <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="android:textColor">@color/material_light_white</item>
     </style>
 
 

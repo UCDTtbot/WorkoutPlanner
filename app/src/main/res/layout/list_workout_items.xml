@@ -30,8 +30,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="5dp"
-            android:text="Sample Title"
-            android:textSize="@dimen/text_size_normal" />
+            android:text="Sample Title"/>
     </LinearLayout>
 
 

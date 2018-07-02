@@ -71,8 +71,7 @@
                                 android:text="Now: "
                                 android:layout_marginTop="@dimen/activity_shallow_margin"
                                 android:paddingStart="@dimen/standard_padding"
-                                android:paddingEnd="@dimen/standard_padding"
-                                android:textSize="@dimen/text_size_normal"/>
+                                android:paddingEnd="@dimen/standard_padding" />
                             <TextView
                                 android:id="@+id/cur_set"
                                 android:layout_width="wrap_content"
@@ -80,8 +79,7 @@
                                 android:maxLength="18"
                                 android:paddingStart="@dimen/deep_padding"
                                 android:paddingEnd="@dimen/standard_padding"
-                                android:text="Set Name"
-                                android:textSize="@dimen/text_size_large"/>
+                                android:text="Set Name" />
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="0dp"
@@ -95,8 +93,7 @@
                                 android:text="Next:"
                                 android:layout_marginTop="@dimen/activity_shallow_margin"
                                 android:paddingStart="@dimen/standard_padding"
-                                android:paddingEnd="@dimen/standard_padding"
-                                android:textSize="@dimen/text_size_normal"/>
+                                android:paddingEnd="@dimen/standard_padding" />
                             <TextView
                                 android:id="@+id/next_set"
                                 android:layout_width="wrap_content"
@@ -104,8 +101,7 @@
                                 android:maxLength="18"
                                 android:paddingStart="@dimen/deep_padding"
                                 android:paddingEnd="@dimen/standard_padding"
-                                android:text="Set Name"
-                                android:textSize="@dimen/text_size_large"/>
+                                android:text="Set Name" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -122,7 +118,6 @@
                 android:minLines="5"
                 android:maxLines="5"
                 android:scrollbars="vertical"
-                android:textSize="@dimen/text_size_normal"
                 android:padding="@dimen/standard_padding" />
 
 

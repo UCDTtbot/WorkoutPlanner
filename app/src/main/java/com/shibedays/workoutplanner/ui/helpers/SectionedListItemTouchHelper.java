@@ -15,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.afollestad.sectionedrecyclerview.SectionedRecyclerViewAdapter;
-import com.shibedays.workoutplanner.ui.adapters.sectioned.SectionedPendingRemovalAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

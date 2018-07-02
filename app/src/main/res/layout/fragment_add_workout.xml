@@ -28,7 +28,7 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_alignParentTop="true"
-                app:hintTextAppearance="@style/TextLabelHint">
+                app:hintTextAppearance="@style/EditText_Label_Hint">
 
                 <EditText
                     android:id="@+id/name_entry"
@@ -58,13 +58,13 @@
                     android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                    app:hintTextAppearance="@style/TextLabelHint">
+                    app:hintTextAppearance="@style/EditText_Label_Hint">
 
                     <EditText
                         android:id="@+id/round_entry_num"
                         android:hint="@string/round_title_text"
                         android:text="@string/default_num"
-                        style="@style/Edit_Number" />
+                        style="@style/EditText_Number" />
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -78,13 +78,13 @@
                     android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                    app:hintTextAppearance="@style/TextLabelHint">
+                    app:hintTextAppearance="@style/EditText_Label_Hint">
 
                     <EditText
                         android:id="@+id/rest_entry_time"
                         android:hint="@string/rest_title_text"
                         android:text="@string/default_time"
-                        style="@style/Edit_Number" />
+                        style="@style/EditText_Number" />
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -98,13 +98,13 @@
                     android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                    app:hintTextAppearance="@style/TextLabelHint">
+                    app:hintTextAppearance="@style/EditText_Label_Hint">
 
                     <EditText
                         android:id="@+id/break_entry_time"
                         android:hint="@string/break_title_text"
                         android:text="@string/default_time"
-                        style="@style/Edit_Number" />
+                        style="@style/EditText_Number" />
 
                 </android.support.design.widget.TextInputLayout>
                 <!--

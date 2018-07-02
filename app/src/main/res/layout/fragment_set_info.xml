@@ -35,8 +35,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginStart="@dimen/activity_shallow_horizontal_margin"
                     android:layout_marginEnd="@dimen/activity_shallow_horizontal_margin"
-                    android:text="Sample Title"
-                    android:textSize="@dimen/text_size_large"/>
+                    android:text="Sample Title" />
 
                 <android.support.v7.widget.LinearLayoutCompat
                     android:layout_width="wrap_content"
@@ -46,11 +45,11 @@
                     android:layout_marginEnd="@dimen/activity_horizontal_margin">
                     <TextView
                         android:id="@+id/time_title"
-                        style="@style/TextView_Header"
+                        style="@style/TextView_Display_Header"
                         android:text="Set Time"/>
                     <TextView
                         android:id="@+id/set_time"
-                        style="@style/TextView"
+                        style="@style/TextView_Display_Item"
                         android:text="@string/default_time"
                         android:layout_gravity="center"/>
                 </android.support.v7.widget.LinearLayoutCompat>
@@ -70,7 +69,6 @@
             android:minLines="10"
             android:maxLines="10"
             android:scrollbars="vertical"
-            android:textSize="@dimen/text_size_normal"
             android:padding="@dimen/standard_padding" />
 
         <RelativeLayout
