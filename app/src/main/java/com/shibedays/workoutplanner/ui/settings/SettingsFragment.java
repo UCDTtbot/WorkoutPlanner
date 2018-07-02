@@ -60,11 +60,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         licenses.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                final Notices notices = new Notices();
-                notices.addNotice(new Notice("Test", "http://google.com", "Person", new ApacheSoftwareLicense20()));
                 if(getActivity() != null) {
                     new LicensesDialog.Builder(getActivity())
-                            .setNotices(notices)
+                            .setNotices(R.raw.notices)
                             .setIncludeOwnLicense(true)
                             .build()
                             .show();

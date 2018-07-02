@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<notices>
+    <notice>
+        <name>Gson</name>
+        <url>https://github.com/google/gson</url>
+        <copyright>Copyright 2008 Google Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Architecture Components</name>
+        <url>https://github.com/googlesamples/android-architecture-components</url>
+        <copyright>Copyright 2018 The Android Open Source Project, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Android Debug Database</name>
+        <url>https://github.com/amitshekhariitbhu/Android-Debug-Database</url>
+        <copyright>Copyright (C) 2016 Amit Shekhar</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Recyclerview Animators</name>
+        <url>https://github.com/wasabeef/recyclerview-animators</url>
+        <copyright>Copyright 2018 Wasabeef</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Number Picker</name>
+        <url>https://github.com/ShawnLin013/NumberPicker</url>
+        <copyright>Copyright (c) 2018 ShawnLin013</copyright>
+        <license>MIT License</license>
+    </notice>
+    <notice>
+        <name>Glide</name>
+        <url>https://github.com/bumptech/glide</url>
+        <copyright>Copyright 2014 Google, Inc. All rights reserved.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+</notices>
