@@ -16,6 +16,11 @@ import android.widget.Switch;
 
 import com.shibedays.workoutplanner.R;
 
+import de.psdev.licensesdialog.LicensesDialog;
+import de.psdev.licensesdialog.licenses.ApacheSoftwareLicense20;
+import de.psdev.licensesdialog.model.Notice;
+import de.psdev.licensesdialog.model.Notices;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -48,6 +53,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     }
                 }
                 return true;
+            }
+        });
+
+        Preference licenses = findPreference("libraries");
+        licenses.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                final Notices notices = new Notices();
+                notices.addNotice(new Notice("Test", "http://google.com", "Person", new ApacheSoftwareLicense20()));
+                if(getActivity() != null) {
+                    new LicensesDialog.Builder(getActivity())
+                            .setNotices(notices)
+                            .setIncludeOwnLicense(true)
+                            .build()
+                            .show();
+                }
+                return false;
             }
         });
 
