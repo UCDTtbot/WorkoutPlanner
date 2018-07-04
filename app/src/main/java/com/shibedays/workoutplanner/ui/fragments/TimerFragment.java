@@ -3,8 +3,11 @@ package com.shibedays.workoutplanner.ui.fragments;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,7 +20,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -61,6 +69,8 @@ public class TimerFragment extends Fragment {
     private TextView mSetDescripView;
 
     private TabLayout mTabs;
+
+    private AdView mAdView;
 
     private View.OnClickListener mOnPause;
     private View.OnClickListener mOnCont;
@@ -146,7 +156,6 @@ public class TimerFragment extends Fragment {
         } else {
             throw new RuntimeException(TimerFragment.class.getSimpleName() + " getArguments returned null. Fragment started incorrectly");
         }
-        setHasOptionsMenu(true);
 
     }
 
@@ -190,6 +199,10 @@ public class TimerFragment extends Fragment {
         mTimeView = view.findViewById(R.id.main_time);
         mRepsView = view.findViewById(R.id.reps);
         mRoundsView = view.findViewById(R.id.rounds);
+
+        mAdView = view.findViewById(R.id.timer_ad_view);
+        setupAd();
+
         return view;
     }
 
@@ -206,12 +219,16 @@ public class TimerFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
+        if(mAdView != null)
+            mAdView.resume();
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_RESUME");
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        if(mAdView != null)
+            mAdView.pause();
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_PAUSE");
     }
 
@@ -228,6 +245,8 @@ public class TimerFragment extends Fragment {
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mInstance = null;
+        if(mAdView != null)
+            mAdView.destroy();
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");
     }
 
@@ -346,5 +365,39 @@ public class TimerFragment extends Fragment {
         Bundle args = new Bundle();
         args.putInt(EXTRA_WORKOUT_ID, id);
         return args;
+    }
+
+    private void setupAd(){
+        boolean adsDisabled = false;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if(prefs != null){
+            adsDisabled = prefs.getBoolean("disable_ads", false);
+        }
+        if(!adsDisabled){
+            MobileAds.initialize(getActivity(), "ca-app-pub-1633767409472368~4737915463");
+            AdRequest adr = new AdRequest.Builder()
+                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
+                    .build();
+            mAdView.loadAd(adr);
+
+            mAdView.setAdListener(new AdListener() {
+                @Override
+                public void onAdLoaded() {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            AdRequest adr = new AdRequest.Builder()
+                                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
+                                    .build();
+                            mAdView.loadAd(adr);
+                        }
+                    }, 30000);
+                    super.onAdLoaded();
+                }
+            });
+        } else {
+            mAdView.setEnabled(false);
+            mAdView.setVisibility(View.GONE);
+        }
     }
 }

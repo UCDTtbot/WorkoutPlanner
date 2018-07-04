@@ -137,89 +137,103 @@
         android:layout_gravity="center"
         android:layout_weight="50">
 
-        <ProgressBar
-            android:id="@+id/timer_progress"
-            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_centerInParent="true"
-            android:background="@drawable/style_background_bar"
-            android:indeterminate="false"
-            android:max="100"
-            android:progress="65"
-            android:progressDrawable="@drawable/style_progress_bar" />
-
-
         <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/timer_progress">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/timer_ad_view">
 
-            <TextView
-                android:id="@+id/reps_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rep:" />
-
-            <TextView
-                android:id="@+id/reps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/reps_title"
+            <ProgressBar
+                android:id="@+id/timer_progress"
+                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
                 android:layout_centerInParent="true"
-                android:text="1" />
-        </RelativeLayout>
+                android:background="@drawable/style_background_bar"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="65"
+                android:progressDrawable="@drawable/style_progress_bar" />
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/timer_progress">
 
-            <TextView
-                android:id="@+id/rounds_title"
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Round:" />
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/timer_progress">
 
-            <TextView
-                android:id="@+id/rounds"
+                <TextView
+                    android:id="@+id/reps_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rep:" />
+
+                <TextView
+                    android:id="@+id/reps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/reps_title"
+                    android:layout_centerInParent="true"
+                    android:text="1" />
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/rounds_title"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/timer_progress">
+
+                <TextView
+                    android:id="@+id/rounds_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Round:" />
+
+                <TextView
+                    android:id="@+id/rounds"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/rounds_title"
+                    android:layout_centerInParent="true"
+                    android:text="1" />
+            </RelativeLayout>
+
+
+            <TextView
+                android:id="@+id/main_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/pause_button"
                 android:layout_centerInParent="true"
-                android:text="1" />
+                android:text="time" />
+
+            <ImageView
+                android:id="@+id/pause_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_pause_black_24dp" />
+
+            <ImageView
+                android:id="@+id/continue_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="fitXY"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_play_arrow_black_24dp"
+                android:visibility="invisible"/>
+
         </RelativeLayout>
-
-
-        <TextView
-            android:id="@+id/main_time"
-            android:layout_width="wrap_content"
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/timer_ad_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/pause_button"
-            android:layout_centerInParent="true"
-            android:text="time" />
+            android:layout_alignParentBottom="true"
+            ads:adSize="SMART_BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
+        </com.google.android.gms.ads.AdView>
 
-        <ImageView
-            android:id="@+id/pause_button"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerInParent="true"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_pause_black_24dp" />
-
-        <ImageView
-            android:id="@+id/continue_button"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="fitXY"
-            android:layout_centerInParent="true"
-            android:src="@drawable/ic_play_arrow_black_24dp"
-            android:visibility="invisible"/>
     </RelativeLayout>
-
-
-
 
 </LinearLayout>
