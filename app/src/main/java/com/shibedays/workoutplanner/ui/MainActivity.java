@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -23,7 +24,12 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     //region PRIVATE_VARS
     // UI Components
     private RecyclerView mRecyclerView;
+    private AdView mAdView;
 
     // Flags
     private boolean HIDE_ACTION_ITEMS;
@@ -138,6 +145,41 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        boolean adsDisabled = false;
+        if(mDefaultSharedPrefs != null){
+            adsDisabled = mDefaultSharedPrefs.getBoolean("disable_ads", false);
+        }
+
+
+        mAdView = findViewById(R.id.main_ad_view);
+        if(!adsDisabled){
+            MobileAds.initialize(this, "ca-app-pub-1633767409472368~4737915463");
+            AdRequest adr = new AdRequest.Builder()
+                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
+                    .build();
+            mAdView.loadAd(adr);
+
+            mAdView.setAdListener(new AdListener() {
+                @Override
+                public void onAdLoaded() {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            AdRequest adr = new AdRequest.Builder()
+                                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
+                                    .build();
+                            mAdView.loadAd(adr);
+                            Toast.makeText(getApplicationContext(), "Loaded new ad", Toast.LENGTH_SHORT).show();
+                        }
+                    }, 30000);
+                    super.onAdLoaded();
+                }
+            });
+
+        } else {
+            mAdView.setEnabled(false);
+            mAdView.setVisibility(View.GONE);
+        }
         //endregion
 
 
@@ -208,12 +250,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(mAdView != null)
+            mAdView.resume();
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_RESUME");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if(mAdView != null)
+            mAdView.pause();
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_PAUSE");
     }
 
@@ -226,6 +272,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(mAdView != null)
+            mAdView.destroy();
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_DESTROY");
     }
 

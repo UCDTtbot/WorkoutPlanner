@@ -81,4 +81,8 @@ dependencies {
 
     //License Dialog
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.3'
+
+    //Ad Mob
+    implementation 'com.google.android.gms:play-services-ads:15.0.0'
+
 }
