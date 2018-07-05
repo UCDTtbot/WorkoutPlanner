@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private AdView mAdView;
 
+    private Handler mAdHandler;
+
     // Flags
     private boolean HIDE_ACTION_ITEMS;
 
@@ -154,27 +156,27 @@ public class MainActivity extends AppCompatActivity {
         mAdView = findViewById(R.id.main_ad_view);
         if(!adsDisabled){
             MobileAds.initialize(this, "ca-app-pub-1633767409472368~4737915463");
-            AdRequest adr = new AdRequest.Builder()
-                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
-                    .build();
-            mAdView.loadAd(adr);
 
             mAdView.setAdListener(new AdListener() {
                 @Override
                 public void onAdLoaded() {
-                    new Handler().postDelayed(new Runnable() {
+                    if(mAdHandler == null){
+                        mAdHandler = new Handler();
+                    }
+                    mAdHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             AdRequest adr = new AdRequest.Builder()
                                     .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
                                     .build();
                             mAdView.loadAd(adr);
-                            Toast.makeText(getApplicationContext(), "Loaded new ad", Toast.LENGTH_SHORT).show();
                         }
                     }, 30000);
                     super.onAdLoaded();
                 }
             });
+
+
 
         } else {
             mAdView.setEnabled(false);
@@ -250,16 +252,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(mAdView != null)
+        if(mAdView != null) {
             mAdView.resume();
+            AdRequest adr = new AdRequest.Builder()
+                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
+                    .build();
+            mAdView.loadAd(adr);
+        }
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_RESUME");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(mAdView != null)
+        if(mAdView != null) {
             mAdView.pause();
+            mAdHandler.removeCallbacks(null);
+        }
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_PAUSE");
     }
 
@@ -272,8 +281,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mAdView != null)
+        if(mAdView != null) {
             mAdView.destroy();
+            mAdHandler.removeCallbacks(null);
+        }
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_DESTROY");
     }
 

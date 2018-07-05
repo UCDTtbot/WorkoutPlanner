@@ -71,6 +71,7 @@ public class TimerFragment extends Fragment {
     private TabLayout mTabs;
 
     private AdView mAdView;
+    private Handler mAdHandler;
 
     private View.OnClickListener mOnPause;
     private View.OnClickListener mOnCont;
@@ -219,16 +220,23 @@ public class TimerFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        if(mAdView != null)
+        if(mAdView != null) {
             mAdView.resume();
+            AdRequest adr = new AdRequest.Builder()
+                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
+                    .build();
+            mAdView.loadAd(adr);
+        }
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_RESUME");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(mAdView != null)
+        if(mAdView != null) {
             mAdView.pause();
+            mAdHandler.removeCallbacks(null);
+        }
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_PAUSE");
     }
 
@@ -245,8 +253,11 @@ public class TimerFragment extends Fragment {
         mListener.closeFragmentAndService();
         mListener.stopTTSSpeech();
         mInstance = null;
-        if(mAdView != null)
+        if(mAdView != null){
             mAdView.destroy();
+            mAdHandler.removeCallbacks(null);
+        }
+
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");
     }
 
@@ -375,15 +386,14 @@ public class TimerFragment extends Fragment {
         }
         if(!adsDisabled){
             MobileAds.initialize(getActivity(), "ca-app-pub-1633767409472368~4737915463");
-            AdRequest adr = new AdRequest.Builder()
-                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
-                    .build();
-            mAdView.loadAd(adr);
 
             mAdView.setAdListener(new AdListener() {
                 @Override
                 public void onAdLoaded() {
-                    new Handler().postDelayed(new Runnable() {
+                    if(mAdHandler == null){
+                        mAdHandler = new Handler();
+                    }
+                    mAdHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             AdRequest adr = new AdRequest.Builder()
