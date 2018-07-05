@@ -235,7 +235,8 @@ public class TimerFragment extends Fragment {
         super.onPause();
         if(mAdView != null) {
             mAdView.pause();
-            mAdHandler.removeCallbacks(null);
+            if(mAdHandler != null)
+                mAdHandler.removeCallbacks(null);
         }
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_PAUSE");
     }
@@ -255,7 +256,8 @@ public class TimerFragment extends Fragment {
         mInstance = null;
         if(mAdView != null){
             mAdView.destroy();
-            mAdHandler.removeCallbacks(null);
+            if(mAdHandler != null)
+                mAdHandler.removeCallbacks(null);
         }
 
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_DESTROY");

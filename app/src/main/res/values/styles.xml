@@ -11,6 +11,25 @@
         <item name="android:textColorHint">@color/dark_text_hint</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
+    <style name="AppTheme.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="AppTheme.CaptionText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/text_size_small</item>
+    </style>
+    <style name="AppTheme.NormalText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+    </style>
+    <style name="AppTheme.SubHeaderText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/text_size_xnormal</item>
+    </style>
+    <style name="AppTheme.TitleText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/text_size_large</item>
+    </style>
+    <style name="AppTheme.HeadlineText" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/text_size_xlarge</item>
+    </style>
 
     <style name="AppTheme.Dark" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/colorPrimaryDarkTheme</item>
@@ -20,22 +39,17 @@
         <item name="android:textColorPrimary">@color/light_text_primary</item>
         <item name="android:textColorSecondary">@color/light_text_secondary</item>
         <item name="android:textColorHint">@color/light_text_hint</item>
-        <item name="android:itemTextAppearance">@style/OverflowMenu</item>
+        <item name="android:itemTextAppearance">@style/AppTheme.Dark.OverflowMenu</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-    </style>
-
-    <style name="OverflowMenu">
-        <item name="android:textColor">@color/material_light_black</item>
-    </style>
-
-    <style name="AppTheme.Light.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
     </style>
     <style name="AppTheme.Dark.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="AppTheme.Dark.OverflowMenu">
+        <item name="android:textColor">@color/material_light_black</item>
+    </style>
+
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

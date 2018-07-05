@@ -267,7 +267,8 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         if(mAdView != null) {
             mAdView.pause();
-            mAdHandler.removeCallbacks(null);
+            if(mAdHandler != null)
+                mAdHandler.removeCallbacks(null);
         }
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_PAUSE");
     }
@@ -283,7 +284,8 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if(mAdView != null) {
             mAdView.destroy();
-            mAdHandler.removeCallbacks(null);
+            if(mAdHandler != null)
+                mAdHandler.removeCallbacks(null);
         }
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_DESTROY");
     }

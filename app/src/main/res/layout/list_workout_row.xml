@@ -22,7 +22,7 @@
             android:layout_gravity="center_vertical"
             android:layout_toStartOf="@id/more_button"
             android:text="Sample Title"
-/>
+            style="@style/AppTheme.TitleText"/>
 
         <Button
             android:id="@+id/more_button"
