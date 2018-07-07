@@ -175,12 +175,11 @@ public class MainActivity extends AppCompatActivity {
                     super.onAdLoaded();
                 }
             });
-
-
-
         } else {
             mAdView.setEnabled(false);
             mAdView.setVisibility(View.GONE);
+            findViewById(R.id.recyclerView);
+            //TODO : MOVE THE MARGIN OF THE RECYCLER VIEW SO THERES NOT AN EMPTY SPOT AT THE BOTTOM
         }
         //endregion
 

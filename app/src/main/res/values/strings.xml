@@ -160,4 +160,7 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="default_set_title">Set Title</string>
+    <string name="set_time_label">Set Time: </string>
+    <string name="default_sample_text">This is a block of sample text. Make sure it is changed to something more meaningful.</string>
 </resources>

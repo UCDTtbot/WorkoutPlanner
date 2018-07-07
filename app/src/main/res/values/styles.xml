@@ -9,6 +9,7 @@
         <item name="android:textColorPrimary">@color/dark_text_primary</item>
         <item name="android:textColorSecondary">@color/dark_text_secondary</item>
         <item name="android:textColorHint">@color/dark_text_hint</item>
+        <item name="dividerColor">@color/dark_text_dividers</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
     <style name="AppTheme.Light.NoActionBar">
@@ -17,6 +18,7 @@
     </style>
     <style name="AppTheme.CaptionText" parent="TextAppearance.AppCompat">
         <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">?android:attr/textColorHint</item>
     </style>
     <style name="AppTheme.NormalText" parent="TextAppearance.AppCompat">
         <item name="android:textSize">@dimen/text_size_normal</item>
@@ -39,6 +41,7 @@
         <item name="android:textColorPrimary">@color/light_text_primary</item>
         <item name="android:textColorSecondary">@color/light_text_secondary</item>
         <item name="android:textColorHint">@color/light_text_hint</item>
+        <item name="dividerColor">@color/light_text_dividers</item>
         <item name="android:itemTextAppearance">@style/AppTheme.Dark.OverflowMenu</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
@@ -123,16 +126,16 @@
         <item name="android:background">?attr/editTextBackground</item>
     </style>
 
-    <style name="TextView_Display_Item" parent="TextAppearance.AppCompat">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <style name="TextView_Display_Header" parent="TextAppearance.AppCompat">
+    <style name="TextView_Display_Header" parent="AppTheme.CaptionText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">4dp</item>
     </style>
+    <style name="TextView_Display_Item" parent="AppTheme.NormalText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
 
     <style name="EditText_Label_Hint" parent="TextAppearance.Design.Hint">
         <item name="android:textSize">@dimen/text_size_small</item>
