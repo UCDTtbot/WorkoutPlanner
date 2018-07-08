@@ -2,9 +2,12 @@ package com.shibedays.workoutplanner.db.entities;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.util.StringUtil;
 import android.support.annotation.NonNull;
+
+import com.shibedays.workoutplanner.BaseApp;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +35,9 @@ public class Set {
     @ColumnInfo(name = "id")
     private int setId;
     private int setType;
+    @Ignore
     private int setImageId;
+    private String setImageName;
     private String name;
     private String descrip;
     private int time;
@@ -43,13 +48,30 @@ public class Set {
         time = 1000;
     }
 
+    public Set(int id, String name, String descrip, int type, int time, String image){
+        this.setId = id;
+        this.name = name;
+        this.descrip = descrip;
+        this.setType = type;
+        this.time = time;
+        this.setImageName = image;
+    }
+
+    public Set(String name, String descrip, int type, int time, String image){
+        this.name = name;
+        this.setType = type;
+        this.descrip = descrip;
+        this.time = time;
+        setImageName = image;
+    }
+
     public Set(int id, String name, String descrip, int type, int time, int image){
         this.setId = id;
         this.name = name;
         this.descrip = descrip;
         this.setType = type;
         this.time = time;
-        this.setImageId = image;
+        setImageById(image);
     }
 
     public Set(String name, String descrip, int type, int time, int image){
@@ -57,7 +79,7 @@ public class Set {
         this.setType = type;
         this.descrip = descrip;
         this.time = time;
-        setImageId = image;
+        setImageById(image);
     }
 
     public int getSetId(){ return setId; }
@@ -66,8 +88,18 @@ public class Set {
     public int getSetType(){ return setType; }
     public void setSetType(int type){ setType = type; }
 
-    public int getSetImageId() { return setImageId; }
-    public void setSetImageId(int id) { setImageId = id; }
+    public int getSetImageId() {
+        int resId = BaseApp.getAppContext().getResources().getIdentifier(
+                setImageName,
+                "drawable",
+                BaseApp.getAppContext().getPackageName());
+        return resId;
+    }
+    public void setImageById(int id){
+        setImageName = BaseApp.getAppContext().getResources().getResourceEntryName(id);
+    }
+    public String getSetImageName() { return setImageName; }
+    public void setSetImageName(String name) { setImageName = name; }
 
     public String getName(){
         return name;

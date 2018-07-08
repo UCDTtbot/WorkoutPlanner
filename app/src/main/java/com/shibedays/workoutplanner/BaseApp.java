@@ -19,6 +19,26 @@ import java.util.Locale;
 
 public class BaseApp extends Application {
 
+
+    private static Context context;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs != null) {
+            boolean isDark = prefs.getBoolean("dark_theme", false);
+            if(isDark){
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+        }
+
+        context = getApplicationContext();
+
+    }
+
     public AppDatabase getDatabase(){
         return AppDatabase.getDatabaseInstance(this);
     }
@@ -27,18 +47,10 @@ public class BaseApp extends Application {
         return DataRepo.getInstance(getDatabase());
     }
 
-    public static void showDebugDBAddressLogToast(Context context) {
-        if (BuildConfig.DEBUG) {
-            try {
-                Class<?> debugDB = Class.forName("com.amitshekhar.DebugDB");
-                Method getAddressLog = debugDB.getMethod("getAddressLog");
-                Object value = getAddressLog.invoke(null);
-                Toast.makeText(context, (String) value, Toast.LENGTH_LONG).show();
-            } catch (Exception ignore) {
-
-            }
-        }
+    public static Context getAppContext () {
+        return context;
     }
+
 
     //region CONVERTERS
     public static int convertToMillis(int[] time){
@@ -136,20 +148,4 @@ public class BaseApp extends Application {
     }
 
     //endregion
-
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if(prefs != null) {
-            boolean isDark = prefs.getBoolean("dark_theme", false);
-            if(isDark){
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            }
-        }
-
-    }
 }

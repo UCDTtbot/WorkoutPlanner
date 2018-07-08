@@ -16,13 +16,17 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -153,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
         mAdView = findViewById(R.id.main_ad_view);
         if(!adsDisabled){
             MobileAds.initialize(this, "ca-app-pub-1633767409472368~4737915463");
@@ -175,18 +180,18 @@ public class MainActivity extends AppCompatActivity {
                     super.onAdLoaded();
                 }
             });
+            setBottomMargin(mRecyclerView, 180);
         } else {
             mAdView.setEnabled(false);
             mAdView.setVisibility(View.GONE);
-            findViewById(R.id.recyclerView);
             //TODO : MOVE THE MARGIN OF THE RECYCLER VIEW SO THERES NOT AN EMPTY SPOT AT THE BOTTOM
+            setBottomMargin(mRecyclerView, 0);
         }
         //endregion
 
 
         //region RECYCLER_VIEW
         // Initialize the RecyclerView
-        mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
 
         mRecyclerView.setHasFixedSize(true);
 
@@ -470,5 +475,13 @@ public class MainActivity extends AppCompatActivity {
     private void initFirstRunData(){
     }
 
+    private void setBottomMargin(View view, int b){
+        if(view instanceof RecyclerView) {
+            ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            params.setMargins(params.leftMargin, params.topMargin,
+                    params.rightMargin, b);
+        }
+    }
 
 }

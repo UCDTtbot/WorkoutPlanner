@@ -420,7 +420,7 @@ public class NewWorkoutFragment extends Fragment{
             set.setName(name);
             set.setDescrip(descrip);
             set.setTime(BaseApp.convertToMillis(min, sec));
-            set.setSetImageId(imageId);
+            set.setImageById(imageId);
             mSetViewModel.insert(set);
         } else {
             throw new RuntimeException(DEBUG_TAG + " trying to update set, was null");

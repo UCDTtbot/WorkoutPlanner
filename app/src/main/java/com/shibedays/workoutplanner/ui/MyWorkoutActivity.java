@@ -182,7 +182,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 case MSG_LOAD_NEXT_SET:
                     s = mTimerFragment.getNextSet();
                     Set restSet = new Set(0, "Rest Time", "Take a short rest",
-                            -1, -1, R.drawable.ic_down_arrow_black_24dp);
+                            -1, -1, getResources().getResourceEntryName(R.drawable.ic_down_arrow_black_24dp));
                     mTimerFragment.updateSetInfo(restSet, s);
                     mTimerFragment.loadNextSet();
                     m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
@@ -192,7 +192,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 case MSG_LOAD_FIRST_SET:
                     s = mTimerFragment.getNextSet();
                     Set breakSet = new Set(0, "Break Time", "Take a longer rest",
-                            -1, -1, R.drawable.ic_access_alarm_black_24dp);
+                            -1, -1, getResources().getResourceEntryName(R.drawable.ic_access_alarm_black_24dp));
                     mTimerFragment.updateSetInfo(breakSet, s);
                     mTimerFragment.loadNextSet();
                     m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());

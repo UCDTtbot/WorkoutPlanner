@@ -374,7 +374,7 @@ public class CreateEditSetFragment extends Fragment {
                 p.setName(mViewModel.getName());
                 p.setDescrip(mViewModel.getDescrip());
                 p.setTime(BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()));
-                p.setSetImageId(mViewModel.getImage());
+                p.setImageById(mViewModel.getImage());
                 mSetViewModel.update(p);
             } else {
                 throw new RuntimeException(DEBUG_TAG + "No create set type given");
