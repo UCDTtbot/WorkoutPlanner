@@ -6,12 +6,9 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
-import android.os.Debug;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
@@ -19,9 +16,7 @@ import com.shibedays.workoutplanner.db.dao.SetDao;
 import com.shibedays.workoutplanner.db.entities.Set;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.db.dao.WorkoutDao;
-import com.shibedays.workoutplanner.ui.MainActivity;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +27,12 @@ public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase INSTANCE;
 
     public static final String DATABASE_NAME = "workoutDB";
+
+    private static final int ONE_MIN = 60000;
+    private static final int ONE_HALF = 90000;
+    private static final int FORTY_FIVE = 45000;
+    private static final int THIRTY = 30000;
+    private static final int TWO_MIN = 120000;
 
     public abstract WorkoutDao workoutDao();
     public abstract SetDao setDao();
@@ -82,112 +83,164 @@ public abstract class AppDatabase extends RoomDatabase {
             // Cardio
             final Set jog = new Set(
                     "Light Jog",
-                    "Jog at a comfortable pace",
-                    Set.CARDIO, 120000,
+                    r.getString(R.string.descrip_jog),
+                    Set.CARDIO, TWO_MIN,
                     r.getResourceEntryName(R.drawable.ic_run_black_24dp));
             final Set run = new Set(
                     "Run",
-                    "High-speeding running",
-                    Set.CARDIO, 60000,
+                    r.getString(R.string.descrip_run),
+                    Set.CARDIO, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_run_black_24dp));
             final Set walk = new Set(
                     "Brisk Walk",
-                    "Walk at a brisk pace to cool down",
-                    Set.CARDIO, 120000,
+                    r.getString(R.string.descrip_walk),
+                    Set.CARDIO, TWO_MIN,
                     r.getResourceEntryName(R.drawable.ic_run_black_24dp));
             final Set high_steps = new Set(
                     "High Steps",
-                    "7-steps (high knee march)",
-                    Set.CARDIO, 60000,
+                    r.getString(R.string.descrip_highstep),
+                    Set.CARDIO, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+            final Set lunges = new Set(
+                    "Lunges",
+                    r.getString(R.string.descrip_lunges),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set reverse_lunge = new Set(
+                    "Reverse Lunge w/ Kick",
+                    r.getString(R.string.descrip_reverselunge),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+            final Set side_lunge = new Set(
+                    "Side Lunge",
+                    r.getString(R.string.descrip_sidelunge),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+            final Set jumping_jacks = new Set(
+                    "Jumping Jacks",
+                    r.getString(R.string.descrip_jumpingjack),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set butt_kickers = new Set(
+                    "Butt Kickers",
+                    r.getString(R.string.descrip_buttkickers),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Upper Body
             final Set pushups = new Set(
                     "Pushups",
-                    "Lie prone on the ground with hands placed as wide or slightly wider than shoulder width. " +
-                            "Keeping the body straight, lower body to the ground by bending arms at the elbows. " +
-                            "Raise body up off the ground by extending the arms.",
-                    Set.UPPER_BODY, 60000,
+                    r.getString(R.string.descrip_pushups),
+                    Set.UPPER_BODY, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set dips = new Set(
                     "Dips",
-                    "Stand with your back to a chair or bench. Be sure that the object is sturdy and can comfortably support your body weight. " +
-                            "Bend your legs and place your palms on the front edge of the bench, with your fingers pointing forward. " +
-                            "Slowly walk your feet out in front of you, until the majority of your body weight is resting on your arms. " +
-                            "Inhale, and keeping your elbows tucked in at your sides, slowly bend your arms and lower your body until your upper arms are parallel with the floor. " +
-                            "Hold for a second, then exhale and straighten your arms back up to the starting position.",
-                    Set.UPPER_BODY, 60000,
+                    r.getString(R.string.descrip_dips),
+                    Set.UPPER_BODY, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set bicep_curls = new Set(
                     "Bicep Curls",
-                    "Extend your arm down by your side and hold the weight, palms facing forward. " +
-                            "Make sure your elbows are tucked and your shoulders are straight. " +
-                            "When you’re in position, slowly bring the weight up to your shoulders, not outside of your shoulders and not too far into your chest.",
-                    Set.UPPER_BODY, 30000,
+                    r.getString(R.string.descrip_curls),
+                    Set.UPPER_BODY, THIRTY,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set shoulder_press = new Set(
                     "Shoulder Press",
-                    "7-steps",
-                    Set.UPPER_BODY, 60000,
+                    r.getString(R.string.descrip_shoulderpress),
+                    Set.UPPER_BODY, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set chest_press = new Set(
+                    "Chest Press",
+                    r.getString(R.string.descrip_chestpress),
+                    Set.UPPER_BODY, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set bent_row = new Set(
+                    "Bent Over Row",
+                    r.getString(R.string.descrip_upperrow),
+                    Set.UPPER_BODY, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+
 
             // Lower Body
             final Set squats = new Set(
                     "Squats",
-                    "Stand up straight with your feet firmly planted on the ground approximately shoulder width apart. " +
-                            "Contract your abdominal muscles as you bend your legs at the knees. " +
-                            "Either stretch your arms out ahead of you, lightly position your hands behind your ears or hold your arms at your side as you slowly lower yourself into a squatting position. " +
-                            "Lower your body to a position where your thighs are almost parallel to the floor. Return to the starting position and repeat.",
-                    Set.LOWER_BODY, 60000,
+                    r.getString(R.string.descrip_squats),
+                    Set.LOWER_BODY, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set chair_squat = new Set(
+                    "Chair Squats",
+                    r.getString(R.string.descrip_chairsquats),
+                    Set.LOWER_BODY, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set wall_squats = new Set(
                     "Wall Squats",
-                    "",
-                    Set.LOWER_BODY, 45000,
+                    r.getString(R.string.descrip_wallsquats),
+                    Set.LOWER_BODY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set step_up = new Set(
+                    "Step Ups",
+                    r.getString(R.string.descrip_stepup),
+                    Set.LOWER_BODY, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Core
             final Set situps = new Set(
                     "Sit Ups",
-                    "Lay down with feet flat on the ground creating a 45 degree angle with your legs." +
-                            "With hands by your side or across your chest, inhale and slowly raise your body up to your knees." +
-                            "Exhale as you reach the top. Slowly let yourself back down to the starting position.",
-                    Set.CORE, 45000,
+                    r.getString(R.string.descrip_situps),
+                    Set.CORE, FORTY_FIVE,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set roll_ups = new Set(
                     "Roll Ups",
-                            "Start with your arms all the way back behind you and slowly bring them all the way forward into a sitting position. " +
-                            "Inhale as you begin to move upward and exhale as you complete.",
-                    Set.CORE, 45000,
+                            r.getString(R.string.descrip_rollups),
+                    Set.CORE, FORTY_FIVE,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set plank = new Set(
                     "Basic Plank",
-                    "Lie on your stomach, elbows close to your sides and directly under your shoulders, palms down. " +
-                            "Engage the abs and slowly lift your torso off the floor, maintaining a stiff torso and legs. " +
-                            "Avoid sagging at the low back or hiking up your hips. Continue to breathe while holding this position for 15 seconds or more.",
-                    Set.CORE, 60000,
+                    r.getString(R.string.descrip_plank),
+                    Set.CORE, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set lunges = new Set(
-                    "Lunges",
-                    "7-steps",
-                    Set.CORE, 60000,
+            final Set hip_airplane = new Set(
+                    "Hip Airplane",
+                    r.getString(R.string.descrip_airplane),
+                    Set.CORE, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set good_morning = new Set(
+                    "Good Morning",
+                    r.getString(R.string.descrip_goodmorning),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set windshield = new Set(
+                    "Windshield Wipers",
+                    r.getString(R.string.descrip_windshield),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set airbike = new Set(
+                    "Air Bike",
+                    r.getString(R.string.descrip_airbike),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set t_plank = new Set(
+                    "T Plank",
+                    r.getString(R.string.descrip_tplank),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+
             // Flexibility
             final Set yoga = new Set(
                     "Yoga",
-                    "Yoga",
-                    Set.FLEXIBILITY, 45000,
+                    r.getString(R.string.descrip_yoga),
+                    Set.FLEXIBILITY, FORTY_FIVE,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+
 
             // Other
             final Set study = new Set(
                     "Study",
-                    "Focus on studying with no distractions",
+                    r.getString(R.string.descrip_study),
                     Set.OTHER, 900000,
                     r.getResourceEntryName(R.drawable.ic_access_alarm_black_24dp));
             final Set study_break = new Set(
                     "Study Break",
-                    "Take a break from studying. Take a walk, get a drink, use the restroom",
+                    r.getString(R.string.descrip_studybreak),
                     Set.OTHER, 300000,
                     r.getResourceEntryName(R.drawable.ic_access_alarm_black_24dp));
 
@@ -209,6 +262,13 @@ public abstract class AppDatabase extends RoomDatabase {
                 add(yoga);              // 14
                 add(study);             // 15
                 add(study_break);       // 16
+                add(chair_squat);       // 17
+                add(chest_press);       // 18
+                add(hip_airplane);      // 19
+                add(good_morning);      // 20
+                add(bent_row);          // 21
+                add(step_up);           // 22
+                add(reverse_lunge);     // 23
             }};
             long[] ids = mSetDao.insertAll(allSets);
             int i = 0;

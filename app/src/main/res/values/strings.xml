@@ -163,4 +163,63 @@
     <string name="default_set_title">Set Title</string>
     <string name="set_time_label">Set Time: </string>
     <string name="default_sample_text">This is a block of sample text. Make sure it is changed to something more meaningful.</string>
+
+    <!-- Sets -->
+    <string name="descrip_jog">Jog at a comfortable pace.</string>
+    <string name="descrip_run">High-speeding running.</string>
+    <string name="descrip_walk">Walk at a brisk pace to cool down.</string>
+    <string name="descrip_highstep">7-steps (high knee march).</string>
+
+    <string name="descrip_pushups">Lie prone on the ground with hands placed as wide or slightly wider than shoulder width.
+                            Keeping the body straight, lower body to the ground by bending arms at the elbows.
+                            Raise body up off the ground by extending the arms.</string>
+    <string name="descrip_dips">Stand with your back to a chair or bench. Be sure that the object is sturdy and can comfortably support your body weight.
+                            Bend your legs and place your palms on the front edge of the bench, with your fingers pointing forward.
+                            Slowly walk your feet out in front of you, until the majority of your body weight is resting on your arms.
+                            Inhale, and keeping your elbows tucked in at your sides, slowly bend your arms and lower your body until your upper arms are parallel with the floor.
+                            Hold for a second, then exhale and straighten your arms back up to the starting position.</string>
+    <string name="descrip_curls">Extend your arm down by your side and hold the weight, palms facing forward. 
+                            Make sure your elbows are tucked and your shoulders are straight. " +
+                            When you’re in position, slowly bring the weight up to your shoulders, not outside of your 
+                            shoulders and not too far into your chest.</string>
+    <string name="descrip_shoulderpress">7-steps</string>
+    <string name="descrip_chestpress"></string>
+
+    <string name="descrip_squats">Stand up straight with your feet firmly planted on the ground approximately shoulder width apart.
+                            Contract your abdominal muscles as you bend your legs at the knees.
+                            Either stretch your arms out ahead of you, lightly position your hands behind your ears or hold your arms at your side as you slowly lower yourself into a squatting position.
+                            Lower your body to a position where your thighs are almost parallel to the floor.
+                            Return to the starting position and repeat.</string>
+    <string name="descrip_wallsquats">Stand up straight with your feet firmly planted on the ground approximately shoulder width apart.
+                            Contract your abdominal muscles as you bend your legs at the knees.
+                            Either stretch your arms out ahead of you, lightly position your hands behind your ears or hold your arms at your side as you slowly lower yourself into a squatting position.
+                            Lower your body to a position where your thighs are almost parallel to the floor.
+                            Return to the starting position and repeat.</string>
+    <string name="descrip_chairsquats">TODO</string>
+
+    <string name="descrip_situps">Lay down with feet flat on the ground creating a 45 degree angle with your legs.
+                            With hands by your side or across your chest, inhale and slowly raise your body up to your knees.
+                            Exhale as you reach the top. Slowly let yourself back down to the starting position.</string>
+    <string name="descrip_rollups">Start with your arms all the way back behind you and slowly bring them all the way forward into a sitting position.
+                            Inhale as you begin to move upward and exhale as you complete</string>
+    <string name="descrip_plank">Lie on your stomach, elbows close to your sides and directly under your shoulders, palms down.
+                            Engage the abs and slowly lift your torso off the floor, maintaining a stiff torso and legs.
+                            Avoid sagging at the low back or hiking up your hips. Continue to breathe while holding this position for 15 seconds or more.</string>
+    <string name="descrip_airplane"></string>
+    <string name="descrip_goodmorning"></string>
+    <string name="descrip_upperrow"></string>
+    <string name="descrip_stepup"></string>
+    <string name="descrip_reverselunge"></string>
+    <string name="descrip_sidelunge"></string>
+    <string name="descrip_windshield"></string>
+    <string name="descrip_airbike"></string>
+    <string name="descrip_tplank"></string>
+    <string name="descrip_jumpingjack"></string>
+    <string name="descrip_buttkickers"></string>
+
+    <string name="descrip_lunges">7-steps</string>
+    <string name="descrip_yoga">Yoga</string>
+
+    <string name="descrip_study">Focus on studying with no distractions.</string>
+    <string name="descrip_studybreak">Take a break from studying. Take a walk, get a drink, use the restroom</string>
 </resources>
