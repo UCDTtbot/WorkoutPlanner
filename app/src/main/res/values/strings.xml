@@ -216,6 +216,17 @@
     <string name="descrip_tplank"></string>
     <string name="descrip_jumpingjack"></string>
     <string name="descrip_buttkickers"></string>
+    <string name="descrip_mountain_climbers"></string>
+    <string name="descrip_leg_raises"></string>
+    <string name="descrip_pile_squat"></string>
+    <string name="descrip_squat_jumps"></string>
+    <string name="descrip_reverse_crunch"></string>
+    <string name="descrip_shoulder_press_squats"></string>
+    <string name="descrip_arm_raise_plank"></string>
+    <string name="descrip_superman"></string>
+    <string name="descrip_plank_jumps"></string>
+    <string name="descrip_burpees"></string>
+    <string name="descrip_plankjacks"></string>
 
     <string name="descrip_lunges">7-steps</string>
     <string name="descrip_yoga">Yoga</string>

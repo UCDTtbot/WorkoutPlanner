@@ -126,6 +126,26 @@ public abstract class AppDatabase extends RoomDatabase {
                     r.getString(R.string.descrip_buttkickers),
                     Set.CARDIO, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set squat_jumps = new Set(
+                    "Floor Touch Squat Jumps",
+                    r.getString(R.string.descrip_squat_jumps),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set plank_jumps = new Set(
+                    "Plank Jump Ins",
+                    r.getString(R.string.descrip_plank_jumps),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set burpee = new Set(
+                    "Burpees",
+                    r.getString(R.string.descrip_burpees),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set plank_jacks = new Set(
+                    "Plank Jacks",
+                    r.getString(R.string.descrip_plankjacks),
+                    Set.CARDIO, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Upper Body
             final Set pushups = new Set(
@@ -158,6 +178,16 @@ public abstract class AppDatabase extends RoomDatabase {
                     r.getString(R.string.descrip_upperrow),
                     Set.UPPER_BODY, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set sp_squats = new Set(
+                    "Shoulder Press Squats",
+                    r.getString(R.string.descrip_shoulder_press_squats),
+                    Set.UPPER_BODY, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set plank_arm_raise = new Set(
+                    "Arm Raise Plank",
+                    r.getString(R.string.descrip_arm_raise_plank),
+                    Set.UPPER_BODY, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
 
             // Lower Body
@@ -180,6 +210,11 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Step Ups",
                     r.getString(R.string.descrip_stepup),
                     Set.LOWER_BODY, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set pile_squat = new Set(
+                    "Pile Squat",
+                    r.getString(R.string.descrip_pile_squat),
+                    Set.CORE, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Core
@@ -223,7 +258,26 @@ public abstract class AppDatabase extends RoomDatabase {
                     r.getString(R.string.descrip_tplank),
                     Set.CORE, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-
+            final Set mountain_climber = new Set(
+                    "Mountain Climbers",
+                    r.getString(R.string.descrip_mountain_climbers),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set leg_raises = new Set(
+                    "Leg Raises",
+                    r.getString(R.string.descrip_leg_raises),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set reverse_crunch = new Set(
+                    "Reverse Crunch",
+                    r.getString(R.string.descrip_reverse_crunch),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set superman = new Set(
+                    "Superman",
+                    r.getString(R.string.descrip_superman),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             // Flexibility
             final Set yoga = new Set(
                     "Yoga",
@@ -269,6 +323,23 @@ public abstract class AppDatabase extends RoomDatabase {
                 add(bent_row);          // 21
                 add(step_up);           // 22
                 add(reverse_lunge);     // 23
+                add(side_lunge);        // 24
+                add(jumping_jacks);     // 25
+                add(butt_kickers);      // 26
+                add(airbike);           // 27
+                add(windshield);        // 28
+                add(t_plank);           // 29
+                add(pile_squat);        // 30
+                add(leg_raises);        // 31
+                add(mountain_climber);  // 32
+                add(squat_jumps);       // 33
+                add(reverse_crunch);    // 34
+                add(sp_squats);         // 35
+                add(plank_arm_raise);   // 36
+                add(superman);          // 37
+                add(plank_jumps);       // 38
+                add(burpee);            // 39
+                add(plank_jacks);       // 40
             }};
             long[] ids = mSetDao.insertAll(allSets);
             int i = 0;
