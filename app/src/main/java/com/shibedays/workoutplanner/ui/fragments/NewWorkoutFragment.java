@@ -5,7 +5,9 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -14,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -235,6 +238,14 @@ public class NewWorkoutFragment extends Fragment{
                 saveWorkout();
             }
         });
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean adsDisabled = false;
+        if(prefs != null){
+            adsDisabled = prefs.getBoolean("disable_ads", false);
+        }
+        if(!adsDisabled){
+            setBottomMargin(mSaveButton, 180);
+        }
 
         //endregion
         return view;
@@ -582,6 +593,15 @@ public class NewWorkoutFragment extends Fragment{
             workout.setTimeBetweenRounds(BaseApp.convertToMillis(breakTime));
             workout.addSets(selectedSets);
             mListener.addNewWorkout(workout);
+        }
+    }
+
+    private void setBottomMargin(View view, int b){
+        if(view instanceof Button) {
+            ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            params.setMargins(params.leftMargin, params.topMargin,
+                    params.rightMargin, b);
         }
     }
 

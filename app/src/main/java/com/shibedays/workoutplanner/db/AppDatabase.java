@@ -278,6 +278,17 @@ public abstract class AppDatabase extends RoomDatabase {
                     r.getString(R.string.descrip_superman),
                     Set.CORE, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set plank_shoulder_touches = new Set(
+                    "Plank Shoulder Touch",
+                    r.getString(R.string.descrip_plank_shoulders),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set leg_pullin = new Set(
+                    "Seated Leg Pull In",
+                    r.getString(R.string.descrip_legpulls),
+                    Set.CORE, ONE_MIN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+
             // Flexibility
             final Set yoga = new Set(
                     "Yoga",
@@ -340,6 +351,9 @@ public abstract class AppDatabase extends RoomDatabase {
                 add(plank_jumps);       // 38
                 add(burpee);            // 39
                 add(plank_jacks);       // 40
+                add(plank_shoulder_touches); // 41
+                add(leg_pullin);        // 42
+
             }};
             long[] ids = mSetDao.insertAll(allSets);
             int i = 0;
@@ -348,50 +362,50 @@ public abstract class AppDatabase extends RoomDatabase {
             }
 
             // Workouts //
-            Workout card_1 = new Workout(Workout.CARDIO, "Cardio_1");
+            Workout card_1 = new Workout(Workout.CARDIO, "Jog-Walk Interval");
+            card_1.addSet(walk);
             card_1.addSet(jog);
-            card_1.addSet(run);
-            Workout card_2 = new Workout(Workout.CARDIO, "Cardio_2");
-            card_2.addSet(jog);
-            card_2.addSet(run);
-            Workout card_3 = new Workout(Workout.CARDIO, "Cardio_3");
-            card_3.addSet(jog);
-            card_3.addSet(run);
-            Workout str_1 = new Workout(Workout.STRENGTH, "Strength_1");
+            Workout card_4 = new Workout(Workout.CARDIO, "Run-Walk Interval");
+            card_4.addSet(walk);
+            card_4.addSet(run);
+            Workout card_2 = new Workout(Workout.CARDIO, "Intense Training");
+            card_2.addSet(burpee);
+            card_2.addSet(jumping_jacks);
+            card_2.addSet(plank_jumps);
+            Workout card_3 = new Workout(Workout.CARDIO, "Light Cardio");
+            card_3.addSet(high_steps);
+            card_3.addSet(butt_kickers);
+            card_3.addSet(lunges);
+            card_3.addSet(jumping_jacks);
+            card_3.addSet(side_lunge);
+            Workout str_1 = new Workout(Workout.STRENGTH, "Body Weight");
             str_1.addSet(pushups);
-            str_1.addSet(situps);
+            str_1.addSet(squats);
             str_1.addSet(plank);
-            str_1.addSet(dips);
-            Workout str_2 = new Workout(Workout.STRENGTH, "Strength_2");
+            str_1.addSet(jumping_jacks);
+            str_1.addSet(hip_airplane);
+            str_1.addSet(leg_pullin);
+            Workout str_2 = new Workout(Workout.STRENGTH, "Body Weight Light");
+            str_2.addSet(wall_squats);
+            str_2.addSet(situps);
+            str_2.addSet(good_morning);
             str_2.addSet(lunges);
-            str_2.addSet(bicep_curls);
-            str_2.addSet(shoulder_press);
-            Workout str_3 = new Workout(Workout.STRENGTH, "Strength_3");
-            str_3.addSet(lunges);
-            str_3.addSet(bicep_curls);
-            str_3.addSet(shoulder_press);
-            Workout str_4 = new Workout(Workout.STRENGTH, "Strength_4");
-            str_4.addSet(lunges);
-            str_4.addSet(bicep_curls);
-            str_4.addSet(shoulder_press);
-            Workout str_5 = new Workout(Workout.STRENGTH, "Strength_5");
-            str_5.addSet(lunges);
-            str_5.addSet(bicep_curls);
-            str_5.addSet(shoulder_press);
+            str_2.addSet(plank);
+            Workout str_3 = new Workout(Workout.STRENGTH, "Body Weight Intense");
+            str_3.addSet(plank_shoulder_touches);
+            str_3.addSet(mountain_climber);
+            str_3.addSet(squat_jumps);
+            str_3.addSet(jumping_jacks);
+            str_3.addSet(airbike);
+            str_3.addSet(leg_pullin);
+            Workout str_4 = new Workout(Workout.STRENGTH, "Upper Body");
+            Workout str_5 = new Workout(Workout.STRENGTH, "Lower Body");
+            Workout str_6 = new Workout(Workout.STRENGTH, "Core");
             Workout flex_1 = new Workout(Workout.FLEXIBILITY, "Flexibility_1");
-            flex_1.addSet(yoga);
             Workout other_1 = new Workout(Workout.OTHER, "Other_1");
-            other_1.addSet(study);
-            other_1.addSet(study_break);
             Workout other_2 = new Workout(Workout.OTHER, "Other_2");
-            other_2.addSet(study);
-            other_2.addSet(study_break);
             Workout other_3 = new Workout(Workout.OTHER, "Other_3");
-            other_3.addSet(study);
-            other_3.addSet(study_break);
             Workout other_4 = new Workout(Workout.OTHER, "Other_4");
-            other_4.addSet(study);
-            other_4.addSet(study_break);
             //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);
             mWorkoutDao.insert(card_1);
             mWorkoutDao.insert(card_2);
