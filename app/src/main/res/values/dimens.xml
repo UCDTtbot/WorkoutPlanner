@@ -60,6 +60,6 @@
     <dimen name="Edit_Time_Width">80dp</dimen>
 
     <dimen name="full_alpha">1</dimen>
-    <dimen name="small_ico_size">24dp</dimen>
+    <dimen name="small_ico_size">32dp</dimen>
 
 </resources>

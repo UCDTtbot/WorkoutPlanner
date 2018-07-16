@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Database(entities = {Workout.class, Set.class}, version = 11)
+@Database(entities = {Workout.class, Set.class}, version = 12)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;

@@ -144,6 +144,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private List<Message> mMsgQueue;
 
+    private Intent mIntentBundle;
+
     private BroadcastReceiver mNotifReceiver;
     public static final String FILTER_TIMER = PACKAGE + "TIMER_NOTIF";
     //endregion
@@ -278,6 +280,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         Intent intent = getIntent();
         if(intent != null){
             int intentType = intent.getIntExtra(EXTRA_INTENT_TYPE, -1);
+            mIntentBundle = intent;
             if(intentType == NORMAL_INTENT_TYPE) {
                 // Normal running circumstances
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
@@ -285,6 +288,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
             } else if (intentType == NOTIF_INTENT_TYPE){
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
             } else {
                 throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
             }
@@ -519,6 +523,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         if(id == R.id.action_settings){
             Intent intent = new Intent(this, SettingsActivity.class);
             intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MY_WORKOUT_ACTIVITY);
+            intent.putExtra(EXTRA_WORKOUT_ID, mMainVM.getId());
+            intent.putExtra(EXTRA_WORKOUT_TYPE, mType);
             startActivity(intent);
             return true;
         } else if(id == R.id.add_set) {

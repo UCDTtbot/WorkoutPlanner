@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -242,7 +244,15 @@ public class SetInfoFragment extends Fragment {
     }
 
     private void openMoreInfo(){
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        WebView wv = new WebView(getContext());
+        wv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        wv.loadUrl(mMainVM.getData().getValue().getURL());
+        wv.getSettings().setJavaScriptEnabled(true);
+        builder.setTitle("More Info")
+                .setView(wv)
+                .setNeutralButton("Ok", null)
+                .show();
     }
 
     public void updateData(Set s){

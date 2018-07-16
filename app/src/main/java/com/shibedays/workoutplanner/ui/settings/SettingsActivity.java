@@ -25,6 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     //region INTENT_KEYS
     public static final String EXTRA_PARENT = PACKAGE + "PARENT";
+    public static final String EXTRA_PARENT_BUNDLE = PACKAGE + "BUNDLE";
     //endregion
 
     //region PRIVATE_VARS
@@ -52,10 +53,15 @@ public class SettingsActivity extends AppCompatActivity {
             mParentClassType = in.getIntExtra(EXTRA_PARENT, -1);
             if(mParentClassType == 0){
                 intent = new Intent(this, MainActivity.class);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             } else if( mParentClassType == 1){
                 intent = new Intent(this, MyWorkoutActivity.class);
+
+                int id = in.getIntExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, -1);
+                int type = in.getIntExtra(MyWorkoutActivity.EXTRA_WORKOUT_TYPE, 0);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
+                intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, id);
+                intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_TYPE, type);
             } else {
                 // Fatal error
                 throw new RuntimeException(SettingsActivity.class.toString() + " could not determine parent activity: " + Integer.toString(mParentClassType));
