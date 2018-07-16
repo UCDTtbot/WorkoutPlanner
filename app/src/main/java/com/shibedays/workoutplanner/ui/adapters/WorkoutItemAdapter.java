@@ -2,12 +2,14 @@ package com.shibedays.workoutplanner.ui.adapters;
 
 import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.media.Image;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 
@@ -43,13 +46,16 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         // Foreground
         TextView itemName;
         ImageView itemImage;
-        TextView itemDescrip;
+        TextView numSets;
+        TextView totalTime;
 
         private WorkoutViewHolder(View itemView) {
             super(itemView);
             //Initialize the views for the RecyclerView
             itemName = itemView.findViewById(R.id.workout_name);
             itemImage = itemView.findViewById(R.id.workout_image);
+            numSets = itemView.findViewById(R.id.workout_num_sets);
+            totalTime = itemView.findViewById(R.id.workout_time);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -73,12 +79,16 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         // UI
         TextView footerName;
         ImageView footerImage;
+        TextView footerSets;
+        TextView footerTime;
 
         private FooterViewHolder(View itemView) {
             super(itemView);
 
             footerName = itemView.findViewById(R.id.workout_name);
             footerImage = itemView.findViewById(R.id.workout_image);
+            itemView.findViewById(R.id.workout_num_sets).setVisibility(View.INVISIBLE);
+            itemView.findViewById(R.id.workout_time).setVisibility(View.INVISIBLE);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -147,10 +157,14 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
                 vh.curWorkout = mWorkoutData.get(position);
                 Glide.with(mContext).load(vh.curWorkout.getWorkoutImageId()).into(vh.itemImage);
                 vh.itemName.setText(mWorkoutData.get(position).getName());
+                vh.numSets.setText(String.format(Locale.US, "%d", mWorkoutData.get(position).getNumOfSets()));
+                vh.totalTime.setText(BaseApp.formatTime(mWorkoutData.get(position).getTotalTime()));
+                vh.itemImage.setVisibility(View.GONE);
             } else if (viewHolder instanceof FooterViewHolder) {
                 FooterViewHolder vh = (FooterViewHolder) viewHolder;
                 Glide.with(mContext).load(R.drawable.ic_add_black_24dp).into(vh.footerImage);
                 vh.footerName.setText("Add Workout");
+
             }
         } catch (Exception e) {
             e.printStackTrace();

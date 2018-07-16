@@ -417,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mNewWorkoutFragment);
         fragmentTransaction.addToBackStack(null);
         findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.main_ad_view).setVisibility(View.GONE);
         fragmentTransaction.commit();
         renameTitle(R.string.new_workout);
         hideActionItems();

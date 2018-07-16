@@ -36,6 +36,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdView;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -244,7 +245,7 @@ public class NewWorkoutFragment extends Fragment{
             adsDisabled = prefs.getBoolean("disable_ads", false);
         }
         if(!adsDisabled){
-            setBottomMargin(mSaveButton, 180);
+            //setBottomMargin(mSaveButton, 180);
         }
 
         //endregion
@@ -290,6 +291,7 @@ public class NewWorkoutFragment extends Fragment{
         mParentActivity.showActionItems();
         mParentActivity.toggleUpArrow(false);
         mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
+        mParentActivity.findViewById(R.id.main_ad_view).setVisibility(View.VISIBLE);
         mInstance = null;
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
 
