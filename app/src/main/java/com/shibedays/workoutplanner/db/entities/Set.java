@@ -6,6 +6,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.util.StringUtil;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.shibedays.workoutplanner.BaseApp;
 
@@ -41,6 +42,7 @@ public class Set {
     private String name;
     private String descrip;
     private int time;
+    private String URL;
 
     public Set(){
         name = "Default Set";
@@ -120,6 +122,17 @@ public class Set {
     }
     public void setTime(int time){
         this.time = time;
+    }
+
+    public String getURL(){
+        if(TextUtils.isEmpty(URL)){
+            return "https://www.google.com/search?q=" + name;
+        }
+        else
+            return URL;
+    }
+    public void setURL(String url){
+        URL = url;
     }
 
     @Override

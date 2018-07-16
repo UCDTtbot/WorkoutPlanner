@@ -18,7 +18,10 @@
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 android:padding="2dp"
-                android:layout_margin="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginStart="4dp"
                 android:scaleType="fitXY"
                 android:background="@drawable/syle_rounded_drop_box"
                 android:src="@drawable/android" />
@@ -32,15 +35,28 @@
                     android:layout_height="wrap_content"
                     android:maxLength="18"
                     android:text="@string/default_set_title"
-                    android:layout_margin="2dp"
-                    style="@style/AppTheme.HeadlineText"/>
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginStart="4dp"
+                    style="@style/AppTheme.TitleText"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/ic_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <android.support.v7.widget.LinearLayoutCompat
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_margin="2dp"
-                    android:layout_toEndOf="@id/set_name">
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_toStartOf="@id/more_info_ic">
                     <TextView
                         android:id="@+id/time_title"
                         style="@style/TextView_Display_Header"
@@ -52,13 +68,6 @@
                         android:layout_gravity="center"/>
                 </android.support.v7.widget.LinearLayoutCompat>
 
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/ic_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
                 <ImageView
                     android:id="@+id/edit_ic"
                     android:layout_width="@dimen/small_ico_size"
@@ -67,8 +76,8 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:scaleType="fitXY"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
                     android:src="@drawable/ic_edit_black_24dp" />
 
                 <ImageView
@@ -79,8 +88,8 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:scaleType="fitXY"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
                     android:src="@drawable/ic_info_black_24dp" />
             </RelativeLayout>
         </LinearLayout>
