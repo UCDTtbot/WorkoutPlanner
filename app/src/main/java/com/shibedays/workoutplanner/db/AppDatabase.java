@@ -290,12 +290,51 @@ public abstract class AppDatabase extends RoomDatabase {
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Flexibility
-            final Set yoga = new Set(
-                    "Yoga",
-                    r.getString(R.string.descrip_yoga),
+            final Set arm_spins = new Set(
+                    "Arm Spins",
+                    r.getString(R.string.descrip_arm_spins),
                     Set.FLEXIBILITY, FORTY_FIVE,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-
+            final Set arm_cross = new Set(
+                    "Arm Cross",
+                    r.getString(R.string.descrip_arm_cross),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set arm_behind_head = new Set(
+                    "Behind Head Pull",
+                    r.getString(R.string.descrip_behind_head_pull),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set toe_touch = new Set(
+                    "Toe Touch",
+                    r.getString(R.string.descrip_toe_touch),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set butterfly = new Set(
+                    "Butterfly",
+                    r.getString(R.string.descrip_butterfly),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set butt_touch = new Set(
+                    "Butt Touch",
+                    r.getString(R.string.descrip_butt_touch),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set chin_tucks = new Set(
+                    "Chin Tuck",
+                    r.getString(R.string.descrip_chin_tuck),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set neck_roll = new Set(
+                    "Neck Rolls",
+                    r.getString(R.string.descrip_neck_roll),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+            final Set neck_extension = new Set(
+                    "Neck Extensions",
+                    r.getString(R.string.descrip_neck_extensions),
+                    Set.FLEXIBILITY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Other
             final Set study = new Set(
@@ -324,7 +363,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 add(roll_ups);          // 11
                 add(plank);             // 12
                 add(lunges);            // 13
-                add(yoga);              // 14
+                add(arm_spins);         // 14
                 add(study);             // 15
                 add(study_break);       // 16
                 add(chair_squat);       // 17
@@ -353,6 +392,14 @@ public abstract class AppDatabase extends RoomDatabase {
                 add(plank_jacks);       // 40
                 add(plank_shoulder_touches); // 41
                 add(leg_pullin);        // 42
+                add(arm_cross);         // 43
+                add(arm_behind_head);   // 44
+                add(toe_touch);         // 45
+                add(butterfly);         // 46
+                add(butt_touch);        // 47
+                add(chin_tucks);        // 48
+                add(neck_roll);         // 49
+                add(neck_extension);    // 50
 
             }};
             long[] ids = mSetDao.insertAll(allSets);
@@ -399,13 +446,39 @@ public abstract class AppDatabase extends RoomDatabase {
             str_3.addSet(airbike);
             str_3.addSet(leg_pullin);
             Workout str_4 = new Workout(Workout.STRENGTH, "Upper Body");
+            str_4.addSet(pushups);
+            str_4.addSet(shoulder_press);
+            str_4.addSet(bicep_curls);
+            str_4.addSet(plank_arm_raise);
+            str_4.addSet(bent_row);
             Workout str_5 = new Workout(Workout.STRENGTH, "Lower Body");
+            str_5.addSet(pile_squat);
+            str_5.addSet(step_up);
+            str_5.addSet(jumping_jacks);
+            str_5.addSet(wall_squats);
             Workout str_6 = new Workout(Workout.STRENGTH, "Core");
-            Workout flex_1 = new Workout(Workout.FLEXIBILITY, "Flexibility_1");
-            Workout other_1 = new Workout(Workout.OTHER, "Other_1");
-            Workout other_2 = new Workout(Workout.OTHER, "Other_2");
-            Workout other_3 = new Workout(Workout.OTHER, "Other_3");
-            Workout other_4 = new Workout(Workout.OTHER, "Other_4");
+            str_6.addSet(situps);
+            str_6.addSet(jumping_jacks);
+            str_6.addSet(plank);
+            str_6.addSet(mountain_climber);
+            str_6.addSet(t_plank);
+            str_6.addSet(leg_pullin);
+            Workout flex_1 = new Workout(Workout.FLEXIBILITY, "Arm Stretches");
+            flex_1.addSet(arm_spins);
+            flex_1.addSet(arm_cross);
+            flex_1.addSet(arm_behind_head);
+            Workout flex_2 = new Workout(Workout.FLEXIBILITY, "Leg Stretches");
+            flex_2.addSet(toe_touch);
+            flex_2.addSet(butterfly);
+            flex_2.addSet(butt_touch);
+            Workout flex_3 = new Workout(Workout.FLEXIBILITY, "Neck and Shoulder Stretches");
+            flex_3.addSet(chin_tucks);
+            flex_3.addSet(neck_roll);
+            flex_3.addSet(neck_extension);
+            Workout other_1 = new Workout(Workout.OTHER, "Study Session");
+            other_1.addSet(study);
+            other_1.addSet(study_break);
+
             //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);
             mWorkoutDao.insert(card_1);
             mWorkoutDao.insert(card_2);
@@ -415,10 +488,11 @@ public abstract class AppDatabase extends RoomDatabase {
             mWorkoutDao.insert(str_3);
             mWorkoutDao.insert(str_4);
             mWorkoutDao.insert(str_5);
+            mWorkoutDao.insert(str_6);
             mWorkoutDao.insert(flex_1);
+            mWorkoutDao.insert(flex_2);
+            mWorkoutDao.insert(flex_3);
             mWorkoutDao.insert(other_1);
-
-            //mWorkoutDao.insert(dummy);
 
             return null;
         }

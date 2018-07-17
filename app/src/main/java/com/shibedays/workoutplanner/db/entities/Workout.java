@@ -44,6 +44,7 @@ public class Workout{
     private boolean noBreakFlag;
     @ColumnInfo(name = "favorite")
     private boolean isFavorite;
+    private boolean equipmentRequired;
 
     private String name;
 
@@ -161,6 +162,9 @@ public class Workout{
 
     public boolean getIsFavorite(){ return isFavorite; }
     public void setIsFavorite(boolean favorite) { isFavorite = favorite; }
+
+    public boolean isEquipmentRequired(){ return equipmentRequired; }
+    public void setEquipmentRequired(boolean required) { equipmentRequired = required; }
 
     public String getSetListJSON(){
         Gson gson = new Gson();

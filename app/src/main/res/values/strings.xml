@@ -229,9 +229,17 @@
     <string name="descrip_plankjacks"></string>
     <string name="descrip_plank_shoulders"></string>
     <string name="descrip_legpulls"></string>
+    <string name="descrip_arm_cross"></string>
+    <string name="descrip_behind_head_pull"></string>
+    <string name="descrip_toe_touch"></string>
+    <string name="descrip_butterfly"></string>
+    <string name="descrip_butt_touch"></string>
+    <string name="descrip_chin_tuck"></string>
+    <string name="descrip_neck_roll"></string>
+    <string name="descrip_neck_extensions"></string>
 
     <string name="descrip_lunges">7-steps</string>
-    <string name="descrip_yoga">Yoga</string>
+    <string name="descrip_arm_spins">Yoga</string>
 
     <string name="descrip_study">Focus on studying with no distractions.</string>
     <string name="descrip_studybreak">Take a break from studying. Take a walk, get a drink, use the restroom</string>

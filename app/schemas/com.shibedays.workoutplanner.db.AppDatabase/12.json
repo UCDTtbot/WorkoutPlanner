@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 12,
-    "identityHash": "70a30b131a0793b381480a7776193f40",
+    "identityHash": "08200dc2724265583c245486c1aae5e9",
     "entities": [
       {
         "tableName": "workouts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutType` INTEGER NOT NULL, `workoutImageId` INTEGER NOT NULL, `numOfRounds` INTEGER NOT NULL, `timeBetweenSets` INTEGER NOT NULL, `timeBetweenRounds` INTEGER NOT NULL, `noRestFlag` INTEGER NOT NULL, `noBreakFlag` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `name` TEXT, `sets` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutType` INTEGER NOT NULL, `workoutImageId` INTEGER NOT NULL, `numOfRounds` INTEGER NOT NULL, `timeBetweenSets` INTEGER NOT NULL, `timeBetweenRounds` INTEGER NOT NULL, `noRestFlag` INTEGER NOT NULL, `noBreakFlag` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `equipmentRequired` INTEGER NOT NULL, `name` TEXT, `sets` TEXT)",
         "fields": [
           {
             "fieldPath": "workoutID",
@@ -59,6 +59,12 @@
           {
             "fieldPath": "isFavorite",
             "columnName": "favorite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "equipmentRequired",
+            "columnName": "equipmentRequired",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -143,7 +149,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"70a30b131a0793b381480a7776193f40\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"08200dc2724265583c245486c1aae5e9\")"
     ]
   }
 }
