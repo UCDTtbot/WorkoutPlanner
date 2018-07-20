@@ -451,6 +451,7 @@ public abstract class AppDatabase extends RoomDatabase {
             str_4.addSet(bicep_curls);
             str_4.addSet(plank_arm_raise);
             str_4.addSet(bent_row);
+            str_4.setEquipmentRequired(true);
             Workout str_5 = new Workout(Workout.STRENGTH, "Lower Body");
             str_5.addSet(pile_squat);
             str_5.addSet(step_up);

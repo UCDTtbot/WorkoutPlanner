@@ -65,6 +65,7 @@ public class Workout{
         noRestFlag = false;
         noBreakFlag = false;
         isFavorite = false;
+        equipmentRequired = false;
     }
     public Workout(int type, String name, List<Set> sets) {
         this.name = name;
@@ -76,6 +77,7 @@ public class Workout{
         noRestFlag = false;
         noBreakFlag = false;
         isFavorite = false;
+        equipmentRequired = false;
     }
     public Workout(Workout workout){
         name = workout.getName();
@@ -87,6 +89,7 @@ public class Workout{
         noRestFlag = false;
         noBreakFlag = false;
         isFavorite = false;
+        equipmentRequired = false;
     }
 
     public int getWorkoutID(){
@@ -163,7 +166,9 @@ public class Workout{
     public boolean getIsFavorite(){ return isFavorite; }
     public void setIsFavorite(boolean favorite) { isFavorite = favorite; }
 
-    public boolean isEquipmentRequired(){ return equipmentRequired; }
+    public boolean isEquipmentRequired(){
+        return equipmentRequired;
+    }
     public void setEquipmentRequired(boolean required) { equipmentRequired = required; }
 
     public String getSetListJSON(){

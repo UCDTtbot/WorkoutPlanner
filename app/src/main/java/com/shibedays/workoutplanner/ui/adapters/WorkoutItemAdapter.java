@@ -48,6 +48,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         ImageView itemImage;
         TextView numSets;
         TextView totalTime;
+        ImageView equipment;
 
         private WorkoutViewHolder(View itemView) {
             super(itemView);
@@ -56,7 +57,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
             itemImage = itemView.findViewById(R.id.workout_image);
             numSets = itemView.findViewById(R.id.workout_num_sets);
             totalTime = itemView.findViewById(R.id.workout_time);
-
+            equipment = itemView.findViewById(R.id.equip_required);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -87,8 +88,9 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
 
             footerName = itemView.findViewById(R.id.workout_name);
             footerImage = itemView.findViewById(R.id.workout_image);
-            itemView.findViewById(R.id.workout_num_sets).setVisibility(View.INVISIBLE);
-            itemView.findViewById(R.id.workout_time).setVisibility(View.INVISIBLE);
+            itemView.findViewById(R.id.workout_num_sets_layout).setVisibility(View.INVISIBLE);
+            itemView.findViewById(R.id.workout_time_layout).setVisibility(View.INVISIBLE);
+            itemView.findViewById(R.id.equip_required).setVisibility(View.INVISIBLE);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -160,6 +162,11 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
                 vh.numSets.setText(String.format(Locale.US, "%d", mWorkoutData.get(position).getNumOfSets()));
                 vh.totalTime.setText(BaseApp.formatTime(mWorkoutData.get(position).getTotalTime()));
                 vh.itemImage.setVisibility(View.GONE);
+                if(vh.curWorkout.isEquipmentRequired()){
+                    vh.equipment.setVisibility(View.VISIBLE);
+                } else {
+                    vh.equipment.setVisibility(View.GONE);
+                }
             } else if (viewHolder instanceof FooterViewHolder) {
                 FooterViewHolder vh = (FooterViewHolder) viewHolder;
                 Glide.with(mContext).load(R.drawable.ic_add_black_24dp).into(vh.footerImage);

@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -82,6 +83,7 @@ public class NewWorkoutFragment extends Fragment{
     private ViewPager mViewPager;
     private ViewPagerAdapter mViewPagerAdapter;
     private TabLayout mTabLayout;
+    private CheckBox mEquipRequired;
 
     private Button mSaveButton;
 
@@ -239,6 +241,8 @@ public class NewWorkoutFragment extends Fragment{
                 saveWorkout();
             }
         });
+
+        mEquipRequired = view.findViewById(R.id.equip_checkbox);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         boolean adsDisabled = false;
         if(prefs != null){
@@ -594,6 +598,7 @@ public class NewWorkoutFragment extends Fragment{
             workout.setTimeBetweenSets(BaseApp.convertToMillis(restTime));
             workout.setTimeBetweenRounds(BaseApp.convertToMillis(breakTime));
             workout.addSets(selectedSets);
+            workout.setEquipmentRequired(mEquipRequired.isChecked());
             mListener.addNewWorkout(workout);
         }
     }
