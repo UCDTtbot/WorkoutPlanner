@@ -16,19 +16,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -41,9 +37,11 @@ import com.shibedays.workoutplanner.ui.dialogs.BottomSheetDialog;
 import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
+import com.shibedays.workoutplanner.ui.fragments.ShowAllWorkoutsFragment;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -220,6 +218,12 @@ public class MainActivity extends AppCompatActivity {
             public void deleteFromDB(Workout workout) {
                 deleteWorkoutFromDB(workout);
             }
+
+            @Override
+            public void openMoreFragment(String type){
+                int pos = Arrays.asList(Workout.TYPES).indexOf(type);
+                showAllWorkoutsForType(pos);
+            }
         });
         mRecyclerView.setAdapter(mWorkoutRowAdapter);
         mWorkoutRowAdapter.initiateData();
@@ -353,6 +357,10 @@ public class MainActivity extends AppCompatActivity {
         setTitle(stringId);
     }
 
+    public void renameTitle(String title){
+        setTitle(title);
+    }
+
     public void hideActionItems(){
         HIDE_ACTION_ITEMS = true;
         invalidateOptionsMenu();
@@ -394,6 +402,36 @@ public class MainActivity extends AppCompatActivity {
         //endregion
     }
     //endregion
+
+    private void showAllWorkoutsForType(int type){
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        Bundle args = ShowAllWorkoutsFragment.getBundle(type);
+        ShowAllWorkoutsFragment frag = ShowAllWorkoutsFragment.newInstance(args, (CoordinatorLayout)findViewById(R.id.main_coord_layout), new ShowAllWorkoutsFragment.ShowAllListener() {
+            @Override
+            public void openWorkout(int id, int type) {
+
+            }
+
+            @Override
+            public void openNewWorkout() {
+
+            }
+
+            @Override
+            public void openBottomSheet(int id, int type) {
+
+            }
+        });
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
+        fragmentTransaction.replace(R.id.show_all_workouts_frag_container, frag);
+        fragmentTransaction.addToBackStack(null);
+        findViewById(R.id.show_all_workouts_frag_container).setVisibility(View.VISIBLE);
+        fragmentTransaction.commit();
+        renameTitle(Workout.TYPES[type]);
+        hideActionItems();
+        toggleUpArrow(true);
+        Log.d(DEBUG_TAG, "Show All Workouts Fragment Created");
+    }
 
 
     //region NEW_WORKOUT

@@ -3,18 +3,13 @@ package com.shibedays.workoutplanner.ui.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
@@ -57,6 +52,7 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         void onWorkoutClicked(int id, int type);
         void onWorkoutLongClick(int id, int type);
         void deleteFromDB(Workout workout);
+        void openMoreFragment(String type);
     }
     private WorkoutRowListener mListener;
     //endregion
@@ -103,9 +99,10 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         holder.buttonMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Clicked "+sectionName, Toast.LENGTH_SHORT).show();
+                mListener.openMoreFragment(Workout.TYPES[position]);
             }
         });
+
 
         mAdapters.set(position, workoutItemAdapter);
 
@@ -134,5 +131,9 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
     public void pendingRemoval(int id, int type){
         mAdapters.get(type).pendingRemoval(id);
+    }
+
+    public void disableMoreButton(){
+
     }
 }

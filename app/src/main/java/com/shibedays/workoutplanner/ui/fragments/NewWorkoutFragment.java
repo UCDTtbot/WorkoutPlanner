@@ -118,6 +118,7 @@ public class NewWorkoutFragment extends Fragment{
         if(mInstance == null){
             mInstance = new WeakReference<>(new NewWorkoutFragment());
             mInstance.get().setListener(listener);
+
             return mInstance.get();
         } else {
             return mInstance.get();
