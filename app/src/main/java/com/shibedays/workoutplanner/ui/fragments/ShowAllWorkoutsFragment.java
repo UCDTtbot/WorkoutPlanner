@@ -100,6 +100,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mWorkoutVM = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        // TODO: Make it now ALL workouts, but just the type we need
         mWorkoutVM.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
@@ -116,6 +117,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_all_workouts, container, false);
 
+        mRecyclerView = view.findViewById(R.id.all_recyclerview);
 
         // Setup the adapter with correct data
         mAdapter = new WorkoutItemAdapter(getActivity(), mCoordLayout, new ArrayList<Workout>(), type, new WorkoutItemAdapter.WorkoutAdapterListener() {

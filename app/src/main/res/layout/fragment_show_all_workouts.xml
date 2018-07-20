@@ -11,4 +11,13 @@
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment" />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/all_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:descendantFocusability="blocksDescendants"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        android:layout_marginBottom="60dp">
+    </android.support.v7.widget.RecyclerView>
 </FrameLayout>
