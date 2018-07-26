@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -292,11 +293,14 @@ public class NewWorkoutFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mParentActivity.renameTitle(R.string.app_name);
-        mParentActivity.showActionItems();
-        mParentActivity.toggleUpArrow(false);
+        FragmentManager mng = mParentActivity.getSupportFragmentManager();
+        if(mng.getBackStackEntryCount() <= 0){
+            mParentActivity.toggleUpArrow(false);
+        }
         mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
         mParentActivity.findViewById(R.id.main_ad_view).setVisibility(View.VISIBLE);
+        mParentActivity.showActionItems();
+        mParentActivity.renameTitle(mParentActivity.getLastTitle());
         mInstance = null;
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
 

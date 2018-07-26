@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Handler mAdHandler;
 
+    private String mLastTitle;
     // Flags
     private boolean HIDE_ACTION_ITEMS;
 
@@ -408,28 +409,30 @@ public class MainActivity extends AppCompatActivity {
         Bundle args = ShowAllWorkoutsFragment.getBundle(type);
         ShowAllWorkoutsFragment frag = ShowAllWorkoutsFragment.newInstance(args, (CoordinatorLayout)findViewById(R.id.main_coord_layout), new ShowAllWorkoutsFragment.ShowAllListener() {
             @Override
-            public void openWorkout(int id, int type) {
-
+            public void workoutClicked(int id, int type) {
+                if(id >= 0) {
+                    openWorkout(id, type);
+                } else if (type == Workout.USER_CREATED) {
+                    openNewWorkoutFragment();
+                }
             }
 
             @Override
-            public void openNewWorkout() {
-
-            }
-
-            @Override
-            public void openBottomSheet(int id, int type) {
-
+            public void workoutLongClicked(int id, int type) {
+                if(type == Workout.USER_CREATED) {
+                    openBottomSheet(id, type);
+                }
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.show_all_workouts_frag_container, frag);
         fragmentTransaction.addToBackStack(null);
         findViewById(R.id.show_all_workouts_frag_container).setVisibility(View.VISIBLE);
-        fragmentTransaction.commit();
+        mLastTitle = getTitle().toString();
         renameTitle(Workout.TYPES[type]);
-        hideActionItems();
         toggleUpArrow(true);
+        fragmentTransaction.commit();
+
         Log.d(DEBUG_TAG, "Show All Workouts Fragment Created");
     }
 
@@ -437,6 +440,7 @@ public class MainActivity extends AppCompatActivity {
     //region NEW_WORKOUT
     private void openNewWorkoutFragment(){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        final String title = getTitle().toString();
         mNewWorkoutFragment = NewWorkoutFragment.newInstance(new NewWorkoutFragment.NewWorkoutListener() {
             @Override
             public void addNewWorkout(Workout workout) {
@@ -449,6 +453,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 mFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
+                findViewById(R.id.main_ad_view).setVisibility(View.VISIBLE);
+                showActionItems();
+                renameTitle(title);
+                if(mFragmentManager.getBackStackEntryCount() <= 0){
+                    toggleUpArrow(false);
+                }
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
@@ -456,10 +467,12 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(null);
         findViewById(R.id.new_workout_fragment_container).setVisibility(View.VISIBLE);
         findViewById(R.id.main_ad_view).setVisibility(View.GONE);
-        fragmentTransaction.commit();
+        mLastTitle = getTitle().toString();
         renameTitle(R.string.new_workout);
         hideActionItems();
         toggleUpArrow(true);
+        fragmentTransaction.commit();
+
         Log.d(DEBUG_TAG, "New Workout Fragment Created");
 
     }
@@ -521,6 +534,10 @@ public class MainActivity extends AppCompatActivity {
             params.setMargins(params.leftMargin, params.topMargin,
                     params.rightMargin, b);
         }
+    }
+
+    public String getLastTitle(){
+        return mLastTitle;
     }
 
 }

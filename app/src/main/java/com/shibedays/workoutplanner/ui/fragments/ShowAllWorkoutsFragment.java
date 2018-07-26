@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -42,7 +43,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
 
     private RecyclerView mWorkoutsView;
     private WorkoutViewModel mWorkoutVM;
-    private int type;
+    private int mType;
 
     private MainActivity mParentActivity;
 
@@ -52,9 +53,8 @@ public class ShowAllWorkoutsFragment extends Fragment {
 
 
     public interface ShowAllListener {
-        void openWorkout(int id, int type);
-        void openNewWorkout();
-        void openBottomSheet(int id, int type);
+        void workoutClicked(int id, int type);
+        void workoutLongClicked(int id, int type);
     }
     private ShowAllListener mListener;
 
@@ -99,9 +99,16 @@ public class ShowAllWorkoutsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Bundle args = getArguments();
+        if(args != null){
+            mType = args.getInt(EXTRA_WORKOUT_TYPE);
+        } else {
+            mType = 0;
+        }
+
         mWorkoutVM = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         // TODO: Make it now ALL workouts, but just the type we need
-        mWorkoutVM.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
+        mWorkoutVM.getAllTypedWorkouts(mType).observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
                 if(mAdapter != null){
@@ -118,21 +125,18 @@ public class ShowAllWorkoutsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_show_all_workouts, container, false);
 
         mRecyclerView = view.findViewById(R.id.all_recyclerview);
+        mRecyclerView.setVerticalScrollBarEnabled(false);
 
         // Setup the adapter with correct data
-        mAdapter = new WorkoutItemAdapter(getActivity(), mCoordLayout, new ArrayList<Workout>(), type, new WorkoutItemAdapter.WorkoutAdapterListener() {
+        mAdapter = new WorkoutItemAdapter(getActivity(), mCoordLayout, new ArrayList<Workout>(), mType, new WorkoutItemAdapter.WorkoutAdapterListener() {
             @Override
             public void onWorkoutClicked(int id, int type) {
-                if(id < 0){
-                    Log.d(DEBUG_TAG, "Create new workout");
-                } else {
-                    mListener.openWorkout(id, type);
-                }
+                mListener.workoutClicked(id, type);
             }
 
             @Override
             public void onWorkoutLongClick(int workoutID, int type) {
-                mListener.openBottomSheet(workoutID, type);
+                mListener.workoutLongClicked(workoutID, type);
             }
 
             @Override
@@ -175,9 +179,12 @@ public class ShowAllWorkoutsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        FragmentManager mng = mParentActivity.getSupportFragmentManager();
+        if(mng.getBackStackEntryCount() <= 0){
+            mParentActivity.toggleUpArrow(false);
+        }
         mParentActivity.renameTitle(R.string.app_name);
         mParentActivity.showActionItems();
-        mParentActivity.toggleUpArrow(false);
         mParentActivity.findViewById(R.id.show_all_workouts_frag_container).setVisibility(View.GONE);
         mInstance = null;
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
