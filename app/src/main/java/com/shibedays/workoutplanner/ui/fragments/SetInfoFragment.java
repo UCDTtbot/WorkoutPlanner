@@ -181,6 +181,9 @@ public class SetInfoFragment extends Fragment {
             final int min = time[0], sec = time[1];
             String text = BaseApp.formatTime(min, sec);
             mSetTime.setText(text);
+            if(s.getSetType() != Set.USER_CREATED){
+                mDeleteSetIC.setVisibility(View.GONE);
+            }
         }
     }
 

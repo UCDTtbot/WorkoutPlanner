@@ -186,5 +186,6 @@
         <item name="android:textColor">@color/material_light_white</item>
     </style>
 
+    <attr name="ic_abs" format="reference"/>
 
 </resources>

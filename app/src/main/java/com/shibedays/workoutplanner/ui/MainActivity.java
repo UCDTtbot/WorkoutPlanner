@@ -30,6 +30,8 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter;
@@ -111,7 +113,9 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = db.getReference("message");
+        myRef.setValue("Hello!");
 
         mFragmentManager = getSupportFragmentManager();
         HIDE_ACTION_ITEMS = false;

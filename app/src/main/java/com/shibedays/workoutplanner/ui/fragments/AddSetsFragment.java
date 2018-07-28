@@ -1,11 +1,13 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -105,6 +107,12 @@ public class AddSetsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSetViewModel = ViewModelProviders.of(this).get(SetViewModel.class);
+        mSetViewModel.getAllSets().observe(this, new Observer<List<Set>>() {
+            @Override
+            public void onChanged(@Nullable List<Set> sets) {
+
+            }
+        });
         mParentWrkoutId = getArguments().getInt(EXTRA_PARENT_ID);
     }
 
@@ -268,7 +276,7 @@ public class AddSetsFragment extends Fragment {
         Bundle args = CreateEditSetFragment.getIdBundle(-1, mParentWrkoutId, "", "", 0, R.drawable.ic_fitness_black_24dp);
         mCreateEditFragment = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_NEW_SET, args);
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-        fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
+        fragmentTransaction.replace(R.id.fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
         mParentActivity.renameTitle(R.string.new_set);

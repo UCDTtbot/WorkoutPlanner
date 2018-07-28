@@ -13,8 +13,8 @@
 
         <ImageView
             android:id="@+id/display_image"
-            android:layout_width="74dp"
-            android:layout_height="74dp"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
             android:padding="2dp"
             android:layout_marginStart="@dimen/activity_shallow_margin"
             android:layout_marginTop="@dimen/activity_shallow_vertical_margin"

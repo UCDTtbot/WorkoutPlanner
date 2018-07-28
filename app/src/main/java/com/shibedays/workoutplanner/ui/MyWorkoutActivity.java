@@ -502,8 +502,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
             menu.findItem(R.id.action_settings).setVisible(true);
             menu.findItem(R.id.rename_workout).setVisible(true);
-            // too lazy to fix the if right now TODO: stop being lazy
-            menu.findItem(R.id.add_set).setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
     }
