@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -164,6 +165,9 @@ public class CreateEditSetFragment extends Fragment {
             }
         });
         mChooseImage.setImageResource(mViewModel.getImage());
+        if(BaseApp.isDarkTheme()){
+            mChooseImage.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorDarkThemeIco));
+        }
 
 
         mEditName = view.findViewById(R.id.new_set_name);

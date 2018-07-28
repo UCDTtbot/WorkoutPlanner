@@ -16,8 +16,4 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
-    <View style="@style/Divider" />
-
-
-
 </LinearLayout>

@@ -44,8 +44,8 @@
 
                     <ImageView
                         android:id="@+id/set_image"
-                        android:layout_width="74dp"
-                        android:layout_height="74dp"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
                         android:padding="2dp"
                         android:scaleType="fitXY"
                         android:layout_marginStart="@dimen/activity_shallow_margin"
@@ -71,7 +71,8 @@
                                 android:text="Now: "
                                 android:layout_marginTop="@dimen/activity_shallow_margin"
                                 android:paddingStart="@dimen/standard_padding"
-                                android:paddingEnd="@dimen/standard_padding" />
+                                android:paddingEnd="@dimen/standard_padding"
+                                style="@style/AppTheme.NormalText"/>
                             <TextView
                                 android:id="@+id/cur_set"
                                 android:layout_width="wrap_content"
@@ -79,7 +80,8 @@
                                 android:maxLength="18"
                                 android:paddingStart="@dimen/deep_padding"
                                 android:paddingEnd="@dimen/standard_padding"
-                                android:text="Set Name" />
+                                android:text="Set Name"
+                                style="@style/AppTheme.SubHeaderText"/>
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="0dp"
@@ -93,7 +95,8 @@
                                 android:text="Next:"
                                 android:layout_marginTop="@dimen/activity_shallow_margin"
                                 android:paddingStart="@dimen/standard_padding"
-                                android:paddingEnd="@dimen/standard_padding" />
+                                android:paddingEnd="@dimen/standard_padding"
+                                style="@style/AppTheme.NormalText"/>
                             <TextView
                                 android:id="@+id/next_set"
                                 android:layout_width="wrap_content"
@@ -101,7 +104,8 @@
                                 android:maxLength="18"
                                 android:paddingStart="@dimen/deep_padding"
                                 android:paddingEnd="@dimen/standard_padding"
-                                android:text="Set Name" />
+                                android:text="Set Name"
+                                style="@style/AppTheme.SubHeaderText"/>
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>

@@ -10,6 +10,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -310,6 +311,9 @@ public class TimerFragment extends Fragment {
             mNextSetNameView.setText(next.getName());
         }
         mSetImageView.setImageResource(cur.getSetImageId());
+        if(BaseApp.isDarkTheme()){
+            mSetImageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorDarkThemeIco));
+        }
         mSetDescripView.setText(cur.getDescrip());
         mTabs.getTabAt(mTimerViewModel.getCurSetIndex()).select();
     }

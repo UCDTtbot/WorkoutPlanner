@@ -2,6 +2,7 @@ package com.shibedays.workoutplanner.ui.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 
 import java.util.HashMap;
@@ -101,6 +103,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         holder.mCheckBox.setChecked(checked);
 
         Glide.with(mContext).load(holder.image_id).into(holder.set_image);
+        if(BaseApp.isDarkTheme()){
+            holder.set_image.setColorFilter(ContextCompat.getColor(mContext, R.color.colorDarkThemeIco));
+        }
     }
 
     //endregion
