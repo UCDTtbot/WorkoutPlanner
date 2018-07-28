@@ -1,4 +1,13 @@
 <resources>
+    <attr name="ic_add" format="reference"/>
+    <attr name="ic_copy" format="reference"/>
+    <attr name="ic_del" format="reference"/>
+    <attr name="ic_info" format="reference"/>
+    <attr name="ic_edit" format="reference"/>
+    <attr name="ic_pause" format="reference"/>
+    <attr name="ic_play" format="reference"/>
+    <attr name="ic_equip" format="reference"/>
+    <attr name="ic_drag" format="reference"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -10,6 +19,13 @@
         <item name="android:textColorHint">@color/dark_text_hint</item>
         <item name="dividerColor">@color/dark_text_dividers</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="ic_play">@drawable/ic_play_arrow_black_24dp</item>
+        <item name="ic_pause">@drawable/ic_pause_black_24dp</item>
+        <item name="ic_equip">@drawable/ic_fitness_black_24dp</item>
+        <item name="ic_info">@drawable/ic_info_black_24dp</item>
+        <item name="ic_edit">@drawable/ic_edit_black_24dp</item>
+        <item name="ic_del">@drawable/ic_delete_black_24dp</item>
+        <item name="ic_drag">@drawable/ic_drag_handle_black_24dp</item>
     </style>
     <style name="AppTheme.Light.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -36,13 +52,19 @@
         <item name="colorPrimary">@color/colorPrimaryDarkTheme</item>
         <item name="colorPrimaryDark">@color/material_light_black</item>
         <item name="colorAccent">@color/colorAccentDarkTheme</item>
-        <item name="android:textColor">@color/light_text_primary</item>
         <item name="android:textColorPrimary">@color/light_text_primary</item>
         <item name="android:textColorSecondary">@color/light_text_secondary</item>
         <item name="android:textColorHint">@color/light_text_hint</item>
         <item name="dividerColor">@color/light_text_dividers</item>
         <item name="android:itemTextAppearance">@style/AppTheme.Dark.OverflowMenu</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="ic_play">@drawable/ic_play_arrow_white_24dp</item>
+        <item name="ic_pause">@drawable/ic_pause_white_24dp</item>
+        <item name="ic_equip">@drawable/ic_fitness_white_24dp</item>
+        <item name="ic_info">@drawable/ic_info_white_24dp</item>
+        <item name="ic_edit">@drawable/ic_edit_white_24dp</item>
+        <item name="ic_del">@drawable/ic_delete_white_24dp</item>
+        <item name="ic_drag">@drawable/ic_drag_handle_white_24dp</item>
     </style>
     <style name="AppTheme.Dark.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -185,7 +207,5 @@
         <item name="colorButtonNormal">@color/colorPrimary</item>
         <item name="android:textColor">@color/material_light_white</item>
     </style>
-
-    <attr name="ic_abs" format="reference"/>
 
 </resources>

@@ -18,7 +18,6 @@
             android:right="3dp"
             android:left="3dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/material_light_white"/>
             <corners android:radius="7dp"/>
         </shape>
     </item>

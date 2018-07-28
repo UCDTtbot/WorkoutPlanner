@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -103,6 +104,9 @@ public class DisplaySetDialog extends DialogFragment {
         textViewDescrip.setText(mViewModel.getSetDescrip());
         textViewDescrip.setMovementMethod(new ScrollingMovementMethod());
         imageView.setImageResource(mViewModel.getSetImageId());
+        if(BaseApp.isDarkTheme()){
+            imageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorDarkThemeIco));
+        }
         timeDisplay.setText(BaseApp.formatTime(mViewModel.getSetMin(), mViewModel.getSetSec()));
 
         builder.setView(view)

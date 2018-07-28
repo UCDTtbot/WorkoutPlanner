@@ -8,6 +8,8 @@
 
     <color name="colorPrimaryDarkTheme">@color/material_grey_900</color>
     <color name="colorAccentDarkTheme">@color/material_orange_600</color>
+    <color name="colorDarkThemeIco">@color/material_grey_200</color>
+
 
     <color name="colorPrimaryText">@color/material_grey_900</color>
     <color name="colorSecondaryText">@color/material_grey_600</color>

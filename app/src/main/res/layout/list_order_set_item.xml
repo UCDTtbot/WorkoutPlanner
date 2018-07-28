@@ -32,7 +32,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_drag_handle_black_24dp"/>
+            android:src="?attr/ic_drag"/>
 
     </RelativeLayout>
 

@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -170,6 +171,9 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
             } else if (viewHolder instanceof FooterViewHolder) {
                 FooterViewHolder vh = (FooterViewHolder) viewHolder;
                 Glide.with(mContext).load(R.drawable.ic_add_black_24dp).into(vh.footerImage);
+                if(BaseApp.isDarkTheme()){
+                    vh.footerImage.setColorFilter(ContextCompat.getColor(mContext, R.color.colorDarkThemeIco));
+                }
                 vh.footerName.setText("Add Workout");
 
             }

@@ -21,14 +21,15 @@ public class BaseApp extends Application {
 
 
     private static Context context;
+    private static boolean mIsDark;
 
     @Override
     public void onCreate() {
         super.onCreate();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if(prefs != null) {
-            boolean isDark = prefs.getBoolean("dark_theme", false);
-            if(isDark){
+            mIsDark = prefs.getBoolean("dark_theme", false);
+            if(mIsDark){
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -37,6 +38,10 @@ public class BaseApp extends Application {
 
         context = getApplicationContext();
 
+    }
+
+    public static boolean isDarkTheme(){
+        return mIsDark;
     }
 
     public AppDatabase getDatabase(){
@@ -97,14 +102,25 @@ public class BaseApp extends Application {
 
     public static int[] getWrkBtmSheetICs(){
         int ics[] = new int[getWrkBtmSheetRows()];
-        ics[0] = R.drawable.ic_content_copy_black_24dp;
-        ics[1] = R.drawable.ic_delete_black_24dp;
+        if(isDarkTheme()){
+            ics[0] = R.drawable.ic_content_copy_white_24dp;
+            ics[1] = R.drawable.ic_delete_white_24dp;
+        }
+        else {
+            ics[0] = R.drawable.ic_content_copy_black_24dp;
+            ics[1] = R.drawable.ic_delete_black_24dp;
+        }
         return ics;
     }
     public static int[] getSetBtmSheetICs(){
         int ics[] = new int[getSetBtmSheetRows()];
-        ics[0] = R.drawable.ic_edit_black_24dp;
-        ics[1] = R.drawable.ic_delete_black_24dp;
+        if(isDarkTheme()){
+            ics[0] = R.drawable.ic_edit_white_24dp;
+            ics[1] = R.drawable.ic_delete_white_24dp;
+        } else {
+            ics[0] = R.drawable.ic_edit_black_24dp;
+            ics[1] = R.drawable.ic_delete_black_24dp;
+        }
         return ics;
     }
 
