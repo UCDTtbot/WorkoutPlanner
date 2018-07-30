@@ -13,6 +13,7 @@ public class DisplaySetViewModel extends AndroidViewModel {
     private int mSetMin;
     private int mSetSec;
     private int mSetImageId;
+    private String mSetURL;
 
     public DisplaySetViewModel(@NonNull Application application) {
         super(application);
@@ -52,4 +53,7 @@ public class DisplaySetViewModel extends AndroidViewModel {
     public void setSetImageId(int mSetImageId) {
         this.mSetImageId = mSetImageId;
     }
+
+    public String getSetURL(){ return mSetURL; }
+    public void setSetURL(String u){ this.mSetURL = u; }
 }

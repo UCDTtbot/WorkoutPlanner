@@ -24,7 +24,8 @@
                 android:layout_marginStart="4dp"
                 android:scaleType="fitXY"
                 android:background="@drawable/style_rounded_drop_box"
-                android:src="@drawable/android" />
+                android:src="@drawable/android"
+                android:visibility="gone"/>
 
             <RelativeLayout
                 android:id="@+id/ic_row"
@@ -42,8 +43,8 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginEnd="4dp"
                     android:layout_marginBottom="2dp"
-                    android:layout_marginStart="4dp"
-                    style="@style/AppTheme.SubHeaderText"/>
+                    android:layout_marginStart="16dp"
+                    style="@style/AppTheme.TitleText"/>
 
                 <android.support.v7.widget.LinearLayoutCompat
                     android:id="@+id/set_time_layout"

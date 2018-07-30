@@ -183,8 +183,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                 case MSG_LOAD_NEXT_SET:
                     s = mTimerFragment.getNextSet();
+                    String downArrow = getResources().getResourceEntryName(R.drawable.ic_down_arrow_black_24dp);
+                    if(BaseApp.isDarkTheme()){
+                        downArrow = getResources().getResourceEntryName(R.drawable.ic_down_arrow_white_24dp);
+                    }
                     Set restSet = new Set(0, "Rest Time", "Take a short rest",
-                            -1, -1, getResources().getResourceEntryName(R.drawable.ic_down_arrow_black_24dp));
+                            -1, -1, downArrow);
                     mTimerFragment.updateSetInfo(restSet, s);
                     mTimerFragment.loadNextSet();
                     m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
@@ -193,8 +197,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                 case MSG_LOAD_FIRST_SET:
                     s = mTimerFragment.getNextSet();
+                    String alarm = getResources().getResourceEntryName(R.drawable.ic_access_alarm_black_24dp);
+                    if(BaseApp.isDarkTheme()){
+                        alarm = getResources().getResourceEntryName(R.drawable.ic_access_alarm_white_24dp);
+                    }
                     Set breakSet = new Set(0, "Break Time", "Take a longer rest",
-                            -1, -1, getResources().getResourceEntryName(R.drawable.ic_access_alarm_black_24dp));
+                            -1, -1, alarm);
                     mTimerFragment.updateSetInfo(breakSet, s);
                     mTimerFragment.loadNextSet();
                     m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
@@ -429,11 +437,12 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         if(defaultPrefs != null){
             mIsTTSMuted = defaultPrefs.getBoolean("voice_mute", false);
+            String op = defaultPrefs.getString("voice_type", "F1");
             Message msg = null;
             if(mIsTTSMuted){
-                msg = Message.obtain(null, TTSService.MSG_MUTE_SPEECH, 0, 0);
+                msg = Message.obtain(null, TTSService.MSG_MUTE_SPEECH, 0, 0, op);
             } else {
-                msg = Message.obtain(null, TTSService.MSG_UNMUTE_SPEECH, 0, 0);
+                msg = Message.obtain(null, TTSService.MSG_UNMUTE_SPEECH, 0, 0, op);
             }
             if(mTTSIsBound) {
                 try {

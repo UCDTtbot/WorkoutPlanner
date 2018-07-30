@@ -22,7 +22,8 @@
             android:layout_marginStart="4dp"
             android:scaleType="fitXY"
             android:background="@drawable/style_rounded_drop_box"
-            android:src="@drawable/android" />
+            android:src="@drawable/android"
+            android:visibility="gone"/>
 
         <RelativeLayout
             android:id="@+id/ic_row"
@@ -31,13 +32,13 @@
 
             <TextView
                 android:id="@+id/display_set_name"
-                style="@style/AppTheme.SubHeaderText"
+                style="@style/AppTheme.TitleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_marginBottom="2dp"
                 android:layout_marginEnd="4dp"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:text="@string/default_set_title" />
@@ -50,8 +51,8 @@
                 android:layout_marginEnd="6dp"
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="2dp"
-                android:layout_alignParentEnd="true"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_toStartOf="@id/more_info_ic">
 
                 <TextView
                     android:id="@+id/time_title"
@@ -64,6 +65,19 @@
                     android:layout_gravity="center"
                     android:text="@string/default_time" />
             </android.support.v7.widget.LinearLayoutCompat>
+
+
+            <ImageView
+                android:id="@+id/more_info_ic"
+                android:layout_width="@dimen/small_ico_size"
+                android:layout_height="@dimen/small_ico_size"
+                android:layout_alignParentEnd="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="fitXY"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:src="?attr/ic_info" />
         </RelativeLayout>
     </LinearLayout>
 

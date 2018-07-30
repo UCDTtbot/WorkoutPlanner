@@ -263,7 +263,7 @@ public class AddSetsFragment extends Fragment {
 
 
     private void displayDialog(@NonNull Set set){
-        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        Bundle bundle = DisplaySetDialog.getDialogBundle(set.getSetId(), set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId(), set.getURL());
         DisplaySetDialog dialog = DisplaySetDialog.newInstance(bundle);
         dialog.setTargetFragment(mInstance.get(), 0);
         if (getFragmentManager() != null) {

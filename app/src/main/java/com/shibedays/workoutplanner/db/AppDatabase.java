@@ -32,6 +32,7 @@ public abstract class AppDatabase extends RoomDatabase {
     private static final int ONE_HALF = 90000;
     private static final int FORTY_FIVE = 45000;
     private static final int THIRTY = 30000;
+    private static final int FIFTEEN = 15000;
     private static final int TWO_MIN = 120000;
 
     public abstract WorkoutDao workoutDao();
@@ -85,109 +86,126 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Light Jog",
                     r.getString(R.string.descrip_jog),
                     Set.CARDIO, TWO_MIN,
-                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_run_black_24dp),
+                    "https://www.bodybuilding.com/exercises/slow-jog");
             final Set run = new Set(
                     "Run",
                     r.getString(R.string.descrip_run),
-                    Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+                    Set.CARDIO, TWO_MIN,
+                    r.getResourceEntryName(R.drawable.ic_run_black_24dp),
+                    "https://www.bodybuilding.com/exercises/trail-runningwalking");
             final Set walk = new Set(
                     "Brisk Walk",
                     r.getString(R.string.descrip_walk),
-                    Set.CARDIO, TWO_MIN,
-                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+                    Set.CARDIO, ONE_HALF,
+                    r.getResourceEntryName(R.drawable.ic_walk_black_24dp));
             final Set high_steps = new Set(
-                    "High Steps",
+                    "High Knee Jog",
                     r.getString(R.string.descrip_highstep),
-                    Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+                    Set.CARDIO, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_running_black_24dp),
+                    "https://www.bodybuilding.com/exercises/high-knee-jog");
             final Set lunges = new Set(
                     "Lunges",
                     r.getString(R.string.descrip_lunges),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_walkinglunge_black_24dp),
+                    "https://www.bodybuilding.com/exercises/dumbbell-lunges");
             final Set reverse_lunge = new Set(
-                    "Reverse Lunge w/ Kick",
+                    "Reverse Lunge",
                     r.getString(R.string.descrip_reverselunge),
                     Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_walkinglunge_black_24dp),
+                    "https://www.bodybuilding.com/exercises/dumbbell-lunges");
             final Set side_lunge = new Set(
                     "Side Lunge",
                     r.getString(R.string.descrip_sidelunge),
-                    Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_run_black_24dp));
+                    Set.CARDIO, ONE_HALF,
+                    r.getResourceEntryName(R.drawable.ic_walkingman_black_24dp),
+                    "https://www.bodybuilding.com/exercises/side-lunge");
             final Set jumping_jacks = new Set(
                     "Jumping Jacks",
                     r.getString(R.string.descrip_jumpingjack),
                     Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_armsup2_black_24dp),
+                    "https://www.bodybuilding.com/exercises/jumping-jacks");
             final Set butt_kickers = new Set(
-                    "Butt Kickers",
+                    "Butt Kicks",
                     r.getString(R.string.descrip_buttkickers),
-                    Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.CARDIO, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_run_black_24dp),
+                    "https://www.bodybuilding.com/exercises/butt-kicks");
             final Set squat_jumps = new Set(
-                    "Floor Touch Squat Jumps",
+                    "Squat Jumps",
                     r.getString(R.string.descrip_squat_jumps),
-                    Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.CARDIO, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_sitting_man));
             final Set plank_jumps = new Set(
-                    "Plank Jump Ins",
+                    "Plank Jump",
                     r.getString(R.string.descrip_plank_jumps),
-                    Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.CARDIO, THIRTY,
+                    r.getResourceEntryName(R.drawable.ic_pushups_black_24dp));
             final Set burpee = new Set(
                     "Burpees",
                     r.getString(R.string.descrip_burpees),
                     Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_armsup2_black_24dp),
+                    "https://www.bodybuilding.com/exercises/burpee");
             final Set plank_jacks = new Set(
                     "Plank Jacks",
                     r.getString(R.string.descrip_plankjacks),
-                    Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.CARDIO, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_pushups_black_24dp));
 
             // Upper Body
             final Set pushups = new Set(
                     "Pushups",
                     r.getString(R.string.descrip_pushups),
                     Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_pushups_black_24dp),
+                    "https://www.bodybuilding.com/exercises/pushups");
             final Set dips = new Set(
-                    "Dips",
+                    "Bench Dips",
                     r.getString(R.string.descrip_dips),
                     Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_sitting_man),
+                    "https://www.bodybuilding.com/exercises/bench-dips");
             final Set bicep_curls = new Set(
                     "Bicep Curls",
                     r.getString(R.string.descrip_curls),
-                    Set.UPPER_BODY, THIRTY,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.UPPER_BODY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/dumbbell-bicep-curl");
             final Set shoulder_press = new Set(
                     "Shoulder Press",
                     r.getString(R.string.descrip_shoulderpress),
-                    Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.UPPER_BODY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/dumbbell-shoulder-press");
             final Set chest_press = new Set(
-                    "Chest Press",
+                    "Dumbbell Bench Press",
                     r.getString(R.string.descrip_chestpress),
-                    Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.UPPER_BODY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/dumbbell-bench-press");
             final Set bent_row = new Set(
                     "Bent Over Row",
                     r.getString(R.string.descrip_upperrow),
-                    Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.UPPER_BODY, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/bent-over-two-dumbbell-row");
             final Set sp_squats = new Set(
                     "Shoulder Press Squats",
                     r.getString(R.string.descrip_shoulder_press_squats),
                     Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/dumbbell-squat-to-shoulder-press");
             final Set plank_arm_raise = new Set(
                     "Arm Raise Plank",
                     r.getString(R.string.descrip_arm_raise_plank),
                     Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/plank");
 
 
             // Lower Body
@@ -195,150 +213,111 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Squats",
                     r.getString(R.string.descrip_squats),
                     Set.LOWER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set chair_squat = new Set(
-                    "Chair Squats",
-                    r.getString(R.string.descrip_chairsquats),
-                    Set.LOWER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/bodyweight-squat");
             final Set wall_squats = new Set(
                     "Wall Squats",
                     r.getString(R.string.descrip_wallsquats),
                     Set.LOWER_BODY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/wall-squat");
             final Set step_up = new Set(
                     "Step Ups",
                     r.getString(R.string.descrip_stepup),
                     Set.LOWER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/dumbbell-step-ups");
             final Set pile_squat = new Set(
                     "Pile Squat",
                     r.getString(R.string.descrip_pile_squat),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.jefit.com/exercises/213/dumbbell-pile-squat");
 
             // Core
             final Set situps = new Set(
-                    "Sit Ups",
+                    "Crunches",
                     r.getString(R.string.descrip_situps),
                     Set.CORE, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set roll_ups = new Set(
-                    "Roll Ups",
-                            r.getString(R.string.descrip_rollups),
-                    Set.CORE, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/crunches");
             final Set plank = new Set(
                     "Basic Plank",
                     r.getString(R.string.descrip_plank),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set hip_airplane = new Set(
-                    "Hip Airplane",
-                    r.getString(R.string.descrip_airplane),
-                    Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set good_morning = new Set(
-                    "Good Morning",
-                    r.getString(R.string.descrip_goodmorning),
-                    Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set windshield = new Set(
-                    "Windshield Wipers",
-                    r.getString(R.string.descrip_windshield),
-                    Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/plank");
             final Set airbike = new Set(
                     "Air Bike",
                     r.getString(R.string.descrip_airbike),
-                    Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.CORE, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/air-bike");
             final Set t_plank = new Set(
-                    "T Plank",
+                    "Plank with Twist",
                     r.getString(R.string.descrip_tplank),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/plank-with-twist");
             final Set mountain_climber = new Set(
                     "Mountain Climbers",
                     r.getString(R.string.descrip_mountain_climbers),
-                    Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.CORE, FORTY_FIVE,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/mountain-climbers");
             final Set leg_raises = new Set(
                     "Leg Raises",
                     r.getString(R.string.descrip_leg_raises),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/flat-bench-lying-leg-raise");
             final Set reverse_crunch = new Set(
                     "Reverse Crunch",
                     r.getString(R.string.descrip_reverse_crunch),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/reverse-crunch");
             final Set superman = new Set(
                     "Superman",
                     r.getString(R.string.descrip_superman),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set plank_shoulder_touches = new Set(
-                    "Plank Shoulder Touch",
-                    r.getString(R.string.descrip_plank_shoulders),
-                    Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/superman");
             final Set leg_pullin = new Set(
                     "Seated Leg Pull In",
                     r.getString(R.string.descrip_legpulls),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/leg-pull-in");
 
             // Flexibility
             final Set arm_spins = new Set(
-                    "Arm Spins",
+                    "Arm Circles",
                     r.getString(R.string.descrip_arm_spins),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.FLEXIBILITY, THIRTY,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/arm-circles");
             final Set arm_cross = new Set(
-                    "Arm Cross",
+                    "Shoulder Stretch",
                     r.getString(R.string.descrip_arm_cross),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set arm_behind_head = new Set(
-                    "Behind Head Pull",
-                    r.getString(R.string.descrip_behind_head_pull),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.FLEXIBILITY, THIRTY,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/shoulder-stretch");
             final Set toe_touch = new Set(
                     "Toe Touch",
                     r.getString(R.string.descrip_toe_touch),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
+                    Set.FLEXIBILITY, FIFTEEN,
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
+                    "https://www.bodybuilding.com/exercises/standing-toe-touches");
             final Set butterfly = new Set(
-                    "Butterfly",
+                    "Butterfly Stretch",
                     r.getString(R.string.descrip_butterfly),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set butt_touch = new Set(
-                    "Butt Touch",
-                    r.getString(R.string.descrip_butt_touch),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set chin_tucks = new Set(
-                    "Chin Tuck",
-                    r.getString(R.string.descrip_chin_tuck),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set neck_roll = new Set(
-                    "Neck Rolls",
-                    r.getString(R.string.descrip_neck_roll),
-                    Set.FLEXIBILITY, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
-            final Set neck_extension = new Set(
-                    "Neck Extensions",
-                    r.getString(R.string.descrip_neck_extensions),
                     Set.FLEXIBILITY, FORTY_FIVE,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Other
             final Set study = new Set(
-                    "Study",
+                    "Study Session",
                     r.getString(R.string.descrip_study),
                     Set.OTHER, 900000,
                     r.getResourceEntryName(R.drawable.ic_access_alarm_black_24dp));
@@ -360,46 +339,35 @@ public abstract class AppDatabase extends RoomDatabase {
                 add(squats);            // 8
                 add(wall_squats);       // 9
                 add(situps);            // 10
-                add(roll_ups);          // 11
-                add(plank);             // 12
-                add(lunges);            // 13
-                add(arm_spins);         // 14
-                add(study);             // 15
-                add(study_break);       // 16
-                add(chair_squat);       // 17
-                add(chest_press);       // 18
-                add(hip_airplane);      // 19
-                add(good_morning);      // 20
-                add(bent_row);          // 21
-                add(step_up);           // 22
-                add(reverse_lunge);     // 23
-                add(side_lunge);        // 24
-                add(jumping_jacks);     // 25
-                add(butt_kickers);      // 26
-                add(airbike);           // 27
-                add(windshield);        // 28
-                add(t_plank);           // 29
-                add(pile_squat);        // 30
-                add(leg_raises);        // 31
-                add(mountain_climber);  // 32
-                add(squat_jumps);       // 33
-                add(reverse_crunch);    // 34
-                add(sp_squats);         // 35
-                add(plank_arm_raise);   // 36
-                add(superman);          // 37
-                add(plank_jumps);       // 38
-                add(burpee);            // 39
-                add(plank_jacks);       // 40
-                add(plank_shoulder_touches); // 41
-                add(leg_pullin);        // 42
-                add(arm_cross);         // 43
-                add(arm_behind_head);   // 44
-                add(toe_touch);         // 45
-                add(butterfly);         // 46
-                add(butt_touch);        // 47
-                add(chin_tucks);        // 48
-                add(neck_roll);         // 49
-                add(neck_extension);    // 50
+                add(plank);             // 11
+                add(lunges);            // 12
+                add(arm_spins);         // 13
+                add(study);             // 14
+                add(study_break);       // 15
+                add(chest_press);       // 16
+                add(bent_row);          // 17
+                add(step_up);           // 18
+                add(reverse_lunge);     // 19
+                add(side_lunge);        // 20
+                add(jumping_jacks);     // 21
+                add(butt_kickers);      // 22
+                add(airbike);           // 23
+                add(t_plank);           // 24
+                add(pile_squat);        // 25
+                add(leg_raises);        // 26
+                add(mountain_climber);  // 27
+                add(squat_jumps);       // 28
+                add(reverse_crunch);    // 29
+                add(sp_squats);         // 30
+                add(plank_arm_raise);   // 31
+                add(superman);          // 32
+                add(plank_jumps);       // 33
+                add(burpee);            // 34
+                add(plank_jacks);       // 35
+                add(leg_pullin);        // 36
+                add(arm_cross);         // 37
+                add(toe_touch);         // 38
+                add(butterfly);         // 39
 
             }};
             long[] ids = mSetDao.insertAll(allSets);
@@ -409,13 +377,13 @@ public abstract class AppDatabase extends RoomDatabase {
             }
 
             // Workouts //
-            Workout card_1 = new Workout(Workout.CARDIO, "Jog-Walk Interval");
+            Workout card_1 = new Workout(Workout.CARDIO, "Jog-Walk");
             card_1.addSet(walk);
             card_1.addSet(jog);
-            Workout card_4 = new Workout(Workout.CARDIO, "Run-Walk Interval");
+            Workout card_4 = new Workout(Workout.CARDIO, "Run-Walk");
             card_4.addSet(walk);
             card_4.addSet(run);
-            Workout card_2 = new Workout(Workout.CARDIO, "Intense Training");
+            Workout card_2 = new Workout(Workout.CARDIO, "Intense Cardio");
             card_2.addSet(burpee);
             card_2.addSet(jumping_jacks);
             card_2.addSet(plank_jumps);
@@ -424,22 +392,19 @@ public abstract class AppDatabase extends RoomDatabase {
             card_3.addSet(butt_kickers);
             card_3.addSet(lunges);
             card_3.addSet(jumping_jacks);
-            card_3.addSet(side_lunge);
+
             Workout str_1 = new Workout(Workout.STRENGTH, "Body Weight");
             str_1.addSet(pushups);
             str_1.addSet(squats);
             str_1.addSet(plank);
             str_1.addSet(jumping_jacks);
-            str_1.addSet(hip_airplane);
             str_1.addSet(leg_pullin);
             Workout str_2 = new Workout(Workout.STRENGTH, "Body Weight Light");
             str_2.addSet(wall_squats);
             str_2.addSet(situps);
-            str_2.addSet(good_morning);
             str_2.addSet(lunges);
             str_2.addSet(plank);
             Workout str_3 = new Workout(Workout.STRENGTH, "Body Weight Intense");
-            str_3.addSet(plank_shoulder_touches);
             str_3.addSet(mountain_climber);
             str_3.addSet(squat_jumps);
             str_3.addSet(jumping_jacks);
@@ -457,6 +422,8 @@ public abstract class AppDatabase extends RoomDatabase {
             str_5.addSet(step_up);
             str_5.addSet(jumping_jacks);
             str_5.addSet(wall_squats);
+            str_5.addSet(leg_raises);
+            str_5.setEquipmentRequired(true);
             Workout str_6 = new Workout(Workout.STRENGTH, "Core");
             str_6.addSet(situps);
             str_6.addSet(jumping_jacks);
@@ -464,18 +431,14 @@ public abstract class AppDatabase extends RoomDatabase {
             str_6.addSet(mountain_climber);
             str_6.addSet(t_plank);
             str_6.addSet(leg_pullin);
+
             Workout flex_1 = new Workout(Workout.FLEXIBILITY, "Arm Stretches");
             flex_1.addSet(arm_spins);
             flex_1.addSet(arm_cross);
-            flex_1.addSet(arm_behind_head);
             Workout flex_2 = new Workout(Workout.FLEXIBILITY, "Leg Stretches");
             flex_2.addSet(toe_touch);
             flex_2.addSet(butterfly);
-            flex_2.addSet(butt_touch);
-            Workout flex_3 = new Workout(Workout.FLEXIBILITY, "Neck and Shoulder Stretches");
-            flex_3.addSet(chin_tucks);
-            flex_3.addSet(neck_roll);
-            flex_3.addSet(neck_extension);
+
             Workout other_1 = new Workout(Workout.OTHER, "Study Session");
             other_1.addSet(study);
             other_1.addSet(study_break);
@@ -484,15 +447,18 @@ public abstract class AppDatabase extends RoomDatabase {
             mWorkoutDao.insert(card_1);
             mWorkoutDao.insert(card_2);
             mWorkoutDao.insert(card_3);
+            mWorkoutDao.insert(card_4);
+
             mWorkoutDao.insert(str_1);
             mWorkoutDao.insert(str_2);
             mWorkoutDao.insert(str_3);
             mWorkoutDao.insert(str_4);
             mWorkoutDao.insert(str_5);
             mWorkoutDao.insert(str_6);
+
             mWorkoutDao.insert(flex_1);
             mWorkoutDao.insert(flex_2);
-            mWorkoutDao.insert(flex_3);
+
             mWorkoutDao.insert(other_1);
 
             return null;

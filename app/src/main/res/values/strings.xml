@@ -165,82 +165,296 @@
     <string name="default_sample_text">This is a block of sample text. Make sure it is changed to something more meaningful.</string>
 
     <!-- Sets -->
-    <string name="descrip_jog">Jog at a comfortable pace.</string>
-    <string name="descrip_run">High-speeding running.</string>
-    <string name="descrip_walk">Walk at a brisk pace to cool down.</string>
-    <string name="descrip_highstep">7-steps (high knee march).</string>
+    <string name="descrip_jog">
+        Jog at a slow, leisurely pace.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_run">
+        Run at a comfortable speed to get the heart pumping.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_walk">
+        Walk at a brisk, comfortable pace to cooldown.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_highstep">
+        March in place at a reasonable pace, reaching your knees up to a 90 degree angle.\n
+        \n
+        Equipment: None
+    </string>
 
-    <string name="descrip_pushups">Lie prone on the ground with hands placed as wide or slightly wider than shoulder width.
-                            Keeping the body straight, lower body to the ground by bending arms at the elbows.
-                            Raise body up off the ground by extending the arms.</string>
-    <string name="descrip_dips">Stand with your back to a chair or bench. Be sure that the object is sturdy and can comfortably support your body weight.
-                            Bend your legs and place your palms on the front edge of the bench, with your fingers pointing forward.
-                            Slowly walk your feet out in front of you, until the majority of your body weight is resting on your arms.
-                            Inhale, and keeping your elbows tucked in at your sides, slowly bend your arms and lower your body until your upper arms are parallel with the floor.
-                            Hold for a second, then exhale and straighten your arms back up to the starting position.</string>
-    <string name="descrip_curls">Extend your arm down by your side and hold the weight, palms facing forward. 
-                            Make sure your elbows are tucked and your shoulders are straight. " +
-                            When you’re in position, slowly bring the weight up to your shoulders, not outside of your 
-                            shoulders and not too far into your chest.</string>
-    <string name="descrip_shoulderpress">7-steps</string>
-    <string name="descrip_chestpress"></string>
+    <string name="descrip_pushups">
+        Lie on the floor face down and place your hands about shoulder width.\n
+        Next, lower yourself downward until your chest almost touches the floor as you inhale.\n
+        Now breathe out and press your upper body back up to the starting position while squeezing your chest.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_dips">
+        For this exercise you will need to place a bench, chair, or stool behind your back. With the bench perpendicular to your body, and while looking away from it, hold on to the bench on its edge with hands separated at shoulder width. \n
+        Slowly lower your body as you inhale by bending at the elbows until you lower yourself.: Keep the elbows as close as possible throughout the movement. \n
+        Using your triceps to bring your torso up again, lift yourself back to the starting position and repeat. \n
+        \n
+        Equipment: Bench, Chair, Stool
+    </string>
+    <string name="descrip_curls">
+        Stand up straight with a dumbbell in each hand. Keep your elbows close to your torso and rotate your palms up.\n
+        Now, keeping the upper arms stationary, exhale and curl the weights while contracting your biceps. Hold the contracted position for a brief pause as you squeeze your biceps.\n
+        Then, inhale and slowly begin to lower the dumbbells back to the starting position. Repeat.\n
+        \n
+        Equipment: Dumbbells
+    </string>
+    <string name="descrip_shoulderpress">
+        While holding a dumbbell in each hand, sit on a bench or stand.\n
+        Now raise the dumbbells to shoulder height one at a time. Make sure to rotate your wrists so that the palms of your hands are facing forward.\n
+        Now, exhale and push the dumbbells upward until they touch at the top.\n
+        Then, after a brief pause at the top contracted position, slowly lower the weights back down to the starting position while inhaling.\n
+        Repeat.\n
+        \n
+        Equipment: Dumbbells
+    </string>
+    <string name="descrip_chestpress">
+        Lie down on a flat bench with a dumbbell in each hand. The palms of your hands will be facing each other.\n
+        Then, using your thighs to help raise the dumbbells up, lift the dumbbells one at a time so that you can hold them in front of you at shoulder width.\n
+        Once at shoulder width, rotate your wrists forward so that the palms of your hands are facing away from you. The dumbbells should be just to the sides of your chest.\n
+        Then, as you breathe out, use your chest to push the dumbbells up. Lock your arms at the top of the lift and squeeze your chest, hold for a second and then begin coming down slowly.\n
+        Repeat.\n
+        \n
+        Equipment: Dumbbells, Bunch
+    </string>
 
-    <string name="descrip_squats">Stand up straight with your feet firmly planted on the ground approximately shoulder width apart.
-                            Contract your abdominal muscles as you bend your legs at the knees.
-                            Either stretch your arms out ahead of you, lightly position your hands behind your ears or hold your arms at your side as you slowly lower yourself into a squatting position.
-                            Lower your body to a position where your thighs are almost parallel to the floor.
-                            Return to the starting position and repeat.</string>
-    <string name="descrip_wallsquats">Stand up straight with your feet firmly planted on the ground approximately shoulder width apart.
-                            Contract your abdominal muscles as you bend your legs at the knees.
-                            Either stretch your arms out ahead of you, lightly position your hands behind your ears or hold your arms at your side as you slowly lower yourself into a squatting position.
-                            Lower your body to a position where your thighs are almost parallel to the floor.
-                            Return to the starting position and repeat.</string>
-    <string name="descrip_chairsquats">TODO</string>
+    <string name="descrip_squats">
+        Stand with your feet shoulder width apart. Place your hands behind your head.\n
+        Begin the movement by flexing your knees and hips, sitting back with your hips.\n
+        Continue down to full depth if you are able, and quickly reverse the motion until you return to the starting position. As you squat, keep your head and chest up and push your knees out.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_wallsquats">
+        Begin with your back against the wall and your feet out in front of you. Have your feet shoulder width apart.\n
+        Descend slowly by sliding down the wall. Keep your head up and maintain a flat back against the wall.\n
+        Continue down until the upper legs are at or just below parallel to the floor. Maintain this position for an amount of time. Focus on breathing continuously throughout.\n
+        \n
+        Equipment: None
+    </string>
 
-    <string name="descrip_situps">Lay down with feet flat on the ground creating a 45 degree angle with your legs.
-                            With hands by your side or across your chest, inhale and slowly raise your body up to your knees.
-                            Exhale as you reach the top. Slowly let yourself back down to the starting position.</string>
-    <string name="descrip_rollups">Start with your arms all the way back behind you and slowly bring them all the way forward into a sitting position.
-                            Inhale as you begin to move upward and exhale as you complete</string>
-    <string name="descrip_plank">Lie on your stomach, elbows close to your sides and directly under your shoulders, palms down.
-                            Engage the abs and slowly lift your torso off the floor, maintaining a stiff torso and legs.
-                            Avoid sagging at the low back or hiking up your hips. Continue to breathe while holding this position for 15 seconds or more.</string>
-    <string name="descrip_airplane"></string>
-    <string name="descrip_goodmorning"></string>
-    <string name="descrip_upperrow"></string>
-    <string name="descrip_stepup"></string>
-    <string name="descrip_reverselunge"></string>
-    <string name="descrip_sidelunge"></string>
-    <string name="descrip_windshield"></string>
-    <string name="descrip_airbike"></string>
-    <string name="descrip_tplank"></string>
-    <string name="descrip_jumpingjack"></string>
-    <string name="descrip_buttkickers"></string>
-    <string name="descrip_mountain_climbers"></string>
-    <string name="descrip_leg_raises"></string>
-    <string name="descrip_pile_squat"></string>
-    <string name="descrip_squat_jumps"></string>
-    <string name="descrip_reverse_crunch"></string>
-    <string name="descrip_shoulder_press_squats"></string>
-    <string name="descrip_arm_raise_plank"></string>
-    <string name="descrip_superman"></string>
-    <string name="descrip_plank_jumps"></string>
-    <string name="descrip_burpees"></string>
-    <string name="descrip_plankjacks"></string>
-    <string name="descrip_plank_shoulders"></string>
-    <string name="descrip_legpulls"></string>
-    <string name="descrip_arm_cross"></string>
-    <string name="descrip_behind_head_pull"></string>
-    <string name="descrip_toe_touch"></string>
-    <string name="descrip_butterfly"></string>
-    <string name="descrip_butt_touch"></string>
-    <string name="descrip_chin_tuck"></string>
-    <string name="descrip_neck_roll"></string>
-    <string name="descrip_neck_extensions"></string>
+    <string name="descrip_situps">
+        Lie flat on your back with your feet flat on the ground.\n
+        Now place your hands lightly on either side of your head keeping your elbows in. Don\'t lock your fingers behind your head.\n
+        Push down as hard as you can with your lower back as you contract your abdominals and exhale. Your shoulders should come up off the floor only about four inches, and your lower back should remain on the floor.\n
+        After the one second contraction, begin to come down slowly again to the starting position as you inhale.\n
+        Repeat.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_plank">
+        Get into a prone position on the floor, supporting your weight on your toes and your forearms. Your arms are bent and directly below the shoulder.\n
+        Keep your body straight at all times, and hold this position as long as possible.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_upperrow">
+        With a dumbbell in each hand (palms facing your torso), bend your knees slightly and bring your torso forward by bending at the waist; as you bend make sure to keep your back straight until it is almost parallel to the floor.\n
+        Make sure that you keep the head up. The weights should hang directly in front of you as your arms hang perpendicular to the floor and your torso.\n
+        While keeping the torso stationary, lift the dumbbells to your side, keeping the elbows close to the body. On the top contracted position, squeeze the back muscles and hold for a second.\n
+        Repeat.\n
+        \n
+        Equipment: Dumbbells
+    </string>
+    <string name="descrip_stepup">
+        Stand up straight while holding a dumbbell in each hand (palms facing the side of your legs).\n
+        Place your right foot on the elevated platform. Step on the platform by extending your right hip and knee. Use the heel mainly to lift the rest of your body up and place your left foot on the platform as well.\n
+        Step down with the left leg by flexing your right hip and knee as you inhale.\n
+        Alternate between your right and left leg.\n
+        \n
+        Equipment: Steps or Bench, Dumbbells (Optional)
+    </string>
+    <string name="descrip_reverselunge">
+        Stand with your torso upright holding two dumbbells (Optional) in your hands by your sides.\n
+        Step backwards with your right leg around 2 feet while keeping the torso upright and maintaining balance. Inhale as you go down.\n
+        Using mainly the heel of your foot, push up and go back to the starting position as you exhale.\n
+        Repeat alternating legs.\n
+        \n
+        Equipment: Dumbbells (Optional)
+    </string>
+    <string name="descrip_sidelunge">
+        Stand with your torso upright, kneeds slightly bent.\n
+        Staying low, take a slow, lateral step to the right. Keep your toes pointed forward and stay low.\n
+        Extend the left knee, driving your weight to the right, flexing the knee and hip into a side lunge. Keep your head and chest up.\n
+        Repeat alternating legs.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_airbike">
+        Lie flat on the floor with your lower back pressed to the ground. Put your hands beside your head. Lift your shoulders into the crunch position.\n
+        Bring knees up to where they are perpendicular to the floor, with your lower legs parallel to the floor.\n
+        Now simultaneously, slowly go through a cycle pedal motion kicking forward with the right leg and bringing in the knee of the left leg. Bring your right elbow close to your left knee by crunching to the side, as you breathe out.\n
+        Crunch to the opposite side as you cycle your legs and bring closer your left elbow to your right knee. Continue alternating sides.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_tplank">
+        Get into a prone position on the floor, supporting your weight on your toes and your forearms. Your arms are bent and directly below the shoulder.\n
+        Keep your body straight at all times. Pivot to one side, raising an arm vertically above you as you twist.\n
+        Pause and return to the starting position, and then repeat on the other side.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_jumpingjack">
+        Start by standing with your feet together. In one motion, jump your feet out to the side and raise your arms above your head.\n
+        Jump back to the starting position and repeat.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_buttkickers">
+        Stand with your legs shoulder-width apart. Your arms should be bent at your sides.\n
+        Jog in place while bringing your heels up to your glutes.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_mountain_climbers">
+        Begin in a pushup position, with your weight supported by your hands and toes. Flexing the knee and hip, bring one leg in until the knee is approximately under the hip.\n
+        Explosively reverse the positions of your legs, extending the bent leg until the leg is straight and supported by the toe, and bringing the other foot up with the hip and knee flexed.\n
+        Repeat alternating legs.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_leg_raises">
+        Lie with your back flat on the floor or a bench and your legs extended in front of you.\n
+        Place your hands either under your glutes with your palms down or by the sides.\n
+        As you keep your legs extended, straight as possible with your knees slightly bent but locked raise your legs until they make a 90-degree angle with the floor. Exhale and hold the contraction at the top for a second.\n
+        Now, as you inhale, slowly lower your legs back down to the starting position.\n
+        Repeat.\n
+        \n
+        Equipment: Bench (Optional)
+    </string>
+    <string name="descrip_pile_squat">
+        Start off standing with your feet 2-4 inches wider than your shoulders, with your toes pointed out.\n
+        Grab onto a dumbbell with both hands in the center of your body making sure that you keep your knees slightly bent and your back straight.\n
+        Squat down as if you were going to sit in a chair, bringing your thighs parallel to the floor.\n
+        Return to a standing position and repeat.\n
+        \n
+        Equipment: Dumbbell
+    </string>
+    <string name="descrip_squat_jumps">
+        Start with your arms by your side, feet shoulder width apart, head up, and back straight.\n
+        Keeping your back straight and chest up, squat down as you inhale until your upper thighs are parallel, or lower, to the floor.\n
+        Now pressing mainly with the balls of your feet, jump straight up in the air as high as possible, using the thighs like springs.\n
+        Repeat as your touch the floor.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_reverse_crunch">
+        Lie down on the floor with your legs fully extended and arms to your side with the palms on the floor.\n
+        Move your legs up so that your thighs are perpendicular to the floor and feet are together and parallel to the floor.\n
+        While inhaling, move your legs towards the torso as you roll your pelvis backwards and you raise your hips off the floor. At the end of this movement your knees will be touching your chest.\n
+        Hold the contraction for a second and move your legs back.\n
+        Repeat.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_shoulder_press_squats">
+        Begin in a standing position with a dumbbell in each hand. Your palms should be facing each other. Look directly forward, keep your chest up, and place your feet about shoulder-width apart.\n
+        Initiate the movement with a squat, flexing the knees and hips to lower your body. Descend as far as flexibility allows.\n
+        Pause for a brief moment at the bottom of the squat before returning to a standing position by extending the hips and knees.\n
+        After fully rising to a standing position, press the weights overhead by extending the elbows and flexing at the shoulder.\n
+        Return the weights to the shoulder before repeating.\n
+        \n
+        Equipment: Dumbbells
+    </string>
+    <string name="descrip_arm_raise_plank">
+        Get into a prone position on the floor, supporting your weight on your toes and your forearms. Your arms are bent and directly below the shoulder.\n
+        Keeping your body straight, hold this position for as long as possible while raising one arm straight out ahead of you.\n
+        Alternate arms while keeping your body straight.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_superman">
+        To begin, lie straight and face down on the floor. Your arms should be fully extended in front of you.\n
+        Simultaneously raise your arms, legs, and chest off of the floor and hold this contraction for 2 seconds.\n
+        Slowly begin to lower your arms, legs and chest back down to the starting position while inhaling.\n
+        Repeat.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_plank_jumps">
+        Start in a basic plank position, supporting yourself on your hands and toes, hands shoulder width apart.\n
+        Set your shoulder blades so that your upper body doesn\'t move. Jump your feet in towards your hands then jump your feet back out into a plank and repeat, alternating sides.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_burpees">
+        Begin standing with your legs shoulder-width apart.\n
+        Place your hands on the floor and kick your legs back so you end up with your stomach and thighs on the floor. Your elbows should be bent.\n
+        From this position, press up like you\'re doing a push-up and push your hips up.\n
+        Jump your feet under your hips and stand.\n
+        Finish the movement by jumping in the air and bringing your hands over your head.\n
+        Repeat.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_plankjacks">
+        Begin in plank position, with your hands shoulder width apart, your body in one straight line, and your feet together.\n
+        Like the motion of a jumping jack, jump your legs wide and then back together.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_legpulls">
+        Lie on the floor with your legs extended and your hands either palms facing down next to you or under your glutes.\n
+        Bend your knees and pull your upper thighs into your midsection as you breathe out. Continue the motion until your knees are around chest level. Contract your abs and hold for a second at the top.\n
+        Return to starting position and repeat.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_toe_touch">
+        Standing up straight, bend at the waist, keeping your legs straight, until you can relax and let your upper body hang down in front of you.\n
+        Let your arms and hands hang down naturally. Hold for 10 to 20 seconds. Repeat\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_arm_cross">
+        Reach your left arm across your body and hold it straight.\n
+        With your right hand, grasp your left elbow and pull it across your body towards your chest.\n
+        Hold for fifteen seconds and switch arms.\n
+        \n
+        Equipment: None
+    </string>
+    <string name="descrip_butterfly">
+        Sit on the floor with back straight.\n
+        Bring in your legs until your feet are touching, and bring in as close as you feel comfortable.\n
+        Using you hands to hold your feet, bend forward slightly and flex you knees down as much as possible.\n
+        \n
+        Equipment: None
+    </string>
 
-    <string name="descrip_lunges">7-steps</string>
-    <string name="descrip_arm_spins">Yoga</string>
+    <string name="descrip_lunges">
+        Stand with your torso upright holding two dumbbells (Optional) in your hands by your sides.\n
+        Step forward with your right leg around 2 feet while keeping the torso upright and maintaining balance. Inhale as you go down.\n
+        Using mainly the heel of your foot, push up and go back to the starting position as you exhale.\n
+        Repeat alternating legs.\n
+        \n
+        Equipment: Dumbbells (Optional)
+    </string>
+    <string name="descrip_arm_spins">
+        Stand up and extend your arms straight out by the sides. The arms should be parallel to the floor.\n
+        Slowly start to make circles of about 1 foot in diameter with each outstretched arm.\n
+        Continue the circular motion of the outstretched arms for about ten seconds. Then reverse the movement, going the opposite direction.\n
+        \n
+        Equipment: None
+    </string>
 
-    <string name="descrip_study">Focus on studying with no distractions.</string>
-    <string name="descrip_studybreak">Take a break from studying. Take a walk, get a drink, use the restroom</string>
+    <string name="descrip_study">
+        Concentrate on studying with no distractions.
+    </string>
+    <string name="descrip_studybreak">
+        Take a small break from studying.\n
+        Do not engage in any activities that require too much focus.\n
+    </string>
+    <string name="total_time_title">Total Time:</string>
+    <string name="sets_title">Sets:</string>
+    <string name="content_equipment_required">Equipment Required</string>
+    <string name="content_default_image">image</string>
 </resources>

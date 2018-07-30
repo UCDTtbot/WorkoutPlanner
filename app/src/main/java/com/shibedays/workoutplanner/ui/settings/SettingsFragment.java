@@ -1,8 +1,13 @@
 package com.shibedays.workoutplanner.ui.settings;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v14.preference.SwitchPreference;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
@@ -14,6 +19,7 @@ import android.util.DebugUtils;
 import android.util.Log;
 import android.widget.Switch;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 
 import de.psdev.licensesdialog.LicensesDialog;
@@ -45,10 +51,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         Log.d("Settings", "Got switched for dark theme");
                         if((boolean)newValue){
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                            BaseApp.toggleTheme(true);
                         } else {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                            BaseApp.toggleTheme(false);
                         }
-                        Activity act = getActivity();
                         getActivity().recreate();
                     }
                 }
@@ -63,6 +70,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if(getActivity() != null) {
                     new LicensesDialog.Builder(getActivity())
                             .setNotices(R.raw.notices)
+                            .setTitle("Open Sourced Libraries")
                             .setIncludeOwnLicense(true)
                             .build()
                             .show();
@@ -71,7 +79,55 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        bindPreferenceSummaryToValue(findPreference("voice_type"));
+        Preference legal = findPreference("legal");
+        legal.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if(getActivity() != null) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Legal Information")
+                            .setMessage("Todo: Legal Info")
+                            .setPositiveButton("Close", null)
+                            .show();
+                }
+                return false;
+            }
+        });
+
+        Preference rate = findPreference("rate_me");
+        rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if(getActivity() != null) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Rate The App")
+                            .setMessage("Clicking ok will open the Google Play Store allowing you to leave a rating and feedback.")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Uri uri = Uri.parse("market://details?id=" + getContext().getPackageName());
+                                    Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+                                    // To count with Play market backstack, After pressing back button,
+                                    // to taken back to our application, we need to add following flags to intent.
+                                    goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                                            Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                                    try {
+                                        startActivity(goToMarket);
+                                    } catch (ActivityNotFoundException e) {
+                                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                                Uri.parse("http://play.google.com/store/apps/details?id=" + getContext().getPackageName())));
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                }
+                return false;
+            }
+        });
+
+       // bindPreferenceSummaryToValue(findPreference("voice_type"));
     }
 
 

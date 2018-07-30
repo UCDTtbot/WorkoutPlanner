@@ -14,6 +14,8 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,6 +40,7 @@ public class DisplaySetDialog extends DialogFragment {
     public static final String EXTRA_SET_MIN = PACKAGE + "SET_MIN";
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
     public static final String EXTRA_SET_IMAGE = PACKAGE + "SET_IMAGE";
+    public static final String EXTRA_SET_URL = PACKAGE + "SET_URL";
     //endregion
 
     //region PRIVATE_VARS
@@ -75,6 +78,7 @@ public class DisplaySetDialog extends DialogFragment {
             mViewModel.setSetMin(args.getInt(EXTRA_SET_MIN));
             mViewModel.setSetSec(args.getInt(EXTRA_SET_SEC));
             mViewModel.setSetImageId(args.getInt(EXTRA_SET_IMAGE));
+            mViewModel.setSetURL(args.getString(EXTRA_SET_URL));
         } else {
             throw new RuntimeException(DisplaySetDialog.class.getSimpleName() + " Args never set");
         }
@@ -99,6 +103,8 @@ public class DisplaySetDialog extends DialogFragment {
         final TextView textViewDescrip = view.findViewById(R.id.display_set_descrip);
         final ImageView imageView = view.findViewById(R.id.display_image);
         final TextView timeDisplay = view.findViewById(R.id.display_set_time);
+        final ImageView moreInfo = view.findViewById(R.id.more_info_ic);
+
 
         textViewName.setText(mViewModel.getSetName());
         textViewDescrip.setText(mViewModel.getSetDescrip());
@@ -108,6 +114,15 @@ public class DisplaySetDialog extends DialogFragment {
             imageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorDarkThemeIco));
         }
         timeDisplay.setText(BaseApp.formatTime(mViewModel.getSetMin(), mViewModel.getSetSec()));
+
+        moreInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMoreInfo();
+            }
+        });
+
+
 
         builder.setView(view)
                 .setTitle("Set Info")
@@ -130,7 +145,7 @@ public class DisplaySetDialog extends DialogFragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getDialogBundle(int id, String setName, String setDescrip, int timeInMil, int imageResource){
+    public static Bundle getDialogBundle(int id, String setName, String setDescrip, int timeInMil, int imageResource, String url){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
@@ -140,8 +155,21 @@ public class DisplaySetDialog extends DialogFragment {
         bundle.putInt(EXTRA_SET_MIN, time[0]);
         bundle.putInt(EXTRA_SET_SEC, time[1]);
         bundle.putInt(EXTRA_SET_IMAGE, imageResource);
+        bundle.putString(EXTRA_SET_URL, url);
 
         return bundle;
+    }
+
+    private void openMoreInfo(){
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getContext());
+        WebView wv = new WebView(getContext());
+        wv.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        wv.loadUrl(mViewModel.getSetURL());
+        wv.getSettings().setJavaScriptEnabled(true);
+        builder.setTitle("More Info")
+                .setView(wv)
+                .setNeutralButton("Ok", null)
+                .show();
     }
     //endregion
 }

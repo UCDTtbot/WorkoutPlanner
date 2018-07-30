@@ -31,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     //region PRIVATE_VARS
     // Parent Activity Type
     private int mParentClassType;
+    private boolean mThemeChanged = false;
     //endregion
 
     //region GET_PARENT_ACTIVITY
@@ -98,5 +99,16 @@ public class SettingsActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    protected void onDestroy() {
+        if(mThemeChanged){
+            //getParent().recreate();
+        }
+        super.onDestroy();
+    }
     //endregion
+
+    public void themeChanged(){
+        mThemeChanged = true;
+    }
 }

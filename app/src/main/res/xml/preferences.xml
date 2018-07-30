@@ -7,7 +7,8 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="dark_theme"
-            android:summary="Material Dark Theme"
+            android:summaryOn="Switch to light theme."
+            android:summaryOff="Switch to dark theme."
             android:title="Dark Theme"/>
     </PreferenceCategory>
 
@@ -16,8 +17,9 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="voice_mute"
-            android:summary="Mute the trainer"
+            android:summary="Mute the voice assistant."
             android:title="Mute"/>
+        <!--
         <ListPreference
             android:defaultValue="M1"
             android:entries="@array/voice_options_titles"
@@ -26,6 +28,7 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
             android:title="Voice Type" />
+            -->
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Support">
@@ -36,13 +39,9 @@
             android:summaryOn="Click to enable ads and support development."
             android:title="Disable Ads" />
         <Preference
-            android:key="send_feedback"
-            android:title="Send Feedback"
-            android:summary="Send feedback or bugs to developer"/>
-        <Preference
             android:key="rate_me"
             android:title="Leave a Rating!"
-            android:summary="Leave a rating for the app on Google Play!"/>
+            android:summary="Leave a rating or feedback on the app on Google Play!"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="About">
@@ -54,6 +53,10 @@
             android:key="libraries"
             android:title="Open Sourced Libraries"
             android:summary="License Details"/>
+        <Preference
+            android:key="legal"
+            android:title="Legal Information"
+            android:summary="Legal information and license."/>
     </PreferenceCategory>
 
 

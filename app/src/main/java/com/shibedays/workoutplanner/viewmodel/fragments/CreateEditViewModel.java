@@ -92,6 +92,9 @@ public class CreateEditViewModel extends AndroidViewModel {
         mDefaultImageIds.add(R.drawable.ic_running_black_24dp);
         mDefaultImageIds.add(R.drawable.ic_smartwatch_black_24dp);
         mDefaultImageIds.add(R.drawable.ic_workout_black_24dp);
+        mDefaultImageIds.add(R.drawable.ic_walkinglunge_black_24dp);
+        mDefaultImageIds.add(R.drawable.ic_pushups_black_24dp);
+        mDefaultImageIds.add(R.drawable.ic_sitting_man);
     }
     public ArrayList<Integer> getDefaultImageIds(){
         return mDefaultImageIds;

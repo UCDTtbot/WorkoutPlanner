@@ -44,6 +44,10 @@ public class BaseApp extends Application {
         return mIsDark;
     }
 
+    public static void toggleTheme(boolean tog){
+        mIsDark = tog;
+    }
+
     public AppDatabase getDatabase(){
         return AppDatabase.getDatabaseInstance(this);
     }
