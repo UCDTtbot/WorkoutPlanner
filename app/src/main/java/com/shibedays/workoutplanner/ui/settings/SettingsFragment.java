@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.ui.settings;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,17 +14,13 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.DebugUtils;
 import android.util.Log;
-import android.widget.Switch;
 
 import com.shibedays.workoutplanner.BaseApp;
+import com.shibedays.workoutplanner.BuildConfig;
 import com.shibedays.workoutplanner.R;
 
 import de.psdev.licensesdialog.LicensesDialog;
-import de.psdev.licensesdialog.licenses.ApacheSoftwareLicense20;
-import de.psdev.licensesdialog.model.Notice;
-import de.psdev.licensesdialog.model.Notices;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,14 +74,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        Preference about = findPreference("about");
+        about.setSummary("Version: " + BuildConfig.VERSION_NAME);
+
         Preference legal = findPreference("legal");
         legal.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 if(getActivity() != null) {
                     new AlertDialog.Builder(getActivity())
-                            .setTitle("Legal Information")
-                            .setMessage("Todo: Legal Info")
+                            .setTitle("Credits")
+                            .setMessage(R.string.credits)
                             .setPositiveButton("Close", null)
                             .show();
                 }

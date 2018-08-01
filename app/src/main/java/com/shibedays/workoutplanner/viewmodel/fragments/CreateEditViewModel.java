@@ -80,21 +80,8 @@ public class CreateEditViewModel extends AndroidViewModel {
         mDefaultImageIds.add(R.drawable.ic_walk_black_24dp);
         mDefaultImageIds.add(R.drawable.ic_access_alarm_black_24dp);
         mDefaultImageIds.add(R.drawable.ic_info_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_abs_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_armsup_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_armsup2_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_balance_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_dumbbells_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_jumprope_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_lifting_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_lifts_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_muscle_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_running_black_24dp);
         mDefaultImageIds.add(R.drawable.ic_smartwatch_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_workout_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_walkinglunge_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_pushups_black_24dp);
-        mDefaultImageIds.add(R.drawable.ic_sitting_man);
+
     }
     public ArrayList<Integer> getDefaultImageIds(){
         return mDefaultImageIds;

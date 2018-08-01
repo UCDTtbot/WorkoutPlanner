@@ -47,7 +47,7 @@
     <PreferenceCategory android:title="About">
         <Preference
             android:key="about"
-            android:title="Workout Trainer"
+            android:title="Simple Workout Planner &amp; Timer"
             android:summary="Version: v0.6"/>
         <Preference
             android:key="libraries"

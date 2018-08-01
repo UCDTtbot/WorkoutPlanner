@@ -103,31 +103,31 @@ public abstract class AppDatabase extends RoomDatabase {
                     "High Knee Jog",
                     r.getString(R.string.descrip_highstep),
                     Set.CARDIO, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_running_black_24dp),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/high-knee-jog");
             final Set lunges = new Set(
                     "Lunges",
                     r.getString(R.string.descrip_lunges),
                     Set.CORE, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_walkinglunge_black_24dp),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/dumbbell-lunges");
             final Set reverse_lunge = new Set(
                     "Reverse Lunge",
                     r.getString(R.string.descrip_reverselunge),
                     Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_walkinglunge_black_24dp),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/dumbbell-lunges");
             final Set side_lunge = new Set(
                     "Side Lunge",
                     r.getString(R.string.descrip_sidelunge),
                     Set.CARDIO, ONE_HALF,
-                    r.getResourceEntryName(R.drawable.ic_walkingman_black_24dp),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/side-lunge");
             final Set jumping_jacks = new Set(
                     "Jumping Jacks",
                     r.getString(R.string.descrip_jumpingjack),
                     Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_armsup2_black_24dp),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/jumping-jacks");
             final Set butt_kickers = new Set(
                     "Butt Kicks",
@@ -139,36 +139,36 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Squat Jumps",
                     r.getString(R.string.descrip_squat_jumps),
                     Set.CARDIO, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_sitting_man));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set plank_jumps = new Set(
                     "Plank Jump",
                     r.getString(R.string.descrip_plank_jumps),
                     Set.CARDIO, THIRTY,
-                    r.getResourceEntryName(R.drawable.ic_pushups_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
             final Set burpee = new Set(
                     "Burpees",
                     r.getString(R.string.descrip_burpees),
                     Set.CARDIO, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_armsup2_black_24dp),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/burpee");
             final Set plank_jacks = new Set(
                     "Plank Jacks",
                     r.getString(R.string.descrip_plankjacks),
                     Set.CARDIO, FORTY_FIVE,
-                    r.getResourceEntryName(R.drawable.ic_pushups_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp));
 
             // Upper Body
             final Set pushups = new Set(
                     "Pushups",
                     r.getString(R.string.descrip_pushups),
                     Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_pushups_black_24dp),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/pushups");
             final Set dips = new Set(
                     "Bench Dips",
                     r.getString(R.string.descrip_dips),
                     Set.UPPER_BODY, ONE_MIN,
-                    r.getResourceEntryName(R.drawable.ic_sitting_man),
+                    r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/bench-dips");
             final Set bicep_curls = new Set(
                     "Bicep Curls",

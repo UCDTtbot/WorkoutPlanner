@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -176,6 +177,7 @@ public class TimerFragment extends Fragment {
         mNextSetNameView = view.findViewById(R.id.next_set);
         mSetImageView = view.findViewById(R.id.set_image);
         mSetDescripView = view.findViewById(R.id.set_descrip);
+        mSetDescripView.setMovementMethod(new ScrollingMovementMethod());
 
         mProgressBar = view.findViewById(R.id.timer_progress);
         mProgressBar.setMax(1000);
