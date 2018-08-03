@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui;
 
+import android.app.NotificationManager;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
@@ -20,6 +21,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -457,7 +460,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 mMsgQueue.add(msg);
             }
         }
-
     }
 
     @Override
@@ -490,7 +492,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        // TODO: What do we gotta save?
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY SAVING INSTANCE STATE");
 
     }
@@ -655,7 +656,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     } else {
                         List<Set> newSetList = workout.getSetList();
                         if(newSetList.size() != mSetInfoFrags.size()){
-                            //TODO add new fragment for the set
                             setupViewPager(workout.getSetList());
                             Log.e(DEBUG_TAG, "Set Info Frag List doesn't match the workout set list");
                         } else {
@@ -736,9 +736,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         if(mTimerIsBound){
             unbindService(mTimerConnection);
         }
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        fragmentTransaction.remove(mTimerFragment);
-        fragmentTransaction.commit();
+        //FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+        //fragmentTransaction.remove(mTimerFragment);
+        //fragmentTransaction.commit();
         mTimerFragment = null;
     }
 

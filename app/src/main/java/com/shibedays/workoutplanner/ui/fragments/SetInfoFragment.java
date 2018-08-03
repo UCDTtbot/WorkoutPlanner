@@ -186,7 +186,7 @@ public class SetInfoFragment extends Fragment {
             final int min = time[0], sec = time[1];
             String text = BaseApp.formatTime(min, sec);
             mSetTime.setText(text);
-            if(s.getSetType() != Set.USER_CREATED){
+            if(mWorkoutViewModel.getWorkoutByID(mMainVM.getParentWrkoutId()).getWorkoutType() != Workout.USER_CREATED){
                 mDeleteSetIC.setVisibility(View.GONE);
             }
         }
@@ -212,7 +212,9 @@ public class SetInfoFragment extends Fragment {
                     set.getName(),
                     set.getDescrip(),
                     set.getTime(),
-                    set.getSetImageId());
+                    set.getSetImageId(),
+                    set.getSetType(),
+                    set.getURL());
 
             CreateEditSetFragment frag = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_EDIT_WORKOUT_SET, args);
             View v = getActivity().findViewById(R.id.fragment_container);
@@ -224,6 +226,7 @@ public class SetInfoFragment extends Fragment {
             Activity act = getActivity();
             if (act instanceof MyWorkoutActivity) {
                 ((MyWorkoutActivity) act).renameTitle(R.string.edit_set);
+                ((MyWorkoutActivity) act).hideActionItems();
             }
         } else {
             Log.e(DEBUG_TAG, "Set came up null");

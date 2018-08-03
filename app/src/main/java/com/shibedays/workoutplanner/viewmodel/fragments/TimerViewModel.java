@@ -21,6 +21,8 @@ public class TimerViewModel extends AndroidViewModel {
     private int mCurRep;
     private int mCurRound;
 
+    private int mCurTime;
+
     public TimerViewModel(@NonNull Application application) {
         super(application);
     }
@@ -114,4 +116,7 @@ public class TimerViewModel extends AndroidViewModel {
     public int getTotalRounds(){
         return mWorkout.getNumOfRounds();
     }
+
+    public int getCurTime(){ return mCurTime; }
+    public void setCurTime(int time) { mCurTime = time; }
 }

@@ -85,6 +85,16 @@ public class Set {
         setImageById(image);
     }
 
+    public Set(int id, String name, String descrip, int type, int time, int image, String url){
+        this.setId = id;
+        this.name = name;
+        this.descrip = descrip;
+        this.setType = type;
+        this.time = time;
+        this.URL = url;
+        setImageById(image);
+    }
+
     public Set(String name, String descrip, int type, int time, int image){
         this.name = name;
         this.setType = type;

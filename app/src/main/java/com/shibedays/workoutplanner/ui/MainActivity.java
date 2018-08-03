@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui;
 
+import android.app.NotificationManager;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -272,6 +273,8 @@ public class MainActivity extends AppCompatActivity {
                     .build();
             mAdView.loadAd(adr);
         }
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_RESUME");
     }
 
@@ -300,6 +303,8 @@ public class MainActivity extends AppCompatActivity {
             if(mAdHandler != null)
                 mAdHandler.removeCallbacks(null);
         }
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
         Log.d(DEBUG_TAG, "MAIN ACTIVITY ON_DESTROY");
     }
 

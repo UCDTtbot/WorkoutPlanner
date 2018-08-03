@@ -156,6 +156,7 @@ public class TimerFragment extends Fragment {
             mTimerViewModel.setCurSet(w.getSetList().get(0));
             mTimerViewModel.setCurRep(0);
             mTimerViewModel.setCurRound(0);
+            mTimerViewModel.setCurTime(mTimerViewModel.getCurSetTime());
         } else {
             throw new RuntimeException(TimerFragment.class.getSimpleName() + " getArguments returned null. Fragment started incorrectly");
         }
@@ -214,9 +215,9 @@ public class TimerFragment extends Fragment {
     public void onStart() {
         super.onStart();
         updateSetInfo(mTimerViewModel.getCurSet(), mTimerViewModel.getNextSet());
-        updateTime(mTimerViewModel.getCurSetTime(), mTimerViewModel.getCurSetTime());
         updateRep(0);
         updateRound(0);
+        updateTime(mTimerViewModel.getCurTime(), mTimerViewModel.getCurSetTime());
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_START");
     }
 
@@ -322,13 +323,13 @@ public class TimerFragment extends Fragment {
 
     public void updateTime(int time, int totalTime){
         int[] splitTime = BaseApp.convertFromMillis(time);
+        mTimerViewModel.setCurTime(time);
         int min = splitTime[0], sec = splitTime[1];
 
         mTimeView.setText(BaseApp.formatTime(min, sec));
 
         float floatTime = ((float)time / (float)totalTime) * 1000;
         int progress = 1000 - (int)floatTime;
-        // TODO: If API < 24, do a different thing
         mProgressBar.setProgress(progress, true);
     }
 

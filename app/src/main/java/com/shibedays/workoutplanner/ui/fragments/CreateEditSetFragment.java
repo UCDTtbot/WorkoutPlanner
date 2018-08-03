@@ -57,6 +57,8 @@ public class CreateEditSetFragment extends Fragment {
     public static final String EXTRA_SET_SEC = PACKAGE + "SET_SEC";
     public static final String EXTRA_IMAGE_ID = PACKAGE + "SET_IMAGE_ID";
     public static final String EXTRA_WORKOUT_ID = PACKAGE + "WRKOUT_ID";
+    public static final String EXTRA_SET_TYPE = PACKAGE + "SET_TYPE";
+    public static final String EXTRA_SET_URL = PACKAGE + "SET_URL";
     //endregion
 
     public static final int TYPE_NEW_SET = 33;
@@ -137,6 +139,8 @@ public class CreateEditSetFragment extends Fragment {
             mViewModel.setSecs(args.getInt(EXTRA_SET_SEC, 0));
             mViewModel.setImage(args.getInt(EXTRA_IMAGE_ID, R.drawable.ic_fitness_black_24dp));
             mViewModel.setWorkoutId(args.getInt(EXTRA_WORKOUT_ID));
+            mViewModel.setSetType(args.getInt(EXTRA_SET_TYPE));
+            mViewModel.setSetURL(args.getString(EXTRA_SET_URL));
             mViewModel.setupDefaultImages();
         }
     }
@@ -276,7 +280,9 @@ public class CreateEditSetFragment extends Fragment {
             if(man.getBackStackEntryCount() <=  0)
                 getActivity().findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
         } else if (getActivity() instanceof MyWorkoutActivity){
-            getActivity().setTitle(mParentTitle);
+            MyWorkoutActivity act = (MyWorkoutActivity)getActivity();
+            act.setTitle(mParentTitle);
+            act.showActionItems();
             if(man.getBackStackEntryCount() <= 0)
                 getActivity().findViewById(R.id.fragment_container).setVisibility(View.GONE);
         } else {
@@ -298,7 +304,7 @@ public class CreateEditSetFragment extends Fragment {
     //endregion
 
     //region UTILITY
-    public static Bundle getIdBundle(int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId){
+    public static Bundle getIdBundle(int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId, int type, String url){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
@@ -310,21 +316,25 @@ public class CreateEditSetFragment extends Fragment {
         bundle.putInt(EXTRA_SET_SEC, time[1]);
         bundle.putInt(EXTRA_IMAGE_ID, imageId);
         bundle.putInt(EXTRA_WORKOUT_ID, wrkid);
+        bundle.putInt(EXTRA_SET_TYPE, type);
+        bundle.putString(EXTRA_SET_URL, url);
         return bundle;
     }
-    public static Bundle getPosBundle(int pos, int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId){
+    public static Bundle getPosBundle(int pos, int id, int wrkid, String setName, String setDescrip, int timeInMil, int imageId, int type, String url){
         Bundle bundle = new Bundle();
 
         int[] time = BaseApp.convertFromMillis(timeInMil);
 
         bundle.putInt(EXTRA_SET_POS, pos);
+        bundle.putInt(EXTRA_SET_ID, id);
         bundle.putString(EXTRA_SET_NAME, setName);
         bundle.putString(EXTRA_SET_DESCIP, setDescrip);
         bundle.putInt(EXTRA_SET_MIN, time[0]);
         bundle.putInt(EXTRA_SET_SEC, time[1]);
         bundle.putInt(EXTRA_IMAGE_ID, imageId);
         bundle.putInt(EXTRA_WORKOUT_ID, wrkid);
-        bundle.putInt(EXTRA_SET_ID, id);
+        bundle.putInt(EXTRA_SET_TYPE, type);
+        bundle.putString(EXTRA_SET_URL, url);
         return bundle;
     }
 
@@ -341,7 +351,6 @@ public class CreateEditSetFragment extends Fragment {
     }
 
     private void validateSet(){
-        // TODO: Input validation
         Boolean OK = true;
 
         if(TextUtils.isEmpty(mViewModel.getName())){
@@ -368,9 +377,10 @@ public class CreateEditSetFragment extends Fragment {
                         mViewModel.getId(),
                         mViewModel.getName(),
                         mViewModel.getDescrip(),
-                        Set.USER_CREATED,
+                        mViewModel.getSetType(),
                         BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()),
-                        mViewModel.getImage());
+                        mViewModel.getImage(),
+                        mViewModel.getSetURL());
                 w.updateSet(s, mViewModel.getPos());
                 mWrkViewModel.update(w);
             } else if (mType == TYPE_EDIT){
@@ -379,6 +389,7 @@ public class CreateEditSetFragment extends Fragment {
                 p.setDescrip(mViewModel.getDescrip());
                 p.setTime(BaseApp.convertToMillis(mViewModel.getMins(), mViewModel.getSecs()));
                 p.setImageById(mViewModel.getImage());
+                p.setURL(mViewModel.getSetURL());
                 mSetViewModel.update(p);
             } else {
                 throw new RuntimeException(DEBUG_TAG + "No create set type given");

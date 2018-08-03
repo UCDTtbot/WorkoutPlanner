@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
@@ -54,12 +55,13 @@ public class SettingsActivity extends AppCompatActivity {
             mParentClassType = in.getIntExtra(EXTRA_PARENT, -1);
             if(mParentClassType == 0){
                 intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             } else if( mParentClassType == 1){
                 intent = new Intent(this, MyWorkoutActivity.class);
 
                 int id = in.getIntExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, -1);
                 int type = in.getIntExtra(MyWorkoutActivity.EXTRA_WORKOUT_TYPE, 0);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NORMAL_INTENT_TYPE);
                 intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_ID, id);
                 intent.putExtra(MyWorkoutActivity.EXTRA_WORKOUT_TYPE, type);
@@ -95,8 +97,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        startActivity(getParentActivityIntentImpl());
         finish();
+        startActivity(getParentActivityIntentImpl());
     }
 
     @Override
@@ -106,7 +108,18 @@ public class SettingsActivity extends AppCompatActivity {
         }
         super.onDestroy();
     }
-    //endregion
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home){
+            finish();
+            startActivity(getParentActivityIntentImpl());
+        }
+        return super.onOptionsItemSelected(item);
+    }
+//endregion
 
     public void themeChanged(){
         mThemeChanged = true;

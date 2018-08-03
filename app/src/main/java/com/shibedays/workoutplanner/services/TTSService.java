@@ -11,11 +11,14 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+
+import org.w3c.dom.Text;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -62,8 +65,9 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
                     break;
                 case MSG_SPEAK:
                     int strID = msg.arg1;
+                    String extra = (String)msg.obj;
                     if (strID >= 0) {
-                        speak(getResources().getString(strID));
+                        speak(getResources().getString(strID), extra);
                     } else {
                         Log.e(DEBUG_TAG, "MSG_SPEAK arg1 empty");
                     }
@@ -139,9 +143,13 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
     //endregion
 
     //region UTILITY
-    public void speak(String speech) {
+    public void speak(String speech, String extra) {
+        String sentence = speech;
+        if(!TextUtils.isEmpty(extra))
+            sentence = speech + extra;
+
         if(mTTSReady && !mIsMuted){
-            mTTS.speak(speech, TextToSpeech.QUEUE_FLUSH, null, SPEECH_ID);
+            mTTS.speak(sentence, TextToSpeech.QUEUE_FLUSH, null, SPEECH_ID);
         }
     }
     private void adjustSpeechRate(float rate){

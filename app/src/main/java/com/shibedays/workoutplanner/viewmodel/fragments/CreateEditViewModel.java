@@ -21,6 +21,8 @@ public class CreateEditViewModel extends AndroidViewModel {
     private int mPos;
     private int mWorkoutId;
     private int mImage;
+    private int mType;
+    private String mURL;
     private ArrayList<Integer> mDefaultImageIds;
 
     public CreateEditViewModel(@NonNull Application application) {
@@ -96,4 +98,10 @@ public class CreateEditViewModel extends AndroidViewModel {
     public void setWorkoutId(int mWorkoutId) {
         this.mWorkoutId = mWorkoutId;
     }
+
+    public int getSetType() { return mType; }
+    public void setSetType(int type){ mType = type; }
+
+    public String getSetURL() { return mURL; }
+    public void setSetURL(String url) { mURL = url; }
 }

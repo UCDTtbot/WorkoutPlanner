@@ -273,7 +273,7 @@ public class AddSetsFragment extends Fragment {
 
     private void openNewSet(){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getIdBundle(-1, mParentWrkoutId, "", "", 0, R.drawable.ic_fitness_black_24dp);
+        Bundle args = CreateEditSetFragment.getIdBundle(-1, mParentWrkoutId, "", "", 0, R.drawable.ic_fitness_black_24dp, -1, "");
         mCreateEditFragment = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_NEW_SET, args);
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
         fragmentTransaction.replace(R.id.fragment_container, mCreateEditFragment);
@@ -284,7 +284,7 @@ public class AddSetsFragment extends Fragment {
 
     private void openEditSet(@NonNull final Set set){
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        Bundle args = CreateEditSetFragment.getIdBundle(set.getSetId(), mParentWrkoutId, set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId());
+        Bundle args = CreateEditSetFragment.getIdBundle(set.getSetId(), mParentWrkoutId, set.getName(), set.getDescrip(), set.getTime(), set.getSetImageId(), set.getSetType(), set.getURL());
         mCreateEditFragment = CreateEditSetFragment.newInstance(getActivity().getTitle().toString(), CreateEditSetFragment.TYPE_EDIT, args);
         fragmentTransaction.replace(R.id.new_workout_fragment_container, mCreateEditFragment);
         fragmentTransaction.addToBackStack(null);

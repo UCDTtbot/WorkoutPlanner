@@ -30,6 +30,7 @@ public class TimerService extends Service {
     // Package and Debug Constants
     private static final String DEBUG_TAG = TimerService.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.services.TimerService.";
+    public static final String NOTIF_CHANNEL = "N_TIMER";
     // Notification ID
     private static final int NOTIF_ID = 1;
     private static final long ONE_SEC = 1000;
@@ -161,8 +162,6 @@ public class TimerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_START_COMMAND");
 
-
-        // TODO: Receive the bundle that contains the notification information and use it to build the notif
         if(intent != null){
             mNotifBundle = intent.getBundleExtra(EXTRA_NOTIF_BUNDLE);
             mTotalCurTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
@@ -184,7 +183,7 @@ public class TimerService extends Service {
         updateNotification(NOTIF_CURRENT, 0, true);
         //endregion
 
-        sendTTSMessage(R.string.tts_starting);
+        sendTTSMessage(R.string.tts_starting, "");
 
         mCurRep = 0;
         mCurRound = 0;
@@ -287,25 +286,25 @@ public class TimerService extends Service {
                 }
 
                 if(mTimeLeft == 7000 && mCurrentAction == REST_ACTION){
-                    sendTTSMessage(R.string.tts_rest_ending);
+                    sendTTSMessage(R.string.tts_rest_ending, "");
                 }
                 if(mTimeLeft == 5000) {
-                    sendTTSMessage(R.string.tts_five);
+                    sendTTSMessage(R.string.tts_five, "");
                 }
                 if(mTimeLeft == 4000) {
-                    sendTTSMessage(R.string.tts_four);
+                    sendTTSMessage(R.string.tts_four, "");
                 }
                 if(mTimeLeft == 3000) {
-                    sendTTSMessage(R.string.tts_three);
+                    sendTTSMessage(R.string.tts_three, "");
                 }
                 if(mTimeLeft == 2000) {
-                    sendTTSMessage(R.string.tts_two);
+                    sendTTSMessage(R.string.tts_two, "");
                 }
                 if(mTimeLeft == 1000) {
-                    sendTTSMessage(R.string.tts_one);
+                    sendTTSMessage(R.string.tts_one, "");
                 }
 
-                if(mTimeLeft % 10000 == 0){
+                if(mTimeLeft % 5000 == 0){
                     updateNotification(NOTIF_CURRENT, 0, false);
                 }
 
@@ -317,7 +316,7 @@ public class TimerService extends Service {
                     if(mNoBreakFlag){ // No Break
                         nextRound();
 
-                        sendTTSMessage(R.string.tts_begin);
+                        sendTTSMessage(R.string.tts_begin, mSetName);
                         mCurrentAction = REP_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mNextSetTime, TTS_NO_DELAY);
@@ -325,7 +324,7 @@ public class TimerService extends Service {
                             beginTimer(mNextSetTime, 1);
 
                     } else {    // Yes Break
-                        sendTTSMessage(R.string.tts_round_finished);
+                        sendTTSMessage(R.string.tts_round_finished, "");
                         mCurrentAction = BREAK_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mBreakTime, TTS_NO_DELAY);
@@ -333,7 +332,7 @@ public class TimerService extends Service {
                             beginTimer(mBreakTime, TTS_BREAK_DELAY);
                     }
                 } else if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
-                    sendTTSMessage(R.string.tts_finished);
+                    sendTTSMessage(R.string.tts_finished, "");
 
                     //TODO: Send us back to MyWorkoutActivity, unbind, and kill-self
 
@@ -343,14 +342,14 @@ public class TimerService extends Service {
                     if(mNoRestFlag){ // No Rest
                         nextRep();
 
-                        sendTTSMessage(R.string.tts_begin);
+                        sendTTSMessage(R.string.tts_begin, mSetName);
                         mCurrentAction = REP_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mNextSetTime, TTS_NO_DELAY);
                         else
                             beginTimer(mNextSetTime, 1);
                     } else { // Yes Rest
-                        sendTTSMessage(R.string.tts_take_rest);
+                        sendTTSMessage(R.string.tts_take_rest, "");
                         mCurrentAction = REST_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mRestTime, TTS_NO_DELAY);
@@ -362,8 +361,7 @@ public class TimerService extends Service {
                     //Rest finished. Start next rep.
                     nextRep();
 
-                    //TODO: Custom Message
-                    sendTTSMessage(R.string.tts_begin);
+                    sendTTSMessage(R.string.tts_begin, mNextSetName);
                     mCurrentAction = REP_ACTION;
                     if(mIsTTSMuted)
                         beginTimer(mNextSetTime, TTS_NO_DELAY);
@@ -374,14 +372,13 @@ public class TimerService extends Service {
                     //Break finished, start next round
                     nextRound();
 
-                    sendTTSMessage(R.string.tts_next_round);
+                    sendTTSMessage(R.string.tts_next_round, mSetName);
                     mCurrentAction = REP_ACTION;
                     if(mIsTTSMuted)
                         beginTimer(mNextSetTime, TTS_NO_DELAY);
                     else
                         beginTimer(mNextSetTime, TTS_REST_DELAY);
                 } else {
-                    //TODO: Something bad happened (?)
                     Log.e(DEBUG_TAG, "mTimeLeft is negative ?");
                 }
             }
@@ -395,7 +392,7 @@ public class TimerService extends Service {
     private void updateNotification(int type, int flags, boolean isFirstRun){
 
         if(mBuilder == null)
-            mBuilder = new NotificationCompat.Builder(this, "Timer");
+            mBuilder = new NotificationCompat.Builder(this, NOTIF_CHANNEL);
 
         Intent notifIntent = new Intent(this, MyWorkoutActivity.class);
         notifIntent.putExtra(EXTRA_REBUILD_BUNDLE, mNotifBundle);
@@ -406,7 +403,7 @@ public class TimerService extends Service {
         mBuilder = new NotificationCompat.Builder(this, "MainTimerChannel");
         Bitmap b = BitmapFactory.decodeResource(getResources(), mSetImage);
 
-        int time = 0;
+        int time = mTotalCurTime;
         String name = "";
         switch (type){
             case NOTIF_CURRENT:
@@ -436,7 +433,7 @@ public class TimerService extends Service {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setStyle(new NotificationCompat.InboxStyle()
-                        .addLine(BaseApp.formatTime(mTotalCurTime) + " left.")
+                        .addLine(BaseApp.formatTime(time) + " left.")
                         .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));
         if(flags == NOTIF_PLAY_ACTION){
             Intent playIntent = new Intent();
@@ -480,8 +477,8 @@ public class TimerService extends Service {
         updateNotification(NOTIF_NEXT, 0, false);
     }
 
-    private void sendTTSMessage(int stringID){
-        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PASS_TTS_MSG, stringID, 0);
+    private void sendTTSMessage(int stringID, String extra){
+        Message msg = Message.obtain(null, MyWorkoutActivity.MSG_PASS_TTS_MSG, stringID, 0, extra);
         sendMessage(msg);
     }
 
@@ -522,4 +519,11 @@ public class TimerService extends Service {
         return intent;
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        mHandler.removeCallbacks(timer);
+        stopForeground(true);
+        stopSelf();
+        super.onTaskRemoved(rootIntent);
+    }
 }
