@@ -298,7 +298,8 @@ public class NewWorkoutFragment extends Fragment{
             mParentActivity.toggleUpArrow(false);
         }
         mParentActivity.findViewById(R.id.new_workout_fragment_container).setVisibility(View.GONE);
-        mParentActivity.findViewById(R.id.main_ad_view).setVisibility(View.VISIBLE);
+        if(!BaseApp.areAdsDisabled())
+            mParentActivity.findViewById(R.id.main_ad_view).setVisibility(View.VISIBLE);
         mParentActivity.showActionItems();
         mParentActivity.renameTitle(mParentActivity.getLastTitle());
         mInstance = null;

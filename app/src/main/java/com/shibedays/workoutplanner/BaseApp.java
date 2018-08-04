@@ -22,6 +22,7 @@ public class BaseApp extends Application {
 
     private static Context context;
     private static boolean mIsDark;
+    private static boolean mAdsDisabled;
 
     @Override
     public void onCreate() {
@@ -29,6 +30,8 @@ public class BaseApp extends Application {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if(prefs != null) {
             mIsDark = prefs.getBoolean("dark_theme", false);
+            mAdsDisabled = prefs.getBoolean("disable_ads", false);;
+
             if(mIsDark){
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else {
@@ -43,10 +46,12 @@ public class BaseApp extends Application {
     public static boolean isDarkTheme(){
         return mIsDark;
     }
-
     public static void toggleTheme(boolean tog){
         mIsDark = tog;
     }
+
+    public static boolean areAdsDisabled(){ return mAdsDisabled; }
+    public static void toggleAds(boolean tog){ mAdsDisabled = tog;}
 
     public AppDatabase getDatabase(){
         return AppDatabase.getDatabaseInstance(this);
