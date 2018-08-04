@@ -21,7 +21,7 @@ import android.view.ViewGroup;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
-import com.shibedays.workoutplanner.ui.adapters.WorkoutItemAdapter;
+import com.shibedays.workoutplanner.ui.adapters.WorkoutItemHelper;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.lang.ref.WeakReference;
@@ -38,20 +38,19 @@ public class ShowAllWorkoutsFragment extends Fragment {
     //endregion
 
     public static final String EXTRA_WORKOUT_TYPE = PACKAGE + "WorkoutType";
-    public static final String EXTRA_PENDING_IDS = PACKAGE + "PENDING_IDS";
 
     private static WeakReference<ShowAllWorkoutsFragment> mInstance;
 
     private RecyclerView mWorkoutsView;
     private WorkoutViewModel mWorkoutVM;
     private int mType;
-    private ArrayList<Integer> mHideIDs;
 
     private MainActivity mParentActivity;
 
     private RecyclerView mRecyclerView;
-    private WorkoutItemAdapter mAdapter;
+    private WorkoutItemHelper mAdapter;
     private CoordinatorLayout mCoordLayout;
+    private List<Workout> mWorkouts;
 
 
     public interface ShowAllListener {
@@ -105,10 +104,8 @@ public class ShowAllWorkoutsFragment extends Fragment {
         Bundle args = getArguments();
         if(args != null){
             mType = args.getInt(EXTRA_WORKOUT_TYPE);
-            mHideIDs = args.getIntegerArrayList(EXTRA_PENDING_IDS);
         } else {
             mType = 0;
-            mHideIDs = new ArrayList<>();
         }
 
         mWorkoutVM = ViewModelProviders.of(this).get(WorkoutViewModel.class);
@@ -116,16 +113,14 @@ public class ShowAllWorkoutsFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
                 if(mAdapter != null){
-                    if(mHideIDs != null){
-                        for(int id : mHideIDs){
-                            for(Workout w : workouts){
-                                if(w.getWorkoutID() == id){
-                                    workouts.remove(w);
-                                }
-                            }
+                    List<Workout> pending = mParentActivity.getPendingHelper().getPendingWorkouts(mType);
+                    mWorkouts = workouts;
+                    for(Workout w : pending){
+                        if(mWorkouts.contains(w)){
+                            mWorkouts.remove(w);
                         }
                     }
-                    mAdapter.updateData(workouts);
+                    mAdapter.updateData(mWorkouts);
                 }
             }
         });
@@ -141,7 +136,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
         mRecyclerView.setVerticalScrollBarEnabled(false);
 
         // Setup the adapter with correct data
-        mAdapter = new WorkoutItemAdapter(getActivity(), mCoordLayout, new ArrayList<Workout>(), mType, new WorkoutItemAdapter.WorkoutAdapterListener() {
+        mAdapter = new WorkoutItemHelper(getActivity(), mCoordLayout, new ArrayList<Workout>(), mType, new WorkoutItemHelper.WorkoutAdapterListener() {
             @Override
             public void onWorkoutClicked(int id, int type) {
                 mListener.workoutClicked(id, type);
@@ -150,16 +145,6 @@ public class ShowAllWorkoutsFragment extends Fragment {
             @Override
             public void onWorkoutLongClick(int workoutID, int type) {
                 mListener.workoutLongClicked(workoutID, type);
-            }
-
-            @Override
-            public void deleteFromDB(Workout workout) {
-                mListener.deleteFromDB(workout);
-            }
-
-            @Override
-            public void undo(Workout w) {
-
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false));
@@ -233,15 +218,25 @@ public class ShowAllWorkoutsFragment extends Fragment {
         mCoordLayout = coord;
     }
 
-    public static Bundle getBundle(int type, ArrayList<Integer> pendings){
+    public static Bundle getBundle(int type){
         Bundle args = new Bundle();
         args.putInt(EXTRA_WORKOUT_TYPE, type);
-        args.putIntegerArrayList(EXTRA_PENDING_IDS, pendings);
         return args;
     }
 
-    public void pendingRemoval(int id){
-        mAdapter.pendingRemoval(id);
+
+    public void removeWorkout(Workout w){
+        if(mAdapter != null){
+            mAdapter.removeWorkout(w);
+        }
+
+    }
+
+    public void addWorkout(Workout w){
+        if(mAdapter != null){
+            mAdapter.addWorkout(w);
+        }
+
     }
 
 }

@@ -44,16 +44,14 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
     private List<List<Workout>> mTypedWorkouts;
     private CoordinatorLayout mCoordLayout;
-    private List<WorkoutItemAdapter> mAdapters;
+    private List<WorkoutItemHelper> mAdapters;
     private Context mContext;
 
     //region INTERFACES
     public interface WorkoutRowListener{
         void onWorkoutClicked(int id, int type);
         void onWorkoutLongClick(int id, int type);
-        void deleteFromDB(Workout workout);
         void openMoreFragment(String type);
-        void undo(Workout w);
     }
     private WorkoutRowListener mListener;
     //endregion
@@ -78,7 +76,7 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
         holder.sectionTitle.setText(sectionName);
 
-        WorkoutItemAdapter workoutItemAdapter = new WorkoutItemAdapter(mContext, mCoordLayout, mTypedWorkouts.get(position), position, new WorkoutItemAdapter.WorkoutAdapterListener() {
+        WorkoutItemHelper workoutItemAdapter = new WorkoutItemHelper(mContext, mCoordLayout, mTypedWorkouts.get(position), position, new WorkoutItemHelper.WorkoutAdapterListener() {
             @Override
             public void onWorkoutClicked(int id, int type) {
                 mListener.onWorkoutClicked(id, type);
@@ -86,16 +84,6 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
             @Override
             public void onWorkoutLongClick(int id, int type) { mListener.onWorkoutLongClick(id, type); }
-
-            @Override
-            public void deleteFromDB(Workout workout) {
-                mListener.deleteFromDB(workout);
-            }
-
-            @Override
-            public void undo(Workout w) {
-                mListener.undo(w);
-            }
         });
         holder.workoutRecyclerView.setHasFixedSize(true);
         //holder.workoutRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
@@ -135,11 +123,21 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         }
     }
 
-    public void pendingRemoval(int id, int type){
-        mAdapters.get(type).pendingRemoval(id);
+    public void removeWorkout(Workout w){
+        int type = w.getWorkoutType();
+        if(mTypedWorkouts != null && mTypedWorkouts.get(type) != null){
+            if(mAdapters.get(type) != null){
+                mAdapters.get(type).removeWorkout(w);
+            }
+        }
     }
 
-    public void disableMoreButton(){
-
+    public void addWorkout(Workout w){
+        int type = w.getWorkoutType();
+        if(mTypedWorkouts != null && mTypedWorkouts.get(type) != null){
+            if(mAdapters.get(type) != null){
+                mAdapters.get(type).addWorkout(w);
+            }
+        }
     }
 }

@@ -41,6 +41,7 @@ import com.shibedays.workoutplanner.ui.fragments.NewWorkoutFragment;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.fragments.ShowAllWorkoutsFragment;
+import com.shibedays.workoutplanner.ui.helpers.PendingRemovalHelper;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
@@ -101,8 +102,7 @@ public class MainActivity extends AppCompatActivity {
     ShowAllWorkoutsFragment mShowAllWorkoutsFragment;
 
     //endregion
-
-    private ArrayList<Integer> mPendingIDs;
+    private PendingRemovalHelper mPendingHelper;
     //region PUBLIC_VARS
     //endregion
 
@@ -117,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        CoordinatorLayout coord = (CoordinatorLayout) findViewById(R.id.main_coord_layout);
+
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference myRef = db.getReference("message");
         myRef.setValue("Hello!");
@@ -125,6 +127,23 @@ public class MainActivity extends AppCompatActivity {
         HIDE_ACTION_ITEMS = false;
 
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+
+        mPendingHelper = PendingRemovalHelper.getInstance(this, new PendingRemovalHelper.PendingListener() {
+            @Override
+            public void deleteFromDB(Workout w) {
+                mWorkoutViewModel.remove(w);
+            }
+
+            @Override
+            public void undo(Workout w) {
+                if(mWorkoutRowAdapter != null){
+                    mWorkoutRowAdapter.addWorkout(w);
+                }
+                if(mShowAllWorkoutsFragment != null){
+                    mShowAllWorkoutsFragment.addWorkout(w);
+                }
+            }
+        });
 
         //region SHARED_PREFS
         // TODO: shared prefs
@@ -158,15 +177,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        boolean adsDisabled = false;
-        if(mDefaultSharedPrefs != null){
-            adsDisabled = mDefaultSharedPrefs.getBoolean("disable_ads", false);
-        }
-
-
         mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
         mAdView = findViewById(R.id.main_ad_view);
-        if(!adsDisabled){
+        if(!BaseApp.areAdsDisabled()){
             MobileAds.initialize(this, "ca-app-pub-1633767409472368~4737915463");
 
             mAdView.setAdListener(new AdListener() {
@@ -205,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         // Setup the adapter with correct data
-        mWorkoutRowAdapter = new WorkoutRowAdapter(this, (CoordinatorLayout) findViewById(R.id.main_coord_layout), new WorkoutRowAdapter.WorkoutRowListener() {
+        mWorkoutRowAdapter = new WorkoutRowAdapter(this, coord, new WorkoutRowAdapter.WorkoutRowListener() {
             @Override
             public void onWorkoutClicked(int id, int type) {
                 if(id >= 0) {
@@ -223,24 +236,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void deleteFromDB(Workout workout) {
-                deleteWorkoutFromDB(workout);
-                if(mPendingIDs.contains(workout.getWorkoutID())){
-                    mPendingIDs.remove(mPendingIDs.indexOf(workout.getWorkoutID()));
-                }
-            }
-
-            @Override
             public void openMoreFragment(String type){
                 int pos = Arrays.asList(Workout.TYPES).indexOf(type);
                 showAllWorkoutsForType(pos);
-            }
-
-            @Override
-            public void undo(Workout w) {
-                if(mPendingIDs.contains(w.getWorkoutID())){
-                    mPendingIDs.remove(mPendingIDs.indexOf(w.getWorkoutID()));
-                }
             }
         });
         mRecyclerView.setAdapter(mWorkoutRowAdapter);
@@ -266,8 +264,6 @@ public class MainActivity extends AppCompatActivity {
         });
         //endregion
 
-        mPendingIDs = new ArrayList<>();
-
     }
 
     @Override
@@ -281,11 +277,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if(mAdView != null) {
-            mAdView.resume();
-            AdRequest adr = new AdRequest.Builder()
-                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
-                    .build();
-            mAdView.loadAd(adr);
+            if(!BaseApp.areAdsDisabled()) {
+                mAdView.setVisibility(View.VISIBLE);
+                mAdView.resume();
+                AdRequest adr = new AdRequest.Builder()
+                        .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
+                        .build();
+                mAdView.loadAd(adr);
+            } else {
+                mAdView.setVisibility(View.GONE);
+            }
         }
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
@@ -400,7 +401,9 @@ public class MainActivity extends AppCompatActivity {
         mWorkoutViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
-                
+                if(mPendingHelper != null){
+                    mPendingHelper.updateFullData(workouts);
+                }
             }
         });
 
@@ -429,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAllWorkoutsForType(int type){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        Bundle args = ShowAllWorkoutsFragment.getBundle(type, mPendingIDs);
+        Bundle args = ShowAllWorkoutsFragment.getBundle(type);
         mShowAllWorkoutsFragment = ShowAllWorkoutsFragment.newInstance(args, (CoordinatorLayout)findViewById(R.id.main_coord_layout), new ShowAllWorkoutsFragment.ShowAllListener() {
             @Override
             public void workoutClicked(int id, int type) {
@@ -450,9 +453,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void deleteFromDB(Workout w) {
                 deleteWorkoutFromDB(w);
-                if(mPendingIDs.contains(w.getWorkoutID())){
-                    mPendingIDs.remove(w.getWorkoutID());
-                }
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
@@ -537,18 +537,14 @@ public class MainActivity extends AppCompatActivity {
                     case BaseApp.EDIT:
                         throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
                     case BaseApp.DELETE:
-                        if(mShowAllWorkoutsFragment != null){
-                            mShowAllWorkoutsFragment.pendingRemoval(id);
-                            if(mPendingIDs == null){
-                                mPendingIDs = new ArrayList<>();
+                        if(mPendingHelper != null) {
+                            if (mShowAllWorkoutsFragment != null) {
+                                mShowAllWorkoutsFragment.removeWorkout(workout);
                             }
-                            mPendingIDs.add(id);
-                        } else {
-                            mWorkoutRowAdapter.pendingRemoval(id, type);
-                            if(mPendingIDs == null){
-                                mPendingIDs = new ArrayList<>();
+                            if(mWorkoutRowAdapter != null) {
+                                mWorkoutRowAdapter.removeWorkout(workout);
                             }
-                            mPendingIDs.add(id);
+                            mPendingHelper.pendingRemoval(id);
                         }
                         break;
                     case BaseApp.DUPLCIATE:
@@ -585,6 +581,10 @@ public class MainActivity extends AppCompatActivity {
 
     public String getLastTitle(){
         return mLastTitle;
+    }
+
+    public PendingRemovalHelper getPendingHelper(){
+        return mPendingHelper;
     }
 
 }
