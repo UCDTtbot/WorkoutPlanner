@@ -296,4 +296,9 @@
     <string name="credits">
         App icon designed by Darius Dan from Flaticon.\nThis app is not affiliated with Bodybuilding.com. The content on their website is for informational and educational purposes.\nApp designed and programmed by Tyler Welsh.
     </string>
+    <string name="rest_name">Rest</string>
+    <string name="rest_descrip_display">Take a short rest. Do not sit or lie down.</string>
+    <string name="break_name">Break Time</string>
+    <string name="break_descrip_display">Take a longer rest. Move around and drink some water</string>
+    <string name="finished_name">Finished</string>
 </resources>

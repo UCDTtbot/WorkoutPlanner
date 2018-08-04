@@ -38,12 +38,14 @@ public class ShowAllWorkoutsFragment extends Fragment {
     //endregion
 
     public static final String EXTRA_WORKOUT_TYPE = PACKAGE + "WorkoutType";
+    public static final String EXTRA_PENDING_IDS = PACKAGE + "PENDING_IDS";
 
     private static WeakReference<ShowAllWorkoutsFragment> mInstance;
 
     private RecyclerView mWorkoutsView;
     private WorkoutViewModel mWorkoutVM;
     private int mType;
+    private ArrayList<Integer> mHideIDs;
 
     private MainActivity mParentActivity;
 
@@ -55,6 +57,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
     public interface ShowAllListener {
         void workoutClicked(int id, int type);
         void workoutLongClicked(int id, int type);
+        void deleteFromDB(Workout w);
     }
     private ShowAllListener mListener;
 
@@ -102,16 +105,26 @@ public class ShowAllWorkoutsFragment extends Fragment {
         Bundle args = getArguments();
         if(args != null){
             mType = args.getInt(EXTRA_WORKOUT_TYPE);
+            mHideIDs = args.getIntegerArrayList(EXTRA_PENDING_IDS);
         } else {
             mType = 0;
+            mHideIDs = new ArrayList<>();
         }
 
         mWorkoutVM = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-        // TODO: Make it now ALL workouts, but just the type we need
         mWorkoutVM.getAllTypedWorkouts(mType).observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
                 if(mAdapter != null){
+                    if(mHideIDs != null){
+                        for(int id : mHideIDs){
+                            for(Workout w : workouts){
+                                if(w.getWorkoutID() == id){
+                                    workouts.remove(w);
+                                }
+                            }
+                        }
+                    }
                     mAdapter.updateData(workouts);
                 }
             }
@@ -141,7 +154,12 @@ public class ShowAllWorkoutsFragment extends Fragment {
 
             @Override
             public void deleteFromDB(Workout workout) {
-                mWorkoutVM.remove(workout);
+                mListener.deleteFromDB(workout);
+            }
+
+            @Override
+            public void undo(Workout w) {
+
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false));
@@ -186,6 +204,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
         mParentActivity.renameTitle(R.string.app_name);
         mParentActivity.showActionItems();
         mParentActivity.findViewById(R.id.show_all_workouts_frag_container).setVisibility(View.GONE);
+        mParentActivity.closeShowAllFragment();
         mInstance = null;
         Log.d(DEBUG_TAG, "NEW_WORKOUT_FRAGMENT ON_DESTROY");
 
@@ -214,10 +233,15 @@ public class ShowAllWorkoutsFragment extends Fragment {
         mCoordLayout = coord;
     }
 
-    public static Bundle getBundle(int type){
+    public static Bundle getBundle(int type, ArrayList<Integer> pendings){
         Bundle args = new Bundle();
         args.putInt(EXTRA_WORKOUT_TYPE, type);
+        args.putIntegerArrayList(EXTRA_PENDING_IDS, pendings);
         return args;
+    }
+
+    public void pendingRemoval(int id){
+        mAdapter.pendingRemoval(id);
     }
 
 }

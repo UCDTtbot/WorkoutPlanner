@@ -23,6 +23,9 @@ public class TimerViewModel extends AndroidViewModel {
 
     private int mCurTime;
 
+    private boolean mIsRest;
+    private boolean mIsBreak;
+
     public TimerViewModel(@NonNull Application application) {
         super(application);
     }
@@ -119,4 +122,10 @@ public class TimerViewModel extends AndroidViewModel {
 
     public int getCurTime(){ return mCurTime; }
     public void setCurTime(int time) { mCurTime = time; }
+
+    public boolean isRest(){ return mIsRest; }
+    public void toggleRest(boolean val) { mIsRest = val; }
+
+    public boolean isBreak(){ return mIsBreak; }
+    public void toggleBreak(boolean val) { mIsBreak = val; }
 }

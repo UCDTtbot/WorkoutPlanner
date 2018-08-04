@@ -136,6 +136,7 @@ public class TimerFragment extends Fragment {
         Activity act = getActivity();
         if(act instanceof MyWorkoutActivity){
             mParentActivity = (MyWorkoutActivity) act;
+            ((MyWorkoutActivity) mParentActivity).hideActionItems();
         } else {
             throw new RuntimeException(DEBUG_TAG + " wasn't created from MyWorkoutActivity or SingleFragmentTester");
         }
@@ -214,9 +215,9 @@ public class TimerFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateSetInfo(mTimerViewModel.getCurSet(), mTimerViewModel.getNextSet());
-        updateRep(0);
-        updateRound(0);
+        updateSetInfo(mTimerViewModel.getCurSet(), mTimerViewModel.getNextSet(), mTimerViewModel.isRest(), mTimerViewModel.isBreak());
+        updateRep(mTimerViewModel.getCurRep());
+        updateRound(mTimerViewModel.getCurRound());
         updateTime(mTimerViewModel.getCurTime(), mTimerViewModel.getCurSetTime());
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT ON_START");
     }
@@ -271,6 +272,7 @@ public class TimerFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        ((MyWorkoutActivity) mParentActivity).showActionItems();
     }
 
     @Override
@@ -305,19 +307,29 @@ public class TimerFragment extends Fragment {
     //endregion
 
     //region UI_UPDATE_FUNCTIONS
-    public void updateSetInfo(Set cur, Set next){
-        mSetNameView.setText(cur.getName());
-        if(mTimerViewModel.getCurRep() == mTimerViewModel.getTotalReps() - 1 &&
-                mTimerViewModel.getCurRound() == mTimerViewModel.getTotalRounds() - 1){
-            mNextSetNameView.setText("Finished");
+    public void updateSetInfo(Set cur, Set next, boolean isRest, boolean isBreak) {
+
+        mTimerViewModel.toggleRest(isRest);
+        mTimerViewModel.toggleBreak(isBreak);
+
+        if (mTimerViewModel.getCurRep() == mTimerViewModel.getTotalReps() - 1 &&
+                mTimerViewModel.getCurRound() == mTimerViewModel.getTotalRounds() - 1) {
+            mNextSetNameView.setText(R.string.finished_name);
+        } else if (isRest) {
+            mSetNameView.setText(R.string.rest_name);
+            mSetDescripView.setText(R.string.rest_descrip_display);
+            mNextSetNameView.setText(cur.getName());
+        } else if (isBreak) {
+            mSetNameView.setText(R.string.break_name);
+            mSetDescripView.setText(R.string.break_descrip_display);
+            mNextSetNameView.setText(cur.getName());
         } else {
+            mSetNameView.setText(cur.getName());
+            mSetDescripView.setText(cur.getDescrip());
             mNextSetNameView.setText(next.getName());
         }
-        mSetImageView.setImageResource(cur.getSetImageId());
-        if(BaseApp.isDarkTheme()){
-            mSetImageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.colorDarkThemeIco));
-        }
-        mSetDescripView.setText(cur.getDescrip());
+
+
         mTabs.getTabAt(mTimerViewModel.getCurSetIndex()).select();
     }
 

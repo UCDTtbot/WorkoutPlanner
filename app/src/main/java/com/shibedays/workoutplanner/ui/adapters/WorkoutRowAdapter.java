@@ -53,6 +53,7 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
         void onWorkoutLongClick(int id, int type);
         void deleteFromDB(Workout workout);
         void openMoreFragment(String type);
+        void undo(Workout w);
     }
     private WorkoutRowListener mListener;
     //endregion
@@ -89,6 +90,11 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
             @Override
             public void deleteFromDB(Workout workout) {
                 mListener.deleteFromDB(workout);
+            }
+
+            @Override
+            public void undo(Workout w) {
+                mListener.undo(w);
             }
         });
         holder.workoutRecyclerView.setHasFixedSize(true);

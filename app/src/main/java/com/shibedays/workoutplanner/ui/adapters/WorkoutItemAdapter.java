@@ -121,6 +121,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
         void onWorkoutClicked(int id, int type);
         void onWorkoutLongClick(int workoutID, int type);
         void deleteFromDB(Workout workout);
+        void undo(Workout w);
     }
     private WorkoutAdapterListener mListener;
     //endregion
@@ -283,6 +284,7 @@ public class WorkoutItemAdapter extends PendingRemovalAdapter<RecyclerView.ViewH
             }
             mWorkoutsPendingRemoval.remove(pendingPos);
             mWorkoutData.add(itemPos, workout);
+            mListener.undo(workout);
             notifyItemInserted(itemPos);
         }
     }

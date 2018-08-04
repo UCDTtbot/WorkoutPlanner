@@ -44,6 +44,7 @@ import com.shibedays.workoutplanner.ui.fragments.ShowAllWorkoutsFragment;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -97,9 +98,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Fragment(s)
     NewWorkoutFragment mNewWorkoutFragment;
+    ShowAllWorkoutsFragment mShowAllWorkoutsFragment;
 
     //endregion
 
+    private ArrayList<Integer> mPendingIDs;
     //region PUBLIC_VARS
     //endregion
 
@@ -188,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mAdView.setEnabled(false);
             mAdView.setVisibility(View.GONE);
-            //TODO : MOVE THE MARGIN OF THE RECYCLER VIEW SO THERES NOT AN EMPTY SPOT AT THE BOTTOM
             setBottomMargin(mRecyclerView, 0);
         }
         //endregion
@@ -223,12 +225,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void deleteFromDB(Workout workout) {
                 deleteWorkoutFromDB(workout);
+                if(mPendingIDs.contains(workout.getWorkoutID())){
+                    mPendingIDs.remove(mPendingIDs.indexOf(workout.getWorkoutID()));
+                }
             }
 
             @Override
             public void openMoreFragment(String type){
                 int pos = Arrays.asList(Workout.TYPES).indexOf(type);
                 showAllWorkoutsForType(pos);
+            }
+
+            @Override
+            public void undo(Workout w) {
+                if(mPendingIDs.contains(w.getWorkoutID())){
+                    mPendingIDs.remove(mPendingIDs.indexOf(w.getWorkoutID()));
+                }
             }
         });
         mRecyclerView.setAdapter(mWorkoutRowAdapter);
@@ -253,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //endregion
+
+        mPendingIDs = new ArrayList<>();
 
     }
 
@@ -415,8 +429,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAllWorkoutsForType(int type){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        Bundle args = ShowAllWorkoutsFragment.getBundle(type);
-        ShowAllWorkoutsFragment frag = ShowAllWorkoutsFragment.newInstance(args, (CoordinatorLayout)findViewById(R.id.main_coord_layout), new ShowAllWorkoutsFragment.ShowAllListener() {
+        Bundle args = ShowAllWorkoutsFragment.getBundle(type, mPendingIDs);
+        mShowAllWorkoutsFragment = ShowAllWorkoutsFragment.newInstance(args, (CoordinatorLayout)findViewById(R.id.main_coord_layout), new ShowAllWorkoutsFragment.ShowAllListener() {
             @Override
             public void workoutClicked(int id, int type) {
                 if(id >= 0) {
@@ -432,9 +446,17 @@ public class MainActivity extends AppCompatActivity {
                     openBottomSheet(id, type);
                 }
             }
+
+            @Override
+            public void deleteFromDB(Workout w) {
+                deleteWorkoutFromDB(w);
+                if(mPendingIDs.contains(w.getWorkoutID())){
+                    mPendingIDs.remove(w.getWorkoutID());
+                }
+            }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);
-        fragmentTransaction.replace(R.id.show_all_workouts_frag_container, frag);
+        fragmentTransaction.replace(R.id.show_all_workouts_frag_container, mShowAllWorkoutsFragment);
         fragmentTransaction.addToBackStack(null);
         findViewById(R.id.show_all_workouts_frag_container).setVisibility(View.VISIBLE);
         mLastTitle = getTitle().toString();
@@ -443,6 +465,10 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
         Log.d(DEBUG_TAG, "Show All Workouts Fragment Created");
+    }
+
+    public void closeShowAllFragment(){
+        mShowAllWorkoutsFragment = null;
     }
 
 
@@ -511,7 +537,19 @@ public class MainActivity extends AppCompatActivity {
                     case BaseApp.EDIT:
                         throw new RuntimeException(DEBUG_TAG + " workout bottom sheet shouldn't be sending back Edit right now");
                     case BaseApp.DELETE:
-                        mWorkoutRowAdapter.pendingRemoval(id, type);
+                        if(mShowAllWorkoutsFragment != null){
+                            mShowAllWorkoutsFragment.pendingRemoval(id);
+                            if(mPendingIDs == null){
+                                mPendingIDs = new ArrayList<>();
+                            }
+                            mPendingIDs.add(id);
+                        } else {
+                            mWorkoutRowAdapter.pendingRemoval(id, type);
+                            if(mPendingIDs == null){
+                                mPendingIDs = new ArrayList<>();
+                            }
+                            mPendingIDs.add(id);
+                        }
                         break;
                     case BaseApp.DUPLCIATE:
                         Workout newWorkout = new Workout(workout);

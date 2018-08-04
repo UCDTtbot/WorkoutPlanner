@@ -118,6 +118,15 @@ public class Workout{
         for(Set s : setList){
             totalTime += s.getTime();
         }
+        if(noRestFlag && noBreakFlag){
+            return totalTime;
+        } else if(noRestFlag){
+            totalTime += timeBetweenRounds * numOfRounds;
+        } else if (noBreakFlag) {
+            totalTime += timeBetweenSets;
+        } else {
+            totalTime += timeBetweenSets + (timeBetweenRounds * numOfRounds);
+        }
         return totalTime;
     }
 

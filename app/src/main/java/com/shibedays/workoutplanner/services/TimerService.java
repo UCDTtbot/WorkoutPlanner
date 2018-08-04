@@ -165,6 +165,7 @@ public class TimerService extends Service {
         if(intent != null){
             mNotifBundle = intent.getBundleExtra(EXTRA_NOTIF_BUNDLE);
             mTotalCurTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
+            mTimeLeft = mTotalCurTime;
             mRestTime = intent.getIntExtra(EXTRA_REST_TIME, -1);
             mBreakTime = intent.getIntExtra(EXTRA_BREAK_TIME, -1);
             mNumReps = intent.getIntExtra(EXTRA_NUM_REPS, -1);
@@ -227,15 +228,6 @@ public class TimerService extends Service {
         mTimeLeft = time;
         mTimeElapsed = 0;
 
-
-
-        /*if(mCurRep == (mNumReps - 1) && mCurrentAction == REP_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_ROUND, 0, 0);
-            sendMessage(msg);
-        } else if(mCurrentAction == REP_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
-            sendMessage(msg);
-        }*/
         if(mCurrentAction == REST_ACTION){
             Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_NEXT_SET, 0, 0);
             sendMessage(msg);
@@ -305,7 +297,12 @@ public class TimerService extends Service {
                 }
 
                 if(mTimeLeft % 5000 == 0){
-                    updateNotification(NOTIF_CURRENT, 0, false);
+                    if(mCurrentAction == REST_ACTION)
+                        updateNotification(NOTIF_REST, 0, false);
+                    else if (mCurrentAction == BREAK_ACTION)
+                        updateNotification(NOTIF_BREAK, 0, false);
+                    else
+                        updateNotification(NOTIF_CURRENT, 0, false);
                 }
 
                 mHandler.postDelayed(this, ONE_SEC);
@@ -316,7 +313,7 @@ public class TimerService extends Service {
                     if(mNoBreakFlag){ // No Break
                         nextRound();
 
-                        sendTTSMessage(R.string.tts_begin, mSetName);
+                        sendTTSMessage(R.string.tts_next_round, mSetName);
                         mCurrentAction = REP_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mNextSetTime, TTS_NO_DELAY);
@@ -389,7 +386,7 @@ public class TimerService extends Service {
     };
     //endregion
 
-    private void updateNotification(int type, int flags, boolean isFirstRun){
+    private void updateNotification(int type, int notifFlags, boolean isFirstRun){
 
         if(mBuilder == null)
             mBuilder = new NotificationCompat.Builder(this, NOTIF_CHANNEL);
@@ -418,11 +415,11 @@ public class TimerService extends Service {
                 break;
             case NOTIF_REST:
                 name = "Rest Time";
-                time = mRestTime;
+                time = mTimeLeft;
                 break;
             case NOTIF_BREAK:
                 name = "Break Time";
-                time = mBreakTime;
+                time = mTimeLeft;
                 break;
         }
         mBuilder.setContentTitle(name)
@@ -435,7 +432,7 @@ public class TimerService extends Service {
                 .setStyle(new NotificationCompat.InboxStyle()
                         .addLine(BaseApp.formatTime(time) + " left.")
                         .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));
-        if(flags == NOTIF_PLAY_ACTION){
+        if(notifFlags == NOTIF_PLAY_ACTION){
             Intent playIntent = new Intent();
             playIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.PLAY_INTENT_TYPE);
             playIntent.setAction(MyWorkoutActivity.FILTER_TIMER);

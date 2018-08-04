@@ -73,7 +73,7 @@
                                 android:layout_marginTop="@dimen/activity_shallow_margin"
                                 android:paddingStart="@dimen/standard_padding"
                                 android:paddingEnd="@dimen/standard_padding"
-                                style="@style/AppTheme.TitleText"/>
+                                style="@style/AppTheme.NormalText"/>
                             <TextView
                                 android:id="@+id/cur_set"
                                 android:layout_width="wrap_content"

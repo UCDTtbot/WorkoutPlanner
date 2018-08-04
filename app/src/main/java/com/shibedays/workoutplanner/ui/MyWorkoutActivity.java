@@ -178,7 +178,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                 case MSG_UPDATE_SET_INFO:
                     if(mTimerFragment != null){
-                        mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
+                        mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet(), false, false);
                     } else {
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
@@ -186,28 +186,18 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
                 case MSG_LOAD_NEXT_SET:
                     s = mTimerFragment.getNextSet();
-                    String downArrow = getResources().getResourceEntryName(R.drawable.ic_down_arrow_black_24dp);
-                    if(BaseApp.isDarkTheme()){
-                        downArrow = getResources().getResourceEntryName(R.drawable.ic_down_arrow_white_24dp);
-                    }
-                    Set restSet = new Set(0, "Rest Time", "Take a short rest",
-                            -1, -1, downArrow);
-                    mTimerFragment.updateSetInfo(restSet, s);
+
                     mTimerFragment.loadNextSet();
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), s, true, false);
                     m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
                     break;
 
                 case MSG_LOAD_FIRST_SET:
                     s = mTimerFragment.getNextSet();
-                    String alarm = getResources().getResourceEntryName(R.drawable.ic_access_alarm_black_24dp);
-                    if(BaseApp.isDarkTheme()){
-                        alarm = getResources().getResourceEntryName(R.drawable.ic_access_alarm_white_24dp);
-                    }
-                    Set breakSet = new Set(0, "Break Time", "Take a longer rest",
-                            -1, -1, alarm);
-                    mTimerFragment.updateSetInfo(breakSet, s);
+
                     mTimerFragment.loadNextSet();
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), s, false, true);
                     m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
                     sendTimerMessage(m);
                     break;
@@ -223,18 +213,18 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                     mTimerFragment.updateRep(0);
                     mTimerFragment.updateRound(rnd);
                     mTimerFragment.loadNextSet();
-                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet(), false, false);
                     break;
                 case MSG_NEXT_REP:
                     int rep = msg.arg1;
                     mTimerFragment.updateRep(rep);
-                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet(), false, false);
                     break;
                 case MSG_NEXT_ROUND:
                     int round = msg.arg1;
                     mTimerFragment.updateRep(0);
                     mTimerFragment.updateRound(round);
-                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet());
+                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet(), false, false);
 
                 case MSG_UPDATE_TIME_DISPLAY:
                     if(mTimerFragment != null){
