@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import com.shibedays.workoutplanner.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CreateEditViewModel extends AndroidViewModel {
 

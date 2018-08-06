@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.ui;
 
-import android.app.NotificationManager;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
@@ -21,8 +20,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -77,17 +74,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     public static final int PAUSE_INTENT_TYPE = 5;
     public static final int PLAY_INTENT_TYPE = 10;
-    // Data Constants
-    private int DATA_DOESNT_EXIST = -1;
-
-    private static final int NEW_SET = 0;
-    private static final int EDIT_SET = 1;
-    private static final int DISPLAY_SET = 3;
-    // Message Constants
-
-    // Bottom Sheet Constants
-    public static int WORKOUT_SCREEN = 0;
-    public static int NEW_SET_SCREEN = 1;
     //endregion
 
     //region MESSAGES
@@ -252,10 +238,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
         mFragmentManager = getSupportFragmentManager();
 
-        //TODO: in onCreate, we need to check if: TTS Service already Exists, Fragment Already Exists, TimerService already exists
-        // if any of the above already exist, most likely means we are returning from the notification and/or need to restore the activity
-        // from some previous stat
-
         //region INSTANCE_STATE
         if(savedInstanceState != null){
             mTimerFragment = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
@@ -264,7 +246,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
 
         //region TOOLBAR
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mActionBar = getSupportActionBar();
         if(mActionBar != null){
@@ -289,6 +271,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
             } else if (intentType == NOTIF_INTENT_TYPE){
                 int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                mMainVM.setId(id);
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
             } else {
                 throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
@@ -431,7 +414,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         if(defaultPrefs != null){
             mIsTTSMuted = defaultPrefs.getBoolean("voice_mute", false);
             String op = defaultPrefs.getString("voice_type", "F1");
-            Message msg = null;
+            Message msg;
             if(mIsTTSMuted){
                 msg = Message.obtain(null, TTSService.MSG_MUTE_SPEECH, 0, 0, op);
             } else {
@@ -747,7 +730,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //region NUMBER_PICKERS
     private void openNumberPickerDialog(int type){
-        Bundle args = null;
+        Bundle args;
         Workout w = mMainVM.getWorkoutData();
         if(type == NumberPickerDialog.REST_TYPE) {
             args = NumberPickerDialog.getDialogBundle(type, w.getTimeBetweenSets(), w.getNoRestFlag());
@@ -810,9 +793,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private void beginTimerService(){
         // TODO: Create a function that unifies notification vs start bundle
         Workout w = mMainVM.getWorkoutData();
-
-        // TODO: Put items that are needed to rebuild the activity and fragment into this bundle
-        // Build the bundle that the notification will use to restart everything
 
         final Bundle notifBundle = getNotifBundle(w.getWorkoutID(), w.getWorkoutType());
         //Context context, Bundle notif, int setTime, int restTime, int breakTime, int reps, int rounds, boolean no_rest, boolean no_break

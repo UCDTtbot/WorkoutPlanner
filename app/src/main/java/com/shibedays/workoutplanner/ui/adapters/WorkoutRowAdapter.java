@@ -2,7 +2,6 @@ package com.shibedays.workoutplanner.ui.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -25,25 +24,24 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.adapters.WorkoutRowAdapter.";
     //endregion
 
-    public class WorkoutRowHolder extends RecyclerView.ViewHolder{
+    class WorkoutRowHolder extends RecyclerView.ViewHolder{
 
-        protected TextView sectionTitle;
+        TextView sectionTitle;
 
-        protected RecyclerView workoutRecyclerView;
+        RecyclerView workoutRecyclerView;
 
-        protected Button buttonMore;
+        Button buttonMore;
 
-        public WorkoutRowHolder(View view){
+        WorkoutRowHolder(View view){
             super(view);
 
-            this.sectionTitle = (TextView) view.findViewById(R.id.workout_section_header);
-            this.workoutRecyclerView = (RecyclerView) view.findViewById(R.id.workout_row_recycler);
-            this.buttonMore = (Button) view.findViewById(R.id.more_button);
+            this.sectionTitle = view.findViewById(R.id.workout_section_header);
+            this.workoutRecyclerView = view.findViewById(R.id.workout_row_recycler);
+            this.buttonMore = view.findViewById(R.id.more_button);
         }
     }
 
     private List<List<Workout>> mTypedWorkouts;
-    private CoordinatorLayout mCoordLayout;
     private List<WorkoutItemHelper> mAdapters;
     private Context mContext;
 
@@ -56,9 +54,8 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
     private WorkoutRowListener mListener;
     //endregion
 
-    public WorkoutRowAdapter(Context context, CoordinatorLayout coord, WorkoutRowListener listener){
+    public WorkoutRowAdapter(Context context, WorkoutRowListener listener){
         mContext = context;
-        mCoordLayout = coord;
         mAdapters = new ArrayList<>();
         mListener = listener;
     }
@@ -76,7 +73,7 @@ public class WorkoutRowAdapter extends RecyclerView.Adapter<WorkoutRowAdapter.Wo
 
         holder.sectionTitle.setText(sectionName);
 
-        WorkoutItemHelper workoutItemAdapter = new WorkoutItemHelper(mContext, mCoordLayout, mTypedWorkouts.get(position), position, new WorkoutItemHelper.WorkoutAdapterListener() {
+        WorkoutItemHelper workoutItemAdapter = new WorkoutItemHelper(mContext, mTypedWorkouts.get(position), position, new WorkoutItemHelper.WorkoutAdapterListener() {
             @Override
             public void onWorkoutClicked(int id, int type) {
                 mListener.onWorkoutClicked(id, type);

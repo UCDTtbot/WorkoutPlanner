@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -45,7 +44,6 @@ import com.shibedays.workoutplanner.ui.helpers.PendingRemovalHelper;
 import com.shibedays.workoutplanner.ui.settings.SettingsActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -117,8 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        CoordinatorLayout coord = (CoordinatorLayout) findViewById(R.id.main_coord_layout);
-
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference myRef = db.getReference("message");
         myRef.setValue("Hello!");
@@ -146,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //region SHARED_PREFS
-        // TODO: shared prefs
         mPrivateSharedPrefs = getSharedPreferences(PREF_IDENTIFIER, MODE_PRIVATE);
         mDefaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -167,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
 
             }else if (savedVersionCode < currentVersionCode){
                 // Updated run
-
                 SharedPreferences.Editor editor = mPrivateSharedPrefs.edit();
                 editor.putInt(KEY_VERSION_CODE, currentVersionCode);
                 editor.apply();
@@ -177,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
+        mRecyclerView = findViewById(R.id.recyclerView);
         mAdView = findViewById(R.id.main_ad_view);
         if(!BaseApp.areAdsDisabled()){
             MobileAds.initialize(this, "ca-app-pub-1633767409472368~4737915463");
@@ -218,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         // Setup the adapter with correct data
-        mWorkoutRowAdapter = new WorkoutRowAdapter(this, coord, new WorkoutRowAdapter.WorkoutRowListener() {
+        mWorkoutRowAdapter = new WorkoutRowAdapter(this, new WorkoutRowAdapter.WorkoutRowListener() {
             @Override
             public void onWorkoutClicked(int id, int type) {
                 if(id >= 0) {
@@ -248,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //region TOOLBAR
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //endregion
 
@@ -433,7 +427,7 @@ public class MainActivity extends AppCompatActivity {
     private void showAllWorkoutsForType(int type){
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         Bundle args = ShowAllWorkoutsFragment.getBundle(type);
-        mShowAllWorkoutsFragment = ShowAllWorkoutsFragment.newInstance(args, (CoordinatorLayout)findViewById(R.id.main_coord_layout), new ShowAllWorkoutsFragment.ShowAllListener() {
+        mShowAllWorkoutsFragment = ShowAllWorkoutsFragment.newInstance(args, new ShowAllWorkoutsFragment.ShowAllListener() {
             @Override
             public void workoutClicked(int id, int type) {
                 if(id >= 0) {
@@ -448,11 +442,6 @@ public class MainActivity extends AppCompatActivity {
                 if(type == Workout.USER_CREATED) {
                     openBottomSheet(id, type);
                 }
-            }
-
-            @Override
-            public void deleteFromDB(Workout w) {
-                deleteWorkoutFromDB(w);
             }
         });
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slight_out_left);

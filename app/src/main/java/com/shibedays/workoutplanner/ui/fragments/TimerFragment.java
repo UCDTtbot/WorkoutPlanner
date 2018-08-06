@@ -4,13 +4,14 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -135,7 +135,7 @@ public class TimerFragment extends Fragment {
         }
         Activity act = getActivity();
         if(act instanceof MyWorkoutActivity){
-            mParentActivity = (MyWorkoutActivity) act;
+            mParentActivity = act;
             ((MyWorkoutActivity) mParentActivity).hideActionItems();
         } else {
             throw new RuntimeException(DEBUG_TAG + " wasn't created from MyWorkoutActivity or SingleFragmentTester");
@@ -165,7 +165,7 @@ public class TimerFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
@@ -276,7 +276,7 @@ public class TimerFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.d(DEBUG_TAG, "TIMER_FRAGMENT SAVING INSTANCE STATE");
 
@@ -342,7 +342,11 @@ public class TimerFragment extends Fragment {
 
         float floatTime = ((float)time / (float)totalTime) * 1000;
         int progress = 1000 - (int)floatTime;
-        mProgressBar.setProgress(progress, true);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            mProgressBar.setProgress(progress, true);
+        } else {
+            mProgressBar.setProgress(progress);
+        }
     }
 
     public void updateRep(int rep){

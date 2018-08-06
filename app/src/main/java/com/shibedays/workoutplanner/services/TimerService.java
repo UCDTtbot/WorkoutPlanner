@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -20,8 +21,6 @@ import android.util.Log;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
-import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
-
 import java.util.Locale;
 
 public class TimerService extends Service {
@@ -34,11 +33,11 @@ public class TimerService extends Service {
     // Notification ID
     private static final int NOTIF_ID = 1;
     private static final long ONE_SEC = 1000;
+    private static final long WAKELOCK_TIMEOUT = 3600000;
     // Actions
     public static final int REP_ACTION = 0;
     public static final int REST_ACTION = 1;
     public static final int BREAK_ACTION = 2;
-    public static final int STOP_ACTION = 3;
     // Message Constants
     public static final int MSG_TIMER_BIND = 0;
     public static final int MSG_NEXT_SET_TIME = 1;
@@ -93,6 +92,8 @@ public class TimerService extends Service {
     private boolean mNoRestFlag;
     private boolean mNoBreakFlag;
 
+    PowerManager.WakeLock mWakeLock;
+
     private boolean mIsTTSMuted;
     private boolean mMsgSent;
     // Action Tracker
@@ -103,7 +104,6 @@ public class TimerService extends Service {
     private Handler mHandler = new Handler();
     // Notification Variables
     private NotificationCompat.Builder mBuilder;
-    private NotificationManager mNotifManager;
     // Instances
     private Messenger mMyWorkoutActivityMessenger;
     // Booleans
@@ -175,10 +175,7 @@ public class TimerService extends Service {
             mSetName = intent.getStringExtra(EXTRA_SET_NAME);
             mSetImage = intent.getIntExtra(EXTRA_SET_IMAGE, R.drawable.ic_fitness_black_24dp);
             mIsTTSMuted = intent.getBooleanExtra(EXTRA_IS_TTS_MUTED, false);
-        } else {
-            // abort?
         }
-
         //region NOTIFICATION_BUILDING
         // Create the intent for rebuilding the activity
         updateNotification(NOTIF_CURRENT, 0, true);
@@ -197,9 +194,17 @@ public class TimerService extends Service {
         return START_NOT_STICKY;
     }
 
+
+
+
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_BIND");
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if(pm != null) {
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "workoutplanner:servicelock");
+        }
+        mWakeLock.acquire(WAKELOCK_TIMEOUT);
         return mMessenger.getBinder();
     }
 
@@ -215,6 +220,7 @@ public class TimerService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_UNBIND");
         mHandler.removeCallbacks(timer);
+        mWakeLock.release();
         stopForeground(true);
         stopSelf();
         return super.onUnbind(intent);

@@ -19,11 +19,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.shibedays.workoutplanner.R;
-import com.shibedays.workoutplanner.ui.MainActivity;
-import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.viewmodel.dialogs.RenameWorkoutViewModel;
 
 

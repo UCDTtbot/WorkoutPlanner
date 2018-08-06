@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -19,9 +18,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.ads.formats.MediaView;
 import com.shawnlin.numberpicker.NumberPicker;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
@@ -85,9 +82,9 @@ public class NumberPickerDialog extends DialogFragment {
 
         Activity act = getActivity();
         if(act instanceof MyWorkoutActivity){
-            mParentActivity = (MyWorkoutActivity) act;
+            mParentActivity = act;
         } else if (act instanceof MainActivity){
-            mParentActivity = (MainActivity) act;
+            mParentActivity = act;
         } else {
             throw new RuntimeException(DEBUG_TAG + " must be cast to either MyWorkoutActivity or MainActivity");
         }
@@ -167,7 +164,7 @@ public class NumberPickerDialog extends DialogFragment {
             }
         });
 
-        mNoCheck = (CheckBox) view.findViewById(R.id.no_flag_checkbox);
+        mNoCheck = view.findViewById(R.id.no_flag_checkbox);
         mNoCheck.setChecked(mViewModel.isNoFlag());
         mNoCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -229,7 +226,7 @@ public class NumberPickerDialog extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 

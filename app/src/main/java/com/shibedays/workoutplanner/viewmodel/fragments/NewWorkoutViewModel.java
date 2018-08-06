@@ -10,8 +10,6 @@ public class NewWorkoutViewModel extends AndroidViewModel {
 
     private static final String DEBUG_TAG = NewWorkoutViewModel.class.getSimpleName();
 
-    private DataRepo mRepo;
-
     private int mRounds;
     private int mRestTime;
     private int mBreakTime;

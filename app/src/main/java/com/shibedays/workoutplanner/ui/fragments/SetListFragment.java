@@ -1,7 +1,6 @@
 package com.shibedays.workoutplanner.ui.fragments;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
@@ -108,7 +107,6 @@ public class SetListFragment extends Fragment {
 
     public static Bundle getBundle(){
         Bundle args = new Bundle();
-
         return args;
     }
 

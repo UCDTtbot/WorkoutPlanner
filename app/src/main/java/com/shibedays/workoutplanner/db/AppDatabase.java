@@ -78,7 +78,6 @@ public abstract class AppDatabase extends RoomDatabase {
 
         @Override
         protected Void doInBackground(final Void... params){
-            // TODO: EDIT ALL SET DESCRIPS TO BE STRING RESOURCES
             // Sets //
             Resources r = BaseApp.getAppContext().getResources();
             // Cardio

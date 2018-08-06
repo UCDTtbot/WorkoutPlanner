@@ -35,8 +35,6 @@ import com.shibedays.workoutplanner.viewmodel.fragments.CreateEditViewModel;
 import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class CreateEditSetFragment extends Fragment {
@@ -86,7 +84,7 @@ public class CreateEditSetFragment extends Fragment {
     //endregion
 
     //region INTERFACES
-    public interface CreateEditSetListener {
+    interface CreateEditSetListener {
 
     }
     CreateEditSetListener mListener;
