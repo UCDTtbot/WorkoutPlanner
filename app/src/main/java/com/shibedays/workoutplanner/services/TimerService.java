@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -32,6 +33,7 @@ public class TimerService extends Service {
     // Notification ID
     private static final int NOTIF_ID = 1;
     private static final long ONE_SEC = 1000;
+    private static final long WAKELOCK_TIMEOUT = 3600000;
     // Actions
     public static final int REP_ACTION = 0;
     public static final int REST_ACTION = 1;
@@ -89,6 +91,8 @@ public class TimerService extends Service {
     private int mNumRounds;
     private boolean mNoRestFlag;
     private boolean mNoBreakFlag;
+
+    PowerManager.WakeLock mWakeLock;
 
     private boolean mIsTTSMuted;
     private boolean mMsgSent;
@@ -190,9 +194,17 @@ public class TimerService extends Service {
         return START_NOT_STICKY;
     }
 
+
+
+
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_BIND");
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if(pm != null) {
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "workoutplanner:servicelock");
+        }
+        mWakeLock.acquire(WAKELOCK_TIMEOUT);
         return mMessenger.getBinder();
     }
 
@@ -208,6 +220,7 @@ public class TimerService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_UNBIND");
         mHandler.removeCallbacks(timer);
+        mWakeLock.release();
         stopForeground(true);
         stopSelf();
         return super.onUnbind(intent);
