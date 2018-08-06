@@ -113,11 +113,14 @@ public class AddSetsFragment extends Fragment {
 
             }
         });
-        mParentWrkoutId = getArguments().getInt(EXTRA_PARENT_ID);
+        Bundle args = getArguments();
+        if(args != null) {
+            mParentWrkoutId = args.getInt(EXTRA_PARENT_ID);
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         //region UI
@@ -241,7 +244,7 @@ public class AddSetsFragment extends Fragment {
 
     @NonNull
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.d(DEBUG_TAG, "NEW_SET_FRAGMENT SAVING INSTANCE STATE");
     }

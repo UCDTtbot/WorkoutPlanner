@@ -20,8 +20,6 @@ import android.util.Log;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
-import com.shibedays.workoutplanner.ui.fragments.TimerFragment;
-
 import java.util.Locale;
 
 public class TimerService extends Service {
@@ -38,7 +36,6 @@ public class TimerService extends Service {
     public static final int REP_ACTION = 0;
     public static final int REST_ACTION = 1;
     public static final int BREAK_ACTION = 2;
-    public static final int STOP_ACTION = 3;
     // Message Constants
     public static final int MSG_TIMER_BIND = 0;
     public static final int MSG_NEXT_SET_TIME = 1;
@@ -103,7 +100,6 @@ public class TimerService extends Service {
     private Handler mHandler = new Handler();
     // Notification Variables
     private NotificationCompat.Builder mBuilder;
-    private NotificationManager mNotifManager;
     // Instances
     private Messenger mMyWorkoutActivityMessenger;
     // Booleans
@@ -175,10 +171,7 @@ public class TimerService extends Service {
             mSetName = intent.getStringExtra(EXTRA_SET_NAME);
             mSetImage = intent.getIntExtra(EXTRA_SET_IMAGE, R.drawable.ic_fitness_black_24dp);
             mIsTTSMuted = intent.getBooleanExtra(EXTRA_IS_TTS_MUTED, false);
-        } else {
-            // abort?
         }
-
         //region NOTIFICATION_BUILDING
         // Create the intent for rebuilding the activity
         updateNotification(NOTIF_CURRENT, 0, true);

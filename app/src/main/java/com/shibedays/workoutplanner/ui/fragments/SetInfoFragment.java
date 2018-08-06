@@ -5,7 +5,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,7 +30,6 @@ import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 import com.shibedays.workoutplanner.viewmodel.fragments.SetInfoViewModel;
-import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 
 import java.util.List;
 

@@ -17,7 +17,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -38,7 +37,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdView;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -203,7 +201,6 @@ public class NewWorkoutFragment extends Fragment{
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //TODO: Round input validation
                 if(s.length() > 2){
                     String working = s.subSequence(0, 2).toString();
                     mRoundEntry.setText(working);
@@ -238,7 +235,6 @@ public class NewWorkoutFragment extends Fragment{
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: New workout
                 Log.d(DEBUG_TAG, "Adding working: " + mNameEntry.getText().toString());
                 saveWorkout();
             }
@@ -251,9 +247,8 @@ public class NewWorkoutFragment extends Fragment{
             adsDisabled = prefs.getBoolean("disable_ads", false);
         }
         if(!adsDisabled){
-            //setBottomMargin(mSaveButton, 180);
+            setBottomMargin(mSaveButton, 180);
         }
-
         //endregion
         return view;
     }

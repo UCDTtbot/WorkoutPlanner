@@ -49,14 +49,12 @@ public class ShowAllWorkoutsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private WorkoutItemHelper mAdapter;
-    private CoordinatorLayout mCoordLayout;
     private List<Workout> mWorkouts;
 
 
     public interface ShowAllListener {
         void workoutClicked(int id, int type);
         void workoutLongClicked(int id, int type);
-        void deleteFromDB(Workout w);
     }
     private ShowAllListener mListener;
 
@@ -69,11 +67,10 @@ public class ShowAllWorkoutsFragment extends Fragment {
     }
 
 
-    public static ShowAllWorkoutsFragment newInstance(Bundle args, CoordinatorLayout coord, ShowAllListener listener) {
+    public static ShowAllWorkoutsFragment newInstance(Bundle args,  ShowAllListener listener) {
         if(mInstance == null){
             mInstance = new WeakReference<>(new ShowAllWorkoutsFragment());
             mInstance.get().setListener(listener);
-            mInstance.get().setCoordLayout(coord);
             mInstance.get().setArguments(args);
             return mInstance.get();
         } else {
@@ -115,9 +112,11 @@ public class ShowAllWorkoutsFragment extends Fragment {
                 if(mAdapter != null){
                     List<Workout> pending = mParentActivity.getPendingHelper().getPendingWorkouts(mType);
                     mWorkouts = workouts;
-                    for(Workout w : pending){
-                        if(mWorkouts.contains(w)){
-                            mWorkouts.remove(w);
+                    if(mWorkouts != null) {
+                        for (Workout w : pending) {
+                            if (mWorkouts.contains(w)) {
+                                mWorkouts.remove(w);
+                            }
                         }
                     }
                     mAdapter.updateData(mWorkouts);
@@ -128,7 +127,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_all_workouts, container, false);
 
@@ -136,7 +135,7 @@ public class ShowAllWorkoutsFragment extends Fragment {
         mRecyclerView.setVerticalScrollBarEnabled(false);
 
         // Setup the adapter with correct data
-        mAdapter = new WorkoutItemHelper(getActivity(), mCoordLayout, new ArrayList<Workout>(), mType, new WorkoutItemHelper.WorkoutAdapterListener() {
+        mAdapter = new WorkoutItemHelper(getActivity(), new ArrayList<Workout>(), mType, new WorkoutItemHelper.WorkoutAdapterListener() {
             @Override
             public void onWorkoutClicked(int id, int type) {
                 mListener.workoutClicked(id, type);
@@ -212,10 +211,6 @@ public class ShowAllWorkoutsFragment extends Fragment {
 
     private void setListener(ShowAllListener listener){
         mListener = listener;
-    }
-
-    private void setCoordLayout(CoordinatorLayout coord){
-        mCoordLayout = coord;
     }
 
     public static Bundle getBundle(int type){

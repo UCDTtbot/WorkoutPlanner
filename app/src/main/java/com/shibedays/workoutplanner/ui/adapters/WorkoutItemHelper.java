@@ -117,7 +117,7 @@ public class WorkoutItemHelper extends RecyclerView.Adapter<RecyclerView.ViewHol
     //endregion
 
     //region LIFECYCLE
-    public WorkoutItemHelper(Context context, View coordLayout, List<Workout> workouts, int type, WorkoutAdapterListener listener){
+    public WorkoutItemHelper(Context context, List<Workout> workouts, int type, WorkoutAdapterListener listener){
         mContext = context;
         mType = type;
 
@@ -159,7 +159,7 @@ public class WorkoutItemHelper extends RecyclerView.Adapter<RecyclerView.ViewHol
                 if(BaseApp.isDarkTheme()){
                     vh.footerImage.setColorFilter(ContextCompat.getColor(mContext, R.color.colorDarkThemeIco));
                 }
-                vh.footerName.setText("Add Workout");
+                vh.footerName.setText(R.string.footer_add_workout);
 
             }
         } catch (Exception e) {

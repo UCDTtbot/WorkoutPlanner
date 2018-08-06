@@ -1,19 +1,12 @@
 package com.shibedays.workoutplanner.ui.helpers;
 
 import android.app.Activity;
-import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.os.Handler;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.RecyclerView;
-import android.view.ActionMode;
 import android.view.View;
 
 import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MainActivity;
-import com.shibedays.workoutplanner.ui.adapters.WorkoutItemHelper;
-import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

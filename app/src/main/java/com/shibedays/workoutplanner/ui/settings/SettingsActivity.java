@@ -103,9 +103,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if(mThemeChanged){
-            //getParent().recreate();
-        }
         super.onDestroy();
     }
 
@@ -120,8 +117,4 @@ public class SettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 //endregion
-
-    public void themeChanged(){
-        mThemeChanged = true;
-    }
 }
