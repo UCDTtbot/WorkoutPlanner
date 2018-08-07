@@ -22,7 +22,7 @@
     <!-- \u0020 is a space -->
 
     <!-- TTS Strings -->
-    <string name="tts_starting">Starting in, 5. 4. 3. 2. 1. </string>
+    <string name="tts_starting">Starting in, 5. 4. 3. 2. 1. Begin </string>
     <string name="tts_rest_ending">Rest ending in. </string>
     <string name="tts_round_finished">Round finished, take a break. </string>
     <string name="tts_finished">Finished. </string>

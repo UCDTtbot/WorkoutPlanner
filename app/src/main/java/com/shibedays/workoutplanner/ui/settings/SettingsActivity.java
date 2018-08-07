@@ -98,7 +98,9 @@ public class SettingsActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-        startActivity(getParentActivityIntentImpl());
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slight_out_left);
+
+        //startActivity(getParentActivityIntentImpl());
     }
 
     @Override
@@ -112,7 +114,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         if (id == android.R.id.home){
             finish();
-            startActivity(getParentActivityIntentImpl());
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slight_out_left);
+
+            //startActivity(getParentActivityIntentImpl());
         }
         return super.onOptionsItemSelected(item);
     }

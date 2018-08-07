@@ -86,6 +86,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final int MSG_NEXT_REP = 7;
     public static final int MSG_LOAD_NEXT_SET = 8;
     public static final int MSG_LOAD_FIRST_SET = 9;
+    public static final int MSG_STOP_TIMER = 10;
     //endregion
 
     //region INTENT_KEYS
@@ -131,6 +132,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private boolean mIsTTSMuted;
     private boolean HIDE_ITEMS;
 
+    private boolean mIsInBackground;
+    private boolean mPendingTimerClose;
+
     private List<Message> mMsgQueue;
 
     private Intent mIntentBundle;
@@ -158,7 +162,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             switch (msg.what){
                 case MSG_PASS_TTS_MSG:
                     if(msg.arg1 > 0) {
-                        sendTTSMessage(msg.arg1);
+                        if(msg.obj instanceof String)
+                        sendTTSMessage(msg.arg1, (String) msg.obj);
                     }
                     break;
 
@@ -219,6 +224,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                         throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
                     }
                     break;
+                case MSG_STOP_TIMER:
+                    if(mFragmentManager != null){
+                        if(mFragmentManager.getBackStackEntryCount() > 0){
+                            if(!mIsInBackground)
+                                mFragmentManager.popBackStack();
+                            else {
+                                mPendingTimerClose = true;
+                            }
+                        }
+                    }
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -236,6 +252,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
         setContentView(R.layout.activity_my_workout);
 
+        mPendingTimerClose = false;
+
         mFragmentManager = getSupportFragmentManager();
 
         //region INSTANCE_STATE
@@ -243,7 +261,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             mTimerFragment = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
         }
         //endregion
-
 
         //region TOOLBAR
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -313,7 +330,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             startService(TTSIntent);
         }
         //endregion
-
 
         //region UI
         mRestTime = findViewById(R.id.rest_time);
@@ -395,8 +411,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     }
 
-
-
     @Override
     protected void onStart(){
         super.onStart();
@@ -433,12 +447,23 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 mMsgQueue.add(msg);
             }
         }
+        mIsInBackground = false;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_PAUSE");
+        mIsInBackground = true;
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if(mFragmentManager.getBackStackEntryCount() > 0){
+            mFragmentManager.popBackStack();
+            mPendingTimerClose = false;
+        }
     }
 
     @Override
@@ -468,6 +493,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY SAVING INSTANCE STATE");
 
     }
+
+    @Override
+    public void onBackPressed() {
+        stopTTSSpeech();
+        super.onBackPressed();
+    }
+
     //endregion
 
     //region ACTION_BAR_MENU
@@ -519,10 +551,13 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){
                 mFragmentManager.popBackStack();
+                stopTTSSpeech();
+                return true;
+            } else {
+                this.finish();
                 return true;
             }
         }
-
         return super.onOptionsItemSelected(item);
     }
     //endregion
@@ -820,10 +855,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //endregion
 
     //region TTS_Outgoing_Messaging
-    public void sendTTSMessage(int string_id){
+    public void sendTTSMessage(int string_id, String extra){
         if(mTTSIsBound) {
             if (string_id > 0) {
-                Message msg = Message.obtain(null, TTSService.MSG_SPEAK, string_id, 0);
+                Message msg = Message.obtain(null, TTSService.MSG_SPEAK, string_id, 0, extra);
                 try {
                     mTTSService.send(msg);
                 } catch (RemoteException e) {
@@ -920,7 +955,4 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         return mMainVM.getWorkoutData();
     }
     //endregion
-
-
-
 }

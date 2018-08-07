@@ -181,7 +181,7 @@ public class TimerService extends Service {
         updateNotification(NOTIF_CURRENT, 0, true);
         //endregion
 
-        sendTTSMessage(R.string.tts_starting, "");
+        sendTTSMessage(R.string.tts_starting, mSetName);
 
         mCurRep = 0;
         mCurRound = 0;
@@ -336,9 +336,8 @@ public class TimerService extends Service {
                     }
                 } else if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
                     sendTTSMessage(R.string.tts_finished, "");
-
-                    //TODO: Send us back to MyWorkoutActivity, unbind, and kill-self
-
+                    Message m = Message.obtain(null, MyWorkoutActivity.MSG_STOP_TIMER);
+                    sendMessage(m);
                 } else if(mCurrentAction == REP_ACTION && mCurRep < (mNumReps - 1 )){ // Set finished. Rest
                     //Repetition finished. Rest.
 

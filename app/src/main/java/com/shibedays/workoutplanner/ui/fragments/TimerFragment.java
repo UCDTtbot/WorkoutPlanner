@@ -257,7 +257,6 @@ public class TimerFragment extends Fragment {
         super.onDestroy();
         mParentActivity.findViewById(R.id.fragment_container).setVisibility(View.GONE);
         mListener.closeFragmentAndService();
-        mListener.stopTTSSpeech();
         mInstance = null;
         if(mAdView != null){
             mAdView.destroy();
@@ -301,6 +300,8 @@ public class TimerFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
 
         return super.onOptionsItemSelected(item);
     }
