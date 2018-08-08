@@ -411,7 +411,7 @@ public class TimerFragment extends Fragment {
             adsDisabled = prefs.getBoolean("disable_ads", false);
         }
         if(!adsDisabled){
-            MobileAds.initialize(getActivity(), "ca-app-pub-1633767409472368~4737915463");
+            MobileAds.initialize(getActivity(), getString(R.string.ad_key));
 
             mAdView.setAdListener(new AdListener() {
                 @Override

@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.recyclerView);
         mAdView = findViewById(R.id.main_ad_view);
         if(!BaseApp.areAdsDisabled()){
-            MobileAds.initialize(this, "ca-app-pub-1633767409472368~4737915463");
+            MobileAds.initialize(this, getString(R.string.ad_key));
 
             mAdView.setAdListener(new AdListener() {
                 @Override
