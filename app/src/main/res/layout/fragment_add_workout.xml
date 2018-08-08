@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <FrameLayout
         android:id="@+id/frag_containter"
         android:layout_width="match_parent"
@@ -12,146 +11,140 @@
         android:visibility="gone" />
 
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/name_layout"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/name_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        app:hintTextAppearance="@style/EditText_Label_Hint">
+
+        <EditText
+            android:id="@+id/name_entry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/name_hint"
+            android:imeOptions="actionDone"
+            android:inputType="textCapSentences"
+            android:maxLength="23"
+            android:maxLines="1" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/text_entries_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/name_layout"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/round_entry_layout"
+            android:layout_width="@dimen/Edit_Number_Width"
+            android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_quarter_vertical_margin"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_alignParentTop="true"
+            android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
+            android:gravity="center"
             app:hintTextAppearance="@style/EditText_Label_Hint">
 
             <EditText
-                android:id="@+id/name_entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/name_hint"
-                android:maxLines="1"
-                android:maxLength="23"
-                android:imeOptions="actionDone"
-                android:inputType="textCapSentences"/>
+                android:id="@+id/round_entry_num"
+                style="@style/EditText_Number"
+                android:hint="@string/round_title_text"
+                android:text="@string/default_num" />
+
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.v7.widget.LinearLayoutCompat
-            android:id="@+id/text_entries_layout"
-            android:layout_width="match_parent"
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/rest_entry_layout"
+            android:layout_width="@dimen/Edit_Time_Width"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_quarter_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
             android:gravity="center"
-            android:layout_below="@id/name_layout">
+            app:hintTextAppearance="@style/EditText_Label_Hint">
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/round_entry_layout"
-                android:layout_width="@dimen/Edit_Number_Width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="@dimen/activity_quarter_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                app:hintTextAppearance="@style/EditText_Label_Hint">
+            <EditText
+                android:id="@+id/rest_entry_time"
+                style="@style/EditText_Number"
+                android:hint="@string/rest_title_text"
+                android:text="@string/default_time" />
 
-                <EditText
-                    android:id="@+id/round_entry_num"
-                    android:hint="@string/round_title_text"
-                    android:text="@string/default_num"
-                    style="@style/EditText_Number" />
-
-            </android.support.design.widget.TextInputLayout>
+        </android.support.design.widget.TextInputLayout>
 
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/rest_entry_layout"
-                android:layout_width="@dimen/Edit_Time_Width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="@dimen/activity_quarter_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                app:hintTextAppearance="@style/EditText_Label_Hint">
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/break_entry_layout"
+            android:layout_width="@dimen/Edit_Time_Width"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_quarter_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
+            android:gravity="center"
+            app:hintTextAppearance="@style/EditText_Label_Hint">
 
-                <EditText
-                    android:id="@+id/rest_entry_time"
-                    android:hint="@string/rest_title_text"
-                    android:text="@string/default_time"
-                    style="@style/EditText_Number" />
+            <EditText
+                android:id="@+id/break_entry_time"
+                style="@style/EditText_Number"
+                android:hint="@string/break_title_text"
+                android:text="@string/default_time" />
 
-            </android.support.design.widget.TextInputLayout>
+        </android.support.design.widget.TextInputLayout>
 
+    </android.support.v7.widget.LinearLayoutCompat>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/break_entry_layout"
-                android:layout_width="@dimen/Edit_Time_Width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="@dimen/activity_quarter_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_quarter_vertical_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                app:hintTextAppearance="@style/EditText_Label_Hint">
+    <RelativeLayout
+        android:id="@+id/view_pager_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_entries_layout"
+        android:layout_above="@id/equip_checkbox">
 
-                <EditText
-                    android:id="@+id/break_entry_time"
-                    android:hint="@string/break_title_text"
-                    android:text="@string/default_time"
-                    style="@style/EditText_Number" />
-
-            </android.support.design.widget.TextInputLayout>
-
-        </android.support.v7.widget.LinearLayoutCompat>
-
-        <RelativeLayout
-            android:id="@+id/view_pager_layout"
+        <android.support.design.widget.TabLayout
+            android:id="@+id/pager_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/equip_checkbox"
-            android:layout_below="@id/text_entries_layout">
+            android:gravity="center"
+            android:minHeight="60dp"
+            app:tabGravity="center"
+            app:tabIndicatorColor="@color/colorAccent"
+            app:tabMode="scrollable"
+            app:tabSelectedTextColor="@color/colorAccent" />
 
-            <android.support.design.widget.TabLayout
-                android:id="@+id/pager_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:minHeight="60dp"
-                app:tabGravity="center"
-                app:tabMode="scrollable"
-                app:tabIndicatorColor="@color/colorAccent"
-                app:tabSelectedTextColor="@color/colorAccent"/>
-            <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/pager_header">
-            </android.support.v4.view.ViewPager>
-        </RelativeLayout>
-
-        <CheckBox
-            android:id="@+id/equip_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/button_save"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="-16dp"
-            android:text="Equipment Required" />
-
-        <Button
-            android:id="@+id/button_save"
+        <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="@dimen/activity_shallow_margin"
-            android:text="@string/button_save"
-            android:theme="@style/Button_Custom"/>
+            android:layout_below="@+id/pager_header"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="0dp">
 
+        </android.support.v4.view.ViewPager>
     </RelativeLayout>
+    <CheckBox
+        android:id="@+id/equip_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_save"
+        android:layout_centerHorizontal="true"
+        android:text="@string/equipment_required" />
 
-
+    <Button
+        android:id="@+id/button_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/button_save"
+        android:theme="@style/Button_Custom"/>
 </RelativeLayout>
 
     <!--

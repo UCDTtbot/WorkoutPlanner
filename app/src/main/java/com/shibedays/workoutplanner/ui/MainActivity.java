@@ -202,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
         }
         //endregion
 
-
         //region RECYCLER_VIEW
         // Initialize the RecyclerView
 
@@ -278,8 +277,10 @@ public class MainActivity extends AppCompatActivity {
                         .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
                         .build();
                 mAdView.loadAd(adr);
+                setBottomMargin(mRecyclerView, 180);
             } else {
                 mAdView.setVisibility(View.GONE);
+                setBottomMargin(mRecyclerView, 0);
             }
         }
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

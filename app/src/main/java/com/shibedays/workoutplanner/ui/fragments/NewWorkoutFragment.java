@@ -241,14 +241,7 @@ public class NewWorkoutFragment extends Fragment{
         });
 
         mEquipRequired = view.findViewById(R.id.equip_checkbox);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        boolean adsDisabled = false;
-        if(prefs != null){
-            adsDisabled = prefs.getBoolean("disable_ads", false);
-        }
-        if(!adsDisabled){
-            setBottomMargin(mSaveButton, 180);
-        }
+        setBottomMargin(mSaveButton, 0);
         //endregion
         return view;
     }
@@ -588,6 +581,10 @@ public class NewWorkoutFragment extends Fragment{
         }
         if(selectedSets.isEmpty()){
             Toast.makeText(mParentActivity, "Choose at least 1 set.", Toast.LENGTH_SHORT).show();
+            isOk = false;
+        }
+        if(selectedSets.size() > Workout.MAX_SETS){
+            Toast.makeText(mParentActivity, String.format(Locale.US, "Max sets reached. Please only choose %d sets or less.", Workout.MAX_SETS), Toast.LENGTH_SHORT).show();
             isOk = false;
         }
 

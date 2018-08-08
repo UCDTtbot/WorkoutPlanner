@@ -302,4 +302,5 @@
     <string name="break_descrip_display">Take a longer rest. Move around and drink some water</string>
     <string name="finished_name">Finished</string>
     <string name="footer_add_workout">Add Workout</string>
+    <string name="equipment_required">Equipment Required</string>
 </resources>

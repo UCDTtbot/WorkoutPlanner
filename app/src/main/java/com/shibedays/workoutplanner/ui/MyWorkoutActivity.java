@@ -714,7 +714,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private void openAddNewSetFragment(){
         final FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        Bundle args = AddSetsFragment.getBundle(mMainVM.getId());
+        Bundle args = AddSetsFragment.getBundle(mMainVM.getId(), mMainVM.getWorkoutData().getNumOfSets());
         mAddSetsFragment = AddSetsFragment.newInstance(args, new AddSetsFragment.NewSetListener() {
             @Override
             public void addSetsToWorkout(List<Set> sets) {

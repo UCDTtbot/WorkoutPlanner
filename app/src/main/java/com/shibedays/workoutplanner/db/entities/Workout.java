@@ -28,6 +28,7 @@ public class Workout{
     public static final int FLEXIBILITY = 2;
     public static final int USER_CREATED = 3;
     public static final int OTHER = 4;
+    public static final int MAX_SETS = 25;
     public static final String[] TYPES = { "Cardio Workouts", "Strength Training", "Flexibility", "Custom", "Other"};
     //endregion
 

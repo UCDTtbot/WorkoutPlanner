@@ -19,10 +19,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.DisplaySetDialog;
@@ -32,6 +34,7 @@ import com.shibedays.workoutplanner.viewmodel.SetViewModel;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AddSetsFragment extends Fragment {
 
@@ -43,6 +46,7 @@ public class AddSetsFragment extends Fragment {
     //endregion
 
     private static final String EXTRA_PARENT_ID = PACKAGE + "WRK_ID";
+    private static final String EXTRA_SET_SIZE = PACKAGE + "SIZE";
 
     private static WeakReference<AddSetsFragment> mInstance;
 
@@ -51,6 +55,7 @@ public class AddSetsFragment extends Fragment {
     private SetViewModel mSetViewModel;
     private List<SetListFragment> mSetListFrags;
     private int mParentWrkoutId;
+    private int mOldSetSize;
     // Adapters
     // UI Components
     private Button mSaveButton;
@@ -116,6 +121,7 @@ public class AddSetsFragment extends Fragment {
         Bundle args = getArguments();
         if(args != null) {
             mParentWrkoutId = args.getInt(EXTRA_PARENT_ID);
+            mOldSetSize = args.getInt(EXTRA_SET_SIZE);
         }
     }
 
@@ -136,7 +142,11 @@ public class AddSetsFragment extends Fragment {
                 for(SetListFragment s : mSetListFrags){
                     sets.addAll(s.getSelectedSets());
                 }
-                mListener.addSetsToWorkout(sets);
+                if(sets.size() > Workout.MAX_SETS || sets.size() + mOldSetSize > Workout.MAX_SETS){
+                    Toast.makeText(mParentActivity, String.format(Locale.US, "Max sets reached. Please only choose %d sets or less.", Workout.MAX_SETS), Toast.LENGTH_SHORT).show();
+                } else {
+                    mListener.addSetsToWorkout(sets);
+                }
             }
         });
 
@@ -334,9 +344,10 @@ public class AddSetsFragment extends Fragment {
     }
 
     //endregion
-    public static Bundle getBundle(int wrkout){
+    public static Bundle getBundle(int wrkout, int size){
         Bundle args = new Bundle();
         args.putInt(EXTRA_PARENT_ID, wrkout);
+        args.putInt(EXTRA_SET_SIZE, size);
         return args;
     }
 
