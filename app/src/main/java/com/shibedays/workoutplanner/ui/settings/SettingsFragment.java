@@ -1,5 +1,6 @@
 package com.shibedays.workoutplanner.ui.settings;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,10 +52,43 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                             BaseApp.toggleTheme(false);
                         }
-                        getActivity().recreate();
                     }
+                    getActivity().recreate();
                 }
                 return true;
+            }
+        });
+
+        final SwitchPreference ads = (SwitchPreference)findPreference("disable_ads");
+        ads.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if(ads.isChecked()){   // Enable Ads
+                    BaseApp.toggleAds(false);
+                    return true;
+                } else {
+                    if (getActivity() != null) {
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle("Disable Ads")
+                                .setMessage("Ads support the development of this app. However, I understand ads are annoying. Please consider donating if you enjoy the app, or leave ads enabled. Click Ok to disable ads.")
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) { // Disable Ads
+                                        ads.setChecked(true);
+                                        BaseApp.toggleAds(true);
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) { // Enable Ads
+                                        ads.setChecked(false);
+                                        BaseApp.toggleAds(false);
+                                    }
+                                })
+                                .show();
+                    }
+                }
+                return false;
             }
         });
 

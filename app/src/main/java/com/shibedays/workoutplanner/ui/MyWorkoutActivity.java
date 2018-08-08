@@ -500,6 +500,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         super.onBackPressed();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == MainActivity.SETTINGS_REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                recreate();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
     //endregion
 
     //region ACTION_BAR_MENU
@@ -540,7 +551,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MY_WORKOUT_ACTIVITY);
             intent.putExtra(EXTRA_WORKOUT_ID, mMainVM.getId());
             intent.putExtra(EXTRA_WORKOUT_TYPE, mType);
-            startActivity(intent);
+            startActivityForResult(intent, MainActivity.SETTINGS_REQUEST_CODE);
             return true;
         } else if(id == R.id.add_set) {
             openAddNewSetFragment();

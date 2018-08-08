@@ -55,10 +55,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = MainActivity.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.ui.MainActivity.";
     public static final String PREF_IDENTIFIER = PACKAGE + "SHARED_PREFS";
+    public static final int SETTINGS_REQUEST_CODE = 1;
     //endregion
 
     //region INTENT_KEYS
     //EXTRA_FOO
+    public static final String EXTRA_THEME_CHANGED_BOOL = PACKAGE + "THEMECHANGED";
     //endregion
 
     //region PREF_KEYS
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
     //endregion
     private PendingRemovalHelper mPendingHelper;
+    private boolean mThemeChanged = false;
     //region PUBLIC_VARS
     //endregion
 
@@ -326,6 +329,17 @@ public class MainActivity extends AppCompatActivity {
 
     //endregion
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == SETTINGS_REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                recreate();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
     //region TOOLBAR
 
     @Override
@@ -351,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             intent.putExtra(SettingsActivity.EXTRA_PARENT, SettingsActivity.MAIN_ACTVITIY);
-            startActivity(intent);
+            startActivityForResult(intent, SETTINGS_REQUEST_CODE);
             return true;
         } else if (id == android.R.id.home){
             if(mFragmentManager.getBackStackEntryCount() > 0){

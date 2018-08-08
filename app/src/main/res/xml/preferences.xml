@@ -35,7 +35,7 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="disable_ads"
-            android:summaryOff="Thank you for your support! But I understand ads are annoying. Click to disable ads."
+            android:summaryOff="Thank you for your support!"
             android:summaryOn="Click to enable ads and support development."
             android:title="Disable Ads" />
         <Preference

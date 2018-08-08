@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.ui.MainActivity;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
@@ -32,7 +33,6 @@ public class SettingsActivity extends AppCompatActivity {
     //region PRIVATE_VARS
     // Parent Activity Type
     private int mParentClassType;
-    private boolean mThemeChanged = false;
     //endregion
 
     //region GET_PARENT_ACTIVITY
@@ -86,7 +86,6 @@ public class SettingsActivity extends AppCompatActivity {
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
         getParentActivityIntent();
-
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // Show the Up button in the action bar.
@@ -97,9 +96,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        setResult(RESULT_OK);
         finish();
-        overridePendingTransition(R.anim.slide_in_right, R.anim.slight_out_left);
-
         //startActivity(getParentActivityIntentImpl());
     }
 
@@ -113,8 +111,8 @@ public class SettingsActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == android.R.id.home){
+            setResult(RESULT_OK);
             finish();
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slight_out_left);
 
             //startActivity(getParentActivityIntentImpl());
         }

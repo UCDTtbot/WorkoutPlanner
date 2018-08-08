@@ -23,6 +23,7 @@ public class BaseApp extends Application {
     private static Context context;
     private static boolean mIsDark;
     private static boolean mAdsDisabled;
+    private static boolean mThemeChanged;
 
     @Override
     public void onCreate() {
