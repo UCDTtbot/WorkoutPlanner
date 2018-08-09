@@ -86,6 +86,8 @@ public class TimerFragment extends Fragment {
     private TextView mRoundsView;
     // Activity
     private Activity mParentActivity;
+
+    private boolean mTimerFinished;
     //endregion
 
     //region PUBLIC_VARS
@@ -149,6 +151,8 @@ public class TimerFragment extends Fragment {
 
         mTimerViewModel = ViewModelProviders.of(this).get(TimerViewModel.class);
         mWorkoutViewModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+
+        mTimerFinished = false;
 
         if (args != null) {
             Workout w = mWorkoutViewModel.getWorkoutByID(args.getInt(EXTRA_WORKOUT_ID));
@@ -435,5 +439,10 @@ public class TimerFragment extends Fragment {
             mAdView.setEnabled(false);
             mAdView.setVisibility(View.GONE);
         }
+    }
+
+
+    public boolean isTimerFinished() {
+        return mTimerFinished;
     }
 }

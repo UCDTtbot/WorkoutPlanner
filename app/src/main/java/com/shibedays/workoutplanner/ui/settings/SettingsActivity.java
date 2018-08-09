@@ -113,7 +113,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (id == android.R.id.home){
             setResult(RESULT_OK);
             finish();
-
             //startActivity(getParentActivityIntentImpl());
         }
         return super.onOptionsItemSelected(item);

@@ -139,6 +139,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private Intent mIntentBundle;
 
+    private static boolean mTimerFinished;
+
     private BroadcastReceiver mNotifReceiver;
     public static final String FILTER_TIMER = PACKAGE + "TIMER_NOTIF";
     //endregion
@@ -231,6 +233,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                                 mFragmentManager.popBackStack();
                             else {
                                 mPendingTimerClose = true;
+                                mTimerFinished = true;
                             }
                         }
                     }
@@ -253,6 +256,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         setContentView(R.layout.activity_my_workout);
 
         mPendingTimerClose = false;
+        mTimerFinished = false;
 
         mFragmentManager = getSupportFragmentManager();
 
@@ -460,9 +464,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
-        if(mFragmentManager.getBackStackEntryCount() > 0){
-            mFragmentManager.popBackStack();
-            mPendingTimerClose = false;
+        if(mTimerFinished) {
+            if (mFragmentManager.getBackStackEntryCount() > 0) {
+                mFragmentManager.popBackStack();
+                mPendingTimerClose = false;
+            }
         }
     }
 
