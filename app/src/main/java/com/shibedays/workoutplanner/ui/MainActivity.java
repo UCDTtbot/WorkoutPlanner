@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                                     .build();
                             mAdView.loadAd(adr);
                         }
-                    }, 30000);
+                    }, 60000);
                     super.onAdLoaded();
                 }
             });

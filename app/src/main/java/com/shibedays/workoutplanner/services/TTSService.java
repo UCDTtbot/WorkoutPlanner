@@ -124,12 +124,20 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
 
         mTTS = new TextToSpeech(getApplicationContext(), this);
         adjustSpeechRate(0.7f);
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if(pm != null) {
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "workoutplanner:tts_lock");
+        }
+        mWakeLock.acquire();
+
         return mMessenger.getBinder();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(DEBUG_TAG, "TTS ON_UNBIND CALLED");
+        if(mWakeLock.isHeld())
+            mWakeLock.release();
         return super.onUnbind(intent);
     }
 
