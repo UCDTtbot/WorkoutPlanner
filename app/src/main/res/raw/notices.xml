@@ -37,4 +37,10 @@
         <copyright>Copyright 2014 Google, Inc. All rights reserved.</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
+    <notice>
+        <name>ViewTooltip</name>
+        <url>https://github.com/florent37/ViewTooltip</url>
+        <copyright>Copyright 2017 Florent37, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
 </notices>

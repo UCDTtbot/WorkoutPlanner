@@ -377,12 +377,12 @@ public abstract class AppDatabase extends RoomDatabase {
             }
 
             // Workouts //
-            Workout card_1 = new Workout(Workout.CARDIO, "Jog-Walk");
+            Workout card_1 = new Workout(Workout.CARDIO, "Jog Walk");
             card_1.addSet(walk);
             card_1.addSet(jog);
             card_1.setNoBreakFlag(true);
             card_1.setNoRestFlag(true);
-            Workout card_4 = new Workout(Workout.CARDIO, "Run-Walk");
+            Workout card_4 = new Workout(Workout.CARDIO, "Run Walk");
             card_4.addSet(walk);
             card_4.setNoRestFlag(true);
             card_4.setNoBreakFlag(true);
@@ -402,10 +402,12 @@ public abstract class AppDatabase extends RoomDatabase {
             card_3.setTimeBetweenRounds(45000);
             Workout str_1 = new Workout(Workout.STRENGTH, "Body Weight");
             str_1.addSet(pushups);
+            str_1.addSet(leg_raises);
             str_1.addSet(squats);
             str_1.addSet(plank);
             str_1.addSet(jumping_jacks);
             str_1.addSet(leg_pullin);
+            str_1.addSet(reverse_lunge);
             str_1.setTimeBetweenSets(15000);
             str_1.setTimeBetweenRounds(60000);
             Workout str_2 = new Workout(Workout.STRENGTH, "Body Weight Light");
@@ -413,6 +415,8 @@ public abstract class AppDatabase extends RoomDatabase {
             str_2.addSet(situps);
             str_2.addSet(lunges);
             str_2.addSet(plank);
+            str_2.addSet(jumping_jacks);
+            str_2.addSet(superman);
             str_2.setTimeBetweenSets(15000);
             str_2.setTimeBetweenRounds(45000);
             Workout str_3 = new Workout(Workout.STRENGTH, "Body Weight Intense");
@@ -421,6 +425,7 @@ public abstract class AppDatabase extends RoomDatabase {
             str_3.addSet(jumping_jacks);
             str_3.addSet(airbike);
             str_3.addSet(leg_pullin);
+            str_3.addSet(plank_arm_raise);
             str_3.setTimeBetweenSets(20000);
             str_3.setTimeBetweenRounds(60000);
             Workout str_4 = new Workout(Workout.STRENGTH, "Upper Body");
