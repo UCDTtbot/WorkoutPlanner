@@ -95,7 +95,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         setResult(RESULT_OK);
         finish();
         //startActivity(getParentActivityIntentImpl());

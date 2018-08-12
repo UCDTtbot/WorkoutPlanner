@@ -97,7 +97,8 @@ public abstract class AppDatabase extends RoomDatabase {
                     "Brisk Walk",
                     r.getString(R.string.descrip_walk),
                     Set.CARDIO, ONE_HALF,
-                    r.getResourceEntryName(R.drawable.ic_walk_black_24dp));
+                    r.getResourceEntryName(R.drawable.ic_walk_black_24dp),
+                    "https://www.bodybuilding.com/exercises/trail-runningwalking");
             final Set high_steps = new Set(
                     "High Knee Jog",
                     r.getString(R.string.descrip_highstep),
@@ -241,7 +242,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),
                     "https://www.bodybuilding.com/exercises/crunches");
             final Set plank = new Set(
-                    "Basic Plank",
+                    "Planks",
                     r.getString(R.string.descrip_plank),
                     Set.CORE, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_fitness_black_24dp),

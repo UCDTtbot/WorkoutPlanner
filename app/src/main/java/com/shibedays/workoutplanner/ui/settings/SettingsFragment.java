@@ -126,6 +126,37 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        Preference donate = findPreference("donate");
+        donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if(getActivity() != null) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Donate a coffee!")
+                            .setMessage("Clicking ok will open your web browser, allowing you to donate.")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Uri uri = Uri.parse("https://www.paypal.me/shibedays");
+                                    Intent openBrowser = new Intent(Intent.ACTION_VIEW, uri);
+                                    // To count with Play market backstack, After pressing back button,
+                                    // to taken back to our application, we need to add following flags to intent.
+                                    openBrowser.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                                            Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                                    try {
+                                        startActivity(openBrowser);
+                                    } catch (ActivityNotFoundException e) {
+                                        Log.e("SETTING_FRAGMENT", e.toString());
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                }
+                return false;            }
+        });
+
         Preference rate = findPreference("rate_me");
         rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
