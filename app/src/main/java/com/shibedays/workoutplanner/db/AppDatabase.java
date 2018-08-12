@@ -84,19 +84,19 @@ public abstract class AppDatabase extends RoomDatabase {
             final Set jog = new Set(
                     "Light Jog",
                     r.getString(R.string.descrip_jog),
-                    Set.CARDIO, TWO_MIN,
+                    Set.CARDIO, ONE_HALF,
                     r.getResourceEntryName(R.drawable.ic_run_black_24dp),
                     "https://www.bodybuilding.com/exercises/slow-jog");
             final Set run = new Set(
                     "Run",
                     r.getString(R.string.descrip_run),
-                    Set.CARDIO, TWO_MIN,
+                    Set.CARDIO, ONE_HALF,
                     r.getResourceEntryName(R.drawable.ic_run_black_24dp),
                     "https://www.bodybuilding.com/exercises/trail-runningwalking");
             final Set walk = new Set(
                     "Brisk Walk",
                     r.getString(R.string.descrip_walk),
-                    Set.CARDIO, ONE_HALF,
+                    Set.CARDIO, ONE_MIN,
                     r.getResourceEntryName(R.drawable.ic_walk_black_24dp),
                     "https://www.bodybuilding.com/exercises/trail-runningwalking");
             final Set high_steps = new Set(
