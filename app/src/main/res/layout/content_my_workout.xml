@@ -18,11 +18,21 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
+
     <RelativeLayout
         android:id="@+id/view_pager_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="70">
+
+        <TextView
+            android:id="@+id/add_one_set"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/add_a_set"
+            android:visibility="gone"
+            style="@style/AppTheme.TitleText"/>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/pager_header"
@@ -132,7 +142,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/start_workout_button"
-        android:onClick="startTimer"
         android:focusable="true"
         android:layout_marginBottom="@dimen/activity_shallow_vertical_margin"
         android:theme="@style/Button_Custom"/>

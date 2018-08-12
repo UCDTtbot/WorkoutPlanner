@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -110,6 +111,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private ActionBar mActionBar;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
+    private Button mStartButton;
     // Adapters
     //private SetAdapter mSetAdapter;
     // Data
@@ -430,6 +432,22 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
         });
 
+        mStartButton = findViewById(R.id.start_button);
+        mStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int color = getColor(R.color.colorAccent);
+                if(BaseApp.isDarkTheme()){
+                    color = getColor(R.color.colorAccentDarkTheme);
+                }
+                if(mMainVM.getWorkoutData().getNumOfSets() <= 0){
+                    setButtonError();
+                } else {
+                    startTimer();
+                }
+            }
+        });
+
         //endregion
 
         //region PAGER
@@ -439,6 +457,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
 
 
+    }
+
+    private void setButtonError(){
+        int colorAccent = getColor(R.color.colorAccent);
+        if(BaseApp.isDarkTheme()){
+            colorAccent = getColor(R.color.colorAccentDarkTheme);
+        }
+        ViewTooltip.on(findViewById(R.id.view_pager_layout))
+                .clickToHide(true)
+                .autoHide(true, 3500)
+                .align(ViewTooltip.ALIGN.CENTER)
+                .position(ViewTooltip.Position.BOTTOM)
+                .text("Please choose at least one set!")
+                .color(colorAccent)
+                .show();
     }
 
     @Override
@@ -702,6 +735,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             public void onChanged(@Nullable Workout workout) {
                 if(workout != null) {
                     mMainVM.setWorkout(workout);
+                    if(workout.getNumOfSets() <= 0){
+                        findViewById(R.id.add_one_set).setVisibility(View.VISIBLE);
+                    } else {
+                        findViewById(R.id.add_one_set).setVisibility(View.GONE);
+                    }
                     if(mSetInfoFrags == null){
                         setupViewPager(workout.getSetList());
                     } else {
@@ -855,7 +893,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation
-    public void startTimer(View view){
+    public void startTimer(){
         openTimerFragment(mMainVM.getWorkoutData());
     }
 

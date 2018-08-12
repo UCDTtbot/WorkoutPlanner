@@ -28,6 +28,7 @@ public class BaseApp extends Application {
     private static boolean mMainFirstRun = false;
     private static boolean mMyWorkFirstRun = false;
     private static boolean mFirstSetFragShown = true;
+    private static boolean mFirstNewWorkout = false;
 
 
 
@@ -55,15 +56,18 @@ public class BaseApp extends Application {
         mMainFirstRun = true;
         mMyWorkFirstRun = true;
         mFirstSetFragShown = false;
+        mFirstNewWorkout = true;
     }
 
     public static boolean isMainFirstRun(){ return mMainFirstRun; }
     public static boolean isMyWorkFirstRun(){ return mMyWorkFirstRun; }
     public static boolean isFirstSetFrag() { return mFirstSetFragShown; }
+    public static boolean isFirstNewWorkout() { return mFirstNewWorkout; }
 
     public static void toggleFirstSetFrag() { mFirstSetFragShown = true; }
     public static void toggleMyWorkFirstRun() { mMyWorkFirstRun = false; }
     public static void toggleMainFirstRun() { mMainFirstRun = false; }
+    public static void toggleFirstNewWorkout() { mFirstNewWorkout = false; }
 
 
     public static boolean isDarkTheme(){
@@ -78,6 +82,7 @@ public class BaseApp extends Application {
     public static void resetThemeBool(){ mThemeChanged = false;}
 
     public static boolean isVibrateEnabled(){ return mVibrateEnabled; }
+    public static void toggleVibration(boolean tog){mVibrateEnabled = tog;}
 
     public static boolean areAdsDisabled(){ return mAdsDisabled; }
     public static void toggleAds(boolean tog){ mAdsDisabled = tog;}

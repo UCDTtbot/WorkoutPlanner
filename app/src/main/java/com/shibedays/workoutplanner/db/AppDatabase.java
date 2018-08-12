@@ -470,6 +470,8 @@ public abstract class AppDatabase extends RoomDatabase {
             other_1.setNoBreakFlag(true);
             other_1.setNoRestFlag(true);
             other_1.addSet(study_break);
+            Workout custom_1 = new Workout(Workout.USER_CREATED, "My Custom Workout");
+            custom_1.addSet(new Set("Add Your Own Sets", "Click the + symbol above to add more sets!", Set.USER_CREATED, 30000, r.getResourceEntryName(R.drawable.ic_access_alarm_black_24dp)));
 
             //Workout dummy = new Workout(-1, Workout.USER_CREATED, "Add Workout", R.drawable.ic_add_black_24dp);
             mWorkoutDao.insert(card_1);
@@ -488,6 +490,8 @@ public abstract class AppDatabase extends RoomDatabase {
             mWorkoutDao.insert(flex_2);
 
             mWorkoutDao.insert(other_1);
+
+            mWorkoutDao.insert(custom_1);
 
             return null;
         }

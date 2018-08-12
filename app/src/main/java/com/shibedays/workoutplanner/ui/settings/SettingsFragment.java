@@ -59,6 +59,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        SwitchPreference vibrate = (SwitchPreference)findPreference("vibrate");
+        vibrate.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (preference instanceof SwitchPreference) {
+                    if (TextUtils.equals(preference.getKey(), "vibrate")) {
+                        if((boolean)newValue){
+                            BaseApp.toggleVibration(true);
+                        } else {
+                            BaseApp.toggleVibration(false);
+                        }
+                    }
+                }
+                return true;
+            }
+        });
+
         final SwitchPreference ads = (SwitchPreference)findPreference("disable_ads");
         ads.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override

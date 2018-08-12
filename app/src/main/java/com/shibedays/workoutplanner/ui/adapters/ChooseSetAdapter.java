@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 
 import com.bumptech.glide.Glide;
+import com.github.florent37.viewtooltip.ViewTooltip;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
 import com.shibedays.workoutplanner.db.entities.Set;
@@ -59,6 +60,23 @@ public class ChooseSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             mTextViewTime.setVisibility(View.GONE);
 
             mCardView = itemView.findViewById(R.id.set_narrow_card);
+            int colorAccent = mContext.getColor(R.color.colorAccent);
+            if(BaseApp.isDarkTheme()){
+                colorAccent = mContext.getColor(R.color.colorAccentDarkTheme);
+            }
+            if(BaseApp.isFirstNewWorkout()){
+                if(BaseApp.isMyWorkFirstRun()){
+                    ViewTooltip.on(mCardView)
+                            .clickToHide(true)
+                            .autoHide(true, 4000)
+                            .align(ViewTooltip.ALIGN.START)
+                            .position(ViewTooltip.Position.BOTTOM)
+                            .text("Long press to see more info")
+                            .color(colorAccent)
+                            .show();
+                }
+                BaseApp.toggleFirstNewWorkout();
+            }
 
         }
 
