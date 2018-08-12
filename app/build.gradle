@@ -81,6 +81,8 @@ dependencies {
     implementation 'de.psdev.licensesdialog:licensesdialog:1.8.3'
     //Ad Mob
     implementation 'com.google.android.gms:play-services-ads:15.0.1'
+    //Tooltip
+    implementation 'com.github.florent37:viewtooltip:1.1.5'
 }
 
 apply plugin: 'com.google.gms.google-services'

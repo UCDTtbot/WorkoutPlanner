@@ -22,6 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.florent37.viewtooltip.ViewTooltip;
 import com.google.gson.Gson;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
@@ -142,6 +143,21 @@ public class SetInfoFragment extends Fragment {
                 openMoreInfo();
             }
         });
+        int colorAccent = getContext().getColor(R.color.colorAccent);
+        if(BaseApp.isDarkTheme()){
+            colorAccent = getContext().getColor(R.color.colorAccentDarkTheme);
+        }
+        if(BaseApp.isMyWorkFirstRun() && !BaseApp.isFirstSetFrag()){
+            ViewTooltip.on(mMoreInfoIC)
+                    .clickToHide(true)
+                    .autoHide(true, 3500)
+                    .align(ViewTooltip.ALIGN.CENTER)
+                    .position(ViewTooltip.Position.BOTTOM)
+                    .text("Click to see more info")
+                    .color(colorAccent)
+                    .show();
+            BaseApp.toggleFirstSetFrag();
+        }
 
         return view;
     }

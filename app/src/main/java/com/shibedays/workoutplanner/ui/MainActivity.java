@@ -575,6 +575,7 @@ public class MainActivity extends AppCompatActivity {
     //endregion
 
     private void initFirstRunData(){
+        BaseApp.setFirstRun();
     }
 
     private void setBottomMargin(View view, int b){

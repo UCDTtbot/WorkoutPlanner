@@ -40,6 +40,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.florent37.viewtooltip.ViewTooltip;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
@@ -336,6 +337,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         //endregion
 
         //region UI
+        int colorAccent = getColor(R.color.colorAccent);
+        if(BaseApp.isDarkTheme()){
+            colorAccent = getColor(R.color.colorAccentDarkTheme);
+        }
+
         mRestTime = findViewById(R.id.rest_time);
         mRestTime.setFocusable(false);
         mRestTime.setOnClickListener(new View.OnClickListener() {
@@ -344,6 +350,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 openNumberPickerDialog(NumberPickerDialog.REST_TYPE);
             }
         });
+        if(BaseApp.isMyWorkFirstRun()){
+            ViewTooltip.on(mRestTime)
+                    .clickToHide(true)
+                    .autoHide(true, 3500)
+                    .align(ViewTooltip.ALIGN.CENTER)
+                    .position(ViewTooltip.Position.BOTTOM)
+                    .text("Time between sets")
+                    .color(colorAccent)
+                    .show();
+        }
 
         mBreakTime = findViewById(R.id.break_time);
         mBreakTime.setFocusable(false);
@@ -353,6 +369,16 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 openNumberPickerDialog(NumberPickerDialog.BREAK_TYPE);
             }
         });
+        if(BaseApp.isMyWorkFirstRun()){
+            ViewTooltip.on(mBreakTime)
+                    .clickToHide(true)
+                    .autoHide(true, 3500)
+                    .align(ViewTooltip.ALIGN.CENTER)
+                    .position(ViewTooltip.Position.BOTTOM)
+                    .text("Time between rounds")
+                    .color(colorAccent)
+                    .show();
+        }
 
         mTotalTime = findViewById(R.id.total_time);
         mTotalTime.setFocusable(false);
@@ -691,6 +717,9 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                         }
                     }
                     dataUpdate(mMainVM.getWorkoutData());
+                    if(BaseApp.isMyWorkFirstRun()){
+                        BaseApp.toggleMyWorkFirstRun();
+                    }
                 }
             }
         });
