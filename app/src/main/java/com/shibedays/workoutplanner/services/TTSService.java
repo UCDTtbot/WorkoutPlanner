@@ -1,6 +1,7 @@
 package com.shibedays.workoutplanner.services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Binder;
@@ -8,7 +9,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.RemoteException;
+import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 import android.text.TextUtils;
@@ -45,7 +48,8 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
     private TextToSpeech mTTS;
 
     private int mVol;
-
+    private PowerManager.WakeLock mWakeLock;
+    private static final int WAKELOCK_TIMEOUT = 3600000;
     // Booleans
     private boolean mTTSReady = false;
     private boolean mIsMuted = false;
@@ -120,7 +124,6 @@ public class TTSService extends Service implements TextToSpeech.OnInitListener {
 
         mTTS = new TextToSpeech(getApplicationContext(), this);
         adjustSpeechRate(0.7f);
-
         return mMessenger.getBinder();
     }
 

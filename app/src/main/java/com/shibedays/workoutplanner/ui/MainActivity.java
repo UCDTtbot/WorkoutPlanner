@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -49,6 +50,8 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    boolean DEVELOPER_MODE = false;
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -111,6 +114,16 @@ public class MainActivity extends AppCompatActivity {
     //region LIFECYCLE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (DEVELOPER_MODE) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectAll()   // or .detectAll() for all detectable problems
+                    .penaltyLog()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .build());
+        }
         super.onCreate(savedInstanceState);
         BaseApp.resetThemeBool();
         if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES){

@@ -120,13 +120,13 @@ public class Workout{
             totalTime += s.getTime();
         }
         if(noRestFlag && noBreakFlag){
-            return totalTime;
+            return totalTime * numOfRounds;
         } else if(noRestFlag){
-            totalTime += timeBetweenRounds * numOfRounds;
+            totalTime = (totalTime + timeBetweenRounds) * numOfRounds;
         } else if (noBreakFlag) {
-            totalTime += timeBetweenSets;
+            totalTime = (totalTime + timeBetweenSets) * numOfRounds;
         } else {
-            totalTime += timeBetweenSets + (timeBetweenRounds * numOfRounds);
+            totalTime = (totalTime + timeBetweenSets + timeBetweenRounds) * numOfRounds;
         }
         return totalTime;
     }

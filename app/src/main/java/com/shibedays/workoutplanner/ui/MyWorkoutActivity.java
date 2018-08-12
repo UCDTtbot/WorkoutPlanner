@@ -14,7 +14,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -65,6 +67,8 @@ import java.util.Locale;
 
 
 public class MyWorkoutActivity extends AppCompatActivity implements TimerFragment.OnFragmentInteractionListener{
+
+    boolean DEVELOPER_MODE = false;
 
     //region CONSTANTS
     // Package and Debug Constants
@@ -125,6 +129,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
 
     private Messenger mTimerService;
     private Messenger mTTSService;
+    private PowerManager.WakeLock mWakeLock;
     // View Model
 
     private WorkoutViewModel mWorkoutViewModel;
@@ -157,9 +162,10 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
         }
     }
-    final Messenger mIncomingTTSMessenger = new Messenger(new IncomingTTSMessageHandler());
+    Messenger mIncomingTTSMessenger = new Messenger(new IncomingTTSMessageHandler());
 
     public class IncomingTimerMessageHandler extends Handler {
+
         @Override
         public void handleMessage(Message msg) {
             Set s = null;
@@ -246,13 +252,33 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             }
         }
     }
-    public final Messenger mIncomingTimerMessenger = new Messenger(new IncomingTimerMessageHandler());
+    Messenger mIncomingTimerMessenger = new Messenger(new IncomingTimerMessageHandler());
     //endregion
 
     //region LIFECYCLE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (DEVELOPER_MODE) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()   // or .detectAll() for all detectable problems
+                    .penaltyLog()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build());
+        }
         super.onCreate(savedInstanceState);
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if(pm != null) {
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "workoutplanner:timer_lock");
+        }
+
         if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES){
             setTheme(R.style.AppTheme_Dark_NoActionBar);
         }
@@ -548,6 +574,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         }
         if(mNotifReceiver != null)
             unregisterReceiver(mNotifReceiver);
+        mIncomingTimerMessenger = null;
+        mIncomingTTSMessenger = null;
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_DESTROY");
 
     }
@@ -910,7 +938,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     }
 
     private void beginTimerService(){
-        // TODO: Create a function that unifies notification vs start bundle
         Workout w = mMainVM.getWorkoutData();
 
         final Bundle notifBundle = getNotifBundle(w.getWorkoutID(), w.getWorkoutType());
@@ -930,11 +957,15 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 w.getNoBreakFlag(),
                 mIsTTSMuted);
 
-        startService(timerIntent);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(timerIntent);
+        } else {
+            startService(timerIntent);
+        }
     }
 
     private void stopTimerService(){
-        stopService(new Intent(this, TTSService.class));
+        stopService(new Intent(this, TimerService.class));
     }
     //endregion
 
@@ -979,7 +1010,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mTimerService = new Messenger(service);
             mTimerIsBound = true;
-
             Message msg = Message.obtain(null, TimerService.MSG_TIMER_BIND);
             msg.replyTo = mIncomingTimerMessenger;
 

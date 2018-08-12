@@ -1,5 +1,7 @@
 package com.shibedays.workoutplanner.services;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -29,9 +31,10 @@ public class TimerService extends Service {
     // Package and Debug Constants
     private static final String DEBUG_TAG = TimerService.class.getSimpleName();
     private static final String PACKAGE = "com.shibedays.workoutplanner.services.TimerService.";
-    public static final String NOTIF_CHANNEL = "N_TIMER";
     // Notification ID
-    private static final int NOTIF_ID = 1;
+    private static final int NOTIF_ID = 1000001;
+    private static final String NOTIF_CHANNEL_ID = "notif_timer";
+    private static final String NOTIFICATION_CHANNEL_NAME = "MAIN_NOTIF_TIMER";
     private static final long ONE_SEC = 1000;
     private static final long WAKELOCK_TIMEOUT = 3600000;
     // Actions
@@ -202,12 +205,13 @@ public class TimerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_BIND");
+
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if(pm != null) {
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "workoutplanner:servicelock");
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "workoutplanner:timer_lock");
         }
+        mWakeLock.acquire();
         mVib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        mWakeLock.acquire(WAKELOCK_TIMEOUT);
         return mMessenger.getBinder();
     }
 
@@ -223,10 +227,11 @@ public class TimerService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_UNBIND");
         mHandler.removeCallbacks(timer);
-        mWakeLock.release();
         mVib = null;
         stopForeground(true);
         stopSelf();
+        if(mWakeLock.isHeld())
+            mWakeLock.release();
         return super.onUnbind(intent);
     }
 
@@ -271,8 +276,6 @@ public class TimerService extends Service {
         public void run(){
             mTimeLeft -= ONE_SEC;
             mTimeElapsed += ONE_SEC;
-
-
 
             if(mTimeLeft > 0){ // Still running
 
@@ -418,16 +421,24 @@ public class TimerService extends Service {
 
     private void updateNotification(int type, int notifFlags, boolean isFirstRun){
 
-        if(mBuilder == null)
-            mBuilder = new NotificationCompat.Builder(this, NOTIF_CHANNEL);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if(notificationManager != null) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel notificationChannel = new NotificationChannel(NOTIF_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+
+        if(mBuilder == null) {
+            mBuilder = new NotificationCompat.Builder(this, NOTIF_CHANNEL_ID);
+        }
 
         Intent notifIntent = new Intent(this, MyWorkoutActivity.class);
         notifIntent.putExtra(EXTRA_REBUILD_BUNDLE, mNotifBundle);
         notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notifIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NOTIF_INTENT_TYPE);
         PendingIntent mainPendingIntent = PendingIntent.getActivity(this, NOTIF_ID, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        mBuilder = new NotificationCompat.Builder(this, "MainTimerChannel");
         Bitmap b = BitmapFactory.decodeResource(getResources(), mSetImage);
 
         int time = mTotalCurTime;
@@ -467,12 +478,14 @@ public class TimerService extends Service {
             playIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.PLAY_INTENT_TYPE);
             playIntent.setAction(MyWorkoutActivity.FILTER_TIMER);
             PendingIntent playPendingIntent = PendingIntent.getBroadcast(this, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.mActions.clear();
             mBuilder.addAction(R.drawable.ic_play_arrow_black_24dp, "Play", playPendingIntent);
         } else {
             Intent pauseIntent = new Intent();
             pauseIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.PAUSE_INTENT_TYPE);
             pauseIntent.setAction(MyWorkoutActivity.FILTER_TIMER);
             PendingIntent pausePendingIntent = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.mActions.clear();
             mBuilder.addAction(R.drawable.ic_pause_black_24dp, "Pause", pausePendingIntent);
 
         }

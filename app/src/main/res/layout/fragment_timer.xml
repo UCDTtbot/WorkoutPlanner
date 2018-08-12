@@ -10,6 +10,7 @@
     android:orientation="vertical"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
+    android:keepScreenOn="true"
     android:weightSum="100">
 
     <RelativeLayout
