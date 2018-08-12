@@ -42,7 +42,7 @@
     <string name="rest_title_text">Rest Time</string>
     <string name="break_title_text">Break Time</string>
     <string name="round_title_text">Rounds</string>
-    <string name="default_time">1:00</string>
+    <string name="default_time">0:30</string>
     <string name="minute_label">M</string>
     <string name="colon">:</string>
     <string name="second_label">S</string>

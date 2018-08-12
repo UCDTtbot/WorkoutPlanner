@@ -112,10 +112,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        BaseApp.resetThemeBool();
         if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES){
             setTheme(R.style.AppTheme_Dark_NoActionBar);
         }
-
         setContentView(R.layout.activity_main);
 
         FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -272,6 +272,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(BaseApp.didThemeChange()){
+            recreate();
+        }
         if(mAdView != null) {
             if(!BaseApp.areAdsDisabled()) {
                 mAdView.setVisibility(View.VISIBLE);

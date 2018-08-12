@@ -1,6 +1,5 @@
 package com.shibedays.workoutplanner.services;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -14,6 +13,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -93,6 +93,8 @@ public class TimerService extends Service {
     private boolean mNoBreakFlag;
 
     PowerManager.WakeLock mWakeLock;
+    private Vibrator mVib;
+    long[] mVibPattern = {0, 250, 150, 250};
 
     private boolean mIsTTSMuted;
     private boolean mMsgSent;
@@ -204,6 +206,7 @@ public class TimerService extends Service {
         if(pm != null) {
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "workoutplanner:servicelock");
         }
+        mVib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mWakeLock.acquire(WAKELOCK_TIMEOUT);
         return mMessenger.getBinder();
     }
@@ -221,6 +224,7 @@ public class TimerService extends Service {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_UNBIND");
         mHandler.removeCallbacks(timer);
         mWakeLock.release();
+        mVib = null;
         stopForeground(true);
         stopSelf();
         return super.onUnbind(intent);
@@ -320,6 +324,9 @@ public class TimerService extends Service {
                         nextRound();
 
                         sendTTSMessage(R.string.tts_next_round, mSetName);
+
+                        vibrate(START_VIB);
+
                         mCurrentAction = REP_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mNextSetTime, TTS_NO_DELAY);
@@ -328,6 +335,9 @@ public class TimerService extends Service {
 
                     } else {    // Yes Break
                         sendTTSMessage(R.string.tts_round_finished, "");
+
+                        vibrate(FINISH_VIB);
+
                         mCurrentAction = BREAK_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mBreakTime, TTS_NO_DELAY);
@@ -337,6 +347,9 @@ public class TimerService extends Service {
                 } else if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
                     sendTTSMessage(R.string.tts_finished, "");
                     Message m = Message.obtain(null, MyWorkoutActivity.MSG_STOP_TIMER);
+
+                    vibrate(FINISH_VIB);
+
                     sendMessage(m);
                 } else if(mCurrentAction == REP_ACTION && mCurRep < (mNumReps - 1 )){ // Set finished. Rest
                     //Repetition finished. Rest.
@@ -345,6 +358,9 @@ public class TimerService extends Service {
                         nextRep();
 
                         sendTTSMessage(R.string.tts_begin, mSetName);
+
+                        vibrate(START_VIB);
+
                         mCurrentAction = REP_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mNextSetTime, TTS_NO_DELAY);
@@ -352,6 +368,9 @@ public class TimerService extends Service {
                             beginTimer(mNextSetTime, 1);
                     } else { // Yes Rest
                         sendTTSMessage(R.string.tts_take_rest, "");
+
+                        vibrate(FINISH_VIB);
+
                         mCurrentAction = REST_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mRestTime, TTS_NO_DELAY);
@@ -364,6 +383,9 @@ public class TimerService extends Service {
                     nextRep();
 
                     sendTTSMessage(R.string.tts_begin, mNextSetName);
+
+                    vibrate(START_VIB);
+
                     mCurrentAction = REP_ACTION;
                     if(mIsTTSMuted)
                         beginTimer(mNextSetTime, TTS_NO_DELAY);
@@ -375,6 +397,9 @@ public class TimerService extends Service {
                     nextRound();
 
                     sendTTSMessage(R.string.tts_next_round, mSetName);
+
+                    vibrate(START_VIB);
+
                     mCurrentAction = REP_ACTION;
                     if(mIsTTSMuted)
                         beginTimer(mNextSetTime, TTS_NO_DELAY);
@@ -492,6 +517,21 @@ public class TimerService extends Service {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static int START_VIB = 0;
+    private static int FINISH_VIB = 1;
+    private void vibrate(int flag){
+        if(BaseApp.isVibrateEnabled()) {
+            if (flag == START_VIB) {
+                mVib.vibrate(mVibPattern, -1);
+            } else if (flag == FINISH_VIB) {
+                mVib.vibrate(750);
+            } else {
+                Log.e(DEBUG_TAG, "No Flag");
+            }
+        }
+
     }
 
     public static Intent getServiceIntent(Context context,

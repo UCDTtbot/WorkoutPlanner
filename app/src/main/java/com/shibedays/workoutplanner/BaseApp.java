@@ -23,6 +23,7 @@ public class BaseApp extends Application {
     private static Context context;
     private static boolean mIsDark;
     private static boolean mAdsDisabled;
+    private static boolean mVibrateEnabled;
     private static boolean mThemeChanged;
 
     @Override
@@ -31,7 +32,8 @@ public class BaseApp extends Application {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if(prefs != null) {
             mIsDark = prefs.getBoolean("dark_theme", false);
-            mAdsDisabled = prefs.getBoolean("disable_ads", false);;
+            mAdsDisabled = prefs.getBoolean("disable_ads", false);
+            mVibrateEnabled = prefs.getBoolean("vibrate", true);
 
             if(mIsDark){
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -49,7 +51,13 @@ public class BaseApp extends Application {
     }
     public static void toggleTheme(boolean tog){
         mIsDark = tog;
+        mThemeChanged = true;
     }
+
+    public static boolean didThemeChange(){ return mThemeChanged; }
+    public static void resetThemeBool(){ mThemeChanged = false;}
+
+    public static boolean isVibrateEnabled(){ return mVibrateEnabled; }
 
     public static boolean areAdsDisabled(){ return mAdsDisabled; }
     public static void toggleAds(boolean tog){ mAdsDisabled = tog;}
