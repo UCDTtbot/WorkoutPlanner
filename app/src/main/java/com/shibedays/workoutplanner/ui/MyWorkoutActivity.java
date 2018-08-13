@@ -294,15 +294,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         if(intent != null){
             int intentType = intent.getIntExtra(EXTRA_INTENT_TYPE, -1);
             mIntentBundle = intent;
+            int id;
             if(intentType == NORMAL_INTENT_TYPE) {
                 // Normal running circumstances
-                int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
                 mMainVM.setId(id);
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
             } else if (intentType == NOTIF_INTENT_TYPE){
-                int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
                 mMainVM.setId(id);
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
+                openTimerFragment(id);
             } else {
                 throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
             }
@@ -902,19 +904,29 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation
     public void startTimer(){
-        openTimerFragment(mMainVM.getWorkoutData());
+        openTimerFragment(mMainVM.getId());
     }
 
-    public void openTimerFragment(Workout wrk){
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        Bundle args = TimerFragment.getBundle(wrk.getWorkoutID());
-        mTimerFragment = TimerFragment.newInstance(args);
-        fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
-        Log.d(DEBUG_TAG, "Timer Fragment Created");
-        bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
+    public void openTimerFragment(int wrkID){
+        if(mFragmentManager.findFragmentById(R.id.fragment_container) != null && mFragmentManager.findFragmentById(R.id.fragment_container) instanceof TimerFragment)
+            mTimerFragment = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
+
+        if(mTimerFragment == null) {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            Bundle args = TimerFragment.getBundle(wrkID);
+            mTimerFragment = TimerFragment.newInstance(args);
+            fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+            findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
+            Log.d(DEBUG_TAG, "Timer Fragment Created");
+            bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
     }
 
     private void beginTimerService(){

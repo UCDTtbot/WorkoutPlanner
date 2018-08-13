@@ -427,7 +427,6 @@ public class TimerFragment extends Fragment {
                         @Override
                         public void run() {
                             AdRequest adr = new AdRequest.Builder()
-                                    .addTestDevice("777CB5CEE1249294D3D44B76236723E4")
                                     .build();
                             mAdView.loadAd(adr);
                         }
