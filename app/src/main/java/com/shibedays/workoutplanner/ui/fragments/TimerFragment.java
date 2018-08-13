@@ -317,6 +317,8 @@ public class TimerFragment extends Fragment {
 
         if (mTimerViewModel.getCurRep() == mTimerViewModel.getTotalReps() - 1 &&
                 mTimerViewModel.getCurRound() == mTimerViewModel.getTotalRounds() - 1) {
+            mSetNameView.setText(cur.getName());
+            mSetDescripView.setText(cur.getDescrip());
             mNextSetNameView.setText(R.string.finished_name);
         } else if (isRest) {
             mSetNameView.setText(R.string.rest_name);
@@ -429,7 +431,7 @@ public class TimerFragment extends Fragment {
                                     .build();
                             mAdView.loadAd(adr);
                         }
-                    }, 30000);
+                    }, 60000);
                     super.onAdLoaded();
                 }
             });

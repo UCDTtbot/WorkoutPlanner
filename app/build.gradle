@@ -11,8 +11,8 @@ android {
         applicationId "com.shibedays.workoutplanner"
         minSdkVersion 23
         targetSdkVersion 27
-        versionCode 12
-        versionName "b0.9.0"
+        versionCode 13
+        versionName "b0.9.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         javaCompileOptions {

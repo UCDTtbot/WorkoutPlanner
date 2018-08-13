@@ -4,6 +4,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,13 +17,21 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.Vibrator;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.R;
+import com.shibedays.workoutplanner.db.entities.Set;
+import com.shibedays.workoutplanner.db.entities.Workout;
 import com.shibedays.workoutplanner.ui.MyWorkoutActivity;
+import com.shibedays.workoutplanner.viewmodel.WorkoutViewModel;
+
+import java.util.List;
 import java.util.Locale;
 
 public class TimerService extends Service {
@@ -43,7 +52,6 @@ public class TimerService extends Service {
     public static final int BREAK_ACTION = 2;
     // Message Constants
     public static final int MSG_TIMER_BIND = 0;
-    public static final int MSG_NEXT_SET_TIME = 1;
     public static final int MSG_PAUSE_TIMER = 2;
     public static final int MSG_CONTINUE_TIMER = 3;
 
@@ -54,17 +62,14 @@ public class TimerService extends Service {
     //endregion
 
     //region INTENT_KEYS
-    public static final String EXTRA_SET_TIME = PACKAGE + "SET_TIME";
+    public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "NOTIF_BUNDLE";
     public static final String EXTRA_REST_TIME = PACKAGE + "REST_TIME";
+    public static final String EXTRA_NO_REST_FLAG = PACKAGE + "REST_FLAG";
     public static final String EXTRA_BREAK_TIME = PACKAGE + "BREAK_TIME";
+    public static final String EXTRA_NO_BREAK_FLAG = PACKAGE + "BREAK_FLAG";
     public static final String EXTRA_NUM_REPS = PACKAGE + "NUM_REPS";
     public static final String EXTRA_NUM_ROUNDS = PACKAGE + "NUM_ROUNDS";
-    public static final String EXTRA_NO_REST_FLAG = PACKAGE + "NO_REST_FLAG";
-    public static final String EXTRA_NO_BREAK_FLAG = PACKAGE + "NO_BREAK_FLAG";
-    public static final String EXTRA_REBUILD_BUNDLE = PACKAGE + "REBUILD";
-    public static final String EXTRA_NOTIF_BUNDLE = PACKAGE + "NOTIF";
-    public static final String EXTRA_SET_NAME = PACKAGE + "NAME";
-    public static final String EXTRA_SET_IMAGE = PACKAGE + "IMAGE";
+    public static final String EXTRA_SET_LIST = PACKAGE + "SET_LIST";
     public static final String EXTRA_IS_TTS_MUTED = PACKAGE + "IS_MUTED";
     //endregion
 
@@ -78,13 +83,7 @@ public class TimerService extends Service {
     // Time Data
     private int mTotalCurTime;
     private int mTimeLeft;
-    private int mTimeElapsed;
-    private int mNextSetTime;
-    private String mSetName;
-    private int mSetImage;
-
-    private String mNextSetName;
-    private int mNextSetImage;
+    private List<Set> mSetList;
 
     private int mRestTime;
     private int mBreakTime;
@@ -129,16 +128,6 @@ public class TimerService extends Service {
                     mMyWorkoutActivityMessenger = msg.replyTo;
                     mIsMessengerBound = true;
                     break;
-                case MSG_NEXT_SET_TIME:
-                    if(msg.arg1 > 0) {
-                        setNextSetTime(msg.arg1);
-                        setNextSetImage(msg.arg2);
-                        setNextSetName(msg.obj.toString());
-                        mMsgSent = true;
-                    }else{
-                        Log.e(DEBUG_TAG, "NEXT SET TIME HAS INVALID ARG");
-                    }
-                    break;
                 case MSG_PAUSE_TIMER:
                     if(mHandler != null){
                         mHandler.removeCallbacks(timer);
@@ -168,17 +157,16 @@ public class TimerService extends Service {
         Log.d(DEBUG_TAG, "TIMER SERVICE ON_START_COMMAND");
 
         if(intent != null){
+            Gson g = new Gson();
+            String json = intent.getStringExtra(EXTRA_SET_LIST);
+            mSetList = (List<Set>) g.fromJson(json, new TypeToken<List<Set>>(){}.getType());
             mNotifBundle = intent.getBundleExtra(EXTRA_NOTIF_BUNDLE);
-            mTotalCurTime = intent.getIntExtra(EXTRA_SET_TIME, -1);
-            mTimeLeft = mTotalCurTime;
             mRestTime = intent.getIntExtra(EXTRA_REST_TIME, -1);
             mBreakTime = intent.getIntExtra(EXTRA_BREAK_TIME, -1);
             mNumReps = intent.getIntExtra(EXTRA_NUM_REPS, -1);
             mNumRounds = intent.getIntExtra(EXTRA_NUM_ROUNDS, -1);
             mNoRestFlag = intent.getBooleanExtra(EXTRA_NO_REST_FLAG, false);
             mNoBreakFlag = intent.getBooleanExtra(EXTRA_NO_BREAK_FLAG, false);
-            mSetName = intent.getStringExtra(EXTRA_SET_NAME);
-            mSetImage = intent.getIntExtra(EXTRA_SET_IMAGE, R.drawable.ic_fitness_black_24dp);
             mIsTTSMuted = intent.getBooleanExtra(EXTRA_IS_TTS_MUTED, false);
         }
         //region NOTIFICATION_BUILDING
@@ -186,17 +174,20 @@ public class TimerService extends Service {
         updateNotification(NOTIF_CURRENT, 0, true);
         //endregion
 
-        sendTTSMessage(R.string.tts_starting, mSetName);
 
         mCurRep = 0;
         mCurRound = 0;
+        mTotalCurTime = mSetList.get(mCurRep).getTime();
+        mTimeLeft = mTotalCurTime;
         mCurrentAction = REP_ACTION;
         if(mIsTTSMuted)
             beginTimer(mTotalCurTime, TTS_NO_DELAY);
-        else
+        else {
+            sendTTSMessage(R.string.tts_starting, mSetList.get(mCurRep).getName());
             beginTimer(mTotalCurTime, TTS_STARTING_DELAY);
+        }
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
 
@@ -241,14 +232,13 @@ public class TimerService extends Service {
     private void beginTimer(int time, int delay){
         mTotalCurTime = time;
         mTimeLeft = time;
-        mTimeElapsed = 0;
 
         if(mCurrentAction == REST_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_NEXT_SET, 0, 0);
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_REST, 0, 0);
             sendMessage(msg);
             updateNotification(NOTIF_REST, 0, false);
         } else if(mCurrentAction == BREAK_ACTION){
-            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_LOAD_FIRST_SET, 0, 0);
+            Message msg = Message.obtain(null, MyWorkoutActivity.MSG_BREAK, 0, 0);
             sendMessage(msg);
             updateNotification(NOTIF_BREAK, 0, false);
         }
@@ -258,27 +248,16 @@ public class TimerService extends Service {
         mHandler.postDelayed(timer, ONE_SEC * delay);
     }
 
-    public void setNextSetTime(int time){
-        mNextSetTime = time;
-    }
-
-    public void setNextSetName(String name){
-        mNextSetName = name;
-    }
-
-    public void setNextSetImage(int id){
-        mNextSetImage = id;
-    }
     //endregion
 
     //region TIMER_LOOP
     private Runnable timer = new Runnable(){
         public void run(){
             mTimeLeft -= ONE_SEC;
-            mTimeElapsed += ONE_SEC;
 
             if(mTimeLeft > 0){ // Still running
 
+                /*
                 if (!mMsgSent && mTimeLeft <= 15000 && mNoRestFlag && mCurrentAction == REP_ACTION) {
                     if (mCurRep != mNumReps - 1 && !mNoBreakFlag) {
                         Message msg = Message.obtain(null, MyWorkoutActivity.MSG_NO_REST_NEXT_SET, 0, 0);
@@ -289,6 +268,7 @@ public class TimerService extends Service {
                     }
                     mMsgSent = true;
                 }
+                */
 
                 if(mTimeLeft == 7000 && mCurrentAction == REST_ACTION){
                     sendTTSMessage(R.string.tts_rest_ending, "");
@@ -324,90 +304,101 @@ public class TimerService extends Service {
 
                 if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound != (mNumRounds - 1)) {  // Round Finished. Break
                     if(mNoBreakFlag){ // No Break
-                        nextRound();
-
-                        sendTTSMessage(R.string.tts_next_round, mSetName);
 
                         vibrate(START_VIB);
 
                         mCurrentAction = REP_ACTION;
+
+                        nextRound();
+
                         if(mIsTTSMuted)
-                            beginTimer(mNextSetTime, TTS_NO_DELAY);
-                        else
-                            beginTimer(mNextSetTime, 1);
+                            beginTimer(mSetList.get(mCurRep).getTime(), TTS_NO_DELAY);
+                        else {
+                            sendTTSMessage(R.string.tts_next_round, mSetList.get(mCurRep).getName());
+                            beginTimer(mSetList.get(mCurRep).getTime(), 1);
+                        }
 
                     } else {    // Yes Break
-                        sendTTSMessage(R.string.tts_round_finished, "");
 
                         vibrate(FINISH_VIB);
 
                         mCurrentAction = BREAK_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mBreakTime, TTS_NO_DELAY);
-                        else
+                        else {
+                            sendTTSMessage(R.string.tts_round_finished, "");
                             beginTimer(mBreakTime, TTS_BREAK_DELAY);
+                        }
                     }
                 } else if(mCurrentAction == REP_ACTION && mCurRep == (mNumReps - 1) && mCurRound == (mNumRounds - 1)){ // Workout Finished. Finished
-                    sendTTSMessage(R.string.tts_finished, "");
-                    Message m = Message.obtain(null, MyWorkoutActivity.MSG_STOP_TIMER);
 
+                    if(!mIsTTSMuted)
+                        sendTTSMessage(R.string.tts_finished, "");
                     vibrate(FINISH_VIB);
 
+                    Message m = Message.obtain(null, MyWorkoutActivity.MSG_STOP_TIMER);
+
+
                     sendMessage(m);
+
                 } else if(mCurrentAction == REP_ACTION && mCurRep < (mNumReps - 1 )){ // Set finished. Rest
                     //Repetition finished. Rest.
 
                     if(mNoRestFlag){ // No Rest
-                        nextRep();
-
-                        sendTTSMessage(R.string.tts_begin, mSetName);
 
                         vibrate(START_VIB);
 
                         mCurrentAction = REP_ACTION;
+
+                        nextRep();
+
                         if(mIsTTSMuted)
-                            beginTimer(mNextSetTime, TTS_NO_DELAY);
-                        else
-                            beginTimer(mNextSetTime, 1);
+                            beginTimer(mSetList.get(mCurRep).getTime(), TTS_NO_DELAY);
+                        else {
+                            sendTTSMessage(R.string.tts_begin, mSetList.get(mCurRep).getName());
+                            beginTimer(mSetList.get(mCurRep).getTime(), 1);
+                        }
                     } else { // Yes Rest
-                        sendTTSMessage(R.string.tts_take_rest, "");
 
                         vibrate(FINISH_VIB);
 
                         mCurrentAction = REST_ACTION;
                         if(mIsTTSMuted)
                             beginTimer(mRestTime, TTS_NO_DELAY);
-                        else
+                        else {
+                            sendTTSMessage(R.string.tts_take_rest, "");
                             beginTimer(mRestTime, TTS_REST_DELAY);
+                        }
                     }
 
                 } else if(mCurrentAction == REST_ACTION){ // Rest finished. Next Rep
                     //Rest finished. Start next rep.
-                    nextRep();
-
-                    sendTTSMessage(R.string.tts_begin, mNextSetName);
-
                     vibrate(START_VIB);
 
                     mCurrentAction = REP_ACTION;
+
+                    nextRep();
                     if(mIsTTSMuted)
-                        beginTimer(mNextSetTime, TTS_NO_DELAY);
-                    else
-                        beginTimer(mNextSetTime, 1);
+                        beginTimer(mSetList.get(mCurRep).getTime(), TTS_NO_DELAY);
+                    else {
+                        sendTTSMessage(R.string.tts_begin, mSetList.get(mCurRep).getName());
+                        beginTimer(mSetList.get(mCurRep).getTime(), 1);
+                    }
 
                 } else if(mCurrentAction == BREAK_ACTION){ // Break Finished. Next Round
                     //Break finished, start next round
-                    nextRound();
-
-                    sendTTSMessage(R.string.tts_next_round, mSetName);
-
                     vibrate(START_VIB);
 
                     mCurrentAction = REP_ACTION;
+
+                    nextRound();
+
                     if(mIsTTSMuted)
-                        beginTimer(mNextSetTime, TTS_NO_DELAY);
-                    else
-                        beginTimer(mNextSetTime, TTS_REST_DELAY);
+                        beginTimer(mSetList.get(mCurRep).getTime(), TTS_NO_DELAY);
+                    else {
+                        sendTTSMessage(R.string.tts_next_round, mSetList.get(mCurRep).getName());
+                        beginTimer(mSetList.get(mCurRep).getTime(), TTS_REST_DELAY);
+                    }
                 } else {
                     Log.e(DEBUG_TAG, "mTimeLeft is negative ?");
                 }
@@ -435,24 +426,21 @@ public class TimerService extends Service {
         }
 
         Intent notifIntent = new Intent(this, MyWorkoutActivity.class);
-        notifIntent.putExtra(EXTRA_REBUILD_BUNDLE, mNotifBundle);
+        notifIntent.putExtra(EXTRA_NOTIF_BUNDLE, mNotifBundle);
         notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notifIntent.putExtra(MyWorkoutActivity.EXTRA_INTENT_TYPE, MyWorkoutActivity.NOTIF_INTENT_TYPE);
         PendingIntent mainPendingIntent = PendingIntent.getActivity(this, NOTIF_ID, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Bitmap b = BitmapFactory.decodeResource(getResources(), mSetImage);
 
         int time = mTotalCurTime;
         String name = "";
         switch (type){
             case NOTIF_CURRENT:
                 time = mTimeLeft;
-                name = mSetName;
+                name = mSetList.get(mCurRep).getName();
                 break;
             case NOTIF_NEXT:
-                mSetName = mNextSetName;
-                mSetImage = mNextSetImage;
-                name = mSetName;
-                time = mNextSetTime;
+                name = mSetList.get(mCurRep).getName();
+                time = mSetList.get(mCurRep).getTime();
                 break;
             case NOTIF_REST:
                 name = "Rest Time";
@@ -505,9 +493,9 @@ public class TimerService extends Service {
     }
 
     private void nextRound(){
-        Message msg_round;
         mCurRep = 0;
         mCurRound++;
+        Message msg_round;
         if(mNoBreakFlag){
             msg_round = Message.obtain(null, MyWorkoutActivity.MSG_NO_BREAK_NEXT_ROUND, mCurRound, 0);
         } else {
@@ -549,28 +537,24 @@ public class TimerService extends Service {
 
     public static Intent getServiceIntent(Context context,
                                           Bundle notif,
-                                          String name,
-                                          int image,
-                                          int setTime,
                                           int restTime,
                                           int breakTime,
                                           int reps,
                                           int rounds,
                                           boolean no_rest,
                                           boolean no_break,
-                                          boolean muted){
+                                          boolean muted,
+                                          String setList){
         Intent intent = new Intent(context, TimerService.class);
         intent.putExtra(EXTRA_NOTIF_BUNDLE, notif);
-        intent.putExtra(EXTRA_SET_TIME, setTime);
-        intent.putExtra(EXTRA_SET_IMAGE, image);
         intent.putExtra(EXTRA_REST_TIME, restTime);
         intent.putExtra(EXTRA_BREAK_TIME, breakTime);
         intent.putExtra(EXTRA_NUM_REPS, reps);
         intent.putExtra(EXTRA_NUM_ROUNDS, rounds);
         intent.putExtra(EXTRA_NO_REST_FLAG, no_rest);
         intent.putExtra(EXTRA_NO_BREAK_FLAG, no_break);
-        intent.putExtra(EXTRA_SET_NAME, name);
         intent.putExtra(EXTRA_IS_TTS_MUTED, muted);
+        intent.putExtra(EXTRA_SET_LIST, setList);
         return intent;
     }
 

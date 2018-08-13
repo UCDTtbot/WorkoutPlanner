@@ -44,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.florent37.viewtooltip.ViewTooltip;
+import com.google.gson.Gson;
 import com.shibedays.workoutplanner.BaseApp;
 import com.shibedays.workoutplanner.ui.adapters.ViewPagerAdapter;
 import com.shibedays.workoutplanner.ui.dialogs.RenameWorkoutDialog;
@@ -90,8 +91,8 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     public static final int MSG_NO_BREAK_NEXT_ROUND = 5;
     public static final int MSG_NEXT_ROUND = 6;
     public static final int MSG_NEXT_REP = 7;
-    public static final int MSG_LOAD_NEXT_SET = 8;
-    public static final int MSG_LOAD_FIRST_SET = 9;
+    public static final int MSG_REST = 8;
+    public static final int MSG_BREAK= 9;
     public static final int MSG_STOP_TIMER = 10;
     //endregion
 
@@ -177,38 +178,15 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                         sendTTSMessage(msg.arg1, (String) msg.obj);
                     }
                     break;
-
-                case MSG_UPDATE_SET_INFO:
+                case MSG_REST:
                     if(mTimerFragment != null){
-                        mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet(), false, false);
-                    } else {
-                        throw new RuntimeException(MyWorkoutActivity.class.getSimpleName() + "mTimerFragment is NULL in MSG_UPDATE_TIME_DISPLAY");
+                        mTimerFragment.updateSetInfo(mTimerFragment.getNextSet(), null, true, false);
                     }
                     break;
-
-                case MSG_LOAD_NEXT_SET:
-                    s = mTimerFragment.getNextSet();
-
-                    mTimerFragment.loadNextSet();
-                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), s, true, false);
-                    m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
-                    sendTimerMessage(m);
-                    break;
-
-                case MSG_LOAD_FIRST_SET:
-                    s = mTimerFragment.getNextSet();
-
-                    mTimerFragment.loadNextSet();
-                    mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), s, false, true);
-                    m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
-                    sendTimerMessage(m);
-                    break;
-
-                case MSG_NO_REST_NEXT_SET:
-                    s = mTimerFragment.getNextSet();
-                    m = Message.obtain(null, TimerService.MSG_NEXT_SET_TIME, s.getTime(), s.getSetImageId(), s.getName());
-                    sendTimerMessage(m);
-                    mTimerFragment.loadNextSet();
+                case MSG_BREAK:
+                    if(mTimerFragment != null){
+                        mTimerFragment.updateSetInfo(mTimerFragment.getNextSet(), null, false, true);
+                    }
                     break;
                 case MSG_NO_BREAK_NEXT_ROUND:
                     int rnd = msg.arg1;
@@ -220,12 +198,14 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
                 case MSG_NEXT_REP:
                     int rep = msg.arg1;
                     mTimerFragment.updateRep(rep);
+                    mTimerFragment.loadNextSet();
                     mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet(), false, false);
                     break;
                 case MSG_NEXT_ROUND:
                     int round = msg.arg1;
                     mTimerFragment.updateRep(0);
                     mTimerFragment.updateRound(round);
+                    mTimerFragment.loadNextSet();
                     mTimerFragment.updateSetInfo(mTimerFragment.getCurSet(), mTimerFragment.getNextSet(), false, false);
 
                 case MSG_UPDATE_TIME_DISPLAY:
@@ -941,21 +921,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         Workout w = mMainVM.getWorkoutData();
 
         final Bundle notifBundle = getNotifBundle(w.getWorkoutID(), w.getWorkoutType());
-        //Context context, Bundle notif, int setTime, int restTime, int breakTime, int reps, int rounds, boolean no_rest, boolean no_break
-        int curTime = mTimerFragment != null ? mTimerFragment.getCurSetTime() : w.getSetList().get(0).getTime();
         final Intent timerIntent = TimerService.getServiceIntent(
                 this,
                 notifBundle,
-                w.getSetList().get(0).getName(),
-                w.getSetList().get(0).getSetImageId(),
-                curTime,
                 w.getTimeBetweenSets(),
                 w.getTimeBetweenRounds(),
                 w.getNumOfSets(),
                 w.getNumOfRounds(),
                 w.getNoRestFlag(),
                 w.getNoBreakFlag(),
-                mIsTTSMuted);
+                mIsTTSMuted,
+                w.getSetListJSON());
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             startForegroundService(timerIntent);
