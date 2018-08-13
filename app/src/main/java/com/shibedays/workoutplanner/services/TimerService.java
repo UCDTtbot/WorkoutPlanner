@@ -523,6 +523,7 @@ public class TimerService extends Service {
     private static int START_VIB = 0;
     private static int FINISH_VIB = 1;
     private void vibrate(int flag){
+        Log.d(DEBUG_TAG, "Vibrating...");
         if(BaseApp.isVibrateEnabled()) {
             if (flag == START_VIB) {
                 mVib.vibrate(mVibPattern, -1);
