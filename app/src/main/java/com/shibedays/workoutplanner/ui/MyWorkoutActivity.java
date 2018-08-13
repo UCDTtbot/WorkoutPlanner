@@ -20,6 +20,7 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -463,8 +464,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mTabLayout = findViewById(R.id.pager_header);
         //endregion
 
-
-
     }
 
     private void setButtonError(){
@@ -558,6 +557,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             unregisterReceiver(mNotifReceiver);
         mIncomingTimerMessenger = null;
         mIncomingTTSMessenger = null;
+        mWorkoutViewModel.getWorkout(mMainVM.getId()).removeObservers(this);
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_DESTROY");
 
     }
@@ -579,6 +579,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == MainActivity.SETTINGS_REQUEST_CODE){
             if(resultCode == RESULT_OK){
+                FragmentTransaction transaction = mFragmentManager.beginTransaction();
+                for(Fragment f : mSetInfoFrags){
+                    transaction.remove(f);
+                }
+                transaction.commitAllowingStateLoss();
                 recreate();
             }
         }
@@ -725,12 +730,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private void setupViewPager(List<Set> s){
         mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
         mViewPagerAdapter = new ViewPagerAdapter(mFragmentManager);
-        mSetInfoFrags = new ArrayList<>();
-        for(int i = 0; i < s.size(); i++){
-            Bundle args = SetInfoFragment.getBundle(s.get(i), i ,mMainVM.getId());
-            SetInfoFragment frag = SetInfoFragment.newInstance(args,null);
-            mViewPagerAdapter.addFragment(frag, "");
-            mSetInfoFrags.add(frag);
+        if(mSetInfoFrags == null){
+            mSetInfoFrags = new ArrayList<>();
+            for(int i = 0; i < s.size(); i++){
+                Bundle args = SetInfoFragment.getBundle(s.get(i), i ,mMainVM.getId());
+                SetInfoFragment frag = (SetInfoFragment) mFragmentManager.findFragmentByTag("tag");
+                if(frag == null) {
+                    frag = SetInfoFragment.newInstance(args, null);
+                }
+                mViewPagerAdapter.addFragment(frag, "");
+                mSetInfoFrags.add(frag);
+            }
+        } else {
+            for(SetInfoFragment f : mSetInfoFrags){
+                mViewPagerAdapter.addFragment(f, "");
+            }
         }
         mViewPager.setAdapter(mViewPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager, true);
