@@ -143,6 +143,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+
+        /*
         Preference donate = findPreference("donate");
         donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -173,6 +175,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
                 return false;            }
         });
+        */
 
         Preference rate = findPreference("rate_me");
         rate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
