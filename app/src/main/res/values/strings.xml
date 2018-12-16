@@ -305,7 +305,7 @@
 
 
     <string name="ad_key">ca-app-pub-1633767409472368~4737915463</string>
-    <string name="banner_key">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_key">ca-app-pub-1633767409472368/2167592441</string>
     <string name="add_a_set">Please add at least one set!</string>
     <!-- Test Key : ca-app-pub-3940256099942544/6300978111
          Real Key : ca-app-pub-1633767409472368/2167592441 -->

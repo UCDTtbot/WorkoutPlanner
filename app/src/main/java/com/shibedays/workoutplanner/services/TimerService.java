@@ -415,7 +415,7 @@ public class TimerService extends Service {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if(notificationManager != null) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                int importance = NotificationManager.IMPORTANCE_HIGH;
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
                 NotificationChannel notificationChannel = new NotificationChannel(NOTIF_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance);
                 notificationManager.createNotificationChannel(notificationChannel);
             }
@@ -457,7 +457,7 @@ public class TimerService extends Service {
                 .setSmallIcon(R.drawable.ic_access_alarm_black_24dp)
                 .setOngoing(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setStyle(new NotificationCompat.InboxStyle()
                         .addLine(BaseApp.formatTime(time) + " left.")
                         .addLine(String.format(Locale.US, "Set: %d  Round: %d", mCurRep + 1, mCurRound + 1)));

@@ -11,8 +11,8 @@ android {
         applicationId "com.shibedays.workoutplanner"
         minSdkVersion 23
         targetSdkVersion 27
-        versionCode 13
-        versionName "b0.9.1"
+        versionCode 18
+        versionName "v1.0.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         javaCompileOptions {
@@ -24,6 +24,7 @@ android {
     }
     lintOptions {
         disable 'GoogleAppIndexingWarning'
+        disable 'RestrictedApi'
         baseline file("lint-baseline.xml")
     }
     buildTypes {

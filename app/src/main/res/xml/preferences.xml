@@ -33,10 +33,6 @@
             android:key="rate_me"
             android:title="Leave a Rating"
             android:summary="Leave a rating or feedback on the app on Google Play!"/>
-        <Preference
-            android:key="donate"
-            android:title="Donate"
-            android:summary="Like the app and want to donate a coffee? Click here!"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="About">

@@ -20,6 +20,7 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -294,15 +295,17 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         if(intent != null){
             int intentType = intent.getIntExtra(EXTRA_INTENT_TYPE, -1);
             mIntentBundle = intent;
+            int id;
             if(intentType == NORMAL_INTENT_TYPE) {
                 // Normal running circumstances
-                int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
                 mMainVM.setId(id);
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
             } else if (intentType == NOTIF_INTENT_TYPE){
-                int id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
+                id = intent.getIntExtra(EXTRA_WORKOUT_ID, -1);
                 mMainVM.setId(id);
                 mType = intent.getIntExtra(EXTRA_WORKOUT_TYPE, 0);
+                openTimerFragment(id);
             } else {
                 throw new RuntimeException(DEBUG_TAG + " EXTRA_INTENT_TYPE was never set");
             }
@@ -461,8 +464,6 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
         mTabLayout = findViewById(R.id.pager_header);
         //endregion
 
-
-
     }
 
     private void setButtonError(){
@@ -556,6 +557,7 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
             unregisterReceiver(mNotifReceiver);
         mIncomingTimerMessenger = null;
         mIncomingTTSMessenger = null;
+        mWorkoutViewModel.getWorkout(mMainVM.getId()).removeObservers(this);
         Log.d(DEBUG_TAG, "MY WORKOUT ACTIVITY ON_DESTROY");
 
     }
@@ -577,6 +579,11 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == MainActivity.SETTINGS_REQUEST_CODE){
             if(resultCode == RESULT_OK){
+                FragmentTransaction transaction = mFragmentManager.beginTransaction();
+                for(Fragment f : mSetInfoFrags){
+                    transaction.remove(f);
+                }
+                transaction.commitAllowingStateLoss();
                 recreate();
             }
         }
@@ -723,12 +730,21 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     private void setupViewPager(List<Set> s){
         mViewPager.setOffscreenPageLimit(s.size() == 0 ? 1 : s.size());
         mViewPagerAdapter = new ViewPagerAdapter(mFragmentManager);
-        mSetInfoFrags = new ArrayList<>();
-        for(int i = 0; i < s.size(); i++){
-            Bundle args = SetInfoFragment.getBundle(s.get(i), i ,mMainVM.getId());
-            SetInfoFragment frag = SetInfoFragment.newInstance(args,null);
-            mViewPagerAdapter.addFragment(frag, "");
-            mSetInfoFrags.add(frag);
+        if(mSetInfoFrags == null){
+            mSetInfoFrags = new ArrayList<>();
+            for(int i = 0; i < s.size(); i++){
+                Bundle args = SetInfoFragment.getBundle(s.get(i), i ,mMainVM.getId());
+                SetInfoFragment frag = (SetInfoFragment) mFragmentManager.findFragmentByTag("tag");
+                if(frag == null) {
+                    frag = SetInfoFragment.newInstance(args, null);
+                }
+                mViewPagerAdapter.addFragment(frag, "");
+                mSetInfoFrags.add(frag);
+            }
+        } else {
+            for(SetInfoFragment f : mSetInfoFrags){
+                mViewPagerAdapter.addFragment(f, "");
+            }
         }
         mViewPager.setAdapter(mViewPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager, true);
@@ -902,19 +918,29 @@ public class MyWorkoutActivity extends AppCompatActivity implements TimerFragmen
     //region TIMER_FUNCTIONS
     // UI Interaction and fragment creation
     public void startTimer(){
-        openTimerFragment(mMainVM.getWorkoutData());
+        openTimerFragment(mMainVM.getId());
     }
 
-    public void openTimerFragment(Workout wrk){
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        Bundle args = TimerFragment.getBundle(wrk.getWorkoutID());
-        mTimerFragment = TimerFragment.newInstance(args);
-        fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-        findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
-        Log.d(DEBUG_TAG, "Timer Fragment Created");
-        bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
+    public void openTimerFragment(int wrkID){
+        if(mFragmentManager.findFragmentById(R.id.fragment_container) != null && mFragmentManager.findFragmentById(R.id.fragment_container) instanceof TimerFragment)
+            mTimerFragment = (TimerFragment) mFragmentManager.findFragmentById(R.id.fragment_container);
+
+        if(mTimerFragment == null) {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            Bundle args = TimerFragment.getBundle(wrkID);
+            mTimerFragment = TimerFragment.newInstance(args);
+            fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+            findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
+            Log.d(DEBUG_TAG, "Timer Fragment Created");
+            bindService(new Intent(this, TimerService.class), mTimerConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, mTimerFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
     }
 
     private void beginTimerService(){
